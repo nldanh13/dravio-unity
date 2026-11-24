@@ -50,6 +50,7 @@ namespace Dravio.Editor
                 }
                 var importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
                 importer.animationType = ModelImporterAnimationType.Generic;
+                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
                 importer.importAnimation = true;
                 importer.SaveAndReimport();
                 importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
@@ -121,7 +122,8 @@ namespace Dravio.Editor
             }
             catch (Exception error)
             {
-                Debug.LogError("Dravio import failed: " + error);
+                Debug.LogError("Dravio import failed: " + error.Message);
+                Debug.LogException(error);
                 return;
             }
             finally
@@ -183,7 +185,12 @@ namespace Dravio.Editor
             var clip = assets.OfType<AnimationClip>().FirstOrDefault(x =>
                 !x.name.StartsWith("__preview__", StringComparison.Ordinal) && x.length > 0);
             if (clip == null) throw new InvalidOperationException("No imported idle clip.");
-            var animator = instance.GetComponent<Animator>() ?? instance.AddComponent<Animator>();
+            // UnityEngine.Object can represent missing components as a managed
+            // reference that compares equal to null. Do not use C# ?? here.
+            if (!instance.TryGetComponent<Animator>(out var animator) || animator == null)
+                animator = instance.AddComponent<Animator>();
+            if (animator == null)
+                throw new InvalidOperationException("Unable to attach Animator to " + instance.name);
             if (animator.avatar == null)
                 animator.avatar = assets.OfType<Avatar>().FirstOrDefault(x => x.isValid);
             if (animator.avatar == null || !animator.avatar.isValid)
