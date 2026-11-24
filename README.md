@@ -59,3 +59,18 @@ If Blender is not in PATH, use its installed executable's full path with PowerSh
 Copy only the FBX into `Assets/Dravio/Art/Models/`. In Unity, select that FBX in the Project panel and choose **Dravio > Preview Selected Emberling FBX**. The tool creates a normalized visual Prefab (2.05 local units height; U1 root scale retained), a box hit target, URP materials, and a separate `EmberlingModelPreview.unity` scene without overwriting U0/U1. Imported Animator root motion is disabled. The existing turntable remains on the root. If preview already exists, open it rather than overwrite; rename/back up before generating another.
 
 Verify model proportions, front/back, feet on ground, colors, shadow, draw calls, drag/arrows/reset, Console. The material conversion handles basic color/texture/smoothness only; normal maps, custom shaders and skinning must be artist-validated. Do not import unlicensed assets into this public repo. Commit accepted FBX, Prefab, preview Scene and meta files; keep local export/cache ignored. Neither Blender export nor Unity compilation of this change has been executed in the authoring environment.
+
+## U1.3a — Living Emberling (rig and Idle)
+
+U1.2 static export and model preview were run on the author's Blender 5.3 and Unity 6000.6.10f1 machine and committed as 9c7830a. This next prototype adds a separate Blender source generator, generic 13-bone quadruped rig (root, pelvis, chest, head, two tail bones, flame, four leg bones, two eye bones), explicit skinning, and a six-second in-place Idle action at 30 fps: subtle breathing, head movement, tail sway, flame pulse and a stylized blink using vertical eye scaling. No walk/eat/sleep animation or gameplay yet. Skin weights are provisional, not a production rig; check transitions, paws, eyes and tail throughout the loop.
+
+From the repository root on the author's machine:
+
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe" --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- art-exports/EmberlingLiving.fbx
+Copy-Item "art-exports\EmberlingLiving.fbx" "Assets\Dravio\Art\Models\"
+```
+
+Select EmberlingLiving.fbx (not the original static FBX) and choose **Dravio > Preview Selected Living Emberling FBX**. The editor configures Generic animation import, looping clip, an Animator Controller, reusable visual prefab and matte URP materials. Creates `EmberlingLivingPreview.unity` from AncientSanctuary, not from or over the accepted static FBX preview. Existing preview scenes are preserved. Press Play; verify at least two full idle loops, camera stability, root position, drag/arrows/R, no red errors, and visually acceptable skinning. Inspect Animator state and FBX Animation/Rig tabs if not moving. The editor import and export of U1.3a are not locally verified by the code author; preserve the old model while evaluating. Save and commit the new FBX, scene, prefab, materials, controller and meta files only after inspection. The .blend is an editable local source output; the generator is versioned.
+
+The procedural rig and matte material are interim art, not the final textured and professionally rigged Emberling. No biology or economy changes.
