@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Animations;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -14,13 +16,20 @@ namespace Dravio.Editor
     {
         const string Root = "Assets/Dravio";
         const string Source = Root + "/Scenes/AncientSanctuary.unity";
-        const string Target = Root + "/Scenes/EmberlingModelPreview.unity";
+        const string StaticTarget = Root + "/Scenes/EmberlingModelPreview.unity";
+        const string LivingTarget = Root + "/Scenes/EmberlingLivingPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
         [MenuItem("Dravio/Preview Selected Emberling FBX")]
-        public static void Preview()
+        public static void Preview() => PreviewInternal(false);
+
+        [MenuItem("Dravio/Preview Selected Living Emberling FBX")]
+        public static void PreviewLiving() => PreviewInternal(true);
+
+        private static void PreviewInternal(bool living)
         {
+            string target = living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(assetPath) ||
@@ -31,13 +40,41 @@ namespace Dravio.Editor
                 EditorUtility.DisplayDialog("Dravio", "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
                 return;
             }
+            if (living)
+            {
+                // Configure only a separately exported living asset, not the accepted static FBX.
+                if (Path.GetFileNameWithoutExtension(assetPath) != "EmberlingLiving")
+                {
+                    EditorUtility.DisplayDialog("Dravio", "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
+                    return;
+                }
+                var importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
+                importer.animationType = ModelImporterAnimationType.Generic;
+                importer.importAnimation = true;
+                importer.SaveAndReimport();
+                importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
+                var clips = importer.defaultClipAnimations;
+                if (clips.Length == 0)
+                {
+                    Debug.LogError("Dravio: FBX has no animation take.");
+                    return;
+                }
+                foreach (var clip in clips)
+                {
+                    clip.loopTime = true;
+                    clip.loopPose = true;
+                }
+                importer.clipAnimations = clips;
+                importer.SaveAndReimport();
+            }
+
             GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(Source) == null)
             {
                 Debug.LogError("Dravio: missing FBX model or Ancient Sanctuary scene.");
                 return;
             }
-            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(Target) != null)
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
             {
                 EditorUtility.DisplayDialog("Dravio", "A model preview already exists. Open it in Project > Assets/Dravio/Scenes. To make a new preview, rename the old scene first.", "OK");
                 return;
@@ -76,8 +113,9 @@ namespace Dravio.Editor
                 var hitbox = wrapper.AddComponent<BoxCollider>();
                 hitbox.center = bounds.center;
                 hitbox.size = Vector3.Max(bounds.size, Vector3.one * .05f);
-                ConvertMaterials(renderers, shader);
-                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + "/EmberlingBabyVisual.prefab");
+                ConvertMaterials(renderers, shader, living);
+                if (living) ConfigureIdle(instance, assetPath);
+                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
                 prefab = PrefabUtility.SaveAsPrefabAsset(wrapper, prefabPath);
                 if (prefab == null) throw new InvalidOperationException("Prefab save failed.");
             }
@@ -93,9 +131,9 @@ namespace Dravio.Editor
 
             // Scene copy first; source remains unchanged even when preview generation fails.
             Scene sourceScene = EditorSceneManager.OpenScene(Source);
-            if (!EditorSceneManager.SaveScene(sourceScene, Target, true))
+            if (!EditorSceneManager.SaveScene(sourceScene, target, true))
             { Debug.LogError("Dravio: could not copy scene."); return; }
-            Scene preview = EditorSceneManager.OpenScene(Target);
+            Scene preview = EditorSceneManager.OpenScene(target);
             var turntable = Object.FindFirstObjectByType<DragonTurntable>();
             if (turntable == null || Camera.main == null)
             { Debug.LogError("Dravio: expected U1 turntable and camera."); return; }
@@ -109,7 +147,7 @@ namespace Dravio.Editor
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
             foreach (var child in oldChildren) Object.DestroyImmediate(child.gameObject);
-            root.name = "Emberling - Imported Baby Normal";
+            root.name = living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
             turntable.SetCamera(Camera.main);
             EditorSceneManager.MarkSceneDirty(preview);
             if (!EditorSceneManager.SaveScene(preview))
@@ -139,7 +177,28 @@ namespace Dravio.Editor
             return result;
         }
 
-        static void ConvertMaterials(Renderer[] renderers, Shader shader)
+        static void ConfigureIdle(GameObject instance, string assetPath)
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+            var clip = assets.OfType<AnimationClip>().FirstOrDefault(x =>
+                !x.name.StartsWith("__preview__", StringComparison.Ordinal) && x.length > 0);
+            if (clip == null) throw new InvalidOperationException("No imported idle clip.");
+            var animator = instance.GetComponent<Animator>() ?? instance.AddComponent<Animator>();
+            if (animator.avatar == null)
+                animator.avatar = assets.OfType<Avatar>().FirstOrDefault(x => x.isValid);
+            if (animator.avatar == null || !animator.avatar.isValid)
+                throw new InvalidOperationException("Generic avatar missing or invalid. Check FBX rig import.");
+            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + "/EmberlingIdle.controller");
+            var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
+            var state = controller.AddMotion(clip);
+            state.name = "Idle";
+            controller.layers[0].stateMachine.defaultState = state;
+            animator.runtimeAnimatorController = controller;
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
+        static void ConvertMaterials(Renderer[] renderers, Shader shader, bool living)
         {
             var converted = new System.Collections.Generic.Dictionary<Material, Material>();
             foreach (Renderer renderer in renderers)
@@ -148,7 +207,7 @@ namespace Dravio.Editor
                 for (int i = 0; i < slots.Length; i++)
                 {
                     Material src = slots[i];
-                    if (src == null || src.shader == shader) continue;
+                    if (src == null || (!living && src.shader == shader)) continue;
                     if (!converted.TryGetValue(src, out var dst))
                     {
                         dst = new Material(shader) { name = src.name + " URP" };
@@ -158,6 +217,14 @@ namespace Dravio.Editor
                         else if (src.HasProperty("_MainTex")) dst.SetTexture("_BaseMap", src.GetTexture("_MainTex"));
                         if (src.HasProperty("_Smoothness")) dst.SetFloat("_Smoothness", src.GetFloat("_Smoothness"));
                         else if (src.HasProperty("_Glossiness")) dst.SetFloat("_Smoothness", src.GetFloat("_Glossiness"));
+                        if (living)
+                        {
+                            // FBX import may not preserve Blender roughness; use deliberate matte defaults.
+                            string name = src.name.ToLowerInvariant();
+                            bool eye = name.Contains("iris") || name.Contains("pupil") || name.Contains("catchlight");
+                            dst.SetFloat("_Smoothness", eye ? .48f : .18f);
+                            dst.SetFloat("_Metallic", 0f);
+                        }
                         AssetDatabase.CreateAsset(dst, AssetDatabase.GenerateUniqueAssetPath(Materials + "/EmberlingMaterial.mat"));
                         converted.Add(src, dst);
                     }
