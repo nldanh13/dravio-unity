@@ -35,7 +35,7 @@ namespace Dravio.Editor
             if (shader == null) { Debug.LogError("Dravio: URP Lit unavailable."); return; }
             Directory.CreateDirectory(Art);
             AssetDatabase.Refresh();
-            // Save the enhanced scene only after generation succeeds; preserve the original.
+            // Create a separate scene file before modifying any object in the original.
             var scene = EditorSceneManager.OpenScene(Source);
             var dragon = Object.FindFirstObjectByType<DragonTurntable>();
             var cam = Camera.main;
@@ -43,6 +43,12 @@ namespace Dravio.Editor
             if (dragon == null || cam == null || envObject == null)
             {
                 Debug.LogError("Dravio: U0 scene structure not found.");
+                return;
+            }
+
+            if (!EditorSceneManager.SaveScene(scene, Target))
+            {
+                Debug.LogError("Dravio: could not create separate U1 scene; U0 is unchanged.");
                 return;
             }
 
@@ -97,7 +103,7 @@ namespace Dravio.Editor
             ground.GetComponent<Renderer>().sharedMaterial = meadow;
             EditorUtility.SetDirty(meadow);
 
-            // Remove sparse U0 decorations in the in-memory copy; original scene stays on disk.
+            // Remove sparse U0 decorations only from the separate U1 scene.
             for (int i=env.childCount-1;i>=0;i--)
             {
                 var child=env.GetChild(i);
@@ -149,14 +155,14 @@ namespace Dravio.Editor
                 var rock=Shape(landscape,"Ancient stepping stone",PrimitiveType.Sphere,new Vector3(.4f*Mathf.Sin(i*.55f),.04f,z),new Vector3(Rand(.9f,1.5f),.13f,Rand(.5f,.8f)),i%2==0?stoneLight:stone);
                 rock.localRotation=Quaternion.Euler(0,Rand(0,180),0);
             }
-            for(int i=0;i<32;i++)
+            for(int i=0;i<25;i++)
             {
                 float x=Rand(-8,8),z=Rand(-3.4f,7.5f);
                 if(Mathf.Abs(x)<2.25f && z<3) continue;
                 if(Mathf.Abs(x)<.95f && z>=2.2f) continue;
                 Shape(landscape,"Moss-covered stone",PrimitiveType.Sphere,new Vector3(x,.13f,z),new Vector3(Rand(.45f,1),.32f,Rand(.42f,.85f)),stoneDark);
                 Shape(landscape,"Moss cap",PrimitiveType.Sphere,new Vector3(x,.28f,z),new Vector3(.6f,.13f,.48f),moss);
-                for(int j=0;j<3;j++)
+                for(int j=0;j<2;j++)
                 {
                     float dx=Rand(-.24f,.24f), dz=Rand(-.24f,.24f);
                     Flower(landscape,new Vector3(x+dx,.36f,z+dz),j==0?flowerPink:j==1?flowerGold:flowerBlue,flowerGold,leaf);
@@ -326,8 +332,8 @@ namespace Dravio.Editor
             Label(title.transform,font,"DRAVIO  /  ORIGIN SANCTUARY",22,new Color(1,.86f,.58f),TextAnchor.MiddleCenter);
             var hint=new GameObject("Rotation hint",typeof(RectTransform),typeof(Image));
             hint.transform.SetParent(go.transform,false);
-            var hr=hint.GetComponent<RectTransform>();hr.anchorMin=new Vector2(.5f,0);hr.anchorMax=new Vector2(.5f,0);hr.pivot=new Vector2(.5f,0);
-            hr.anchoredPosition=new Vector2(0,18);hr.sizeDelta=new Vector2(530,50);
+            var hr=hint.GetComponent<RectTransform>();hr.anchorMin=new Vector2(0,0);hr.anchorMax=new Vector2(1,0);hr.pivot=new Vector2(.5f,0);
+            hr.anchoredPosition=new Vector2(0,18);hr.sizeDelta=new Vector2(-40,50);
             hint.GetComponent<Image>().color=new Color(.24f,.18f,.12f,.88f);
             Label(hint.transform,font,"Emberling  |  Drag to rotate  |  Arrow keys  |  R: reset",19,new Color(1,.93f,.75f),TextAnchor.MiddleCenter);
         }
@@ -336,7 +342,7 @@ namespace Dravio.Editor
         {
             var go=new GameObject("Text",typeof(RectTransform),typeof(Text));go.transform.SetParent(parent,false);
             var rect=go.GetComponent<RectTransform>();rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=Vector2.zero;rect.offsetMax=Vector2.zero;
-            var text=go.GetComponent<Text>();text.font=font;text.text=value;text.fontSize=size;text.color=color;text.alignment=anchor;text.raycastTarget=false;
+            var text=go.GetComponent<Text>();text.font=font;text.text=value;text.fontSize=size;text.resizeTextForBestFit=true;text.resizeTextMinSize=11;text.resizeTextMaxSize=size;text.color=color;text.alignment=anchor;text.raycastTarget=false;
         }
     }
 }
