@@ -45,3 +45,17 @@ U1 changes:
 Test in Game view at 16:9 first, then portrait. Check for clipping, incorrect normals, eye silhouette, lighting, touch, and performance. Confirm mouse drag rotates only the dragon and arrow keys/R still work. Check Console for errors. Save the scene outside Play Mode and commit generated scene, assets, and .meta files. This branch has not been compiled or rendered in Unity by the code author.
 
 This is a second visual blockout, not a completed hand-painted environment or rigged production dragon. No new game mechanics, fake resource counts, or changes to the canonical biology. Art direction remains the author's reference; production assets, rigging/animation, real Fantasy UI and performance optimization remain outstanding.
+
+## U1.2 — Blender to Unity model pipeline
+
+Requires Blender with the FBX exporter (test with Blender 4.x LTS). Install from https://www.blender.org/download/ if not present. Close Play Mode. Run from the repository root with Blender in PATH:
+
+```powershell
+blender --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling.py -- art-exports/EmberlingBaby.fbx
+```
+
+If Blender is not in PATH, use its installed executable's full path with PowerShell's & operator. The script starts from an empty Blender scene; never run it inside an unsaved artist project. It creates `art-exports/EmberlingBaby.blend` (editable source) and `EmberlingBaby.fbx` (static export). The art remains original procedural prototype; fused body, four legs, rounded flame tail, no wings, no horns for Baby. No rig, UV-painted textures, animation, or phenotype mapping yet.
+
+Copy only the FBX into `Assets/Dravio/Art/Models/`. In Unity, select that FBX in the Project panel and choose **Dravio > Preview Selected Emberling FBX**. The tool creates a normalized visual Prefab (2.05 local units height; U1 root scale retained), a box hit target, URP materials, and a separate `EmberlingModelPreview.unity` scene without overwriting U0/U1. Imported Animator root motion is disabled. The existing turntable remains on the root. If preview already exists, open it rather than overwrite; rename/back up before generating another.
+
+Verify model proportions, front/back, feet on ground, colors, shadow, draw calls, drag/arrows/reset, Console. The material conversion handles basic color/texture/smoothness only; normal maps, custom shaders and skinning must be artist-validated. Do not import unlicensed assets into this public repo. Commit accepted FBX, Prefab, preview Scene and meta files; keep local export/cache ignored. Neither Blender export nor Unity compilation of this change has been executed in the authoring environment.
