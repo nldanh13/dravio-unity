@@ -29,3 +29,19 @@ Source biological data is copied from Dravio TypeScript commit b33ec7a3dc98b4a74
 Commit Assets, Packages, ProjectSettings and Unity .meta files. Do not commit Library, Temp, Logs, UserSettings, build outputs or secrets. Check that ProjectSettings/ProjectVersion.txt exists after Unity finishes opening, and commit the actual generated file if missing. The project repository is public: avoid adding paid third-party assets without redistribution rights.
 
 No Unity Editor/build test has been run in the authoring environment. Local compilation and visual acceptance are required.
+
+## U1 visual prototype — Ancient Sanctuary
+
+After U0 has been saved, select **Dravio > Create or Open Ancient Sanctuary**.
+The editor opens/saves a separate `Assets/Dravio/Scenes/AncientSanctuary.unity` before applying changes. It leaves OriginMeadow.unity intact. Subsequent menu use opens the existing U1 scene, preserving local edits. If scene creation fails halfway, inspect Console, keep U0 unchanged and regenerate only the incomplete U1 scene after backing it up.
+
+U1 changes:
+- Fixed orthographic view closer to Emberling, larger textured meadow, forest layers and distance fog.
+- Ruin stone variation, vines, flowers, moss, stepping stones and warm light.
+- Larger wingless Baby Normal with layered eyes, claws and continuous tapered tail mesh.
+- Read-only visual title and rotation instructions, not an economy or care interface.
+- Procedurally generated geometry, materials, and texture assets under `Assets/Dravio/Art/U1`.
+
+Test in Game view at 16:9 first, then portrait. Check for clipping, incorrect normals, eye silhouette, lighting, touch, and performance. Confirm mouse drag rotates only the dragon and arrow keys/R still work. Check Console for errors. Save the scene outside Play Mode and commit generated scene, assets, and .meta files. This branch has not been compiled or rendered in Unity by the code author.
+
+This is a second visual blockout, not a completed hand-painted environment or rigged production dragon. No new game mechanics, fake resource counts, or changes to the canonical biology. Art direction remains the author's reference; production assets, rigging/animation, real Fantasy UI and performance optimization remain outstanding.
