@@ -111,6 +111,26 @@ Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U4.md`.
   - Tên trong `Imported/approved-assets.json` không bao giờ bị ghi đè.
 - **Chạy tại máy:** `scripts/art/character/run_u4_local.ps1` đo rig cũ bằng QA mới, chạy batch v2, rồi ghi báo cáo trước/sau.
 
+### Rig v3 (U1-CHAR.5)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U5.md`. Ngưỡng QA không đổi.
+
+- **Bước chân C1:** pha vung của Walk/Run là spline Hermite.
+  - Bàn chân rời đất và chạm đất với đúng vận tốc của pha trụ. Bản trước dừng hẳn ở hai đầu nên mỗi bước bị giật.
+  - Độ cao dùng `sin²`, nên không bật lên khi nhấc chân và không đập khi chạm đất.
+  - Biên độ chân giữ đúng ±sải/2 như trước. Pha trụ ngắn đi một chút để bù đoạn vượt quá, và `groundSpeed` được tính lại theo đó.
+- **Bàn chân trụ gập theo cẳng chân:** `sleep.footFollow` 0,8 và `burrow.footFollow` 0,5. Trước đây giữ bàn chân phẳng khi cẳng chân gập nên cổ chân bị nén (Sleep/Burrow).
+- **Đuôi khi bơi kiểu paddle:** `swim.tailBase` = tỷ lệ biên độ ở gốc đuôi. Droplet dùng 0,45, nên đuôi uốn tăng dần ra ngọn thay vì bẻ ở hông.
+- **Pivot trên mặt đối xứng:** khi đo được các cặp chân L/R, mặt đối xứng (và pivot) đặt ở trung điểm các cặp chân thay vì tâm hộp bao. Thân hình chữ S hoặc đuôi lệch một bên làm hộp bao lệch tâm. Độ dời ghi ở `rig.json` ▸ `size.midlineShift_m`. Khi file override có landmark tay thì không dời.
+- **Báo cáo:** `build_character_reports.py <work> <out>` ghi:
+  - QA từng model (`qa/<Name>.md`)
+  - `prefab-catalog.md/json`
+  - `animation-report.md` (clip so với sinh học)
+  - `performance-budget.md` (ước tính tĩnh)
+
+  Model `SAMPLE_*` luôn được ghi nhãn SAMPLE. Model thật được ghi "chưa nghiệm thu".
+- **Chạy tại máy:** `scripts/art/character/run_u5_local.ps1`. Script đo rig U4 bằng QA hiện tại, chạy batch v3, ghi báo cáo trước/sau cùng bộ báo cáo trên. Có thể chạy thêm Unity batch mode để import manifest và chạy EditMode test.
+
 ### Dragon Animation Lab
 
 Menu **Dravio ▸ Character ▸ Animation Lab** tạo hoặc mở `Scenes/DragonAnimationLab.unity`: camera, đèn, mặt đất và bậc thang. Scene này không đụng Scene Open Game, HUD, Domain hay Persistence.
@@ -127,7 +147,7 @@ Menu **Dravio ▸ Character ▸ Animation Lab** tạo hoặc mở `Scenes/Dragon
 ## 4. Nhập vào Unity
 
 1. Đưa thư mục `Imported/` vào `Assets/Dravio/Character/Imported/`. Preset import tự áp dụng ở lần import đầu: rồng là Generic, prop không có animation và avatar, normal map, ASTC.
-2. Chạy **Dravio ▸ Character ▸ Import Batch Manifest**, hoặc `-executeMethod Dravio.Character.Editor.LivingAssetBatchImporter.RunDefault`. Với mỗi rồng, menu này:
+2. Chạy **Dravio ▸ Character ▸ Import Batch Manifest**, hoặc ở batch mode `-executeMethod Dravio.Character.Editor.CharacterBatchCli.RunImport` (thoát với mã 1 khi có mục lỗi). Với mỗi rồng, menu này:
    - cắt clip từ take FBX theo frame trong manifest, tương đối với frame đầu của take
    - tạo material URP
    - tạo prefab LODGroup gắn `DragonVisualInstance`
@@ -180,6 +200,8 @@ mgr.Despawn(uid);
   - **`UpdateRatePolicy`:** dragon gần và trong khung hình cập nhật mỗi frame. Dragon xa cập nhật 2 frame một lần, dragon ngoài khung hình 8 frame một lần, và các cá thể lệch pha nhau để không dồn vào cùng một frame. Quá 80 m thì không cập nhật.
   - **LOD:** mọi prefab có LODGroup.
   - **Foot IK:** chỉ chạy khi dragon ở gần, cập nhật mỗi frame và đang đứng trên đất (Idle, Walk, Run, Sleep). Tắt khi Swim, Fly, Burrow và khi Happy nhảy. Chân đang bước (nhấc khỏi độ cao bind) không bị kéo, nên IK không đè animation. Khi một chân phải xuống thấp hơn tầm với, pelvis được hạ xuống, không bao giờ nâng lên. Offset được làm mượt (`smoothTime`).
+
+**Tích hợp với Unified Sanctuary:** xem [SANCTUARY_INTEGRATION.md](SANCTUARY_INTEGRATION.md). `SanctuaryDragonSync` nhận danh sách rồng mỗi frame và tự gọi Spawn / Despawn / SetStage / ApplyState. Phần sổ sách của manager nằm trong `DragonVisualRoster` (pure C#, có test ngoài Unity: `dotnet test "Assets/Dravio/Character/Tests/DotNet~/Dravio.Character.Tests.csproj"`).
 
 ## 6. Stress test
 

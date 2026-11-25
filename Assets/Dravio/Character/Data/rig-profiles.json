@@ -10,10 +10,10 @@
       "tailBones": 3,
       "walk": {"gait": "walk", "frames": 32, "duty": 0.65, "strideLegs": 0.55, "liftLegs": 0.16, "bob": 0.012},
       "run": {"gait": "trot", "frames": 20, "duty": 0.42, "strideLegs": 0.95, "liftLegs": 0.26, "bob": 0.03},
-      "sleep": {"dropLegs": 0.30, "foreReachLegs": 0.22, "hindReachLegs": 0.3, "footFollow": 0.5},
+      "sleep": {"dropLegs": 0.30, "foreReachLegs": 0.22, "hindReachLegs": 0.3, "footFollow": 0.8},
       "eat": {"neckPitch": 0.4, "headPitch": 0.3, "chestPitch": 0.14, "chestDropH": 0.03},
       "happy": {"hopH": 0.05, "tailWag": 0.28},
-      "burrow": {"digReachLegs": 0.35, "digCycles": 2}
+      "burrow": {"digReachLegs": 0.35, "digCycles": 2, "footFollow": 0.5}
     },
     "winged": {
       "inherits": "quadruped",
@@ -46,9 +46,10 @@
       "heightM": 0.90,
       "heightSource": "species-character-spec.json prototypeAsset: EmberlingRefinedGLB.fbx (0.90 m); DragonCarePreview keeps the authored 0.90 m mesh"
     },
-    "droplet": {"swim": {"frames": 48, "style": "paddle", "tailStroke": 0.35, "finFlap": 0.45}},
-    "sprout": {"burrow": {"digReachLegs": 0.32, "digCycles": 2}},
+    "droplet": {"swim": {"frames": 48, "style": "paddle", "tailStroke": 0.35, "tailBase": 0.45, "finFlap": 0.45}},
+    "sprout": {"burrow": {"digReachLegs": 0.32, "digCycles": 2, "footFollow": 0.5}},
     "steamdrake": {},
     "zephyr": {}
-  }
+  },
+  "_changes": {"U1-CHAR.5": "quadruped sleep.footFollow 0.5 -> 0.8 and burrow.footFollow 0.5 (a flat planted paw under a folding shin pinched the ankle); droplet swim.tailBase 0.45 (tail bend grows from the root instead of starting at 60 % at the hip). Timing/amplitude unchanged; thresholds unchanged."}
 }

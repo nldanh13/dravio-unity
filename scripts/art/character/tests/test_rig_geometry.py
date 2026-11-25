@@ -148,6 +148,32 @@ class Gait(unittest.TestCase):
         y1, _ = rg.foot_track(1.0, 0.0, duty, stride, 0.05)
         self.assertAlmostEqual(y0, y1, places=6, msg='cycle closes (loop)')
 
+    def test_swing_is_c1_at_lift_off_and_touch_down(self):
+        """U1-CHAR.5: the foot leaves and meets the ground at the stance velocity and with no vertical jump
+        (the old cosine ease stopped it dead at both ends: a visible snap every step)."""
+        stride, eps = 0.2, 1e-5
+        for duty in (0.42, 0.5, 0.65, 0.7):
+            v_stance = rg.stance_stride(stride, duty) / duty
+            for edge in (duty, 1.0):  # lift-off, touch-down (= start of the next stance)
+                before = (rg.foot_track(edge - eps, 0.0, duty, stride, 0.05)[0] - rg.foot_track(edge - 2 * eps, 0.0, duty, stride, 0.05)[0]) / eps
+                after = (rg.foot_track(edge + 2 * eps, 0.0, duty, stride, 0.05)[0] - rg.foot_track(edge + eps, 0.0, duty, stride, 0.05)[0]) / eps
+                self.assertAlmostEqual(before / v_stance, after / v_stance, places=2, msg=f'duty {duty} edge {edge}')
+                z = rg.foot_track(edge + eps, 0.0, duty, stride, 0.05)[1] if edge == duty else rg.foot_track(edge - eps, 0.0, duty, stride, 0.05)[1]
+                self.assertLess(z, 1e-6, 'no vertical speed at the ends of the swing')
+            ys = [rg.foot_track(t, 0.0, duty, stride, 0.05)[0] for t in np.linspace(duty, 1.0, 401)]
+            ys += [rg.foot_track(t, 0.0, duty, stride, 0.05)[0] for t in np.linspace(0.0, duty, 101)]
+            self.assertAlmostEqual(max(abs(y) for y in ys), 0.5 * stride, places=4,
+                                   msg='leg excursion stays +-stride/2 (same as U1-CHAR.4: deformation unchanged)')
+
+    def test_feet_midline_offset_uses_left_right_pairs(self):
+        feet = {'Fore_L': (-0.167, -0.54, 0.0), 'Fore_R': (0.133, -0.54, 0.0),
+                'Hind_L': (-0.167, 0.15, 0.0), 'Hind_R': (0.133, 0.15, 0.0)}
+        self.assertAlmostEqual(rg.feet_midline_offset(feet, h=0.42), -0.017, places=6)
+        self.assertEqual(rg.feet_midline_offset({}), 0.0)
+        self.assertEqual(rg.feet_midline_offset({'Fore_L': (-0.1, 0, 0)}), 0.0, 'no pair')
+        self.assertEqual(rg.feet_midline_offset({'Fore_L': (0.1, 0, 0), 'Fore_R': (-0.1, 0, 0)}), 0.0, 'swapped sides: not a pair')
+        self.assertEqual(rg.feet_midline_offset({'Fore_L': (-0.2, 0.0, 0), 'Fore_R': (0.1, 0.4, 0)}, h=0.4), 0.0, 'not level front-to-back')
+
     def test_walk_phases_are_four_beat(self):
         ph = rg.foot_phases('walk', ['Fore_L', 'Fore_R', 'Hind_L', 'Hind_R'])
         self.assertEqual(len(set(round(v, 3) for v in ph.values())), 4)

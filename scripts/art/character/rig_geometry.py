@@ -637,19 +637,59 @@ def foot_phases(gait, legs):
     return {k: table[k] for k in legs}
 
 
+def feet_midline_offset(feet, max_dy_rel=0.25, h=None):
+    """X of the body's symmetry plane from paired feet ({"Fore_L": (x, y, z), "Fore_R": ...}): the mean of
+    the L/R midpoints of each pair whose two feet are level front-to-back. 0.0 when no usable pair exists.
+    Used to put the pivot on the symmetry plane instead of the bounding-box centre, which an S-curved or
+    one-sided silhouette (a serpentine body, a tail swept to one side) pushes off the midline."""
+    mids = []
+    for key in sorted(feet):
+        if not key.endswith('_L'):
+            continue
+        other = key[:-2] + '_R'
+        if other not in feet:
+            continue
+        l, r = feet[key], feet[other]
+        if l[0] >= r[0]:  # not a left/right pair (left is -X in Blender)
+            continue
+        if h is not None and abs(l[1] - r[1]) > max_dy_rel * h:
+            continue
+        mids.append(0.5 * (l[0] + r[0]))
+    return float(np.mean(mids)) if mids else 0.0
+
+
+def _swing_peak(duty):
+    """Largest |dy| (in stance-stride units) of the C1 swing below, reached just after lift-off (and, mirrored,
+    just before touch-down): p(s) = 2s^3 - 3s^2 + 1/2 + m(2s^3 - 3s^2 + s), m = (1 - duty) / duty."""
+    m = (1.0 - duty) / duty
+    s = 0.5 * (1.0 - math.sqrt(max(0.0, 1.0 - 4.0 * m / (6.0 * (1.0 + m)))))
+    return max(0.5, 2 * s ** 3 - 3 * s ** 2 + 0.5 + m * (2 * s ** 3 - 3 * s ** 2 + s))
+
+
+def stance_stride(stride, duty):
+    """Distance a planted foot travels during stance so that the whole foot path (stance + swing overshoot) stays
+    within +-stride/2, the same leg excursion as the U1-CHAR.4 track (deformation limits depend on it)."""
+    return stride * 0.5 / _swing_peak(duty)
+
+
 def foot_track(t, phase, duty, stride, lift):
     """In-place foot path for normalised cycle time t. Stance: foot moves backward (+Y) at constant speed
-    = stride / (duty * T) while on the ground, i.e. the body travels forward (-Y) without sliding.
-    Swing: foot returns forward along a raised arc. Returns (dy, dz) relative to the neutral foot position."""
+    = stance_stride / (duty * T) while on the ground, i.e. the body travels forward (-Y) without sliding.
+    Swing: cubic Hermite back to the front whose end tangents equal the stance speed, so the foot leaves and
+    meets the ground at the stance velocity (C1 at lift-off and touch-down; U1-CHAR.4's cosine ease stopped it
+    dead at both ends: a snap every step). The short swing overshoot past the stance ends is paid for by a
+    shorter stance (stance_stride), so the extreme foot positions stay at +-stride/2 exactly. Height: sin^2
+    (no vertical jump at lift-off, no slam at touch-down). Returns (dy, dz) relative to the neutral foot position."""
     u = (t - phase) % 1.0
+    S = stance_stride(stride, duty)
     if u < duty:
         s = u / duty
-        return (-0.5 + s) * stride, 0.0
+        return (-0.5 + s) * S, 0.0
     s = (u - duty) / (1.0 - duty)
-    # smooth swing (cosine ease) so velocity is continuous at lift-off and touch-down
-    e = 0.5 - 0.5 * math.cos(math.pi * s)
-    dy = (0.5 - e) * stride
-    return dy, lift * math.sin(math.pi * s)
+    m = (1.0 - duty) / duty  # stance speed in stance-stride units per swing-normalised time
+    s2, s3 = s * s, s * s * s
+    dy = (2 * s3 - 3 * s2 + 0.5 + m * (2 * s3 - 3 * s2 + s)) * S
+    return dy, lift * math.sin(math.pi * s) ** 2
 
 
 def chain_weights(points, joints, names, parent=None, power=6.0, parent_blend=0.3, parent_max=0.5):

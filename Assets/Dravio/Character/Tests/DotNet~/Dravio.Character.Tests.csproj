@@ -1,0 +1,27 @@
+<!--
+  Test logic thuần của runtime Character ngoài Unity (Unity bỏ qua thư mục kết thúc bằng "~").
+  Chỉ biên dịch các file không dùng API engine lúc chạy (catalog, animation map, pool, roster, đồng bộ Sanctuary)
+  cùng stub tối thiểu của UnityEngine (Stubs/). Các MonoBehaviour (Manager, Instance, Foot IK, Lab) cần Unity Test Runner.
+    dotnet test "Assets/Dravio/Character/Tests/DotNet~/Dravio.Character.Tests.csproj"
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Runtime/DragonAnimationMap.cs;../../Runtime/DragonVisualCatalog.cs;../../Runtime/DragonVisualTypes.cs;../../Runtime/KeyedPool.cs;../../Runtime/UpdateRatePolicy.cs;../../Runtime/PhenotypeProfile.cs;../../Runtime/DragonVisualRoster.cs;../../Runtime/Integration/*.cs" />
+    <Compile Include="../LivingDragonRuntimeTests.cs;../SanctuaryIntegrationTests.cs" />
+    <Compile Include="Stubs/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+</Project>
