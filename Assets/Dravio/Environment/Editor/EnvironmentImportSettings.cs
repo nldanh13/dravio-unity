@@ -13,7 +13,7 @@ namespace Dravio.EnvironmentArt.EditorTools
         public const string ModelsFolder = "Assets/Dravio/Environment/Models/";
         public const string TexturesFolder = "Assets/Dravio/Environment/Textures/";
 
-        public override uint GetVersion() => 3;
+        public override uint GetVersion() => 4;
 
         void OnPreprocessModel()
         {
@@ -53,7 +53,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             bool foliage = file.Contains("Foliage");
             bool tiling = file.Contains("Ground") || file.Contains("Water");
             int max = 512;
-            if (file.Contains("PropsAtlas")) max = 1024;
+            if (file.Contains("PropsAtlas") || foliage) max = 1024;
             else if (file.Contains("Water")) max = 256;
 
             ti.textureType = TextureImporterType.Default;
