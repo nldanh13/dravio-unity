@@ -61,6 +61,13 @@ namespace Dravio
             safeRoot.offsetMin=Vector2.zero;safeRoot.offsetMax=Vector2.zero;
             // Landscape: right rail. Portrait: lower drawer; scroll long content.
             bool portrait=safe.width<safe.height;
+            var scaler=GetComponent<CanvasScaler>();
+            if(scaler!=null)
+            {
+                scaler.referenceResolution=portrait?new Vector2(420,800):new Vector2(1280,720);
+                scaler.screenMatchMode=portrait?CanvasScaler.ScreenMatchMode.MatchWidthOrHeight:CanvasScaler.ScreenMatchMode.Expand;
+                scaler.matchWidthOrHeight=0;
+            }
             panel.anchorMin=portrait?new Vector2(0,0):new Vector2(1,0);
             panel.anchorMax=portrait?new Vector2(1,.48f):new Vector2(1,1);
             panel.offsetMin=portrait?new Vector2(12,12):new Vector2(-326,12);
