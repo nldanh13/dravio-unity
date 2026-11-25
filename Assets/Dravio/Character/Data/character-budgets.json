@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "note": "Shared by scripts/art/character (Python) and Assets/Dravio/Character/Editor (Unity). Landscape mobile target. Triangle counts are per character, all LOD meshes of that level summed. screenRelativeTransitionHeight is Unity LOD semantics: below it the next LOD is used; below the last one the character is culled.",
+  "lods": [
+    { "level": 0, "minTriangles": 15000, "maxTriangles": 25000, "targetTriangles": 24000, "screenRelativeTransitionHeight": 0.45, "maxP95DeviationRel": 0.004, "maxDeformedP95DeviationRel": 0.006 },
+    { "level": 1, "minTriangles": 8000,  "maxTriangles": 12000, "targetTriangles": 10000, "screenRelativeTransitionHeight": 0.20, "maxP95DeviationRel": 0.010, "maxDeformedP95DeviationRel": 0.014 },
+    { "level": 2, "minTriangles": 3000,  "maxTriangles": 5000,  "targetTriangles": 4000,  "screenRelativeTransitionHeight": 0.02, "maxP95DeviationRel": 0.025, "maxDeformedP95DeviationRel": 0.030 }
+  ],
+  "skin": { "maxInfluences": 4, "maxBones": 75 },
+  "materials": { "maxSlotsPerLodWarn": 2, "maxSlotsPerLodError": 4 },
+  "textures": { "maxSize": 2048, "recommendedSize": 1024, "requirePowerOfTwo": true },
+  "uv": { "maxFlippedFacePct": 1.0, "maxZeroAreaFacePct": 0.5, "maxOutsideUnitPct": 0.0 },
+  "bake": { "maxP95ColorErrorSrgb8": 4.0, "minWithin2Pct": 90.0 }
+}
