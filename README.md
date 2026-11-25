@@ -74,3 +74,172 @@ Copy-Item "art-exports\EmberlingLiving.fbx" "Assets\Dravio\Art\Models\"
 Select EmberlingLiving.fbx (not the original static FBX) and choose **Dravio > Preview Selected Living Emberling FBX**. The editor configures Generic animation import, looping clip, an Animator Controller, reusable visual prefab and matte URP materials. Creates `EmberlingLivingPreview.unity` from AncientSanctuary, not from or over the accepted static FBX preview. Existing preview scenes are preserved. Press Play; verify at least two full idle loops, camera stability, root position, drag/arrows/R, no red errors, and visually acceptable skinning. Inspect Animator state and FBX Animation/Rig tabs if not moving. The editor import and export of U1.3a are not locally verified by the code author; preserve the old model while evaluating. Save and commit the new FBX, scene, prefab, materials, controller and meta files only after inspection. The .blend is an editable local source output; the generator is versioned.
 
 The procedural rig and matte material are interim art, not the final textured and professionally rigged Emberling. No biology or economy changes.
+
+## U1.3b — Wander preview
+
+Based on the locally verified U1.3a idle scene commit 311fd63. The accepted Idle FBX and scenes are preserved. This visual prototype uses a separate EmberlingWander FBX with one baked take containing Idle (frames 1–181) and Walk (182–217), split by the Unity editor. A provisional four-beat in-place gait uses the existing single-bone legs; it is not a production IK gait. The Animator switches between Idle and Walk, and a visual-only controller follows four bounded waypoints around the original spawn, pausing approximately two seconds at each. Space toggles inspection: movement stops, drag/arrows/R rotate the dragon, Space resumes. World camera stays fixed. No collision avoidance, full habitat navigation, sleep/eat/pet, game economy or persistence changes. Facing offset is an Inspector setting (default 180 degrees; adjust to 0 if the imported model walks backwards). Verify leg deformation, foot sliding, direction, pause/resume, transitions and Console in Unity before accepting.
+
+From the new repository root in PowerShell:
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe" --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- art-exports/EmberlingWander.fbx --walk-preview
+Copy-Item "art-exports\EmberlingWander.fbx" "Assets\Dravio\Art\Models\"
+```
+
+Select EmberlingWander.fbx and use **Dravio > Preview Selected Wandering Emberling FBX**. It creates a separate EmberlingWanderPreview.unity scene, prefab and two-state controller. Open existing preview instead of overwriting. Save and commit new assets only after local acceptance. Neither the new Blender export nor the Unity compilation/playback was executed in the authoring environment.
+
+## U1.3c — Care & interaction preview
+
+Based on U1.3b source (832748a), which has not yet been locally tested. Latest locally accepted baseline is U1.3a (311fd63). This branch is independently reviewable, keeps all prior scene/FBX assets, and does not touch the Environment or Domain workstreams. No real food inventory, bond, health, gold, offline simulation or persistence changes.
+
+Generate the cumulative model directly; there is no need to export Wander separately first:
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1
+```
+
+Or use the explicit Blender command with `art-exports/EmberlingCare.fbx --care-preview`, then copy the FBX to Assets/Dravio/Art/Models. The guarded PowerShell script never overwrites an existing Assets FBX. Select EmberlingCare.fbx, choose **Dravio > Preview Selected Care Emberling FBX**. This makes a separate EmberlingCarePreview scene, controller, prefab and interactive HUD. Existing preview scenes are not overwritten.
+
+Baked clip contract at 30 fps (one FBX take; importer offsets relative to its first frame):
+- Idle 1–181 (6s, loop)
+- Walk 182–217 (1.167s, loop)
+- Eat 218–278 (2s, one shot; head dip/bob, no jaw articulation or actual food consumption)
+- Doze 279–399 (4s, loop; eyes closed and head lowered while standing, not a full lying-down sleep pose)
+- Happy 400–445 (1.5s, one shot; head and tail response)
+
+Auto wandering/rest is the default. F or Feed plays Eat, P or Pet plays Happy, N or Doze/wake toggles dozing, Space or Inspect toggles manual rotation; Resume exploring restores autonomy. Actions are interruptible and one-shot actions return to Idle automatically. Inspection uses existing drag/arrows/R, camera does not orbit. Buttons use UGUI and the Input System UI module. Visual-only states must not be treated as real gameplay commands.
+
+Deferred acceptance checklist (run when Unity is available):
+1. Export completes, FBX imported with exactly five intended named clips; Generic avatar valid.
+2. Scene and Prefab/Animator assets generated without overwriting U1.3a. No red Console errors.
+3. Watch two Idle and Walk loops, check orientation, feet sliding, leg deformation and bounded motion.
+4. Exercise each button and keyboard shortcut, rapid interrupts and resume; test touch separately.
+5. Verify one-shot completion, doze remains until interrupted, inspect drag does not compete with autonomous movement, camera remains fixed.
+6. Check HUD at 16:9 and portrait, colors, frame rate, no action state alters actual game data. Save/commit generated assets only after inspection.
+
+No Blender, Unity, input or visual test was executed on U1.3b/U1.3c by the code author. Skinning/gait and dozing are provisional; production IK, full lying-down posture, jaw animation, texture painting and mobile optimization remain future work. Keep PRs as drafts until accepted.
+
+## U1.4 — Character visual polish preview
+
+Cumulative branch from U1.3c (b481fc4). U1.3b/c and U1.4 are not yet tested in the user's Unity editor; the locally verified baseline is U1.3a (311fd63). No edits to Domain, Environment, shared URP pipeline assets or ProjectSettings.
+
+The optional Polished export includes all five prior clips plus an approximate cylindrical body UV, slightly recessed eyes and a tapered rounded flame shape. Unity generates a 512×512 mipmapped procedural scale/paint texture with a continuous cream belly gradient, matte skin and emissive flame materials. The projection may stretch at paws, tail and head: this is not a professional unwrap, normal map or hand-painted texture. The .blend has the UVs, while the paint texture is generated in Unity.
+
+The new scene adds a small world-space tail-following particle system (maximum 24 particles), a point light with subtle flicker, local Bloom/color-adjustment profile and SMAA on the fixed camera. Bloom and extra light rendering depend on the selected URP pipeline capabilities. No SSAO/renderer feature change, no global graphics setting changes, no measured frame-rate or mobile acceptance. The polish-specific material overrides and VFX are on the generated scene instance, not yet a standalone finished character prefab.
+
+When Unity is available, use the latest branch directly:
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-visual-polish --track origin/feat/u1-visual-polish
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Polished
+```
+
+Select EmberlingPolished.fbx in Unity and choose **Dravio > Preview Selected Polished Emberling FBX**. A separate EmberlingPolishedPreview scene is created, with the care preview buttons and all five clips. Existing accepted scenes and FBX are preserved. The helper also supports -Mode Wander and -Mode Care; it never overwrites existing FBX files under Assets.
+
+Deferred checks: verify exporter output, first UV channel, five imported animation clips, body material, eye silhouette, seams/stretching, flame emission and spark shader compilation, sparks tracking while walking/rotating, fixed camera, HUD and all care interactions; compare with/without local post-processing. Test PC and mobile quality separately, and profile before claiming performance. If generation fails midway, inspect the Console and rename/back up the incomplete preview scene before retrying. Commit accepted generated assets and their meta files only after review.
+
+Reference API documentation: Unity URP camera data and post-processing (https://docs.unity.com/en-us/engine/6000.0/manual/cameras/urp/universal-additional-camera-data); Blender 5.3 MeshUVLoopLayer (https://docs.blender.org/api/5.3/bpy.types.MeshUVLoopLayer.html). No Blender or Unity runtime verification in the authoring environment.
+
+## U1.5 — Fantasy UI preview
+
+Cumulative from U1.4 commit a7f34a0. The latest locally verified milestone is U1.3a (311fd63); U1.3b through U1.5 require local Unity acceptance. No edits to the separate Environment or Core Domain workstreams.
+
+When Unity is available:
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-fantasy-ui --track origin/feat/u1-fantasy-ui
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Polished
+```
+In Unity choose **Dravio > Create or Open Fantasy Preview**. The menu finds EmberlingPolished.fbx automatically, creates EmberlingFantasyPreview.unity separately from previous scenes, or opens the existing scene without rebuilding it. If the FBX already exists under Assets, the exporter preserves it; review any regenerated local file before replacing it. No new FBX mode is needed.
+
+- Dark wood, gold, parchment palette; header and collapsible drawer; scrollable Care, Biology and Dragons tabs.
+- Vietnamese default and live English switch, including the current visual activity. Language selection is session-only. Built-in font used provisionally; Vietnamese diacritics and mobile font coverage must be visually verified.
+- Landscape-only mobile orientation (left and right); right-hand rail on desktop and mobile, safe-area anchoring, height-based compact scaling, two-column touch actions, hide/show controls and UI raycast guard for turntable. Portrait mobile rotation is disabled in PlayerSettings and at runtime.
+- Care buttons and existing F/P/N/Space shortcuts retain the same preview actions. R/drag/arrows work during inspection. Roster has exactly the one present preview dragon and an inspect action.
+- Biology fields are extracted at scene generation from the canonical `Assets/Dravio/Data/species-biology.json` Emberling entry, not invented values. Display reference fields only; no gold, health, food quantity, growth progress, comfort, genetics, passport, or inventory fabricated. Rebuild a new preview after backing up an old one if the canonical file changes.
+
+Deferred acceptance: verify compilation, FBX and five clips, menu creation/reopen, care actions, language/diacritics, scroll and tab navigation, roster inspect, hide/show, both landscape orientations (16:9, 19.5:9, 20:9), safe areas, touch scroll and drag not rotating the dragon through UI, camera framing and performance. This is a functional UI prototype, not production-quality art or a domain-connected UI. No Unity/Blender execution by the code author. Keep prior previews and draft PRs until validated.
+
+## U1.6 — Refined character and asset audit
+
+Cumulative from the landscape-only U1.5 commit 75c8482. The latest locally accepted baseline remains U1.3a; U1.3b through U1.6 have not been run in the user's Unity Editor. Environment and Core Domain workstreams are unchanged. No portrait mobile layout.
+
+The opt-in Refined export extends the 13-bone rig to 17 bones (four lower leg joints), assigns paw/claw details to the lower joints, uses two-joint FK walk poses and a lowered, folded-leg doze pose. The five clip names and ranges are unchanged. The doze pose is an approximate crouched rest, not a validated full lying-down sleep animation. The projected sagittal angles were numerically checked in an idealized two-segment model; this does not establish ground contact or correct mesh deformation in Blender/Unity. No IK, jaw articulation, new audio, or gameplay effects yet.
+
+Generate and check the cumulative model:
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-character-qa --track origin/feat/u1-character-qa
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Refined
+```
+The exporter validates vertex weights (finite, normalized, at most four influences) and writes `art-exports/EmberlingRefined.qa.json` after successful FBX creation, reporting bone names, mesh/vertex/triangle counts, clip ranges and file size. The PowerShell helper preserves any existing Assets FBX.
+
+In Unity, choose **Dravio > Create or Open Refined Preview**. This configures the imported Generic rig and splits the five clips, then runs a structural audit before creating the separate EmberlingRefinedPreview scene, prefab and controller. The audit checks valid Generic Avatar, required bone names, named clip durations and loop flags, UV0 and skinned renderer references, and reports vertex/triangle counts and provisional budget warnings. The read-only **Dravio > Validate Refined Emberling FBX** menu repeats the audit after import configuration. A PASS is not a runtime or visual acceptance result. Existing preview scenes are preserved; if incomplete, back up/rename before retrying.
+
+Deferred acceptance: verify Blender export and audit, Unity compile/import and structural audit, two walk cycles from side/front/rear, paw/claw attachment, foot sliding/penetration, sleep leg folding and ground contact, all five clips and interruptions, camera/HUD touch and language in landscape on actual devices, and VFX/performance. No Blender or Unity executable was available to the code author. Do not merge or claim final art until the checks pass.
+
+## U2 integration preview — Sanctuary + character + domain
+
+Technical merge PR #12 merged **only** into feat/u2-integration-preview, preserving original branches. The integration starts from Environment #10 and Core Domain #11 already merged into feat/u1-living-dragon (7538754), with U1.6 (a10ca5f) merged on top (29fb96b). No main merge. Domain and Environment source workstreams are not edited; the adapter and scene wiring are separate.
+
+### Generate the unified scene
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u2-integration-preview --track origin/feat/u2-integration-preview
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Refined
+```
+
+Open Unity and choose **Dravio > Create or Open Integrated Sanctuary**. If necessary the menu builds the environment materials, prefabs and standalone environment scene first, then copies that scene and adds Refined Emberling at the clearing marker, fantasy HUD, VFX and session adapter. The output is `Assets/Dravio/Scenes/OriginIntegratedPreview.unity`. Existing standalone scenes are preserved. An existing integrated scene opens without rebuilding; if generation failed, back up/rename the incomplete scene before retrying. No extra environment FBX export required because PR #10 committed the generated assets.
+
+### Scope
+
+- One real in-memory GameState created using InitialStateFactory (150 G, Emberling, canonical founder state). Gold, lifecycle stage, XP and bond in the HUD come from Core Domain. The visual model stays the Baby mesh even if the numeric stage changes; adult/juvenile models are not implemented.
+- Foreground session clock uses FixedClock, accumulates unscaled visible time and dispatches AdvanceTime approximately once a second. Focus loss, app pause and gaps over 5 s are not accrued; this is deliberately not the final online/offline policy. No persistence, autosave or offline grant. State resets when Play stops.
+- Feed dispatches canonical FeedCommand and places a single fruit marker in the authored clearing. The one-fruit restriction belongs to this preview UI, not the domain rule. The dragon approaches it and tries ConsumeFoodCommand within .55 world units; eating animation only plays on FoodConsumed. The domain owns TTL, cooldown, XP and bond. Pet uses PetCommand and only plays Happy on DragonPetted. Errors display in the HUD. Sleep and inspection remain cosmetic. No navigation mesh, collision avoidance or cross-habitat travel.
+- Landscape-only PlayerSettings retained; the original environment camera's portrait-fit component is disabled in the integrated copy. No camera orbit. Actual framing, touch UI and shader behavior require testing.
+- No changes to U2.2 persistence work, achievements, tutorial, genetics, economy constants or canonical data. Domain still lacks the first-adult achievement reward and tutorial logic noted in U2.1.
+
+### Deferred acceptance
+1. Compile all Unity scripts/shaders and run Domain EditMode tests; independently run the .NET test project and environment tests.
+2. Generate Refined FBX, pass structural audit, build environment, and create the integrated scene. Inspect Console, camera and all assets.
+3. In fresh Play confirm 150 G at initialization, XP and gold advance with visible time. Feed spawns a fruit; approach and consume once, observe canonical XP/bond; confirm expiry and cooldown rejection. Pet twice rapidly: one accepted animation, one rejection. Check focus loss and resume without hidden-time accrual; stop and restart Play to confirm intentionally volatile state.
+4. Check camera framing, movement inside clearing, no UI drag-through, language, landscape safe areas, shaders and performance on desktop and mobile.
+5. Do not accept or merge to main until runtime tests pass. No independent Unity/Blender execution in this integration authoring environment; the previous PR test reports are not a substitute for integration testing.
+
+## Source GLB character pipeline
+
+Optional, backward-compatible source mode on top of the unified preview. Provide a static unrigged dragon-only GLB with all parts in rest pose, no props/floor, no existing skeleton or shape keys. For a textured source, include UVs and glTF PBR materials. The importer does not remesh, decimate, sculpt over, reproject UVs or replace source materials. It joins mesh objects after baking their node transforms, rotates around Blender +Z by `--yaw-offset` (degrees), centers the X/Y bounding box, grounds the lowest vertex at Z=0 and scales overall height to .90 m. The front must face Blender -Y after yaw; 0 assumes already aligned. The exporter cannot infer the intended front or ground-contact anatomy from arbitrary geometry.
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u2-glb-character --track origin/feat/u2-glb-character
+$blender = "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe"
+& $blender --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- art-exports/EmberlingRefinedGLB.fbx --source-glb art-exports/EmberlingRaw.glb --yaw-offset 0
+if ($LASTEXITCODE -ne 0) { throw "Blender export failed" }
+Copy-Item "art-exports\EmberlingRefinedGLB.fbx" "Assets\Dravio\Art\Models\"
+```
+
+If the GLB faces +Y, use `--yaw-offset 180`; if it faces +X use -90; if it faces -X use 90 (directions in Blender after import). Add `--winged` when the input actually has two wings. The default Emberling remains canonically wingless: Wing_L/R are exported as unweighted placeholders unless `--winged` is set. Existing eye animation channels are retained, but textured eyes in a fused mesh do not physically blink without an appropriate eyelid rig. Wing animation clips are not added.
+
+GLB mode activates the complete 445-frame Refined animation take automatically, without any --refined-preview flag. It fits 22 bones (the original 17 plus Spine, Neck, Wing_L, Wing_R, TailVFX_Anchor) using normalized bounds and vertex samples of low paw regions and the posterior tail region. Bone-heat binding uses ARMATURE_AUTO; the strongest four weights are normalized, and unweighted vertices cause a hard failure. This is an approximate anatomical fit, not reliable automatic rigging for every topology, and not IK or shape-aware retargeting. The same five clips and frame boundaries (Idle, Walk, Eat, Doze, Happy) are maintained. Bone positions, especially tail and wings, require visual QA.
+
+FBX flags: axis_forward=-Z, axis_up=Y, add_leaf_bones=False, use_armature_deform_only=True, path_mode=COPY, embed_textures=True. All output modes use these flags. The source Blender material nodes and packed images are retained in EmberlingRefinedGLB.blend. FBX embedding retains maps that the exporter supports; FBX cannot represent every glTF PBR semantic, packed channel, UV transform, material extension or transparency behavior. The exporter also writes `EmberlingRefinedGLB_PBR/` containing original image bytes and `material-map.json` (glTF materials/textures/samplers). Keep this folder as recovery/reference; glTF metallicRoughnessTexture G is roughness, B is metallic, whereas Unity smoothness is 1 minus roughness. The sidecar is not automatically converted into URP materials. Inspect imported Base Color, normal map import settings, metallic/smoothness and transparency, extract/remap textures if necessary. Do not overwrite source material assets with the procedural paint.
+
+Unity: choose **Dravio > Create or Open Integrated GLB Sanctuary**. It uses the new FBX, retains .90 m model height, the original landscape HUD and domain preview, and preferentially follows TailVFX_Anchor. It creates `Assets/Dravio/Scenes/OriginIntegratedGLBPreview.unity` separately from previous scenes, and a separate prefab/controller. The GLB path imports material descriptions and preserves existing URP/Lit assignments; conversion of non-URP materials copies known texture slots and values only (manual PBR remap may be necessary). The procedural skin/flame material replacement is skipped. Use **Dravio > Validate Refined GLB FBX** after configuration to check the extra bones and existing clips. The original procedural menu and modes are still available.
+
+Artifacts: FBX, editable packed .blend, structural .qa.json and original PBR sidecar. Source GLB itself is never modified. New generated assets should be committed only after local inspection. Actual GLB asset was not supplied; no Blender/Unity execution or FBX round-trip was performed by the code author.
+
+## U1-CHAR — Character asset pipeline
+
+Branch `feat/u1-character-assets` (from `feat/u2-glb-character`). Tools in `scripts/art/character/` (Blender 5.x + pure Python) and `Assets/Dravio/Character/` (Unity Editor menus under **Dravio > Character**, shared budgets, 16-species modelling spec). Process, budgets and naming: `Assets/Dravio/Character/README.md`.
+
+- Inspect UV / vertex colour / Base Color / Normal / Roughness / Metallic, bake vertex colour to a texture, create missing UVs, build LOD0/1/2 on one shared armature, validate mesh/texture/LOD against `Assets/Dravio/Character/Data/character-budgets.json`.
+- Source GLB fix: `emberling_glb_source.py` now imports with glTF `merge_vertices`, because textured GLBs are split at every UV seam and the bone-heat bind otherwise fails with unweighted vertices.
+- Verified only on procedural `TEST_*` models generated by `make_test_assets.py` with Blender 5.3 (`bpy`). No real Dravio GLB has been optimised, and the Unity scripts have not been compiled in Unity.
