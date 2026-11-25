@@ -25,7 +25,7 @@ namespace Dravio
         private GameState state;
         [SerializeField] private DravioSessionHost host;
         [SerializeField] private SanctuaryLocationData locations;
-        [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus;
+        [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus, guideNotice;
         private GameSession Session=>host!=null?host.Session:null;
         private bool persistentMode=>host!=null;
         public string HabitatId=>state?.FindDragon(uid)?.Location?.HabitatId ?? "origin_meadow";
@@ -46,8 +46,8 @@ namespace Dravio
         public void Configure(Text goldLabel,Text progressLabel,Text noticeLabel,GameObject fruitVisual)
         {gold=goldLabel;progress=progressLabel;notice=noticeLabel;fruit=fruitVisual;}
 
-        public void ConfigurePersistent(DravioSessionHost sessionHost,SanctuaryLocationData locationData,Text saved,Text tutorial,Text roster)
-        {host=sessionHost;locations=locationData;saveStatus=saved;tutorialStatus=tutorial;rosterStatus=roster;}
+        public void ConfigurePersistent(DravioSessionHost sessionHost,SanctuaryLocationData locationData,Text saved,Text tutorial,Text roster,Text guideFeedback)
+        {host=sessionHost;locations=locationData;saveStatus=saved;tutorialStatus=tutorial;rosterStatus=roster;guideNotice=guideFeedback;}
 
         private void Awake()
         {
@@ -205,14 +205,24 @@ namespace Dravio
             return false;
         }
 
-        public void ViewBiology(){Send(id=>new ViewBiologyProfileCommand(id,"emberling"));}
-        public void SurveyRocks(){Send(id=>new SurveyHabitatCommand(id,"origin_warm_rocks"));}
-        public void UnlockRocks(){Send(id=>new UnlockHabitatCommand(id,"origin_warm_rocks"));}
-        public void SurveyPond(){Send(id=>new SurveyHabitatCommand(id,"origin_pondbank"));}
-        public void UnlockPond(){Send(id=>new UnlockHabitatCommand(id,"origin_pondbank"));}
-        public void BuyStarter(){Send(id=>new BuyTutorialPackCommand(id));}
-        public void ClaimMeadow(){Send(id=>new ClaimPackCommand(id,MoveTarget.Zone("origin","origin_meadow")));}
-        public void ClaimStorage(){Send(id=>new ClaimPackCommand(id,MoveTarget.Storage));}
+        private void GuideCommand(Func<string,GameCommand> build,string en,string vn)
+        {
+            var events=Send(build);
+            if(events!=null)
+            {
+                var reward=events.OfType<AchievementUnlocked>().Sum(e=>e.RewardGoldMicro);
+                string bonus=reward>0?" (+"+GoldText(reward)+" G)":"";
+                SetMessage(en+bonus,vn+bonus);
+            }
+        }
+        public void ViewBiology(){GuideCommand(id=>new ViewBiologyProfileCommand(id,"emberling"),"Profile recorded.","Đã ghi nhận hồ sơ.");}
+        public void SurveyRocks(){GuideCommand(id=>new SurveyHabitatCommand(id,"origin_warm_rocks"),"Survey complete.","Đã khảo sát bãi đá ấm.");}
+        public void UnlockRocks(){GuideCommand(id=>new UnlockHabitatCommand(id,"origin_warm_rocks"),"Habitat unlocked.","Đã mở khóa bãi đá ấm.");}
+        public void SurveyPond(){GuideCommand(id=>new SurveyHabitatCommand(id,"origin_pondbank"),"Survey complete.","Đã khảo sát bờ hồ.");}
+        public void UnlockPond(){GuideCommand(id=>new UnlockHabitatCommand(id,"origin_pondbank"),"Habitat unlocked.","Đã mở khóa bờ hồ.");}
+        public void BuyStarter(){GuideCommand(id=>new BuyTutorialPackCommand(id),"Starter purchased.","Đã mua Starter.");}
+        public void ClaimMeadow(){GuideCommand(id=>new ClaimPackCommand(id,MoveTarget.Zone("origin","origin_meadow")),"Egg claimed to meadow.","Đã nhận rồng vào đồng cỏ.");}
+        public void ClaimStorage(){GuideCommand(id=>new ClaimPackCommand(id,MoveTarget.Storage),"Egg claimed to storage.","Đã nhận rồng vào kho.");}
         public void SaveGame(){if(Session!=null && Session.Status==SessionStatus.Ready)Session.SaveNow();}
 
         public bool RequestFood()
@@ -272,10 +282,11 @@ namespace Dravio
             }
         }
 
-        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;}
+        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;if(guideNotice!=null)guideNotice.text=vi?vn:en;}
         private void Refresh()
         {
             if(notice!=null)notice.text=vi?messageVi:messageEn;
+            if(guideNotice!=null)guideNotice.text=vi?messageVi:messageEn;
             if(saveStatus!=null && Session!=null)
             {
                 saveStatus.text=Session.Status!=SessionStatus.Ready?(vi?"Phiên: ":"Session: ")+Session.Status:
@@ -288,7 +299,17 @@ namespace Dravio
             if(tutorialStatus!=null)
             {
                 string step=Tutorial.CurrentStep(state.Tutorial);
-                tutorialStatus.text=(vi?"Hướng dẫn ":"Tutorial ")+state.Tutorial.Completed.Count+"/8 · "+(step??state.Tutorial.Status.ToString())+
+                string instruction=step switch {
+                    "TUT_01"=>vi?"Quan sát 15 giây":"Observe for 15 seconds",
+                    "TUT_02"=>vi?"Cho Emberling ăn":"Feed Emberling",
+                    "TUT_03"=>vi?"Ghi nhận hồ sơ sinh học":"Record biology profile",
+                    "TUT_04"=>vi?"Khảo sát và mở bãi đá ấm":"Survey and unlock warm rocks",
+                    "TUT_05"=>vi?"Mua và nhận Starter":"Buy and claim Starter",
+                    "TUT_06"=>vi?"Khảo sát và mở bờ hồ":"Survey and unlock pondbank",
+                    "TUT_07"=>vi?"Nuôi rồng trưởng thành":"Raise an adult",
+                    "TUT_08"=>vi?"Mở đủ sinh cảnh Origin":"Unlock all Origin habitats",
+                    _=>state.Tutorial.Status.ToString()};
+                tutorialStatus.text=(vi?"Hướng dẫn ":"Tutorial ")+state.Tutorial.Completed.Count+"/8 · "+instruction+
                     (state.PendingPack!=null?(vi?" · Có trứng chờ nhận":" · Egg pending"):"");
             }
             if(rosterStatus!=null)rosterStatus.text=string.Join("\n",state.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.SpeciesId+" · "+(d.Location.Kind==LocationKind.Storage?(vi?"Kho":"Storage"):d.Location.HabitatId)+" · "+Lifecycle.StageOf(d)));
