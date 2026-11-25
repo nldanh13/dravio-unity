@@ -20,6 +20,7 @@ namespace Dravio.Editor
         const string LivingTarget = Root + "/Scenes/EmberlingLivingPreview.unity";
         const string WanderTarget = Root + "/Scenes/EmberlingWanderPreview.unity";
         const string CareTarget = Root + "/Scenes/EmberlingCarePreview.unity";
+        const string PolishTarget = Root + "/Scenes/EmberlingPolishedPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
@@ -35,9 +36,12 @@ namespace Dravio.Editor
         [MenuItem("Dravio/Preview Selected Care Emberling FBX")]
         public static void PreviewCare() => PreviewInternal(true, true, true);
 
-        private static void PreviewInternal(bool living, bool wander = false, bool care = false)
+        [MenuItem("Dravio/Preview Selected Polished Emberling FBX")]
+        public static void PreviewPolished() => PreviewInternal(true, true, true, true);
+
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false)
         {
-            string target = care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
+            string target = polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(assetPath) ||
@@ -51,9 +55,9 @@ namespace Dravio.Editor
             if (living)
             {
                 // Configure only a separately exported living asset, not the accepted static FBX.
-                if (Path.GetFileNameWithoutExtension(assetPath) != (care ? "EmberlingCare" : wander ? "EmberlingWander" : "EmberlingLiving"))
+                if (Path.GetFileNameWithoutExtension(assetPath) != (polish ? "EmberlingPolished" : care ? "EmberlingCare" : wander ? "EmberlingWander" : "EmberlingLiving"))
                 {
-                    EditorUtility.DisplayDialog("Dravio", care ? "Select EmberlingCare.fbx." : wander ? "Select EmberlingWander.fbx." : "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
+                    EditorUtility.DisplayDialog("Dravio", polish ? "Select EmberlingPolished.fbx." : care ? "Select EmberlingCare.fbx." : wander ? "Select EmberlingWander.fbx." : "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
                     return;
                 }
                 var importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
@@ -147,8 +151,8 @@ namespace Dravio.Editor
                 hitbox.center = bounds.center;
                 hitbox.size = Vector3.Max(bounds.size, Vector3.one * .05f);
                 ConvertMaterials(renderers, shader, living);
-                if (living) ConfigureIdle(instance, assetPath, wander, care);
-                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (care ? "/EmberlingCareVisual.prefab" : wander ? "/EmberlingWanderVisual.prefab" : living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
+                if (living) ConfigureIdle(instance, assetPath, wander, care, polish);
+                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (polish ? "/EmberlingPolishedVisual.prefab" : care ? "/EmberlingCareVisual.prefab" : wander ? "/EmberlingWanderVisual.prefab" : living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
                 prefab = PrefabUtility.SaveAsPrefabAsset(wrapper, prefabPath);
                 if (prefab == null) throw new InvalidOperationException("Prefab save failed.");
             }
@@ -181,12 +185,22 @@ namespace Dravio.Editor
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
             foreach (var child in oldChildren) Object.DestroyImmediate(child.gameObject);
-            root.name = care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
+            root.name = polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
             turntable.SetCamera(Camera.main);
             if (care)
             {
                 var animator = visual.GetComponentInChildren<Animator>(true);
                 CarePreviewHud.Build(root.gameObject, animator, turntable);
+                if (polish)
+                {
+                    try { EmberlingPolishBuilder.Apply(root.gameObject, visual, Camera.main); }
+                    catch (Exception error)
+                    {
+                        Debug.LogError("Dravio: polish generation incomplete. Source scene is intact. Rename the incomplete preview before retrying.");
+                        Debug.LogException(error);
+                        return;
+                    }
+                }
             }
             else if (wander)
             {
@@ -233,7 +247,7 @@ namespace Dravio.Editor
             };
         }
 
-        static void ConfigureIdle(GameObject instance, string assetPath, bool wander, bool care)
+        static void ConfigureIdle(GameObject instance, string assetPath, bool wander, bool care, bool polish)
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
             var clip = assets.OfType<AnimationClip>().FirstOrDefault(x =>
@@ -252,7 +266,7 @@ namespace Dravio.Editor
                 animator.avatar = assets.OfType<Avatar>().FirstOrDefault(x => x.isValid);
             if (animator.avatar == null || !animator.avatar.isValid)
                 throw new InvalidOperationException("Generic avatar missing or invalid. Check FBX rig import.");
-            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (care ? "/EmberlingCare.controller" : wander ? "/EmberlingWander.controller" : "/EmberlingIdle.controller"));
+            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (polish ? "/EmberlingPolished.controller" : care ? "/EmberlingCare.controller" : wander ? "/EmberlingWander.controller" : "/EmberlingIdle.controller"));
             var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
             var state = controller.AddMotion(clip);
             state.name = "Idle";
