@@ -86,14 +86,15 @@ namespace Dravio.Editor
             var info=Page(host,"Biology");
             var roster=Page(host,"Dragons");
 
-            Label(ui,care,"Origin Sanctuary","Thánh địa Khởi Nguyên",17,Gold,TextAnchor.MiddleLeft,35);
+            var row1=ActionRow(care);
+            var feed=Button(ui,row1,"Feed","Cho ăn",56);
+            var pet=Button(ui,row1,"Pet","Vuốt ve",56);
+            var row2=ActionRow(care);
+            var sleep=Button(ui,row2,"Doze / wake","Ngủ / thức",56);
+            var inspect=Button(ui,row2,"Inspect","Quan sát",56);
+            var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",52);
+            Label(ui,care,"Drag to rotate in inspection. F / P / N / Space / R on keyboard.","Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,52);
             Label(ui,care,"Visual actions only. No food or bond changes yet.","Chỉ thử hoạt ảnh. Chưa trừ thức ăn hay thay đổi gắn kết.",14,Muted,TextAnchor.MiddleLeft,54);
-            var feed=Button(ui,care,"Feed • F","Cho ăn • F",46);
-            var pet=Button(ui,care,"Pet • P","Vuốt ve • P",46);
-            var sleep=Button(ui,care,"Doze / wake • N","Ngủ gật / thức • N",46);
-            var inspect=Button(ui,care,"Inspect / resume • Space","Quan sát / tiếp tục • Space",46);
-            var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",46);
-            Label(ui,care,"Inspect: drag the dragon or use arrow keys. R resets rotation.","Quan sát: kéo rồng hoặc dùng phím mũi tên. R đặt lại góc.",14,Muted,TextAnchor.MiddleLeft,60);
 
             Label(ui,info,"Species reference","Hồ sơ loài",18,Gold,TextAnchor.MiddleLeft,36);
             Fact(ui,info,"Group","Nhóm",biology.group,biology.group);
@@ -119,6 +120,16 @@ namespace Dravio.Editor
             UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.Inspect);
             runtime.Configure(safe,panel,new[]{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject},
                 tabs,lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
+        }
+
+        static RectTransform ActionRow(Transform parent)
+        {
+            var row=RectNode("Touch actions",parent);
+            var layout=row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing=8;layout.childControlWidth=true;layout.childControlHeight=true;
+            layout.childForceExpandWidth=true;layout.childForceExpandHeight=true;
+            row.gameObject.AddComponent<LayoutElement>().preferredHeight=56;
+            return row;
         }
 
         static void EnsureEventSystem()
