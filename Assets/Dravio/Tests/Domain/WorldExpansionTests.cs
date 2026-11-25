@@ -39,7 +39,7 @@ namespace Dravio.Domain.Tests
             return s;
         }
 
-        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return c; }
+        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return Dravio.Domain.Tests.Support.Fixtures.Normalize(c); }
         private static DragonState A(string uid, string species, Action<DragonState> extra = null) => Adult(uid, species, extra);
 
         // ---------------- thế giới & sinh cảnh ----------------

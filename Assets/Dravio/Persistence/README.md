@@ -21,9 +21,9 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 `DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
 
-## 2. Save Schema v7 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới)
+## 2. Save Schema v8 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới + sức khỏe / thiên tai)
 
-Envelope có các trường `{ format: "dravio-save", schemaVersion: 7, contentVersion, savedAtMs, revision, checksum, state }`.
+Envelope có các trường `{ format: "dravio-save", schemaVersion: 8, contentVersion, savedAtMs, revision, checksum, state }`.
 
 **U2.5 — Schema v5 chỉ có ở bản Unity.** TS b33ec7a dừng ở v4. Bản Unity thêm đúng một khóa `breedingNest`: `null`, hoặc `BreedingEgg` theo GDD Phụ lục C.2 (`id, parentIds, speciesId, genotype, mutation, createdAtMs, finishAtMs, durationMs, tapReducedMs, lastTapAtMs, status`).
 - **Migration 4 → 5**: thêm `breedingNest = null`. Rồng nào mang `activity = "breeding"` mà không có tổ (state v4 không thể tạo ra trứng) được trả về `idle`. Ngoài ra không đổi vàng, rồng, gene, phả hệ hay thành tựu.
@@ -58,7 +58,12 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 7, contentV
 - **Validator v7**: tuyến phải có trong catalog; `finishAtMs = startedAtMs + thời lượng`; thưởng tổng 2–4 và đúng vật liệu; rồng đang đi phải có `activity = expedition`; không rồng "expedition" nào thiếu chuyến. Sửa tay để rút ngắn chuyến hoặc tăng thưởng đều bị từ chối khi nạp. Nhiệm vụ/thưởng phải là ID catalog, không trùng; thưởng chỉ hợp lệ khi vùng của nó đã mở; hàng chờ chỉ chứa thưởng đã trao, không trùng, và không trùng trứng đang chờ nhận. Migration v6 → v7 đặt cả ba mảng là rỗng.
 - **Ảnh chiếu v4 cho TS**: bỏ `expedition` khi slot trống; thế giới đã mở và vật liệu vẫn hợp lệ với TS.
 - **Lưu ngay** sau `startExpedition` (seed + thưởng đã chốt) và `claimExpedition`.
-- Migration: 1 → 2 → 4 → 5 → 6 → 7. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
+**U2.6 — Schema v8** thêm `vitals` cho từng rồng (`{ health, energy, comfort, mobility, hydration }`, số nguyên 0–100), `healthCases` (mảng ca: `caseId, dragonId, eventId?, cause, site, severity, symptoms, assessed, carePlanId?, createdAtMs, startedAtMs, durationMs, finishAtMs, nextReviewAtMs, phase, progress, reviewed, status`), `disasters` (mảng sự kiện mở: `id, hazard, zoneId, severity, phase, createdAtMs, forecastProgressMs, struckAtMs, caseIds, sheltered[{ uid, habitatId, producing, auto }]`) và `hazard` (`{ foregroundMs, checksDone, cooldownUntilMs: { zoneId: ms } }`). Xem ADR 0202.
+- **Migration 7 → 8**: thêm `healthCases = []`, `disasters = []`, `hazard = { 0, 0, {} }` và `vitals` 100 cho mọi rồng (kể cả rồng đã thả). Không đổi trường nào khác, kể cả rồng ở `shelter` / `care` từ save cũ (ADR 0202 D8). Bản gốc nằm trong `archive:schema-7`.
+- **Validator v8**: xem Domain README mục 5e. Sửa tay chỉ số, rút ngắn chăm sóc, đặt kế hoạch khi chưa nhận định, trỏ ca sang rồng khác hay trú ẩn rồng không tồn tại đều bị từ chối (`invalid-state`).
+- **Ảnh chiếu v4 cho TS**: bỏ `vitals`, `healthCases`, `disasters`, `hazard`. Chỉ chiếu được khi không có ca mở hay sự kiện mở; save có ca chỉ xuất `.unity.json` (TS từ chối `newer-version`).
+- **Lưu ngay** sau `moveToShelter`, `assessCase`, `setCarePlan`, `startCare`, `reviewCase`, `dischargeDragon`, và sau tick có `hazardForecast`, `disasterStruck`, `healthCaseOpened`, `dragonSheltered`, `disasterClosed`, `careCompleted` (tắt app ngay sau đó không làm mất hay tạo lại ca).
+- Migration: 1 → 2 → 4 → 5 → 6 → 7 → 8. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
 
 ## 3. Lưu nguyên tử, backup, phục hồi
 

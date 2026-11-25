@@ -289,6 +289,62 @@ namespace Dravio.Domain.Core
     }
 
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
+    // ---- U2.6: chăm sóc / cứu hộ / trú ẩn (implementation mới, GDD Phụ lục C.3 "Care / rescue" và "moveToShelter") ----
+
+    /// <summary>Đưa rồng vào nơi trú của zone trong lúc có cảnh báo thiên tai.</summary>
+    public sealed class MoveToShelterCommand : GameCommand
+    {
+        public MoveToShelterCommand(string requestId, string dragonUid) : base(requestId) { DragonUid = dragonUid; }
+        public string DragonUid { get; }
+        public override string Type => "moveToShelter";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    public abstract class CaseCommand : GameCommand
+    {
+        protected CaseCommand(string requestId, string caseId) : base(requestId) { CaseId = caseId; }
+        public string CaseId { get; }
+        internal override bool IsWellFormed() => IsId(CaseId);
+    }
+
+    /// <summary>Nhận định: hiện triệu chứng giả tưởng. Bắt buộc trước setCarePlan / startCare.</summary>
+    public sealed class AssessCaseCommand : CaseCommand
+    {
+        public AssessCaseCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "assessCase";
+    }
+
+    public sealed class SetCarePlanCommand : CaseCommand
+    {
+        public SetCarePlanCommand(string requestId, string caseId, string planId) : base(requestId, caseId) { PlanId = planId; }
+        public string PlanId { get; }
+        public override string Type => "setCarePlan";
+        internal override bool IsWellFormed() => IsId(CaseId) && IsId(PlanId);
+    }
+
+    public sealed class StartCareCommand : CaseCommand
+    {
+        public StartCareCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "startCare";
+    }
+
+    /// <summary>Lượng giá sau khi đủ thời lượng; điều kiện để xuất viện.</summary>
+    public sealed class ReviewCaseCommand : CaseCommand
+    {
+        public ReviewCaseCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "reviewCase";
+    }
+
+    /// <summary>Xuất viện về kho an toàn hoặc microhabitat hợp lệ còn chỗ.</summary>
+    public sealed class DischargeDragonCommand : CaseCommand
+    {
+        public DischargeDragonCommand(string requestId, string caseId, MoveTarget target) : base(requestId, caseId) { Target = target; }
+        public MoveTarget Target { get; }
+        public override string Type => "dischargeDragon";
+        internal override bool IsWellFormed() =>
+            IsId(CaseId) && Target != null && (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
+    }
+
     public sealed class DispatchResult
     {
         private DispatchResult(bool ok, GameState state, IReadOnlyList<DomainEvent> events, bool duplicate, DomainError error)

@@ -148,13 +148,16 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
-        public void Expedition_health_thresholds_are_reported_as_unsupported_not_faked()
+        public void Expedition_health_thresholds_are_checked_since_U2_6()
         {
-            Assert.That(Expedition.Expeditions.UncheckedHealthConditions, Is.EqualTo(new[] { "health>=80", "mobility>=80", "comfort>=60", "no-open-care-case" }));
+            // U2.8 báo bốn điều kiện là "chưa kiểm được"; U2.6 kiểm thật nên danh sách rỗng và rồng thiếu chỉ số bị chặn.
+            Assert.That(Expedition.Expeditions.UncheckedHealthConditions, Is.Empty);
             var (s0, _) = Game();
-            GameState s = s0.DeepClone(); s.Dragons.Add(Adult("x", "emberling"));
+            GameState s = s0.DeepClone(); s.Dragons.Add(Adult("x", "emberling")); s.Dragons.Add(Adult("weak", "emberling", d => d.Vitals.Mobility = 79));
             ExpeditionCandidate c = Ecosystem.ExpeditionOptions(s).First().Candidates.Single(x => x.DragonUid == "x");
-            Assert.That((c.Blocked, c.UncheckedConditions.Count), Is.EqualTo(((DomainErrorCode?)null, 4)));
+            Assert.That((c.Blocked, c.UncheckedConditions.Count), Is.EqualTo(((DomainErrorCode?)null, 0)));
+            ExpeditionCandidate w = Ecosystem.ExpeditionOptions(s).First().Candidates.Single(x => x.DragonUid == "weak");
+            Assert.That((w.Blocked, w.Detail), Is.EqualTo(((DomainErrorCode?)DomainErrorCode.VitalsBelowThreshold, "mobility>=80")));
         }
     }
 }

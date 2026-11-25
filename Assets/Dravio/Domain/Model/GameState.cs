@@ -237,6 +237,12 @@ namespace Dravio.Domain
         public List<QueuedEgg> RewardQueue { get; set; } = new List<QueuedEgg>();
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
+        /// <summary>(healthCases) Ca chăm sóc đang mở (queued / active). Schema v8.</summary>
+        public List<HealthCase> HealthCases { get; set; } = new List<HealthCase>();
+        /// <summary>(disasters) Sự kiện thiên tai chưa đóng, tối đa một mỗi thế giới. Schema v8.</summary>
+        public List<DisasterState> Disasters { get; set; } = new List<DisasterState>();
+        /// <summary>(hazard) Đồng hồ kiểm hazard + cooldown theo thế giới. Schema v8.</summary>
+        public HazardState Hazard { get; set; } = new HazardState();
 
         /// <summary>Bản sao sâu. Dispatch làm việc trên bản sao để lệnh bị từ chối không đổi state gốc.</summary>
         public GameState DeepClone()
@@ -260,6 +266,9 @@ namespace Dravio.Domain
             if (Codex != null) { c.Codex = new List<CodexEntry>(Codex.Count); foreach (var e in Codex) c.Codex.Add(e?.Clone()); }
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);
+            if (HealthCases != null) { c.HealthCases = new List<HealthCase>(HealthCases.Count); foreach (var h in HealthCases) c.HealthCases.Add(h?.Clone()); }
+            if (Disasters != null) { c.Disasters = new List<DisasterState>(Disasters.Count); foreach (var x in Disasters) c.Disasters.Add(x?.Clone()); }
+            c.Hazard = Hazard?.Clone();
             return c;
         }
 
@@ -267,6 +276,28 @@ namespace Dravio.Domain
         {
             if (Dragons == null) return null;
             foreach (var d in Dragons) if (d != null && d.Uid == uid) return d;
+            return null;
+        }
+
+        public HealthCase FindCase(string caseId)
+        {
+            if (HealthCases == null) return null;
+            foreach (var c in HealthCases) if (c != null && c.CaseId == caseId) return c;
+            return null;
+        }
+
+        /// <summary>Ca đang mở của một rồng (tối đa một).</summary>
+        public HealthCase OpenCaseOf(string uid)
+        {
+            if (HealthCases == null) return null;
+            foreach (var c in HealthCases) if (c != null && c.DragonId == uid && c.Status != CaseStatus.Closed) return c;
+            return null;
+        }
+
+        public DisasterState OpenDisasterIn(string zoneId)
+        {
+            if (Disasters == null) return null;
+            foreach (var d in Disasters) if (d != null && d.ZoneId == zoneId && d.Phase != DisasterPhase.Closed) return d;
             return null;
         }
 

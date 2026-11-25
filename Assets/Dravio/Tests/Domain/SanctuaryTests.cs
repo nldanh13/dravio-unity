@@ -32,7 +32,7 @@ namespace Dravio.Domain.Tests
             return (s, clock);
         }
 
-        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return c; }
+        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return Dravio.Domain.Tests.Support.Fixtures.Normalize(c); }
         private static void As(DragonState d, string species) { d.SpeciesId = species; d.XpSec = SpeciesCatalog.Get(species).GrowthTimeSec; }
         private static long Gold(GameState s) => s.Player.Gold.Micro;
         private static long Earned(GameState a, GameState b) => b.Player.TotalGoldEarned.Micro - a.Player.TotalGoldEarned.Micro;
