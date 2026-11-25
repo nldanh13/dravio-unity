@@ -126,6 +126,7 @@ Nội dung bộ test:
   - kill-test `SIGKILL` 40 vòng trên tiến trình thật.
 - **Đồng hồ và phiên:** đồng hồ lùi giữa hai phiên, nhảy giờ tới rồi lùi, offline 24 h qua nhiều lần khởi động, crash trước khi lưu quyết toán offline, Hide/Show dồn dập, chuỗi vòng đời ngẫu nhiên (5 seed × 300 bước, kiểm vàng ≤ tốc độ × thời gian thực), phiên thứ hai chỉ đọc, xung đột ghi, save bản mới hơn, bắt đầu lại.
 - **Tương thích chéo:** 18 save do C# ghi được `parseSaveText` của TS đọc với state trùng (`CrossRuntimeExportTests` + `Tools~/verify-csharp-saves.test.ts`).
+- **U2.4 (`ProgressSaveTests`):** `tutorial` / `pendingPack` / thành tựu qua vòng lưu–nạp Schema v4 không đổi một byte canonical; `GameSession` lưu ngay sau `buyTutorialPack` và `claimPack` (không đợi autosave 30 s; lệnh bị từ chối không ghi); 3 lần khởi động lại không cấp lại thưởng và không mua được gói lần hai; save v2 thật sau migration không được cấp gì, lần dispatch đầu ghi nhận `TUT_01`, `TUT_02` và `ACH_FIRST_ADULT` (+100 G) đúng một lần, giống TS. 3 save C# giữa/sau hướng dẫn được xuất cho TS đọc (tổng cộng hơn 20 save chéo).
 
 Chưa chạy:
 - Unity Editor 6000.6.10f1: chưa biên dịch thật, chưa chạy Test Runner. `DravioSessionHost` chỉ được biên dịch với UnityEngine giả.

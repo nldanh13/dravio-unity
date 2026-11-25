@@ -78,6 +78,10 @@ namespace Dravio.Domain.Tests
             }
         }
 
+        /// <summary>Tập event golden U2.3 ghi lại (thành tựu/hướng dẫn được so đầy đủ ở golden U2.4).</summary>
+        private static readonly HashSet<string> WorldEvents = new HashSet<string> { "timeAdvanced", "stageChanged", "offlineReceiptCreated", "foodSpawned", "foodExpired", "foodConsumed", "bondChanged", "dragonPetted", "dragonRenamed",
+            "dragonMoved", "productionChanged", "habitatUnlocked", "discoveryRecorded", "habitatSurveyed", "biologyProfileViewed" };
+
         private static IEnumerable<TestCaseData> Scenarios()
         {
             foreach (var sc in A(GoldenFile.World["scenarios"]).Select(O))
@@ -108,6 +112,7 @@ namespace Dravio.Domain.Tests
             var clock = new FixedClock(0);
             var steps = A(sc["steps"]);
             int probes = 0;
+            long rewards = 0;
             for (int i = 0; i < steps.Count; i++)
             {
                 var st = O(steps[i]);
@@ -118,10 +123,11 @@ namespace Dravio.Domain.Tests
                 Assert.That(r.Duplicate, Is.EqualTo((bool)st["duplicate"]), at + " duplicate");
                 if (!r.Ok) Assert.That(r.Error.WireCode, Is.EqualTo(st["errorCode"]), at + " error code");
                 Assert.That(ReferenceEquals(r.State, state), Is.EqualTo((bool)st["sameStateObject"]), at + " same object");
-                Assert.That(MiniJson.Diff(st["events"], r.Events.Select(e => (object)StateJson.Event(e)).ToList()), Is.Null, at + " events");
+                rewards += r.Events.OfType<AchievementUnlocked>().Sum(e => e.RewardGoldMicro);
+                Assert.That(MiniJson.Diff(st["events"], r.Events.Where(e => WorldEvents.Contains(e.Type)).Select(e => (object)StateJson.Event(e)).ToList()), Is.Null, at + " events");
                 if (st["state"] != null)
                 {
-                    Assert.That(MiniJson.Diff(st["state"], StateJson.ToGoldenSubset(r.State, fullIds: false, keepProfiles: true)), Is.Null, at + " state");
+                    Assert.That(MiniJson.Diff(st["state"], StateJson.ToGoldenSubset(r.State, fullIds: false, keepProfiles: true, rewardsMicro: rewards)), Is.Null, at + " state");
                     Assert.That(GameStateValidator.Validate(r.State).IsValid, Is.True, at + " invalid: " + GameStateValidator.Validate(r.State));
                 }
                 if (st.TryGetValue("probe", out object pv))
@@ -139,7 +145,7 @@ namespace Dravio.Domain.Tests
                 }
                 state = r.State;
             }
-            Assert.That(MiniJson.Diff(sc["final"], StateJson.ToGoldenSubset(state, fullIds: true, keepProfiles: true)), Is.Null, name + " final");
+            Assert.That(MiniJson.Diff(sc["final"], StateJson.ToGoldenSubset(state, fullIds: true, keepProfiles: true, rewardsMicro: rewards)), Is.Null, name + " final");
             Assert.That(probes, Is.GreaterThan(5));
         }
     }

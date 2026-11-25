@@ -97,9 +97,10 @@ namespace Dravio.Domain.Tests.Support
         }
 
         /// <summary>Bỏ phần U2.1 chưa sở hữu (tutorial, achievements) và nén processedRequestIds giống golden.</summary>
-        public static Dictionary<string, object> ToGoldenSubset(GameState s, bool fullIds, bool keepProfiles = false)
+        public static Dictionary<string, object> ToGoldenSubset(GameState s, bool fullIds, bool keepProfiles = false, long rewardsMicro = 0)
         {
             var o = ToJson(s);
+            o["goldMicro"] = (double)(s.Player.Gold.Micro - rewardsMicro);
             var tutorial = (Dictionary<string, object>)o["tutorial"];
             o.Remove("tutorial"); o.Remove("unlockedAchievements"); o.Remove("claimedAchievements");
             // U2.3: hồ sơ sinh học đã xem là trạng thái của lệnh viewBiologyProfile, nên được so; tiến độ bước hướng dẫn thì chưa port.
@@ -311,12 +312,35 @@ namespace Dravio.Domain.Tests.Support
                 case DiscoveryRecorded x: o["discoveryId"] = x.DiscoveryId; break;
                 case HabitatSurveyed x: o["habitatId"] = x.HabitatId; break;
                 case BiologyProfileViewed x: o["speciesId"] = x.SpeciesId; break;
+                case PackBought x: o["packId"] = x.PackId; o["speciesId"] = x.SpeciesId; o["priceGoldMicro"] = N(x.PriceGoldMicro); o["tutorial"] = x.Tutorial; break;
+                case DragonHatched x: o["dragonUid"] = x.DragonUid; o["speciesId"] = x.SpeciesId; o["mutation"] = x.Mutation.ToWire(); o["location"] = LocationJson(x.Location); o["tutorial"] = x.Tutorial; break;
+                case AchievementUnlocked x: o["achievementId"] = x.AchievementId; o["rewardGoldMicro"] = N(x.RewardGoldMicro); break;
+                case TutorialStepCompleted x: o["stepId"] = x.StepId; break;
+                case TutorialStatusChanged x: o["status"] = x.Status.ToWire(); break;
                 default: throw new NotSupportedException(e.Type);
             }
             return o;
         }
 
         // ---- Command JSON → GameCommand (lệnh không biểu diễn được trong C# có kiểu trả null = invalid-command) ----
+
+        private static MoveTarget Target(object v) =>
+            v is Dictionary<string, object> t && t.TryGetValue("kind", out object k) && WireNames.TryParse(k as string, out LocationKind kind)
+                ? MoveTarget.Raw(kind, Get(t, "zoneId") as string, Get(t, "habitatId") as string) : null;
+
+        /// <summary>Toàn bộ state (U2.4 so cả tutorial/achievements/vàng thật), processedRequestIds nén khi fullIds = false.</summary>
+        public static Dictionary<string, object> ToGoldenFull(GameState s, bool fullIds)
+        {
+            var o = ToJson(s);
+            if (!fullIds)
+            {
+                var ids = (List<object>)o["processedRequestIds"];
+                o.Remove("processedRequestIds");
+                o["processedRequestCount"] = (double)ids.Count;
+                o["processedRequestTail"] = ids.GetRange(Math.Max(0, ids.Count - 3), Math.Min(3, ids.Count));
+            }
+            return o;
+        }
 
         public static GameCommand Command(Dictionary<string, object> c)
         {
@@ -331,13 +355,12 @@ namespace Dravio.Domain.Tests.Support
                 case "consumeFood": return new ConsumeFoodCommand(rid, Get(c, "foodId") as string, Get(c, "dragonUid") as string);
                 case "pet": return new PetCommand(rid, Get(c, "dragonUid") as string);
                 case "renameDragon": return new RenameDragonCommand(rid, Get(c, "dragonUid") as string, Get(c, "nickname") as string);
-                case "moveDragon":
-                {
-                    MoveTarget target = null;
-                    if (Get(c, "target") is Dictionary<string, object> t && t.TryGetValue("kind", out object k) && WireNames.TryParse(k as string, out LocationKind kind))
-                        target = MoveTarget.Raw(kind, Get(t, "zoneId") as string, Get(t, "habitatId") as string);
-                    return new MoveDragonCommand(rid, Get(c, "dragonUid") as string, target);
-                }
+                case "moveDragon": return new MoveDragonCommand(rid, Get(c, "dragonUid") as string, Target(Get(c, "target")));
+                case "buyTutorialPack": return new BuyTutorialPackCommand(rid);
+                case "claimPack": return new ClaimPackCommand(rid, Target(Get(c, "target")));
+                case "setTutorialStatus":
+                    // "completed" có trong enum C# nhưng lệnh từ chối (IsWellFormed) giống parseCommand của TS.
+                    return WireNames.TryParse(Get(c, "status") as string, out TutorialStatus ts) ? new SetTutorialStatusCommand(rid, ts) : null;
                 case "setProductionSlot":
                     return Get(c, "enabled") is bool en ? new SetProductionSlotCommand(rid, Get(c, "dragonUid") as string, en) : null;
                 case "unlockHabitat": return new UnlockHabitatCommand(rid, Get(c, "habitatId") as string);

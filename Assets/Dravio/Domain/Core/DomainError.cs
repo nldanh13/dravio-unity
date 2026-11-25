@@ -6,7 +6,7 @@ namespace Dravio.Domain.Core
     /// <summary>
     /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS để khóa i18n
     /// <c>commandError.&lt;code&gt;</c> không đổi. U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
-    /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile.
+    /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile; U2.4 thêm gói Starter và hướng dẫn.
     /// </summary>
     public enum DomainErrorCode
     {
@@ -26,8 +26,7 @@ namespace Dravio.Domain.Core
         [WireName("name-empty")] NameEmpty,
         [WireName("name-too-long")] NameTooLong,
         [WireName("name-invalid-chars")] NameInvalidChars,
-        // Mã của world/habitat (U2.3) và của gói trứng/hướng dẫn (chưa port: tutorial-pack-used,
-        // pack-pending, no-pending-pack, not-enough-gold). Giữ đủ để danh mục mã và khóa i18n khớp bản TypeScript.
+        // Mã của world/habitat (U2.3) và của gói trứng/hướng dẫn (U2.4).
         [WireName("zone-full")] ZoneFull,
         [WireName("habitat-unsuitable")] HabitatUnsuitable,
         [WireName("already-there")] AlreadyThere,

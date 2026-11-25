@@ -132,6 +132,33 @@ namespace Dravio.Domain.Core
         internal override bool IsWellFormed() => IsId(SpeciesId);
     }
 
+    /// <summary>Mua gói Starter hướng dẫn: 100 G, một lần mỗi save, kết quả cố định Sproutling Normal (ADR 0013).</summary>
+    public sealed class BuyTutorialPackCommand : GameCommand
+    {
+        public BuyTutorialPackCommand(string requestId) : base(requestId) { }
+        public override string Type => "buyTutorialPack";
+        internal override bool IsWellFormed() => true;
+    }
+
+    /// <summary>Nhận trứng đang chờ: nở và đặt vào microhabitat hợp lệ hoặc kho.</summary>
+    public sealed class ClaimPackCommand : GameCommand
+    {
+        public ClaimPackCommand(string requestId, MoveTarget target) : base(requestId) { Target = target; }
+        public MoveTarget Target { get; }
+        public override string Type => "claimPack";
+        internal override bool IsWellFormed() =>
+            Target != null && (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
+    }
+
+    /// <summary>Bỏ qua (skipped) hoặc xem lại (active) hướng dẫn. Completed không đặt được bằng lệnh.</summary>
+    public sealed class SetTutorialStatusCommand : GameCommand
+    {
+        public SetTutorialStatusCommand(string requestId, TutorialStatus status) : base(requestId) { Status = status; }
+        public TutorialStatus Status { get; }
+        public override string Type => "setTutorialStatus";
+        internal override bool IsWellFormed() => Status == TutorialStatus.Active || Status == TutorialStatus.Skipped;
+    }
+
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
     public sealed class DispatchResult
     {

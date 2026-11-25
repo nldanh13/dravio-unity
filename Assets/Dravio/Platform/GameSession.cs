@@ -230,11 +230,15 @@ namespace Dravio.Platform
         {
             GameState s = State;
             if (s == null || Status != SessionStatus.Ready || _swapping) return null;
-            DispatchResult r = CommandDispatcher.Dispatch(s, build(_env.NewId()), _env.Clock);
+            GameCommand cmd = build(_env.NewId());
+            DispatchResult r = CommandDispatcher.Dispatch(s, cmd, _env.Clock);
             if (!r.Ok) return r.Error;
             State = r.State;
             if (r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
             Notify();
+            // Mua/nhận trứng: lưu ngay để kết quả đã roll và thưởng đã nhận không thể làm lại bằng cách tắt app
+            // (IMMEDIATE_SAVE của gameSession.ts).
+            if (cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand) SaveNow();
             return null;
         }
 
