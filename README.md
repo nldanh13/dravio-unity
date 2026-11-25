@@ -181,3 +181,33 @@ The exporter validates vertex weights (finite, normalized, at most four influenc
 In Unity, choose **Dravio > Create or Open Refined Preview**. This configures the imported Generic rig and splits the five clips, then runs a structural audit before creating the separate EmberlingRefinedPreview scene, prefab and controller. The audit checks valid Generic Avatar, required bone names, named clip durations and loop flags, UV0 and skinned renderer references, and reports vertex/triangle counts and provisional budget warnings. The read-only **Dravio > Validate Refined Emberling FBX** menu repeats the audit after import configuration. A PASS is not a runtime or visual acceptance result. Existing preview scenes are preserved; if incomplete, back up/rename before retrying.
 
 Deferred acceptance: verify Blender export and audit, Unity compile/import and structural audit, two walk cycles from side/front/rear, paw/claw attachment, foot sliding/penetration, sleep leg folding and ground contact, all five clips and interruptions, camera/HUD touch and language in landscape on actual devices, and VFX/performance. No Blender or Unity executable was available to the code author. Do not merge or claim final art until the checks pass.
+
+## U2 integration preview — Sanctuary + character + domain
+
+Technical merge PR #12 merged **only** into feat/u2-integration-preview, preserving original branches. The integration starts from Environment #10 and Core Domain #11 already merged into feat/u1-living-dragon (7538754), with U1.6 (a10ca5f) merged on top (29fb96b). No main merge. Domain and Environment source workstreams are not edited; the adapter and scene wiring are separate.
+
+### Generate the unified scene
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u2-integration-preview --track origin/feat/u2-integration-preview
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Refined
+```
+
+Open Unity and choose **Dravio > Create or Open Integrated Sanctuary**. If necessary the menu builds the environment materials, prefabs and standalone environment scene first, then copies that scene and adds Refined Emberling at the clearing marker, fantasy HUD, VFX and session adapter. The output is `Assets/Dravio/Scenes/OriginIntegratedPreview.unity`. Existing standalone scenes are preserved. An existing integrated scene opens without rebuilding; if generation failed, back up/rename the incomplete scene before retrying. No extra environment FBX export required because PR #10 committed the generated assets.
+
+### Scope
+
+- One real in-memory GameState created using InitialStateFactory (150 G, Emberling, canonical founder state). Gold, lifecycle stage, XP and bond in the HUD come from Core Domain. The visual model stays the Baby mesh even if the numeric stage changes; adult/juvenile models are not implemented.
+- Foreground session clock uses FixedClock, accumulates unscaled visible time and dispatches AdvanceTime approximately once a second. Focus loss, app pause and gaps over 5 s are not accrued; this is deliberately not the final online/offline policy. No persistence, autosave or offline grant. State resets when Play stops.
+- Feed dispatches canonical FeedCommand and places a single fruit marker in the authored clearing. The one-fruit restriction belongs to this preview UI, not the domain rule. The dragon approaches it and tries ConsumeFoodCommand within .55 world units; eating animation only plays on FoodConsumed. The domain owns TTL, cooldown, XP and bond. Pet uses PetCommand and only plays Happy on DragonPetted. Errors display in the HUD. Sleep and inspection remain cosmetic. No navigation mesh, collision avoidance or cross-habitat travel.
+- Landscape-only PlayerSettings retained; the original environment camera's portrait-fit component is disabled in the integrated copy. No camera orbit. Actual framing, touch UI and shader behavior require testing.
+- No changes to U2.2 persistence work, achievements, tutorial, genetics, economy constants or canonical data. Domain still lacks the first-adult achievement reward and tutorial logic noted in U2.1.
+
+### Deferred acceptance
+1. Compile all Unity scripts/shaders and run Domain EditMode tests; independently run the .NET test project and environment tests.
+2. Generate Refined FBX, pass structural audit, build environment, and create the integrated scene. Inspect Console, camera and all assets.
+3. In fresh Play confirm 150 G at initialization, XP and gold advance with visible time. Feed spawns a fruit; approach and consume once, observe canonical XP/bond; confirm expiry and cooldown rejection. Pet twice rapidly: one accepted animation, one rejection. Check focus loss and resume without hidden-time accrual; stop and restart Play to confirm intentionally volatile state.
+4. Check camera framing, movement inside clearing, no UI drag-through, language, landscape safe areas, shaders and performance on desktop and mobile.
+5. Do not accept or merge to main until runtime tests pass. No independent Unity/Blender execution in this integration authoring environment; the previous PR test reports are not a substitute for integration testing.
