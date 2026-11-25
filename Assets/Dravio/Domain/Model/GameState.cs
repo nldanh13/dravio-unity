@@ -143,6 +143,39 @@ namespace Dravio.Domain
         }
     }
 
+    /// <summary>
+    /// Chuyến thám hiểm đang chạy hoặc chờ nhận (GDD tr. 22; schema v7, U2.8). "Chốt thời gian, seed và bảng thưởng khi bắt đầu": phần thưởng
+    /// đã roll và lưu ngay lúc khởi hành, nhận đúng một lần; hoàn tất cả khi offline; không tự khởi hành tiếp.
+    /// </summary>
+    public sealed class ExpeditionJob
+    {
+        public string Id { get; set; }
+        public string RouteId { get; set; }
+        public string DragonUid { get; set; }
+        public long StartedAtMs { get; set; }
+        public long FinishAtMs { get; set; }
+        /// <summary>Vật liệu → số lượng, thứ tự theo catalog vật liệu.</summary>
+        public List<KeyValuePair<string, int>> Rewards { get; set; } = new List<KeyValuePair<string, int>>();
+        public ExpeditionStatus Status { get; set; }
+
+        public ExpeditionJob Clone()
+        {
+            var c = (ExpeditionJob)MemberwiseClone();
+            c.Rewards = new List<KeyValuePair<string, int>>(Rewards);
+            return c;
+        }
+    }
+
+    /// <summary>Trứng thưởng cố định đang chờ được giao vào pendingPack (khi kho đầy hoặc đang có trứng chờ nhận). Schema v7.</summary>
+    public sealed class QueuedEgg
+    {
+        public string RewardId { get; set; }
+        public string SpeciesId { get; set; }
+        public MutationType Mutation { get; set; }
+        public long QueuedAtMs { get; set; }
+        public QueuedEgg Clone() => (QueuedEgg)MemberwiseClone();
+    }
+
     /// <summary>Tiến trình hướng dẫn (schema v4, ADR 0013). U2.1 chỉ giữ và kiểm tra dữ liệu, chưa port evaluateTutorial.</summary>
     public sealed class TutorialState
     {
@@ -194,6 +227,14 @@ namespace Dravio.Domain
         public BreedingEgg BreedingNest { get; set; }
         /// <summary>(codex) Bách khoa theo loài, thứ tự catalog; chỉ chứa loài đã khám phá. Schema v6.</summary>
         public List<CodexEntry> Codex { get; set; } = new List<CodexEntry>();
+        /// <summary>(expedition) Slot thám hiểm P0; null = trống. Schema v7.</summary>
+        public ExpeditionJob Expedition { get; set; }
+        /// <summary>(completedQuests) Nhiệm vụ đã hoàn thành, thứ tự catalog. Schema v7.</summary>
+        public List<string> CompletedQuests { get; set; } = new List<string>();
+        /// <summary>(grantedRewards) Phần thưởng một lần đã cấp (vd ZONE_EGG_OCEAN) — chống nhận lại. Schema v7.</summary>
+        public List<string> GrantedRewards { get; set; } = new List<string>();
+        /// <summary>(rewardQueue) Trứng thưởng đã cấp nhưng chưa vào pendingPack. Schema v7.</summary>
+        public List<QueuedEgg> RewardQueue { get; set; } = new List<QueuedEgg>();
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
 
@@ -212,6 +253,10 @@ namespace Dravio.Domain
             c.Tutorial = Tutorial?.Clone();
             c.PendingPack = PendingPack?.Clone();
             c.BreedingNest = BreedingNest?.Clone();
+            c.Expedition = Expedition?.Clone();
+            c.CompletedQuests = CompletedQuests == null ? null : new List<string>(CompletedQuests);
+            c.GrantedRewards = GrantedRewards == null ? null : new List<string>(GrantedRewards);
+            if (RewardQueue != null) { c.RewardQueue = new List<QueuedEgg>(RewardQueue.Count); foreach (var q in RewardQueue) c.RewardQueue.Add(q?.Clone()); }
             if (Codex != null) { c.Codex = new List<CodexEntry>(Codex.Count); foreach (var e in Codex) c.Codex.Add(e?.Clone()); }
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);

@@ -33,7 +33,7 @@ namespace Dravio.Domain.Breeding
             return n;
         }
 
-        private static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
+        public static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
 
         // ---------------- Gói trứng ----------------
 

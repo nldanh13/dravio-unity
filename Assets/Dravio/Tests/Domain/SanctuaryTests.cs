@@ -102,7 +102,7 @@ namespace Dravio.Domain.Tests
         {
             var (s0, clock) = Rich(0);
             GameState s = With(s0, Adult("c1", "emberling"), Adult("c2", "zephyr", d => d.Mutation = MutationType.Golden), Adult("lk", "droplet", d => d.Locked = true),
-                Adult("rare", "magma"), Adult("juv", "sprout", d => d.XpSec = 100), Adult("busy", "emberling", d => d.Activity = DragonActivity.Expedition));
+                Adult("rare", "magma"), Adult("juv", "sprout", d => d.XpSec = 100), Adult("busy", "emberling", d => d.Location = DragonLocation.Care("c9")));
             long quote = SanctuaryRules.BulkSellQuoteMicro(s);
             Assert.That(quote, Is.EqualTo((75 + (long)Math.Floor(85 * 4.5)) * G));
             Fail(s, new BulkSellCommand(Rid(), quote - 1), clock, DomainErrorCode.QuoteChanged);

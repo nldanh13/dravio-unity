@@ -8,21 +8,21 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v6 (= v4 của TS + breedingNest (U2.5) + codex (U2.7)), trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v7 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + breedingNest (schema v5).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v7).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
-            // v5 (U2.5) và v6 (U2.7), chỉ có ở bản Unity
-            "breedingNest", "codex",
+            // v5 (U2.5), v6 (U2.7), v7 (U2.8), chỉ có ở bản Unity
+            "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -88,6 +88,22 @@ namespace Dravio.Persistence.Schema
                 codex.Set(e.SpeciesId, new JsonObject().Set("discoveredMutations", muts).Set("totalHatched", N(e.TotalHatched)).Set("observedStages", stages));
             }
             o.Set("codex", codex);
+            if (s.Expedition == null) o.Set("expedition", JsonValue.Null);
+            else
+            {
+                ExpeditionJob j = s.Expedition;
+                var rewards = new JsonObject();
+                foreach (var kv in j.Rewards) rewards.Set(kv.Key, N(kv.Value));
+                o.Set("expedition", new JsonObject().Set("id", S(j.Id)).Set("routeId", S(j.RouteId)).Set("dragonUid", S(j.DragonUid))
+                    .Set("startedAtMs", N(j.StartedAtMs)).Set("finishAtMs", N(j.FinishAtMs)).Set("rewards", rewards).Set("status", S(j.Status.ToWire())));
+            }
+            o.Set("completedQuests", Arr(s.CompletedQuests));
+            o.Set("grantedRewards", Arr(s.GrantedRewards));
+            var queue = new JsonArray();
+            foreach (QueuedEgg q in s.RewardQueue)
+                queue.Add(new JsonObject().Set("rewardId", S(q.RewardId)).Set("speciesId", S(q.SpeciesId))
+                    .Set("mutation", S(Dravio.Domain.WireNames.ToWire(q.Mutation))).Set("queuedAtMs", N(q.QueuedAtMs)));
+            o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
@@ -380,6 +396,49 @@ namespace Dravio.Persistence.Schema
                 if (cr.Errors.Count > 0) errors.Add("codex: invalid");
             }
             else { s.Codex = null; errors.Add("codex: invalid"); }
+
+            JsonValue ev = o.Get("expedition");
+            if (ev is JsonObject eo2)
+            {
+                var er = new Reader(new List<string>());
+                var job = new ExpeditionJob
+                {
+                    Id = er.Str(eo2, "id", "x"), RouteId = er.Str(eo2, "routeId", "x"), DragonUid = er.Str(eo2, "dragonUid", "x"),
+                    StartedAtMs = er.LongOr(eo2, "startedAtMs", "x", -1), FinishAtMs = er.LongOr(eo2, "finishAtMs", "x", -1),
+                    Status = er.Enum(eo2, "status", "x", ExpeditionStatus.InProgress),
+                };
+                if (eo2.Get("rewards") is JsonObject ro2)
+                    foreach (var kv in ro2)
+                    {
+                        if (kv.Value is JsonNumber n && GameStateJson.Reader.AsSafeLong(n, out long v) && v > 0 && v <= int.MaxValue) job.Rewards.Add(new KeyValuePair<string, int>(kv.Key, (int)v));
+                        else er.Errors.Add("x");
+                    }
+                else er.Errors.Add("x");
+                s.Expedition = job;
+                if (er.Errors.Count > 0) errors.Add("expedition: invalid");
+            }
+            else if (!(ev is JsonNull)) errors.Add("expedition: invalid");
+
+            var qr = new Reader(new List<string>());
+            s.CompletedQuests = qr.StrList(o, "completedQuests", "x") ?? new List<string>();
+            s.GrantedRewards = qr.StrList(o, "grantedRewards", "x") ?? new List<string>();
+            if (qr.Errors.Count > 0) errors.Add("worldUnlock: invalid");
+            s.RewardQueue = new List<QueuedEgg>();
+            if (o.Get("rewardQueue") is JsonArray rq)
+            {
+                var rr = new Reader(new List<string>());
+                foreach (JsonValue qv in rq)
+                {
+                    if (!(qv is JsonObject qo)) { rr.Errors.Add("x"); continue; }
+                    s.RewardQueue.Add(new QueuedEgg
+                    {
+                        RewardId = rr.Str(qo, "rewardId", "x"), SpeciesId = rr.Str(qo, "speciesId", "x"),
+                        Mutation = rr.Enum(qo, "mutation", "x", MutationType.Normal), QueuedAtMs = rr.LongOr(qo, "queuedAtMs", "x", -1),
+                    });
+                }
+                if (rr.Errors.Count > 0) errors.Add("rewardQueue: invalid");
+            }
+            else errors.Add("rewardQueue: invalid");
             return s;
         }
 

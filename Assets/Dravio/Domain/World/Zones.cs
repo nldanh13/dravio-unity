@@ -81,7 +81,7 @@ namespace Dravio.Domain.World
 
         /// <summary>
         /// Kiểm một đích cụ thể. Thứ tự (ADR 0008 mục 4): microhabitat thuộc zone → rồng rảnh → zone mở → microhabitat mở
-        /// → suitability ≥ 50 → không phải chỗ hiện tại → còn chỗ (rồng cùng zone không tính chính nó).
+        /// → suitability ≥ 50 → không phải chỗ hiện tại → còn chỗ → (U2.8) có đường đi qua WorldGraph (rồng cùng zone không tính chính nó).
         /// Trả null khi microhabitat không thuộc zone (TS trả { blocked: 'habitat-locked' } không kèm chi tiết).
         /// </summary>
         public static PlacementCheck CheckPlacement(GameState state, DragonState dragon, string zoneId, string habitatId, out DomainErrorCode? blocked)
@@ -97,6 +97,9 @@ namespace Dravio.Domain.World
             else if (b == null && !result.Allowed) b = DomainErrorCode.HabitatUnsuitable;
             else if (b == null && sameZone && dragon.Location.HabitatId == habitatId) b = DomainErrorCode.AlreadyThere;
             else if (b == null && freeSlots <= 0) b = DomainErrorCode.ZoneFull;
+            // U2.8: kiểm sau cùng để giữ nguyên thứ tự lỗi của TS (TS chưa có bước này). Từ một zone: đường WorldGraph (cạnh + cửa ngõ đã mở,
+            // đúng kiểu di chuyển; cùng zone luôn có đường). Từ kho (trung lập): phải có kiểu di chuyển vào vùng đích.
+            else if (b == null && !Travel.CanReach(state, dragon, zoneId)) b = DomainErrorCode.NoRoute;
             blocked = b;
             return new PlacementCheck(zoneId, habitatId, result, freeSlots, b);
         }
