@@ -11,8 +11,8 @@
       "walk": {"gait": "walk", "frames": 32, "duty": 0.65, "strideLegs": 0.55, "liftLegs": 0.16, "bob": 0.012},
       "run": {"gait": "trot", "frames": 20, "duty": 0.42, "strideLegs": 0.95, "liftLegs": 0.26, "bob": 0.03},
       "sleep": {"dropLegs": 0.30, "foreReachLegs": 0.22, "hindReachLegs": 0.3, "footFollow": 0.5},
-      "eat": {"neckPitch": 0.5, "headPitch": 0.35, "chestDropH": 0.03},
-      "happy": {"hopH": 0.05, "tailWag": 0.35},
+      "eat": {"neckPitch": 0.4, "headPitch": 0.3, "chestPitch": 0.14, "chestDropH": 0.03},
+      "happy": {"hopH": 0.05, "tailWag": 0.28},
       "burrow": {"digReachLegs": 0.35, "digCycles": 2}
     },
     "winged": {
@@ -28,7 +28,7 @@
       "spineBones": 8,
       "walk": {"gait": "walk", "frames": 40, "duty": 0.7, "strideLegs": 0.6, "liftLegs": 0.25, "bob": 0.006, "bodyWave": 0.04},
       "run": {"gait": "trot", "frames": 26, "duty": 0.5, "strideLegs": 0.9, "liftLegs": 0.3, "bob": 0.01, "bodyWave": 0.06},
-      "swim": {"frames": 48, "wave": 0.16, "waveLength": 0.8},
+      "swim": {"frames": 48, "wave": 0.16, "waveLength": 0.8, "limbTuck": 0.45},
       "sleep": {"coil": 0.22, "dropLegs": 0.4, "foreReachLegs": 0.0},
       "eat": {"neckPitch": 0.4, "headPitch": 0.3, "chestDropH": 0.0},
       "happy": {"hopH": 0.0, "tailWag": 0.3}

@@ -374,6 +374,37 @@ def mask_weights(obj, arm, an, legs, max_inf=4):
         for i, w in zip(nidx, rg.chain_weights(co[nidx], joints, neck)):
             new_weights[i] = w
             allowed_sets[i] = allowed_sets[i] | set(w)
+    # Floating fragments (generator debris, detached leaves/spikes): each connected piece moves rigidly with
+    # the surface it floats over - all its vertices copy the weights of the nearest attached vertex to the
+    # piece's centre. Per-vertex nearest bones would split one piece between Spine and Chest and tear it.
+    frag = np.nonzero(np.asarray(an.labels) == 'fragment')[0]
+    fragment_pieces = 0
+    if len(frag):
+        attached = np.nonzero(np.asarray(an.labels) != 'fragment')[0]
+        E0 = np.array([e.vertices[:] for e in obj.data.edges])
+        fset = np.zeros(len(co), bool)
+        fset[frag] = True
+        parent = {int(i): int(i) for i in frag}
+
+        def root(i):
+            while parent[i] != i:
+                parent[i] = parent[parent[i]]
+                i = parent[i]
+            return i
+        for a_, b_ in E0[fset[E0[:, 0]] & fset[E0[:, 1]]]:
+            ra, rb = root(int(a_)), root(int(b_))
+            if ra != rb:
+                parent[ra] = rb
+        pieces = {}
+        for i in frag:
+            pieces.setdefault(root(int(i)), []).append(int(i))
+        for idx in pieces.values():
+            c = co[idx].mean(axis=0)
+            j = attached[np.argmin(np.linalg.norm(co[attached] - c, axis=1))]
+            for i in idx:
+                new_weights[i] = dict(new_weights[j])
+                allowed_sets[i] = set(allowed_sets[j]) | set(new_weights[j])
+        fragment_pieces = len(pieces)
     # Smooth region borders (masked), then keep the 4 strongest influences.
     names = sorted(deform)
     col = {n: i for i, n in enumerate(names)}
@@ -452,7 +483,7 @@ def mask_weights(obj, arm, an, legs, max_inf=4):
     return {'removedWeightFraction': round(removed_mass / max(total_mass, 1e-9), 4),
             'distalLegWeightsRemovedFromBody': leg_on_body,
             'nearestAllowedFallback': fallback, 'maxInfluences': max_inf,
-            'lowBodyVerticesRelabelledLeg': relabelled}
+            'lowBodyVerticesRelabelledLeg': relabelled, 'floatingPiecesBoundRigidly': fragment_pieces}
 
 
 def bind(obj, arm, an, legs):
@@ -617,7 +648,7 @@ class Animator:
                 k = 0.5 + 0.5 * math.cos(math.pi * (t - 0.75) / 0.25)
             mul('Neck', 'X', cfg.get('neckPitch', 0.45) * k)
             mul('Head', 'X', cfg.get('headPitch', 0.3) * k)
-            mul('Chest', 'X', 0.08 * k)
+            mul('Chest', 'X', cfg.get('chestPitch', 0.08) * k)
             root.z -= cfg.get('chestDropH', 0.03) * h * k
             tail_wave(0.06, 1.0)
         elif clip == 'Sleep':
@@ -640,8 +671,11 @@ class Animator:
             coil = cfg.get('coil', 0.2)
             for i, n in enumerate(self.tails):  # the curl starts past the tail base, not at the hip
                 mul(n, 'Z', coil * min(1.0, 0.5 * i) + 0.1 * i)
+            # a legless body curls along its whole length; with planted feet only a slight body curve
+            # (curling the spine would drag the hips sideways over the planted feet)
+            spine_coil = cfg.get('spineCoil', 0.5 if not self.leg else 0.1)
             for i, n in enumerate(self.spine):
-                mul(n, 'Z', coil * 0.5)
+                mul(n, 'Z', coil * spine_coil)
             slow = math.sin(tau * t * 2)
             for n in (['Spine', 'Chest'] + self.spine[:2]):
                 mul(n, 'X', 0.01 * slow)
@@ -703,7 +737,7 @@ class Animator:
                 part, side = k.split('_')
                 ph = tau * (t + (0.5 if side == 'R' else 0.0) + (0.25 if part == 'Hind' else 0.0))
                 amp = 0.35 if cfg.get('style') == 'paddle' else 0.0
-                tuck = 0.0 if cfg.get('style') == 'paddle' else 0.9  # long swimmers tuck short limbs back
+                tuck = 0.0 if cfg.get('style') == 'paddle' else cfg.get('limbTuck', 0.9)  # long swimmers tuck short limbs back
                 mul(f'{part}Upper_{side}', 'X', tuck + amp * math.sin(ph))
                 mul(f'{part}Lower_{side}', 'X', -0.4 * amp * max(0.0, math.cos(ph)))
         elif clip in ('Fly', 'Glide', 'TakeOff', 'Land'):
