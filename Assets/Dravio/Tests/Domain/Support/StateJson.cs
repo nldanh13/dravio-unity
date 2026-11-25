@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dravio.Domain.Core;
+using Dravio.Domain.World;
 
 namespace Dravio.Domain.Tests.Support
 {
@@ -96,10 +97,13 @@ namespace Dravio.Domain.Tests.Support
         }
 
         /// <summary>Bỏ phần U2.1 chưa sở hữu (tutorial, achievements) và nén processedRequestIds giống golden.</summary>
-        public static Dictionary<string, object> ToGoldenSubset(GameState s, bool fullIds)
+        public static Dictionary<string, object> ToGoldenSubset(GameState s, bool fullIds, bool keepProfiles = false)
         {
             var o = ToJson(s);
+            var tutorial = (Dictionary<string, object>)o["tutorial"];
             o.Remove("tutorial"); o.Remove("unlockedAchievements"); o.Remove("claimedAchievements");
+            // U2.3: hồ sơ sinh học đã xem là trạng thái của lệnh viewBiologyProfile, nên được so; tiến độ bước hướng dẫn thì chưa port.
+            if (keepProfiles) o["tutorial"] = new Dictionary<string, object> { ["profilesViewed"] = tutorial["profilesViewed"], ["starterPackUsed"] = tutorial["starterPackUsed"] };
             if (!fullIds)
             {
                 var ids = (List<object>)o["processedRequestIds"];
@@ -135,12 +139,7 @@ namespace Dravio.Domain.Tests.Support
             o["mutation"] = d.Mutation.ToWire();
             o["xpSec"] = d.XpSec;
             o["locked"] = d.Locked;
-            var lo = Obj();
-            lo["kind"] = d.Location.Kind.ToWire();
-            if (d.Location.ZoneId != null) lo["zoneId"] = d.Location.ZoneId;
-            if (d.Location.HabitatId != null) lo["habitatId"] = d.Location.HabitatId;
-            if (d.Location.CaseId != null) lo["caseId"] = d.Location.CaseId;
-            o["location"] = lo;
+            o["location"] = LocationJson(d.Location);
             o["hatchedAtMs"] = N(d.HatchedAtMs);
             o["personality"] = d.Personality.ToWire();
             o["bond"] = (double)d.Bond;
@@ -157,6 +156,16 @@ namespace Dravio.Domain.Tests.Support
             o["breedCooldownUntilMs"] = N(d.BreedCooldownUntilMs);
             if (d.RegistryRef != null) o["registryRef"] = d.RegistryRef;
             return o;
+        }
+
+        public static Dictionary<string, object> LocationJson(DragonLocation l)
+        {
+            var lo = Obj();
+            lo["kind"] = l.Kind.ToWire();
+            if (l.ZoneId != null) lo["zoneId"] = l.ZoneId;
+            if (l.HabitatId != null) lo["habitatId"] = l.HabitatId;
+            if (l.CaseId != null) lo["caseId"] = l.CaseId;
+            return lo;
         }
 
         // ---- JSON → GameState (để nạp state bắt đầu của kịch bản golden) ----
@@ -228,7 +237,15 @@ namespace Dravio.Domain.Tests.Support
                 s.OfflineReceipt = new OfflineReceipt { Id = (string)r["id"], FromMs = L(r["fromMs"]), ToMs = L(r["toMs"]), GoldMicro = L(r["goldMicro"]), MaturedIds = Strs(r["maturedIds"]), BonusClaimed = (bool)r["bonusClaimed"], CreatedAtMs = L(r["createdAtMs"]) };
             s.Discoveries = Strs(o["discoveries"]);
             if (Get(o, "tutorial") is Dictionary<string, object> t)
-                s.Tutorial = new TutorialState { Status = E<TutorialStatus>(t["status"]), Completed = Strs(t["completed"]), StartedAtMs = L(t["startedAtMs"]), ProfilesViewed = Strs(t["profilesViewed"]), StarterPackUsed = (bool)t["starterPackUsed"] };
+                // Golden U2.3 chỉ giữ profilesViewed/starterPackUsed; phần tiến độ hướng dẫn (chưa port) lấy mặc định của save mới.
+                s.Tutorial = new TutorialState
+                {
+                    Status = t.ContainsKey("status") ? E<TutorialStatus>(t["status"]) : TutorialStatus.Active,
+                    Completed = t.ContainsKey("completed") ? Strs(t["completed"]) : new List<string>(),
+                    StartedAtMs = t.ContainsKey("startedAtMs") ? L(t["startedAtMs"]) : s.Clock.LastProcessedAtMs,
+                    ProfilesViewed = Strs(t["profilesViewed"]),
+                    StarterPackUsed = (bool)t["starterPackUsed"],
+                };
             if (Get(o, "pendingPack") is Dictionary<string, object> p)
                 s.PendingPack = new PendingPack { Id = (string)p["id"], PackId = (string)p["packId"], SpeciesId = (string)p["speciesId"], Genotype = GenotypeFromJson(p["genotype"]), Mutation = E<MutationType>(p["mutation"]), CreatedAtMs = L(p["createdAtMs"]), Tutorial = (bool)p["tutorial"] };
             if (Get(o, "unlockedAchievements") is List<object>) s.UnlockedAchievements = Strs(o["unlockedAchievements"]);
@@ -288,6 +305,12 @@ namespace Dravio.Domain.Tests.Support
                 case BondChanged x: o["dragonUid"] = x.DragonUid; o["from"] = (double)x.From; o["to"] = (double)x.To; o["source"] = x.Source.ToWire(); break;
                 case DragonPetted x: o["dragonUid"] = x.DragonUid; break;
                 case DragonRenamed x: o["dragonUid"] = x.DragonUid; o["nickname"] = x.Nickname; break;
+                case DragonMoved x: o["dragonUid"] = x.DragonUid; o["from"] = LocationJson(x.From); o["to"] = LocationJson(x.To); break;
+                case ProductionChanged x: o["dragonUid"] = x.DragonUid; o["enabled"] = x.Enabled; break;
+                case HabitatUnlocked x: o["zoneId"] = x.ZoneId; o["habitatId"] = x.HabitatId; break;
+                case DiscoveryRecorded x: o["discoveryId"] = x.DiscoveryId; break;
+                case HabitatSurveyed x: o["habitatId"] = x.HabitatId; break;
+                case BiologyProfileViewed x: o["speciesId"] = x.SpeciesId; break;
                 default: throw new NotSupportedException(e.Type);
             }
             return o;
@@ -308,6 +331,18 @@ namespace Dravio.Domain.Tests.Support
                 case "consumeFood": return new ConsumeFoodCommand(rid, Get(c, "foodId") as string, Get(c, "dragonUid") as string);
                 case "pet": return new PetCommand(rid, Get(c, "dragonUid") as string);
                 case "renameDragon": return new RenameDragonCommand(rid, Get(c, "dragonUid") as string, Get(c, "nickname") as string);
+                case "moveDragon":
+                {
+                    MoveTarget target = null;
+                    if (Get(c, "target") is Dictionary<string, object> t && t.TryGetValue("kind", out object k) && WireNames.TryParse(k as string, out LocationKind kind))
+                        target = MoveTarget.Raw(kind, Get(t, "zoneId") as string, Get(t, "habitatId") as string);
+                    return new MoveDragonCommand(rid, Get(c, "dragonUid") as string, target);
+                }
+                case "setProductionSlot":
+                    return Get(c, "enabled") is bool en ? new SetProductionSlotCommand(rid, Get(c, "dragonUid") as string, en) : null;
+                case "unlockHabitat": return new UnlockHabitatCommand(rid, Get(c, "habitatId") as string);
+                case "surveyHabitat": return new SurveyHabitatCommand(rid, Get(c, "habitatId") as string);
+                case "viewBiologyProfile": return new ViewBiologyProfileCommand(rid, Get(c, "speciesId") as string);
                 default: return null;
             }
         }

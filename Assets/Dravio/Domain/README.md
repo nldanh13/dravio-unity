@@ -47,6 +47,13 @@ Code nằm trong assembly `Dravio.Domain` (`Dravio.Domain.asmdef`). Assembly nà
 | `ConsumeFoodCommand(food, dragon)` | Nửa sau của luồng cho ăn, do mô phỏng của engine phát ra. Rồng phải cùng chỗ với viên thức ăn, đúng diet, đang idle và đã qua cooldown XP 8 s. Trước khi cộng XP, lệnh quyết toán thời gian online, rồi cộng XP 8 + 6 × `foodQualityLevel` và +1 bond. |
 | `PetCommand(dragon)` | +1 bond, cooldown 30 s, trần 10 bond/ngày UTC/rồng và 100 tuyệt đối. Khi đã chạm trần, lệnh vẫn hợp lệ và vẫn phát `dragonPetted`, nhưng không phát `bondChanged`. |
 | `RenameDragonCommand(dragon, nickname)` | Chuẩn hóa NFC, trim kiểu JS, độ dài 1–24 grapheme, cấm ký tự Cc, bidi và U+FFFD. `null` xóa tên. Tên được lưu nguyên văn, nên UI phải hiển thị như text thuần, không bật rich text. |
+| `MoveDragonCommand(dragon, target)` (U2.3) | Đích là microhabitat (`MoveTarget.Zone`) hoặc kho (`MoveTarget.Storage`). Thứ tự kiểm (ADR 0008 mục 4): microhabitat thuộc zone → rồng rảnh (không released/care/shelter, `activity = idle`) → zone mở → microhabitat mở → suitability ≥ 50 → không phải chỗ hiện tại → còn chỗ (5/zone, rồng cùng zone không tính chính nó). Kiểm trước, rồi quyết toán thời gian online, rồi mới đổi chỗ. Vào kho thì rời ngân sách sản xuất (`productionChanged`). |
+| `SetProductionSlotCommand(dragon, enabled)` (U2.3) | Bỏ chọn luôn được. Chọn chỉ khi rồng ở sinh cảnh đã mở và hợp lệ, và còn ngân sách 5 + 2 × `islandCapacityLevel` (tối đa 25, tính chung mọi zone). Quyết toán thời gian trước khi đổi. |
+| `UnlockHabitatCommand(habitat)` (U2.3) | ADR 0009: ID có luật → zone mở → chưa mở → đã có khám phá điều kiện. Miễn phí, không đổi sức chứa/ngân sách/vàng, không quyết toán thời gian. Danh sách mở giữ theo thứ tự zone. |
+| `SurveyHabitatCommand(habitat)` (U2.3) | Ghi nhận khám phá của microhabitat có điều kiện: đá ấm cần đang nuôi Emberling và đã xem hồ sơ của nó; bờ hồ không cần sở hữu Droplet. Event `habitatSurveyed` rồi `discoveryRecorded`. `discoveries` giữ sắp xếp. |
+| `ViewBiologyProfileCommand(species)` (U2.3) | Chỉ với loài đang nuôi (chưa thả); thêm vào `tutorial.profilesViewed` (sắp xếp). Xem lại là thành công không event (vẫn tăng revision, như TS). |
+
+`WorldGraph` (U2.3): node = zone, cạnh `origin_ocean_estuary` (cần bơi, cửa ngõ bờ hồ ↔ cửa sông) và `origin_sky_low_island` (cần bay, đồng cỏ ↔ đảo thấp có chỗ đậu); `CanTravel` là BFS. Giống bản TS b33ec7a, `CanTravel` **chưa** được nối vào `moveDragon` vì Ocean/Sky còn khóa ở G1 (ADR 0010 mục 4). Không có lệnh nào để UI tự khai báo khám phá hay mở sinh cảnh (`recordDiscovery` là hàm engine, không phải lệnh).
 
 Hành vi chung của dispatch:
 - Lệnh sai hình dạng (requestId rỗng hoặc > 64 ký tự, enum lạ, ID rỗng, nickname > 1024) hoặc thuộc loại chưa port đều trả `invalid-command`.
@@ -104,13 +111,12 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 
 Điểm cắm cho hai bước này là `IPostCommandEvaluator`, được truyền vào `Dispatch` và chạy theo đúng thứ tự TS. U2.1 không truyền evaluator nào.
 
-**Chưa port trong U2.1:**
-- Lệnh `moveDragon`, `setProductionSlot`, `unlockHabitat`, `surveyHabitat`, `viewBiologyProfile`, `buyTutorialPack`, `claimPack`, `setTutorialStatus`. Dispatch các lệnh này trả `invalid-command`.
-- Đánh giá thành tựu và tutorial.
+**Chưa port (sau U2.3):**
+- Lệnh `buyTutorialPack`, `claimPack`, `setTutorialStatus`. Dispatch các lệnh này trả `invalid-command`.
+- Đánh giá thành tựu và tutorial (`evaluateAchievements`, `evaluateTutorial`). Riêng `tutorial.profilesViewed` đã được `viewBiologyProfile` cập nhật.
 - Roll biến thể/pity, roll gói trứng, lai tạo, kiểu hình, phân phối di truyền, phả hệ.
-- World graph `canTravel`.
-- Persistence, migration, checksum, autosave, khóa ghi (U2.2).
-- Chính sách online/offline theo vòng đời ứng dụng (`platform/timePolicy.ts`), chăm sóc, thiên tai, cứu hộ.
+- Chăm sóc, thiên tai, cứu hộ, vận chuyển cứu hộ giữa zone.
+- Persistence và chính sách thời gian đã có ở U2.2 (`Assets/Dravio/Persistence`, `Assets/Dravio/Platform`).
 - Các trường dữ liệu của những phần này vẫn có trong `GameState` và được validator kiểm, để state tương thích schema v4.
 
 **Giới hạn đã biết:**
@@ -120,7 +126,8 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 ## 8. Phạm vi đã kiểm thử
 
 - **Đã chạy:**
-  - `dotnet test` với .NET SDK 8.0.134 trên Linux: 201/201 pass.
+  - `dotnet test` với .NET SDK 8.0.134 trên Linux: 237/237 pass sau U2.3 (201 của U2.1 + 36 của U2.3).
+  - U2.3: golden `ts-world-golden-b33ec7a.json` (Tools~/world-golden.test.ts) gồm 144 tổ hợp `canTravel`, khả năng tới của mọi loài, 3 kịch bản lệnh (490 bước, có fuzz 400 bước trên mọi lệnh U2.1 + U2.3) kèm `placementOptions`, `habitatUnlockStatus`, ngân sách, sức chứa và điều kiện khảo sát ở 56 điểm dò; tái sinh trùng từng byte. Cài thử 7 lỗi (chỗ trống tự tính, thứ tự kiểm, bỏ quyết toán, thứ tự mở, điều kiện khảo sát, sắp xếp hồ sơ, rời ngân sách khi vào kho): đều bị bắt.
   - Biên dịch Domain với `netstandard2.1` + C# 9: không lỗi, không cảnh báo.
   - Test TS gốc ở baseline (`npx vitest run`): pass.
   - Golden tái sinh trùng từng byte.

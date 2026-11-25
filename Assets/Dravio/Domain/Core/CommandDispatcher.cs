@@ -62,10 +62,33 @@ namespace Dravio.Domain.Core
                 case ConsumeFoodCommand c: return ConsumeFood(s, c, nowMs, events);
                 case PetCommand c: return Pet(s, c, nowMs, events);
                 case RenameDragonCommand c: return Rename(s, c, events);
+                case MoveDragonCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => Zones.CheckMove(s, d, c.Target), d => Zones.ApplyMove(s, d, c.Target, events));
+                case SetProductionSlotCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => Zones.CheckProduction(s, d, c.Enabled), d => Zones.ApplyProduction(s, d, c.Enabled, events));
+                // Mở chỗ không đổi vị trí rồng nào nên không cần quyết toán thời gian; vàng giữ nguyên.
+                case UnlockHabitatCommand c: return ToError(Zones.ApplyUnlock(s, c.HabitatId, events));
+                case SurveyHabitatCommand c: return ToError(Survey.Apply(s, c.HabitatId, events));
+                case ViewBiologyProfileCommand c: return ToError(BiologyProfile.Apply(s, c.SpeciesId, events));
                 default:
-                    // Lệnh chưa port ở U2.1 (moveDragon, setProductionSlot, unlockHabitat, ...).
+                    // Lệnh chưa port (buyTutorialPack, claimPack, setTutorialStatus, ...) và mọi kiểu tự khai báo hoàn thành.
                     return new DomainError(DomainErrorCode.InvalidCommand, "unsupported command type " + cmd.Type);
             }
+        }
+
+        private static DomainError ToError(DomainErrorCode? code) => code.HasValue ? new DomainError(code.Value) : null;
+
+        /// <summary>
+        /// moveDragon / setProductionSlot (ADR 0008 mục 6): kiểm trên state hiện tại trước để lệnh bị từ chối không đổi gì;
+        /// rồi quyết toán thời gian online tới lúc đổi chỗ để vàng trước đó tính theo vị trí/ngân sách cũ; rồi mới đổi.
+        /// </summary>
+        private static DomainError MoveOrProduction(GameState s, string uid, long nowMs, List<DomainEvent> events,
+            Func<DragonState, DomainErrorCode?> check, Func<DragonState, DomainErrorCode?> apply)
+        {
+            DragonState dragon = s.FindDragon(uid);
+            if (dragon == null) return new DomainError(DomainErrorCode.UnknownDragon);
+            DomainError pre = ToError(check(dragon));
+            if (pre != null) return pre;
+            SettleTime(s, nowMs, AdvanceMode.Online, events);
+            return ToError(apply(dragon));
         }
 
         /// <summary>Xóa thức ăn đã hết hạn tại thời điểm nowMs.</summary>

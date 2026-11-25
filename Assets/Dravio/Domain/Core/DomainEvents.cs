@@ -2,7 +2,7 @@ namespace Dravio.Domain.Core
 {
     /// <summary>
     /// Domain event do engine phát sau mỗi lệnh thành công (src/engine/core/events.ts).
-    /// Lớp trình bày (Unity) chỉ đọc, không suy diễn lại luật. U2.1 port 9 loại event của các lệnh trong phạm vi.
+    /// Lớp trình bày (Unity) chỉ đọc, không suy diễn lại luật. U2.1 port 9 loại event, U2.3 thêm 6 loại của world/habitat.
     /// </summary>
     public abstract class DomainEvent
     {
@@ -97,5 +97,53 @@ namespace Dravio.Domain.Core
         public string DragonUid { get; }
         /// <summary>null khi xóa tên.</summary>
         public string Nickname { get; }
+    }
+
+    // ---- U2.3: world / habitat ----
+
+    public sealed class DragonMoved : DomainEvent
+    {
+        public DragonMoved(string dragonUid, DragonLocation from, DragonLocation to) { DragonUid = dragonUid; From = from; To = to; }
+        public override string Type => "dragonMoved";
+        public string DragonUid { get; }
+        public DragonLocation From { get; }
+        public DragonLocation To { get; }
+    }
+
+    public sealed class ProductionChanged : DomainEvent
+    {
+        public ProductionChanged(string dragonUid, bool enabled) { DragonUid = dragonUid; Enabled = enabled; }
+        public override string Type => "productionChanged";
+        public string DragonUid { get; }
+        public bool Enabled { get; }
+    }
+
+    public sealed class HabitatUnlocked : DomainEvent
+    {
+        public HabitatUnlocked(string zoneId, string habitatId) { ZoneId = zoneId; HabitatId = habitatId; }
+        public override string Type => "habitatUnlocked";
+        public string ZoneId { get; }
+        public string HabitatId { get; }
+    }
+
+    public sealed class DiscoveryRecorded : DomainEvent
+    {
+        public DiscoveryRecorded(string discoveryId) { DiscoveryId = discoveryId; }
+        public override string Type => "discoveryRecorded";
+        public string DiscoveryId { get; }
+    }
+
+    public sealed class HabitatSurveyed : DomainEvent
+    {
+        public HabitatSurveyed(string habitatId) { HabitatId = habitatId; }
+        public override string Type => "habitatSurveyed";
+        public string HabitatId { get; }
+    }
+
+    public sealed class BiologyProfileViewed : DomainEvent
+    {
+        public BiologyProfileViewed(string speciesId) { SpeciesId = speciesId; }
+        public override string Type => "biologyProfileViewed";
+        public string SpeciesId { get; }
     }
 }
