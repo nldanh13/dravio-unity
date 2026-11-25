@@ -20,7 +20,7 @@ namespace Dravio.Editor
             ("Doze",4f,true),("Happy",1.5f,false)
         };
 
-        [MenuItem("Dravio/Validate Refined Emberling FBX")]
+        [MenuItem("Dravio/Character/Validate Refined Emberling FBX")]
         static void ValidateMenu()
         {
             // Read-only audit. Initial raw FBX must first be configured by the preview importer.
@@ -29,7 +29,7 @@ namespace Dravio.Editor
             else Debug.LogError(report);
         }
 
-        [MenuItem("Dravio/Validate Refined GLB FBX")]
+        [MenuItem("Dravio/Character/Validate Refined GLB FBX")]
         static void ValidateGlbMenu()
         {
             if(Validate("Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx",out var report)) Debug.Log(report);
