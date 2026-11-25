@@ -100,7 +100,7 @@ namespace Dravio.Editor
             var info=Page(host,"Biology");
             var roster=Page(host,"Dragons");
 
-            Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null;
+            Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
             RectTransform guide=null;
             Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
             if(integrated)
@@ -146,6 +146,7 @@ namespace Dravio.Editor
                 Label(ui,roster,"Other species appear in this roster; only Emberling has a visual model in this build.","Các loài khác hiển thị trong danh sách; bản này chỉ có mô hình Emberling.",14,Muted,TextAnchor.MiddleLeft,70);
                 guide=Page(host,"Guide");
                 tutorialStatus=Label(ui,guide,"Loading tutorial","Đang tải hướng dẫn",16,Gold,TextAnchor.MiddleLeft,54,false);
+                guideFeedback=Label(ui,guide,"—","—",14,Muted,TextAnchor.MiddleLeft,42,false);
                 Label(ui,guide,"Observe, feed and record biology first. Survey and unlock habitats, then buy and claim the Starter Pack.","Quan sát, cho ăn và ghi nhận sinh học trước. Khảo sát, mở khóa sinh cảnh rồi mua và nhận gói Starter.",14,Paper,TextAnchor.MiddleLeft,88);
                 surveyRocks=Button(ui,guide,"Survey warm rocks","Khảo sát bãi đá ấm",46);
                 unlockRocks=Button(ui,guide,"Unlock warm rocks","Mở khóa bãi đá ấm",46);
@@ -170,7 +171,7 @@ namespace Dravio.Editor
                     var persistence=hostGo.AddComponent<DravioSessionHost>();
                     var locationData=AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(OriginSanctuaryEnvironmentBuilder.LocationsAssetPath);
                     if(locationData==null)throw new InvalidOperationException("Playable location data missing.");
-                    session.ConfigurePersistent(persistence,locationData,saveStatus,tutorialStatus,rosterStatus);
+                    session.ConfigurePersistent(persistence,locationData,saveStatus,tutorialStatus,rosterStatus,guideFeedback);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyRocks.onClick,session.SurveyRocks);
