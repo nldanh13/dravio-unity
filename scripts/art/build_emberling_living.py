@@ -106,8 +106,10 @@ if polish_preview:
     # Continuous cylindrical body UV in the undeformed mesh. U=0 top, .5 underside;
     # V increases from tail to muzzle. Per-face unwrap avoids a seam across triangles.
     # Limbs and head use an approximate projection; final artist UVs remain future work.
-    uv = skin.data.uv_layers.new(name="BodyPaint")
-    skin.data.uv_layers.active = uv
+    while len(skin.data.uv_layers):
+        skin.data.uv_layers.remove(skin.data.uv_layers[0])
+    uv = skin.data.uv_layers.new(name="BodyPaint", do_init=False)
+    uv.active = True
     uv.active_render = True
     for face in skin.data.polygons:
         coords=[]
@@ -122,7 +124,7 @@ if polish_preview:
             coords.append((loop_index,u,v))
         seam=max(q[1] for q in coords)-min(q[1] for q in coords)>.5
         for idx,u,v in coords:
-            uv.data[idx].uv=(u+1. if seam and u<.5 else u,v)
+            uv.uv[idx].vector=(u+1. if seam and u<.5 else u,v)
         face.material_index=0
     # One material for the entire skin; Unity supplies the continuous painted gradient.
     skin.data.materials.pop(index=1)
