@@ -367,12 +367,17 @@ if refined_preview:
                 phase=2*math.pi*(t+offset)
                 lift=max(0.,math.sin(phase))
                 pitch=.23*math.cos(phase)
-                bend=(.30 if is_fore else -.30)*lift
+                bend=(-.30 if is_fore else .30)*lift
             elif sleeping:
-                pitch=-.38 if is_fore else .34
-                bend=.65 if is_fore else -.60
-            pose[upper].rotation_euler=(pitch,0,0)
-            pose[lower].rotation_euler=(bend,0,0)
+                # Opposing joint angles shorten the projected leg by ~.18 units
+                # in the sagittal plane, compensating for the lowered pelvis.
+                pitch=.46 if is_fore else -.40
+                bend=-.92 if is_fore else .80
+            def pitch_sign(name):
+                axis=arm.data.bones[name].matrix_local.to_3x3() @ Vector((1,0,0))
+                return 1. if axis.x>=0 else -1.
+            pose[upper].rotation_euler=(pitch*pitch_sign(upper),0,0)
+            pose[lower].rotation_euler=(bend*pitch_sign(lower),0,0)
             for name in (upper,lower):
                 pose[name].keyframe_insert(data_path="rotation_euler",frame=frame,group=name)
     # Validate authored vertex assignments before export. No runtime or visual claims.
@@ -393,7 +398,7 @@ if refined_preview:
         "checks":{"normalized_skin_weights":True,"maximum_four_weights":True},
         "limits":"FK prototype; gait, sleep pose, UV, Unity import and visual QA pending"
     }
-    out.with_suffix(".qa.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+    # Persist report only after the FBX export succeeds.
 
 action=arm.animation_data.action
 action.name="Emberling_Care" if care_preview else "Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
@@ -408,4 +413,9 @@ bpy.ops.export_scene.fbx(filepath=str(out),use_selection=True,
     apply_unit_scale=True,add_leaf_bones=False,mesh_smooth_type='FACE',
     bake_anim=True,bake_anim_use_all_actions=False,bake_anim_use_nla_strips=False,
     bake_anim_force_startend_keying=True,bake_anim_simplify_factor=0.0)
+if refined_preview:
+    if not out.is_file() or out.stat().st_size<=0:
+        raise RuntimeError("FBX missing after export")
+    report["fbx_bytes"]=out.stat().st_size
+    out.with_suffix(".qa.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
 print("Dravio rigged prototype exported:",out)
