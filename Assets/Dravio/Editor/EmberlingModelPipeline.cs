@@ -65,7 +65,12 @@ namespace Dravio.Editor
             if(EditorApplication.isPlayingOrWillChangePlaymode)return;
             if(AssetDatabase.LoadAssetAtPath<SceneAsset>(PlayableTarget)!=null)
             {
-                if(EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())EditorSceneManager.OpenScene(PlayableTarget);
+                if(EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                {
+                    EditorSceneManager.OpenScene(PlayableTarget);
+                    if(Object.FindAnyObjectByType<Dravio.Platform.Unity.DravioSessionHost>()==null)
+                        Debug.LogError("Dravio: incomplete playable scene; back up or rename it before generating again.");
+                }
                 return;
             }
             bool glb=AssetDatabase.LoadAssetAtPath<GameObject>(Root+"/Art/Models/EmberlingRefinedGLB.fbx")!=null;
