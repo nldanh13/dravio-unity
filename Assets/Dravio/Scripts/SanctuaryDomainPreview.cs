@@ -5,6 +5,12 @@ using Dravio.Domain;
 using Dravio.Domain.Biology;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
+using Dravio.Domain.World;
+using Dravio.Domain.Progression;
+using Dravio.Platform;
+using Dravio.Platform.Unity;
+using Dravio.EnvironmentArt;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +23,14 @@ namespace Dravio
         [SerializeField] private Text gold, progress, notice;
         [SerializeField] private GameObject fruit;
         private GameState state;
+        [SerializeField] private DravioSessionHost host;
+        [SerializeField] private SanctuaryLocationData locations;
+        [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus;
+        private GameSession Session=>host!=null?host.Session:null;
+        private bool persistentMode=>host!=null;
+        public string HabitatId=>state?.FindDragon(uid)?.Location?.HabitatId ?? "origin_meadow";
+        public SanctuaryLocationData Locations=>locations;
+        public bool IsPersistentPreview=>persistentMode;
         private FixedClock clock;
         private string uid, foodId;
         private Vector3 spawn;
@@ -27,16 +41,20 @@ namespace Dravio
         private string messageEn="",messageVi="";
         public bool HasFood => state!=null && foodId!=null && state.Food.Drops.Any(d=>d.Id==foodId);
         public Vector3 FoodPosition => fruit!=null?fruit.transform.position:spawn;
-        public bool CanInteract => state!=null && focused && !paused;
+        public bool CanInteract => state!=null && state.FindDragon(uid)!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
 
         public void Configure(Text goldLabel,Text progressLabel,Text noticeLabel,GameObject fruitVisual)
         {gold=goldLabel;progress=progressLabel;notice=noticeLabel;fruit=fruitVisual;}
+
+        public void ConfigurePersistent(DravioSessionHost sessionHost,SanctuaryLocationData locationData,Text saved,Text tutorial,Text roster)
+        {host=sessionHost;locations=locationData;saveStatus=saved;tutorialStatus=tutorial;rosterStatus=roster;}
 
         private void Awake()
         {
             spawn=transform.position;
             focused=Application.isFocused;
             if(fruit!=null)fruit.SetActive(false);
+            if(persistentMode)return; // Host owns the only clock and command bus.
             var now=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             clock=new FixedClock(now);
             var id=Guid.NewGuid().ToString("N");
@@ -47,11 +65,66 @@ namespace Dravio
             Refresh();
         }
 
+        private void Start()
+        {
+            if(!persistentMode)return;
+            if(Session==null){SetMessage("Session unavailable.","Không mở được phiên chơi.");return;}
+            Session.Changed+=OnSessionChanged;
+            Session.DomainEvents+=OnDomainEvents;
+            OnSessionChanged();
+            // The initial offline receipt can be created before this component subscribes.
+            if(state?.OfflineReceipt!=null)
+            {
+                var r=state.OfflineReceipt;
+                SetMessage("Offline receipt: "+GoldText(r.GoldMicro)+" G","Báo cáo offline: "+GoldText(r.GoldMicro)+" G");
+            }
+            else SetMessage("Persistent game session.","Phiên chơi có lưu tiến trình.");
+        }
+
+        private void OnDestroy()
+        {
+            if(Session!=null){Session.Changed-=OnSessionChanged;Session.DomainEvents-=OnDomainEvents;}
+        }
+
+        private void OnSessionChanged()
+        {
+            if(Session==null)return;
+            state=Session.State;
+            uid=state?.Dragons.FirstOrDefault(d=>d.SpeciesId=="emberling" && d.Location.Kind==LocationKind.Zone && d.Location.ZoneId=="origin")?.Uid;
+            if(state!=null && foodId==null)
+            {
+                var drop=state.Food.Drops.FirstOrDefault(d=>d.ZoneId=="origin" && d.HabitatId==HabitatId && d.DietId==DietId.Fruit);
+                if(drop!=null)
+                {
+                    foodId=drop.Id;
+                    if(fruit!=null){fruit.transform.position=SafeFruitPosition()+Vector3.up*.12f;fruit.SetActive(true);}
+                }
+            }
+            SyncFood();
+            Refresh();
+        }
+
+        private void OnDomainEvents(IReadOnlyList<DomainEvent> events)
+        {
+            foreach(var e in events)
+            {
+                if(e is OfflineReceiptCreated offline)SetMessage("Offline: +"+GoldText(offline.GoldMicro)+" G","Offline: +"+GoldText(offline.GoldMicro)+" G");
+                else if(e is AchievementUnlocked achievement)SetMessage("Achievement: +"+GoldText(achievement.RewardGoldMicro)+" G","Thành tựu: +"+GoldText(achievement.RewardGoldMicro)+" G");
+                else if(e is FoodExpired expired && expired.FoodId==foodId)SetMessage("Food expired.","Thức ăn đã hết hạn.");
+            }
+        }
+
+        private static string GoldText(long micro)=>(micro/(decimal)MicroGold.MicroPerGold).ToString("0.00",CultureInfo.InvariantCulture);
+        private void SyncFood()
+        {
+            if(foodId!=null && !HasFood){foodId=null;if(fruit!=null)fruit.SetActive(false);}
+        }
+
         private void OnApplicationFocus(bool value){focused=value;skipFrame=true;}
         private void OnApplicationPause(bool value){paused=value;skipFrame=true;}
         private void Update()
         {
-            if(!CanInteract)return;
+            if(persistentMode || !CanInteract)return;
             if(skipFrame){skipFrame=false;return;}
             double dt=Time.unscaledDeltaTime;
             if(dt<=0 || dt>5)return;
@@ -76,28 +149,86 @@ namespace Dravio
             else ShowError(result.Error);
             if(foodId!=null && !HasFood)
             {
-                foodId=null;
-                if(fruit!=null)fruit.SetActive(false);
-                if(result.Events.Any(e=>e is FoodExpired))
-                    SetMessage("Food expired.","Thức ăn đã hết hạn.");
+                SyncFood();
+                if(result.Events.Any(e=>e is FoodExpired))SetMessage("Food expired.","Thức ăn đã hết hạn.");
             }
             Refresh();
             return result;
         }
 
+        private IReadOnlyList<DomainEvent> Send(Func<string,GameCommand> build)
+        {
+            if(!CanInteract)return null;
+            if(!persistentMode){var r=Dispatch(build(Id()));return r.Ok?r.Events:null;}
+            IReadOnlyList<DomainEvent> received=Array.Empty<DomainEvent>();
+            void Capture(IReadOnlyList<DomainEvent> events){received=events;}
+            Session.DomainEvents+=Capture;
+            DomainError error;
+            try{error=Session.Send(build);}
+            finally{Session.DomainEvents-=Capture;}
+            if(error!=null){ShowError(error);return null;}
+            OnSessionChanged();
+            return received;
+        }
+
+        private Vector3 SafeFruitPosition()
+        {
+            var here=transform.position;
+            if(locations==null)return spawn+new Vector3(.25f,0,.55f);
+            foreach(var offset in new[]{transform.forward*.7f,transform.right*.7f,-transform.right*.7f,-transform.forward*.7f,Vector3.zero})
+            {
+                var point=here+offset;
+                if(locations.IsWalkable(point,HabitatId) && SegmentWalkable(here,point))return point;
+            }
+            return here;
+        }
+
+        public bool SegmentWalkable(Vector3 a,Vector3 b)
+        {
+            if(locations==null)return true;
+            int steps=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(a,b)/.15f));
+            for(int i=0;i<=steps;i++)
+                if(!locations.IsWalkable(Vector3.Lerp(a,b,(float)i/steps),HabitatId))return false;
+            return true;
+        }
+
+        public bool TryWanderTarget(int index,out Vector3 target)
+        {
+            target=transform.position;
+            if(locations==null)return false;
+            var candidates=locations.SpawnPointsIn(HabitatId).Where(p=>locations.IsWalkable(p.Position,HabitatId)).ToArray();
+            for(int i=0;i<candidates.Length;i++)
+            {
+                var p=candidates[(index+i)%candidates.Length].Position;
+                if(Vector3.Distance(transform.position,p)>.12f && SegmentWalkable(transform.position,p)){target=p;return true;}
+            }
+            return false;
+        }
+
+        public void ViewBiology(){Send(id=>new ViewBiologyProfileCommand(id,"emberling"));}
+        public void SurveyRocks(){Send(id=>new SurveyHabitatCommand(id,"origin_warm_rocks"));}
+        public void UnlockRocks(){Send(id=>new UnlockHabitatCommand(id,"origin_warm_rocks"));}
+        public void SurveyPond(){Send(id=>new SurveyHabitatCommand(id,"origin_pondbank"));}
+        public void UnlockPond(){Send(id=>new UnlockHabitatCommand(id,"origin_pondbank"));}
+        public void BuyStarter(){Send(id=>new BuyTutorialPackCommand(id));}
+        public void ClaimMeadow(){Send(id=>new ClaimPackCommand(id,MoveTarget.Zone("origin","origin_meadow")));}
+        public void ClaimStorage(){Send(id=>new ClaimPackCommand(id,MoveTarget.Storage));}
+        public void SaveGame(){if(Session!=null && Session.Status==SessionStatus.Ready)Session.SaveNow();}
+
         public bool RequestFood()
         {
             if(!CanInteract)return false;
             if(HasFood){SetMessage("One fruit is already available in this preview.","Đã có một quả trong bản thử.");return false;}
-            var r=Dispatch(new FeedCommand(Id(),DietId.Fruit,"origin","origin_meadow"));
-            if(!r.Ok)return false;
-            var drop=r.Events.OfType<FoodSpawned>().FirstOrDefault();
+            var point=SafeFruitPosition();
+            if(locations!=null && !locations.IsWalkable(point,HabitatId))return false;
+            var events=Send(id=>new FeedCommand(id,DietId.Fruit,"origin",HabitatId));
+            var drop=events?.OfType<FoodSpawned>().FirstOrDefault();
             if(drop==null)return false;
             foodId=drop.FoodId;
             nextConsumeAttempt=0;
             if(fruit!=null)
             {
-                fruit.transform.position=spawn+new Vector3(.25f,.12f,.55f);
+                fruit.transform.position=point+Vector3.up*.12f;
                 fruit.SetActive(true);
             }
             SetMessage("Fruit placed — Emberling will approach it.","Đã thả trái cây — Emberling sẽ đến gần.");
@@ -106,13 +237,14 @@ namespace Dravio
 
         public bool TryConsume()
         {
-            if(!CanInteract || !HasFood || clock.NowMs()<nextConsumeAttempt)return false;
+            long now=persistentMode?(long)(Time.realtimeSinceStartupAsDouble*1000):clock.NowMs();
+            if(!CanInteract || !HasFood || now<nextConsumeAttempt)return false;
             Vector3 distance=FoodPosition-transform.position;distance.y=0;
             if(distance.sqrMagnitude>.55f*.55f)return false;
-            nextConsumeAttempt=clock.NowMs()+500;
-            var r=Dispatch(new ConsumeFoodCommand(Id(),foodId,uid));
-            if(!r.Ok)return false;
-            var consumed=r.Events.OfType<FoodConsumed>().FirstOrDefault();
+            nextConsumeAttempt=now+500;
+            string requestedFood=foodId;
+            var events=Send(id=>new ConsumeFoodCommand(id,requestedFood,uid));
+            var consumed=events?.OfType<FoodConsumed>().FirstOrDefault();
             if(consumed==null)return false;
             SetMessage("Consumed fruit: +"+consumed.XpGainedSec+" XP","Đã ăn trái cây: +"+consumed.XpGainedSec+" XP");
             return true;
@@ -121,11 +253,11 @@ namespace Dravio
         public bool TryPet()
         {
             if(!CanInteract)return false;
-            var r=Dispatch(new PetCommand(Id(),uid));
-            if(!r.Ok)return false;
-            bool gained=r.Events.Any(e=>e is BondChanged);
+            var events=Send(id=>new PetCommand(id,uid));
+            if(events==null)return false;
+            bool gained=events.Any(e=>e is BondChanged);
             SetMessage(gained?"Bond increased.":"Petted — bond cap reached.",gained?"Gắn kết tăng.":"Đã vuốt ve — đạt giới hạn gắn kết.");
-            return r.Events.Any(e=>e is DragonPetted);
+            return events.Any(e=>e is DragonPetted);
         }
 
         private void ShowError(DomainError e)
@@ -144,12 +276,28 @@ namespace Dravio
         private void Refresh()
         {
             if(notice!=null)notice.text=vi?messageVi:messageEn;
+            if(saveStatus!=null && Session!=null)
+            {
+                saveStatus.text=Session.Status!=SessionStatus.Ready?(vi?"Phiên: ":"Session: ")+Session.Status:
+                    !Session.Persistent?(vi?"Không có lưu bền":"Non-persistent storage"):
+                    Session.SaveError?(vi?"Lỗi lưu":"Save failed"):
+                    Session.LastSavedAtMs.HasValue?(vi?"Đã lưu ":"Saved ")+DateTimeOffset.FromUnixTimeMilliseconds(Session.LastSavedAtMs.Value).ToLocalTime().ToString("HH:mm:ss"):(vi?"Chờ lưu":"Not saved yet");
+            }
             if(state==null)return;
+            if(gold!=null)gold.text=GoldText(state.Player.Gold.Micro)+" G";
+            if(tutorialStatus!=null)
+            {
+                string step=Tutorial.CurrentStep(state.Tutorial);
+                tutorialStatus.text=(vi?"Hướng dẫn ":"Tutorial ")+state.Tutorial.Completed.Count+"/8 · "+(step??state.Tutorial.Status.ToString())+
+                    (state.PendingPack!=null?(vi?" · Có trứng chờ nhận":" · Egg pending"):"");
+            }
+            if(rosterStatus!=null)rosterStatus.text=string.Join("\n",state.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.SpeciesId+" · "+(d.Location.Kind==LocationKind.Storage?(vi?"Kho":"Storage"):d.Location.HabitatId)+" · "+Lifecycle.StageOf(d)));
             var dragon=state.FindDragon(uid);
+            if(dragon==null){if(progress!=null)progress.text=vi?"Không có Emberling tại Origin":"No Emberling in Origin";return;}
             var species=SpeciesCatalog.Get(dragon.SpeciesId);
             var stage=Lifecycle.StageOf(dragon);
             string stageText=vi?(stage==GrowthStage.Baby?"Rồng non":stage==GrowthStage.Juvenile?"Rồng trẻ":"Trưởng thành"):stage.ToString();
-            if(gold!=null)gold.text=(state.Player.Gold.Micro/(decimal)MicroGold.MicroPerGold).ToString("0.00",CultureInfo.InvariantCulture)+" G";
+
             if(progress!=null)progress.text=stageText+"  |  XP "+dragon.XpSec.ToString("0.0",CultureInfo.InvariantCulture)+
                 "/"+species.GrowthTimeSec+"  |  "+(vi?"Gắn kết ":"Bond ")+dragon.Bond+"/100";
         }
