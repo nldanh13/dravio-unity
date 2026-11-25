@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace Dravio
 {
@@ -12,6 +15,7 @@ namespace Dravio
         private bool touchDrag;
         private Vector2 previous;
         private Quaternion initial;
+        private readonly List<RaycastResult> uiHits = new();
 
         private void Awake() => initial = transform.rotation;
 
@@ -22,6 +26,13 @@ namespace Dravio
 
         private bool HitsDragon(Vector2 position)
         {
+            if (EventSystem.current != null)
+            {
+                uiHits.Clear();
+                EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = position }, uiHits);
+                foreach (var hit in uiHits)
+                    if (hit.module is GraphicRaycaster) return false;
+            }
             return viewCamera != null &&
                 Physics.Raycast(viewCamera.ScreenPointToRay(position), out RaycastHit hit) &&
                 (hit.transform == transform || hit.transform.IsChildOf(transform));

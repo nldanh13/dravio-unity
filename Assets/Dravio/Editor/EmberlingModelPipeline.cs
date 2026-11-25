@@ -18,6 +18,11 @@ namespace Dravio.Editor
         const string Source = Root + "/Scenes/AncientSanctuary.unity";
         const string StaticTarget = Root + "/Scenes/EmberlingModelPreview.unity";
         const string LivingTarget = Root + "/Scenes/EmberlingLivingPreview.unity";
+        const string WanderTarget = Root + "/Scenes/EmberlingWanderPreview.unity";
+        const string CareTarget = Root + "/Scenes/EmberlingCarePreview.unity";
+        const string PolishTarget = Root + "/Scenes/EmberlingPolishedPreview.unity";
+        const string FantasyTarget = Root + "/Scenes/EmberlingFantasyPreview.unity";
+        const string RefinedTarget = Root + "/Scenes/EmberlingRefinedPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
@@ -27,25 +32,46 @@ namespace Dravio.Editor
         [MenuItem("Dravio/Preview Selected Living Emberling FBX")]
         public static void PreviewLiving() => PreviewInternal(true);
 
-        private static void PreviewInternal(bool living)
+        [MenuItem("Dravio/Preview Selected Wandering Emberling FBX")]
+        public static void PreviewWander() => PreviewInternal(true, true);
+
+        [MenuItem("Dravio/Preview Selected Care Emberling FBX")]
+        public static void PreviewCare() => PreviewInternal(true, true, true);
+
+        [MenuItem("Dravio/Preview Selected Polished Emberling FBX")]
+        public static void PreviewPolished() => PreviewInternal(true, true, true, true);
+
+        [MenuItem("Dravio/Create or Open Fantasy Preview")]
+        public static void PreviewFantasy() => PreviewInternal(true, true, true, true, true);
+
+        [MenuItem("Dravio/Create or Open Refined Preview")]
+        public static void PreviewRefined() => PreviewInternal(true, true, true, true, true, true);
+
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false)
         {
-            string target = living ? LivingTarget : StaticTarget;
+            string target = refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (fantasy && AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
+            {
+                if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                    EditorSceneManager.OpenScene(target);
+                return;
+            }
+            string assetPath = refined ? Root + "/Art/Models/EmberlingRefined.fbx" : fantasy ? Root + "/Art/Models/EmberlingPolished.fbx" : AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(assetPath) ||
                 !assetPath.StartsWith("Assets/", StringComparison.Ordinal) ||
                 !assetPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase) ||
                 AssetImporter.GetAtPath(assetPath) is not ModelImporter)
             {
-                EditorUtility.DisplayDialog("Dravio", "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
+                EditorUtility.DisplayDialog("Dravio", refined ? "Export EmberlingRefined.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Refined first." : fantasy ? "Export EmberlingPolished.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Polished first." : "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
                 return;
             }
             if (living)
             {
                 // Configure only a separately exported living asset, not the accepted static FBX.
-                if (Path.GetFileNameWithoutExtension(assetPath) != "EmberlingLiving")
+                if (Path.GetFileNameWithoutExtension(assetPath) != (refined ? "EmberlingRefined" : polish ? "EmberlingPolished" : care ? "EmberlingCare" : wander ? "EmberlingWander" : "EmberlingLiving"))
                 {
-                    EditorUtility.DisplayDialog("Dravio", "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
+                    EditorUtility.DisplayDialog("Dravio", refined ? "Select EmberlingRefined.fbx." : polish ? "Select EmberlingPolished.fbx." : care ? "Select EmberlingCare.fbx." : wander ? "Select EmberlingWander.fbx." : "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
                     return;
                 }
                 var importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
@@ -60,15 +86,48 @@ namespace Dravio.Editor
                     Debug.LogError("Dravio: FBX has no animation take.");
                     return;
                 }
-                foreach (var clip in clips)
+                if (wander)
                 {
-                    clip.loopTime = true;
-                    clip.loopPose = true;
+                    var take = clips.OrderByDescending(x => x.lastFrame - x.firstFrame).First();
+                    float start = take.firstFrame;
+                    if (take.lastFrame - start < (care ? 443.5f : 215.5f))
+                    {
+                        Debug.LogError(care ? "Dravio: expected 445 frames from --care-preview." : "Dravio: expected 217 frames from --walk-preview.");
+                        return;
+                    }
+                    var split = new System.Collections.Generic.List<ModelImporterClipAnimation> {
+                        MakeLoop(take.takeName, "Idle", start, start + 180),
+                        MakeLoop(take.takeName, "Walk", start + 181, start + 216)
+                    };
+                    if (care)
+                    {
+                        split.Add(MakeLoop(take.takeName, "Eat", start + 217, start + 277, false));
+                        split.Add(MakeLoop(take.takeName, "Doze", start + 278, start + 398));
+                        split.Add(MakeLoop(take.takeName, "Happy", start + 399, start + 444, false));
+                    }
+                    importer.clipAnimations = split.ToArray();
                 }
-                importer.clipAnimations = clips;
+                else
+                {
+                    foreach (var clip in clips)
+                    {
+                        clip.loopTime = true;
+                        clip.loopPose = true;
+                    }
+                    importer.clipAnimations = clips;
+                }
                 importer.SaveAndReimport();
             }
 
+            if (refined)
+            {
+                if (!EmberlingAssetAudit.Validate(assetPath, out var report))
+                {
+                    Debug.LogError(report);
+                    return;
+                }
+                Debug.Log(report);
+            }
             GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(Source) == null)
             {
@@ -115,8 +174,8 @@ namespace Dravio.Editor
                 hitbox.center = bounds.center;
                 hitbox.size = Vector3.Max(bounds.size, Vector3.one * .05f);
                 ConvertMaterials(renderers, shader, living);
-                if (living) ConfigureIdle(instance, assetPath);
-                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
+                if (living) ConfigureIdle(instance, assetPath, wander, care, polish, refined);
+                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (refined ? "/EmberlingRefinedVisual.prefab" : polish ? "/EmberlingPolishedVisual.prefab" : care ? "/EmberlingCareVisual.prefab" : wander ? "/EmberlingWanderVisual.prefab" : living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
                 prefab = PrefabUtility.SaveAsPrefabAsset(wrapper, prefabPath);
                 if (prefab == null) throw new InvalidOperationException("Prefab save failed.");
             }
@@ -149,8 +208,32 @@ namespace Dravio.Editor
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
             foreach (var child in oldChildren) Object.DestroyImmediate(child.gameObject);
-            root.name = living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
+            root.name = refined ? "Emberling - Refined Baby Normal" : polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
             turntable.SetCamera(Camera.main);
+            if (care)
+            {
+                var animator = visual.GetComponentInChildren<Animator>(true);
+                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable);
+                else CarePreviewHud.Build(root.gameObject, animator, turntable);
+                if (polish)
+                {
+                    try { EmberlingPolishBuilder.Apply(root.gameObject, visual, Camera.main); }
+                    catch (Exception error)
+                    {
+                        Debug.LogError("Dravio: polish generation incomplete. Source scene is intact. Rename the incomplete preview before retrying.");
+                        Debug.LogException(error);
+                        return;
+                    }
+                }
+            }
+            else if (wander)
+            {
+                var animator = visual.GetComponentInChildren<Animator>(true);
+                root.gameObject.AddComponent<DragonWanderPreview>().Configure(animator, turntable);
+                foreach (var label in Object.FindObjectsByType<UnityEngine.UI.Text>(FindObjectsSortMode.None))
+                    if (label.text.Contains("Drag to rotate"))
+                        label.text = "Emberling  |  Auto walk & rest  |  Space: inspect / resume  |  Drag or arrows to rotate";
+            }
             EditorSceneManager.MarkSceneDirty(preview);
             if (!EditorSceneManager.SaveScene(preview))
                 Debug.LogError("Dravio: preview save failed.");
@@ -179,11 +262,23 @@ namespace Dravio.Editor
             return result;
         }
 
-        static void ConfigureIdle(GameObject instance, string assetPath)
+        static ModelImporterClipAnimation MakeLoop(string take, string name, float first, float last, bool loop = true)
+        {
+            return new ModelImporterClipAnimation {
+                name = name, takeName = take, firstFrame = first, lastFrame = last,
+                loopTime = loop, loopPose = loop, keepOriginalPositionY = true,
+                lockRootHeightY = true, lockRootPositionXZ = true, lockRootRotation = true
+            };
+        }
+
+        static void ConfigureIdle(GameObject instance, string assetPath, bool wander, bool care, bool polish, bool refined)
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
             var clip = assets.OfType<AnimationClip>().FirstOrDefault(x =>
-                !x.name.StartsWith("__preview__", StringComparison.Ordinal) && x.length > 0);
+                !x.name.StartsWith("__preview__", StringComparison.Ordinal) && x.length > 0 &&
+                (!wander || x.name == "Idle"));
+            var walk = wander ? assets.OfType<AnimationClip>().FirstOrDefault(x => x.name == "Walk" && x.length > 0) : null;
+            if (wander && walk == null) throw new InvalidOperationException("Walk clip missing after FBX split.");
             if (clip == null) throw new InvalidOperationException("No imported idle clip.");
             // UnityEngine.Object can represent missing components as a managed
             // reference that compares equal to null. Do not use C# ?? here.
@@ -195,11 +290,37 @@ namespace Dravio.Editor
                 animator.avatar = assets.OfType<Avatar>().FirstOrDefault(x => x.isValid);
             if (animator.avatar == null || !animator.avatar.isValid)
                 throw new InvalidOperationException("Generic avatar missing or invalid. Check FBX rig import.");
-            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + "/EmberlingIdle.controller");
+            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (refined ? "/EmberlingRefined.controller" : polish ? "/EmberlingPolished.controller" : care ? "/EmberlingCare.controller" : wander ? "/EmberlingWander.controller" : "/EmberlingIdle.controller"));
             var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
             var state = controller.AddMotion(clip);
             state.name = "Idle";
             controller.layers[0].stateMachine.defaultState = state;
+            if (care)
+            {
+                controller.AddMotion(walk).name = "Walk";
+                foreach (string name in new[] {"Eat","Doze","Happy"})
+                {
+                    var action = assets.OfType<AnimationClip>().FirstOrDefault(x => x.name == name && x.length > 0);
+                    if (action == null) throw new InvalidOperationException("Missing care clip: " + name);
+                    controller.AddMotion(action).name = name;
+                }
+            }
+            else if (wander)
+            {
+                controller.AddParameter("Moving", AnimatorControllerParameterType.Bool);
+                var walking = controller.AddMotion(walk);
+                walking.name = "Walk";
+                var toWalk = state.AddTransition(walking);
+                toWalk.hasExitTime = false;
+                toWalk.duration = .15f;
+                toWalk.hasFixedDuration = true;
+                toWalk.AddCondition(AnimatorConditionMode.If, 0, "Moving");
+                var toIdle = walking.AddTransition(state);
+                toIdle.hasExitTime = false;
+                toIdle.duration = .15f;
+                toIdle.hasFixedDuration = true;
+                toIdle.AddCondition(AnimatorConditionMode.IfNot, 0, "Moving");
+            }
             animator.runtimeAnimatorController = controller;
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
