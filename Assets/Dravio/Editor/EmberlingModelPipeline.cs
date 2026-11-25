@@ -23,6 +23,7 @@ namespace Dravio.Editor
         const string PolishTarget = Root + "/Scenes/EmberlingPolishedPreview.unity";
         const string FantasyTarget = Root + "/Scenes/EmberlingFantasyPreview.unity";
         const string RefinedTarget = Root + "/Scenes/EmberlingRefinedPreview.unity";
+        const string IntegratedTarget = Root + "/Scenes/OriginIntegratedPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
@@ -47,14 +48,36 @@ namespace Dravio.Editor
         [MenuItem("Dravio/Create or Open Refined Preview")]
         public static void PreviewRefined() => PreviewInternal(true, true, true, true, true, true);
 
-        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false)
+        [MenuItem("Dravio/Create or Open Integrated Sanctuary")]
+        public static void PreviewIntegrated()
         {
-            string target = refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(IntegratedTarget) == null &&
+                AssetDatabase.LoadAssetAtPath<SceneAsset>(Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath) == null)
+            {
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Art/Models/EmberlingRefined.fbx") == null)
+                {
+                    EditorUtility.DisplayDialog("Dravio", "Export EmberlingRefined.fbx first using -Mode Refined.", "OK");
+                    return;
+                }
+                Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.BuildEverything();
+            }
+            PreviewInternal(true, true, true, true, true, true, true);
+        }
+
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false, bool integrated = false)
+        {
+            string source = integrated ? Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath : Source;
+            string target = integrated ? IntegratedTarget : refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (fantasy && AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
             {
                 if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                {
                     EditorSceneManager.OpenScene(target);
+                    if (integrated && Object.FindFirstObjectByType<SanctuaryDomainPreview>() == null)
+                        Debug.LogError("Dravio: incomplete integrated scene. Back up/rename it before rebuilding.");
+                }
                 return;
             }
             string assetPath = refined ? Root + "/Art/Models/EmberlingRefined.fbx" : fantasy ? Root + "/Art/Models/EmberlingPolished.fbx" : AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -129,9 +152,9 @@ namespace Dravio.Editor
                 Debug.Log(report);
             }
             GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-            if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(Source) == null)
+            if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(source) == null)
             {
-                Debug.LogError("Dravio: missing FBX model or Ancient Sanctuary scene.");
+                Debug.LogError("Dravio: missing FBX model or source scene: " + source);
                 return;
             }
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
@@ -191,11 +214,26 @@ namespace Dravio.Editor
             }
 
             // Scene copy first; source remains unchanged even when preview generation fails.
-            Scene sourceScene = EditorSceneManager.OpenScene(Source);
+            Scene sourceScene = EditorSceneManager.OpenScene(source);
             if (!EditorSceneManager.SaveScene(sourceScene, target, true))
             { Debug.LogError("Dravio: could not copy scene."); return; }
             Scene preview = EditorSceneManager.OpenScene(target);
             var turntable = Object.FindFirstObjectByType<DragonTurntable>();
+            if (integrated)
+            {
+                var marker = GameObject.Find("Clearing - Dragon Spot (marker)");
+                if (marker == null || turntable != null)
+                { Debug.LogError("Dravio: expected clean environment scene with clearing marker."); return; }
+                var dragon = new GameObject("Emberling - Integrated");
+                dragon.transform.position = marker.transform.position;
+                dragon.transform.rotation = Quaternion.Euler(0,180,0);
+                turntable = dragon.AddComponent<DragonTurntable>();
+                if(Camera.main != null)
+                {
+                    var fit = Camera.main.GetComponent<Dravio.EnvironmentArt.SanctuaryCameraFit>();
+                    if(fit != null) fit.enabled = false; // fixed authored landscape framing
+                }
+            }
             if (turntable == null || Camera.main == null)
             { Debug.LogError("Dravio: expected U1 turntable and camera."); return; }
 
@@ -208,12 +246,12 @@ namespace Dravio.Editor
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
             foreach (var child in oldChildren) Object.DestroyImmediate(child.gameObject);
-            root.name = refined ? "Emberling - Refined Baby Normal" : polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
+            root.name = integrated ? "Emberling - Integrated" : refined ? "Emberling - Refined Baby Normal" : polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
             turntable.SetCamera(Camera.main);
             if (care)
             {
                 var animator = visual.GetComponentInChildren<Animator>(true);
-                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable);
+                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable, integrated);
                 else CarePreviewHud.Build(root.gameObject, animator, turntable);
                 if (polish)
                 {
