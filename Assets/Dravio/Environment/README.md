@@ -56,7 +56,7 @@ From the repository root (PowerShell):
 
 - `--out` is the working folder (ignored by git): FBX, `OriginSanctuaryKit.blend` (all assets side by side, editable), textures, manifest and preview render.
 - `--unity` copies only into `Assets/Dravio/Environment/{Models,Textures,Data}`.
-- `--preview` renders `OriginSanctuary_preview.png` from the same orthographic camera with Cycles on the CPU. It takes about 30 seconds and can be left out.
+- `--preview` renders `OriginSanctuary_preview_16x9.png` and `_20x9.png` from the layout camera with Cycles on the CPU. It takes about 30 seconds and can be left out.
 - Python checks without Blender (needs numpy): `python -m unittest scripts/art/environment/test_environment_kit.py`
 
 The layout lives in `scripts/art/environment/layout.py`, in Unity coordinates. Change it there, re-run the build, then rebuild the scene.
@@ -68,15 +68,33 @@ The layout lives in `scripts/art/environment/layout.py`, in Unity coordinates. C
    1. *Setup Materials and Import Remaps* creates the 4 materials and remaps the FBX material names (`ENV_Props` and the others) to them.
    2. *Build Prefabs* writes `Prefabs/SM_ENV_*.prefab` with static flags and shadow settings.
    3. *Create or Open Origin Sanctuary Scene* creates `Scenes/OriginSanctuary_Environment.unity` from the layout JSON. If the scene already exists, it opens it and keeps your edits. *Rebuild ... (overwrite)* regenerates it after asking.
-3. Look at the Game view at 16:9 and then at a portrait resolution, and press Play to see the wind and the glow pulse.
+3. Look at the Game view at 16:9, 19.5:9 and 20:9 (landscape only), and press Play to see the wind and the glow pulse.
 4. Run **Dravio > Environment > Report Mobile Budget** and check the Frame Debugger for batches.
 5. Commit the generated `Materials/`, `Prefabs/`, `Scenes/` and every `.meta` file.
 
 If the Painterly shader fails to compile on your machine, the tool falls back to URP/Lit materials, says so in the Console, and the scene still builds. Report the shader error so it can be fixed.
 
+## Landscape and habitats (U1-ENV.2)
+
+The sanctuary is landscape only. It is framed for 16:9, 19.5:9 and 20:9 phones, with the right part of the screen kept free for the Fantasy UI panel.
+
+- **Camera.** `SanctuaryCameraFit` keeps the play area to the left of a panel that is `rightPanelScreenHeights` (0.5) screen heights wide, plus a 0.05 left margin. The camera shifts right by the same world distance at every aspect, so wider phones only show more dressing on the left and under the panel. Below 16:9 it zooms out instead of cropping. In portrait it logs one warning.
+- **Habitats.** Three microhabitats tile the play area without gaps, with ids and unlock rules matching the domain data:
+  - `origin_meadow` (centre, open by default): flowers, clover, tall grass, the runestones and the gate clearing.
+  - `origin_pondbank` (left, needs `DISC_AQUATIC_HABITAT`): the pond, bank ring, stepping stones, reeds and cattails. Swimmers may enter the swim area.
+  - `origin_warm_rocks` (right of the meadow, needs `DISC_EMBERLING_THERMAL`): warm flat and stacked rocks, dry grass and twigs.
+- **Location data.** `Data/OriginSanctuaryLocations.json` is the source of truth. **Dravio > Environment > 4. Update Location Data** turns it into `Data/OriginSanctuaryLocations.asset` (`SanctuaryLocationData`). It holds habitat polygons, the walkable rectangle, obstacle footprints, 13 spawn points, 4 transitions between habitats and perch points. Living World can call `HabitatAt`, `IsWalkable(pos, habitatId, canSwim)`, `SpawnPointsIn`, `TransitionsFrom` and `PerchesIn`. The scene also gets `SanctuaryMarker` objects and a gizmo drawer so designers can see the points.
+- **Colliders.** `Data/OriginSanctuaryColliders.json` lists box colliders per asset. Prefabs get them during *Build Prefabs*; the ground gets one flat box. Small props have none.
+- **Validation.** **Dravio > Environment > 5. Validate Landscape Framing and UI Area** checks, with a real camera at the three aspects, that every habitat corner, spawn, transition and perch is inside the free area, that every spawn is walkable, and reports (but never changes) the Player orientation.
+- **Variants and performance.** New assets: a second tree, a round shrub, warm rocks (flat and stacked), a pond bank ring, stepping stones and 8 new foliage cards (reed, cattail, dry grass, tall meadow grass, clover, lilac flowers, shrub leaves, dry twigs). Ground cover is baked into one mesh per habitat plus one for the edges, so the scene has 45 placements instead of 164 (about 26k triangles). Everything is static and uses the same 4 materials.
+
+To check framing without Unity, `scripts/art/environment/preview_overlay.py` draws the habitats, points and UI panel over the Blender previews.
+
+The project's Player orientation is not changed by these tools. Set **Player > Resolution and Presentation > Default Orientation** to Landscape Left yourself (it is a project setting outside Environment).
+
 ## Known limits
 
 - These are the first production-direction assets, generated rather than hand-sculpted. An artist pass (hand-painted details, extra variants, LODs if the camera ever zooms) is still welcome.
-- No colliders or navigation data. That belongs to U3 (habitat graph and movement).
+- Colliders are simple boxes for the large props only. There is no NavMesh; walkability is answered by `SanctuaryLocationData.IsWalkable`.
 - The Painterly shader has no Meta pass, so it is meant for realtime lighting. Lightmap baking is not supported yet.
 - The scene is not added to Build Settings automatically.
