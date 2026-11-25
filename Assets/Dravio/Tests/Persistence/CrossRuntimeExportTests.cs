@@ -29,12 +29,7 @@ namespace Dravio.Persistence.Tests
                 ParseResult back = SaveFile.Parse(text);
                 Assert.That(back.Ok, Is.True, name);
                 Assert.That(PFix.Canonical(back.Save.State), Is.EqualTo(PFix.Canonical(SaveSchema.ToPersistedState(s))), name);
-                if (dir != null)
-                {
-                    Directory.CreateDirectory(dir);
-                    File.WriteAllText(Path.Combine(dir, name + ".save.json"), text, new System.Text.UTF8Encoding(false));
-                    File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), PFix.Canonical(back.Save.State), new System.Text.UTF8Encoding(false));
-                }
+                PFix.Export(dir, name, text);
                 n++;
             }
             Assert.That(n, Is.GreaterThan(15));

@@ -8,19 +8,21 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v4, trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v5 (= v4 của TS + breedingNest, U2.5), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState của schema v4 (STATE_KEYS trong saveFile.ts).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + breedingNest (schema v5).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
+            // v5 (U2.5, chỉ có ở bản Unity)
+            "breedingNest",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -77,6 +79,7 @@ namespace Dravio.Persistence.Schema
                 .Set("profilesViewed", Arr(t.ProfilesViewed)).Set("starterPackUsed", JsonValue.From(t.StarterPackUsed)));
             o.Set("pendingPack", s.PendingPack == null ? JsonValue.Null : PendingPackToJson(s.PendingPack));
             o.Set("unlockedAchievements", Arr(s.UnlockedAchievements));
+            o.Set("breedingNest", s.BreedingNest == null ? JsonValue.Null : NestToJson(s.BreedingNest));
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
@@ -109,6 +112,11 @@ namespace Dravio.Persistence.Schema
         private static JsonObject PendingPackToJson(PendingPack p) =>
             new JsonObject().Set("id", S(p.Id)).Set("packId", S(p.PackId)).Set("speciesId", S(p.SpeciesId)).Set("genotype", GenotypeToJson(p.Genotype))
                 .Set("mutation", S(p.Mutation.ToWire())).Set("createdAtMs", N(p.CreatedAtMs)).Set("tutorial", JsonValue.From(p.Tutorial));
+
+        private static JsonObject NestToJson(BreedingEgg e) =>
+            new JsonObject().Set("id", S(e.Id)).Set("parentIds", Arr(e.ParentIds)).Set("speciesId", S(e.SpeciesId)).Set("genotype", GenotypeToJson(e.Genotype))
+                .Set("mutation", S(e.Mutation.ToWire())).Set("createdAtMs", N(e.CreatedAtMs)).Set("finishAtMs", N(e.FinishAtMs)).Set("durationMs", N(e.DurationMs))
+                .Set("tapReducedMs", N(e.TapReducedMs)).Set("lastTapAtMs", N(e.LastTapAtMs)).Set("boostUsed", JsonValue.From(e.BoostUsed)).Set("status", S(e.Status.ToWire()));
 
         public static JsonObject DragonToJson(DragonState d)
         {
@@ -327,6 +335,25 @@ namespace Dravio.Persistence.Schema
 
             s.UnlockedAchievements = r.StrList(o, "unlockedAchievements", "unlockedAchievements: invalid");
             s.ClaimedAchievements = r.StrList(o, "claimedAchievements", "claimedAchievements: invalid");
+
+            JsonValue nv = o.Get("breedingNest");
+            if (nv is JsonObject no)
+            {
+                var nr = new Reader(new List<string>());
+                List<string> parents = no.Get("parentIds") is JsonArray ? nr.StrList(no, "parentIds", "x") : null;
+                s.BreedingNest = new BreedingEgg
+                {
+                    Id = nr.Str(no, "id", "x"), ParentIds = parents?.ToArray(), SpeciesId = nr.Str(no, "speciesId", "x"),
+                    Genotype = GenotypeFromJson(no.Get("genotype"), nr), Mutation = nr.Enum(no, "mutation", "x", MutationType.Normal),
+                    CreatedAtMs = nr.LongOr(no, "createdAtMs", "x", -1), FinishAtMs = nr.LongOr(no, "finishAtMs", "x", -1),
+                    DurationMs = nr.LongOr(no, "durationMs", "x", -1), TapReducedMs = nr.LongOr(no, "tapReducedMs", "x", -1),
+                    LastTapAtMs = nr.LongOr(no, "lastTapAtMs", "x", -1), BoostUsed = nr.Bool(no, "boostUsed", "x"),
+                    Status = nr.Enum(no, "status", "x", EggStatus.Incubating),
+                };
+                if (parents == null) nr.Errors.Add("parentIds");
+                if (nr.Errors.Count > 0) errors.Add("breedingNest: invalid");
+            }
+            else if (!(nv is JsonNull)) errors.Add("breedingNest: invalid");
             return s;
         }
 

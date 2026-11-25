@@ -66,6 +66,15 @@ namespace Dravio.Domain.Tests.Support
             to["profilesViewed"] = Arr(t.ProfilesViewed); to["starterPackUsed"] = t.StarterPackUsed;
             o["tutorial"] = to;
             o["pendingPack"] = s.PendingPack == null ? null : PendingPackJson(s.PendingPack);
+            if (s.BreedingNest != null)
+            {
+                BreedingEgg e = s.BreedingNest;
+                var eo = Obj();
+                eo["id"] = e.Id; eo["parentIds"] = Arr(e.ParentIds); eo["speciesId"] = e.SpeciesId; eo["genotype"] = Genotype(e.Genotype); eo["mutation"] = e.Mutation.ToWire();
+                eo["createdAtMs"] = N(e.CreatedAtMs); eo["finishAtMs"] = N(e.FinishAtMs); eo["durationMs"] = N(e.DurationMs); eo["tapReducedMs"] = N(e.TapReducedMs);
+                eo["lastTapAtMs"] = N(e.LastTapAtMs); eo["boostUsed"] = e.BoostUsed; eo["status"] = e.Status.ToWire();
+                o["breedingNest"] = eo; // v5; vắng mặt khi tổ trống để so được với golden v4 của TS
+            }
             o["unlockedAchievements"] = Arr(s.UnlockedAchievements);
             o["claimedAchievements"] = Arr(s.ClaimedAchievements);
             o["processedRequestIds"] = Arr(s.ProcessedRequestIds);
@@ -254,7 +263,7 @@ namespace Dravio.Domain.Tests.Support
             return s;
         }
 
-        private static Genotype GenotypeFromJson(object v)
+        public static Genotype GenotypeFromJson(object v)
         {
             var g = new Genotype();
             foreach (var kv in (Dictionary<string, object>)v) { var pair = (List<object>)kv.Value; g.Set(kv.Key, (string)pair[0], (string)pair[1]); }

@@ -161,8 +161,13 @@ namespace Dravio.Domain.Tests
         {
             Assert.That(new DomainError(DomainErrorCode.PetCooldown).MessageKey, Is.EqualTo("commandError.pet-cooldown"));
             var all = System.Enum.GetValues(typeof(DomainErrorCode)).Cast<DomainErrorCode>().Select(c => c.ToWire()).ToArray();
-            Assert.That(all.Length, Is.EqualTo(30));
+            // 30 mã đầu giữ nguyên thứ tự và chuỗi của CommandErrorCode (TS b33ec7a); 19 mã sau là implementation mới của U2.5.
+            Assert.That(all.Length, Is.EqualTo(49));
+            Assert.That(all.Take(30).Last(), Is.EqualTo("not-enough-gold"));
             Assert.That(all, Does.Contain("name-invalid-chars").And.Contain("not-enough-gold").And.Contain("invalid-command"));
+            Assert.That(all.Skip(30), Is.EqualTo(new[] { "unknown-pack", "storage-full", "daily-limit", "nest-busy", "no-egg", "egg-not-ready", "egg-ready", "tap-too-fast", "tap-limit",
+                "breed-same-dragon", "breed-invalid-genotype", "breed-released", "breed-emergency-shelter", "breed-not-adult", "breed-busy", "breed-cooldown",
+                "breed-different-group", "breed-related", "breed-no-candidates" }));
         }
     }
 }

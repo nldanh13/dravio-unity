@@ -32,6 +32,7 @@ namespace Dravio.Persistence.Schema
     /// Migration theo schemaVersion (src/persistence/migrations.ts; ADR 0006, 0007, 0009, 0013).
     /// v1 → v2 thêm discoveries (ghi bù khám phá cho sinh cảnh đã mở, ADR 0010); v2 → v4 thêm tutorial,
     /// pendingPack, unlockedAchievements, claimedAchievements; số 3 là bí danh tiền phát hành của v1 và được dành riêng.
+    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null.
     /// </summary>
     public static class Migrations
     {
@@ -65,6 +66,22 @@ namespace Dravio.Persistence.Schema
                     .Set("profilesViewed", new JsonArray()).Set("starterPackUsed", JsonValue.False);
                 return state.ShallowCopy().Set("tutorial", tutorial).Set("pendingPack", JsonValue.Null)
                     .Set("unlockedAchievements", new JsonArray()).Set("claimedAchievements", new JsonArray());
+            }),
+            // U2.5 (chỉ bản Unity): thêm tổ ấp rỗng. TS v4 chưa có lệnh lai nên rồng mang activity = "breeding" không có trứng nào —
+            // trả về "idle" để không bị khóa vĩnh viễn. Không đổi vàng, rồng, gene, phả hệ hay thành tựu.
+            new MigrationStep(4, 5, state =>
+            {
+                if (state.ContainsKey("breedingNest")) throw new InvalidOperationException("v4 state already has breedingNest");
+                JsonObject next = state.ShallowCopy().Set("breedingNest", JsonValue.Null);
+                if (state.Get("dragons") is JsonArray dragons)
+                {
+                    var fixedDragons = new JsonArray();
+                    foreach (JsonValue d in dragons)
+                        fixedDragons.Add(d is JsonObject dob && dob.Get("activity") is JsonString a && a.Value == "breeding"
+                            ? dob.ShallowCopy().Set("activity", JsonValue.From("idle")) : d);
+                    next.Set("dragons", fixedDragons);
+                }
+                return next;
             }),
         });
 

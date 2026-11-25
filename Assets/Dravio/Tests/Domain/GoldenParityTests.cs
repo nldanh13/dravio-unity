@@ -90,7 +90,9 @@ namespace Dravio.Domain.Tests
             foreach (var entry in GoldenFile.List("initialStates").Select(O))
             {
                 GameState s = InitialStateFactory.Create((string)entry["saveId"], L(entry["nowMs"]), Rng.Create((uint)(double)entry["seed"]));
-                string diff = MiniJson.Diff(entry["state"], StateJson.ToJson(s));
+                // State khởi tạo trùng TS ngoài schemaVersion: C# ghi v5 (U2.5, tổ ấp rỗng nên không có khóa breedingNest).
+                var expected = new Dictionary<string, object>(O(entry["state"])) { ["schemaVersion"] = (double)ContentInfo.SchemaVersion };
+                string diff = MiniJson.Diff(expected, StateJson.ToJson(s));
                 Assert.That(diff, Is.Null, "seed " + entry["seed"]);
                 Assert.That(GameStateValidator.Validate(s).IsValid, Is.True);
             }

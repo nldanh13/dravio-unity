@@ -15,7 +15,7 @@ namespace Dravio.Domain.Progression
     /// </summary>
     public static class StarterPack
     {
-        private static readonly Personality[] Personalities = { Personality.Playful, Personality.Calm, Personality.Curious, Personality.Shy };
+        internal static readonly Personality[] Personalities = { Personality.Playful, Personality.Calm, Personality.Curious, Personality.Shy };
 
         public static MicroGold Price => MicroGold.FromWholeGold(PackCatalog.Get(ProgressCatalog.TutorialPackId).PriceG);
 

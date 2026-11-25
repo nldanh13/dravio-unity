@@ -195,4 +195,36 @@ namespace Dravio.Domain.Core
         public override string Type => "tutorialStatusChanged";
         public TutorialStatus Status { get; }
     }
+
+    // ---- U2.5: tổ ấp (implementation mới, không có ở TS b33ec7a) ----
+
+    /// <summary>Bắt đầu lai: phí đã trừ, kết quả đã roll và lưu trong tổ (không công bố loài/biến thể trước khi nở).</summary>
+    public sealed class BreedStarted : DomainEvent
+    {
+        public BreedStarted(string eggId, string parentA, string parentB, long feeGoldMicro, long finishAtMs) { EggId = eggId; ParentA = parentA; ParentB = parentB; FeeGoldMicro = feeGoldMicro; FinishAtMs = finishAtMs; }
+        public override string Type => "breedStarted";
+        public string EggId { get; }
+        public string ParentA { get; }
+        public string ParentB { get; }
+        public long FeeGoldMicro { get; }
+        public long FinishAtMs { get; }
+    }
+
+    public sealed class EggTapped : DomainEvent
+    {
+        public EggTapped(string eggId, long reducedMs, long finishAtMs) { EggId = eggId; ReducedMs = reducedMs; FinishAtMs = finishAtMs; }
+        public override string Type => "eggTapped";
+        public string EggId { get; }
+        public long ReducedMs { get; }
+        public long FinishAtMs { get; }
+    }
+
+    /// <summary>Ấp xong: bố mẹ được giải phóng và vào cooldown 10 phút, kể cả khi trứng còn chờ nhận do kho đầy.</summary>
+    public sealed class EggReady : DomainEvent
+    {
+        public EggReady(string eggId, long atMs) { EggId = eggId; AtMs = atMs; }
+        public override string Type => "eggReady";
+        public string EggId { get; }
+        public long AtMs { get; }
+    }
 }

@@ -73,7 +73,7 @@ namespace Dravio.Domain
         }
     }
 
-    /// <summary>Trứng đã roll và lưu, chờ nhận (schema v4). U2.1 chỉ giữ và kiểm tra dữ liệu, chưa port lệnh mua/nhận.</summary>
+    /// <summary>Trứng đã roll và lưu, chờ nhận (schema v4). Lệnh buyTutorialPack (U2.4), buyPack / claimFreeStarterPack (U2.5) tạo; claimPack nhận.</summary>
     public sealed class PendingPack
     {
         public string Id { get; set; }
@@ -88,6 +88,38 @@ namespace Dravio.Domain
         {
             var c = (PendingPack)MemberwiseClone();
             c.Genotype = Genotype?.Clone();
+            return c;
+        }
+    }
+
+    /// <summary>
+    /// Trứng trong tổ ấp (GDD 3.1 Phụ lục C.2 BreedingEgg; schema v5, U2.5). Kết quả (loài, genotype, biến thể) đã roll một lần
+    /// lúc bắt đầu lai và lưu ngay — không reroll. Một tổ trong P0.
+    /// </summary>
+    public sealed class BreedingEgg
+    {
+        public string Id { get; set; }
+        public string[] ParentIds { get; set; }
+        public string SpeciesId { get; set; }
+        public Genotype Genotype { get; set; } = new Genotype();
+        public MutationType Mutation { get; set; }
+        public long CreatedAtMs { get; set; }
+        /// <summary>Thời điểm nở dự kiến (đã trừ phần giảm do gõ).</summary>
+        public long FinishAtMs { get; set; }
+        /// <summary>Thời lượng sau nâng cấp hatchSpeed, không đổi khi gõ (mốc 10 %).</summary>
+        public long DurationMs { get; set; }
+        public long TapReducedMs { get; set; }
+        /// <summary>0 = chưa gõ lần nào.</summary>
+        public long LastTapAtMs { get; set; }
+        /// <summary>Đã dùng giảm 25 % bằng quảng cáo (mobile). U2.5 chưa có lệnh boost nên luôn false.</summary>
+        public bool BoostUsed { get; set; }
+        public EggStatus Status { get; set; }
+
+        public BreedingEgg Clone()
+        {
+            var c = (BreedingEgg)MemberwiseClone();
+            c.Genotype = Genotype?.Clone();
+            c.ParentIds = ParentIds == null ? null : (string[])ParentIds.Clone();
             return c;
         }
     }
@@ -139,6 +171,8 @@ namespace Dravio.Domain
         public List<string> Discoveries { get; set; } = new List<string>();
         public TutorialState Tutorial { get; set; } = new TutorialState();
         public PendingPack PendingPack { get; set; }
+        /// <summary>(breedingNest) Trứng lai đang ấp hoặc chờ nhận; null = tổ trống. Schema v5.</summary>
+        public BreedingEgg BreedingNest { get; set; }
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
 
@@ -156,6 +190,7 @@ namespace Dravio.Domain
             c.Discoveries = Discoveries == null ? null : new List<string>(Discoveries);
             c.Tutorial = Tutorial?.Clone();
             c.PendingPack = PendingPack?.Clone();
+            c.BreedingNest = BreedingNest?.Clone();
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);
             return c;
