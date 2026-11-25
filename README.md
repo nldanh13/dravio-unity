@@ -162,3 +162,22 @@ In Unity choose **Dravio > Create or Open Fantasy Preview**. The menu finds Embe
 - Biology fields are extracted at scene generation from the canonical `Assets/Dravio/Data/species-biology.json` Emberling entry, not invented values. Display reference fields only; no gold, health, food quantity, growth progress, comfort, genetics, passport, or inventory fabricated. Rebuild a new preview after backing up an old one if the canonical file changes.
 
 Deferred acceptance: verify compilation, FBX and five clips, menu creation/reopen, care actions, language/diacritics, scroll and tab navigation, roster inspect, hide/show, both landscape orientations (16:9, 19.5:9, 20:9), safe areas, touch scroll and drag not rotating the dragon through UI, camera framing and performance. This is a functional UI prototype, not production-quality art or a domain-connected UI. No Unity/Blender execution by the code author. Keep prior previews and draft PRs until validated.
+
+## U1.6 — Refined character and asset audit
+
+Cumulative from the landscape-only U1.5 commit 75c8482. The latest locally accepted baseline remains U1.3a; U1.3b through U1.6 have not been run in the user's Unity Editor. Environment and Core Domain workstreams are unchanged. No portrait mobile layout.
+
+The opt-in Refined export extends the 13-bone rig to 17 bones (four lower leg joints), assigns paw/claw details to the lower joints, uses two-joint FK walk poses and a lowered, folded-leg doze pose. The five clip names and ranges are unchanged. The doze pose is an approximate crouched rest, not a validated full lying-down sleep animation. The projected sagittal angles were numerically checked in an idealized two-segment model; this does not establish ground contact or correct mesh deformation in Blender/Unity. No IK, jaw articulation, new audio, or gameplay effects yet.
+
+Generate and check the cumulative model:
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-character-qa --track origin/feat/u1-character-qa
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Refined
+```
+The exporter validates vertex weights (finite, normalized, at most four influences) and writes `art-exports/EmberlingRefined.qa.json` after successful FBX creation, reporting bone names, mesh/vertex/triangle counts, clip ranges and file size. The PowerShell helper preserves any existing Assets FBX.
+
+In Unity, choose **Dravio > Create or Open Refined Preview**. This configures the imported Generic rig and splits the five clips, then runs a structural audit before creating the separate EmberlingRefinedPreview scene, prefab and controller. The audit checks valid Generic Avatar, required bone names, named clip durations and loop flags, UV0 and skinned renderer references, and reports vertex/triangle counts and provisional budget warnings. The read-only **Dravio > Validate Refined Emberling FBX** menu repeats the audit after import configuration. A PASS is not a runtime or visual acceptance result. Existing preview scenes are preserved; if incomplete, back up/rename before retrying.
+
+Deferred acceptance: verify Blender export and audit, Unity compile/import and structural audit, two walk cycles from side/front/rear, paw/claw attachment, foot sliding/penetration, sleep leg folding and ground contact, all five clips and interruptions, camera/HUD touch and language in landscape on actual devices, and VFX/performance. No Blender or Unity executable was available to the code author. Do not merge or claim final art until the checks pass.
