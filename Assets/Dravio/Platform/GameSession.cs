@@ -236,11 +236,16 @@ namespace Dravio.Platform
             State = r.State;
             if (r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
             Notify();
-            // Mua/nhận trứng: lưu ngay để kết quả đã roll và thưởng đã nhận không thể làm lại bằng cách tắt app
-            // (IMMEDIATE_SAVE của gameSession.ts).
-            if (cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand) SaveNow();
+            // Giao dịch quan trọng: lưu ngay để kết quả đã roll, vàng đã trừ và thưởng đã nhận không thể làm lại bằng cách tắt app
+            // (IMMEDIATE_SAVE của gameSession.ts cho buyTutorialPack/claimPack; U2.5 thêm gói thường, lai và nhận con).
+            if (IsImmediateSave(cmd)) SaveNow();
             return null;
         }
+
+        /// <summary>Lệnh trừ tài nguyên, tạo UID hoặc roll kết quả → lưu ngay sau khi thành công.</summary>
+        public static bool IsImmediateSave(GameCommand cmd) =>
+            cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand || cmd is BuyPackCommand ||
+            cmd is StartBreedCommand || cmd is ClaimBreedCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;
 

@@ -8,10 +8,14 @@ namespace Dravio.Domain.Catalog
     public static class ContentInfo
     {
         /// <summary>
-        /// Dravio Save Schema hiện tại của TypeScript b33ec7a: 4 (v1 ADR 0007, v2 discoveries ADR 0009,
-        /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng, không dùng).
+        /// Dravio Save Schema của bản Unity: 5. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
+        /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
+        /// thêm breedingNest (GDD Phụ lục C.2). <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 4;
+        public const int SchemaVersion = 5;
+
+        /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
+        public const int TsSchemaVersion = 4;
 
         /// <summary>Phiên bản catalog nội dung (G0 Decision Pack 1.0). Dùng làm seed founder ổn định.</summary>
         public const string ContentVersion = "g0-1.0";
@@ -187,8 +191,11 @@ namespace Dravio.Domain.Catalog
             }
         }
 
-        /// <summary>Lần thứ 200 liên tiếp không Prismatic bảo đảm Prismatic. Logic roll chưa port; dùng cho validation pityCount.</summary>
+        /// <summary>Lần thứ 200 liên tiếp không Prismatic bảo đảm Prismatic (GDD trang 15; Economy.Mutation.Roll).</summary>
         public const int PrismaticPity = 200;
+
+        /// <summary>Phần chia biến thể hiếm 11 : 3,5 : 0,5 trên 15 (MUTATION_SHARE).</summary>
+        public const double ShareCrystal = 11.0 / 15, ShareGolden = 3.5 / 15, SharePrismatic = 0.5 / 15;
 
         /// <summary>Hệ số vàng offline 75 % (dạng số thực, chỉ dùng trong offlineGoldMicro; engine dùng phân số 3/4).</summary>
         public const double OfflineGoldFactor = 0.75;
@@ -203,7 +210,37 @@ namespace Dravio.Domain.Catalog
         });
     }
 
-    /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm. U2.4 chỉ dùng giá gói starter; roll gói chưa port.</summary>
+    /// <summary>
+    /// Lai tạo và tổ ấp (GDD 3.1 trang 8; ADR 0003 #1, #2; src/data/breeding.ts). Trọng số con 60/30/9/1, phí theo độ hiếm cao nhất
+    /// của bố mẹ 80/350/1500/5000 G, ấp theo độ hiếm con 5/15/60/180 phút, cooldown bố mẹ 10 phút.
+    /// Ba hằng tap cuối là luật GDD trang 32 / ADR 0003 cho tapEgg — bản TS b33ec7a chưa có dữ liệu này.
+    /// </summary>
+    public static class BreedingCatalog
+    {
+        public static int OffspringWeight(Rarity r) => r == Rarity.Common ? 60 : r == Rarity.Rare ? 30 : r == Rarity.Epic ? 9 : 1;
+        public static long FeeG(Rarity r) => r == Rarity.Common ? 80 : r == Rarity.Rare ? 350 : r == Rarity.Epic ? 1500 : 5000;
+        public static int BaseHatchSec(Rarity r) => r == Rarity.Common ? 5 * 60 : r == Rarity.Rare ? 15 * 60 : r == Rarity.Epic ? 60 * 60 : 180 * 60;
+        public const long ParentCooldownMs = 10 * 60 * 1000;
+        /// <summary>Mỗi lần gõ tổ giảm 3 s (GDD trang 32).</summary>
+        public const long TapReduceMs = 3000;
+        /// <summary>Hai lần gõ cách nhau ít nhất 2 s.</summary>
+        public const long TapMinIntervalMs = 2000;
+        /// <summary>Tổng giảm do gõ ≤ 10 % thời lượng sau nâng cấp.</summary>
+        public const double TapMaxShare = 0.10;
+        /// <summary>Một tổ ấp trong P0.</summary>
+        public const int NestSlots = 1;
+    }
+
+    /// <summary>
+    /// Giới hạn kho (GDD 3.1 Phụ lục C: "Giới hạn kho đề xuất 500 rồng (v2), pending không mất khi đầy"). Bản TS b33ec7a chưa dùng.
+    /// Đây là con số GDD gọi là đề xuất; ghi trong danh sách quyết định cần xác nhận (README U2.5).
+    /// </summary>
+    public static class StorageCatalog
+    {
+        public const int MaxDragons = 500;
+    }
+
+    /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>
     public sealed class PackDef
     {
         internal PackDef(string id, long priceG, int common, int rare, int epic, int legendary)
@@ -230,9 +267,18 @@ namespace Dravio.Domain.Catalog
 
         public static PackDef Get(string id)
         {
-            foreach (PackDef p in All) if (p.Id == id) return p;
+            if (TryGet(id, out PackDef p)) return p;
             throw new DomainInvariantException("Unknown pack id: " + id);
         }
+
+        public static bool TryGet(string id, out PackDef pack)
+        {
+            foreach (PackDef p in All) if (p.Id == id) { pack = p; return true; }
+            pack = null;
+            return false;
+        }
+
+        public static int Odds(PackDef p, Rarity r) => r == Rarity.Common ? p.OddsCommon : r == Rarity.Rare ? p.OddsRare : r == Rarity.Epic ? p.OddsEpic : p.OddsLegendary;
     }
 
     /// <summary>Quy tắc mở microhabitat Khởi Nguyên (src/data/habitatUnlocks.ts; ADR 0009).</summary>

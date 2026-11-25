@@ -297,6 +297,35 @@ namespace Dravio.Domain.Core
                     errors.Add("pendingPack: tutorial pack without starterPackUsed");
             }
 
+            // U2.5 (schema v5): tổ ấp. Bố mẹ của trứng đang ấp phải tồn tại, chưa thả và ở activity = breeding;
+            // ngoài tổ thì không rồng nào được ở activity = breeding (chống rồng bị khóa vĩnh viễn hoặc nhân bản trứng).
+            BreedingEgg egg = s.BreedingNest;
+            var breedingParents = new HashSet<string>(StringComparer.Ordinal);
+            if (egg != null)
+            {
+                SpeciesCatalog.TryGet(egg.SpeciesId, out DragonSpecies eggSpecies);
+                if (egg.Id == null || egg.Id.Length == 0 || egg.Id.Length > 64 || eggSpecies == null || !Genetics.IsValidGenotype(egg.Genotype, eggSpecies.Loci) ||
+                    !WireNames.IsDefined(egg.Mutation) || !WireNames.IsDefined(egg.Status) || egg.ParentIds == null || egg.ParentIds.Length != 2 ||
+                    egg.ParentIds[0] == null || egg.ParentIds[1] == null || egg.ParentIds[0] == egg.ParentIds[1] ||
+                    egg.CreatedAtMs < 0 || egg.DurationMs <= 0 || egg.TapReducedMs < 0 || egg.LastTapAtMs < 0 ||
+                    egg.TapReducedMs > (long)Math.Floor(egg.DurationMs * BreedingCatalog.TapMaxShare) ||
+                    egg.FinishAtMs != egg.CreatedAtMs + egg.DurationMs - egg.TapReducedMs)
+                    errors.Add("breedingNest: invalid");
+                else if (egg.Status == EggStatus.Incubating)
+                    foreach (string pid in egg.ParentIds)
+                    {
+                        DragonState pd = s.FindDragon(pid);
+                        if (pd == null || pd.Location.Kind == LocationKind.Released || pd.Activity != DragonActivity.Breeding)
+                            errors.Add("breedingNest: parent " + pid + " not breeding");
+                        else breedingParents.Add(pid);
+                    }
+            }
+            // Chỉ áp dụng từ schema v5: state v4 của TS (không có tổ) có thể mang activity = breeding; migration v4 → v5 trả các rồng đó về idle.
+            if (s.Dragons != null && s.SchemaVersion >= 5)
+                foreach (DragonState d in s.Dragons)
+                    if (d != null && d.Activity == DragonActivity.Breeding && !breedingParents.Contains(d.Uid))
+                        errors.Add("dragons." + d.Uid + ".activity: breeding without nest");
+
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
             List<string> claimed = s.ClaimedAchievements;

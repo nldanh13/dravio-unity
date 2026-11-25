@@ -21,9 +21,19 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 `DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
 
-## 2. Save Schema v4
+## 2. Save Schema v5 (v4 của TS + `breedingNest`)
 
-Envelope có các trường `{ format: "dravio-save", schemaVersion: 4, contentVersion, savedAtMs, revision, checksum, state }`.
+Envelope có các trường `{ format: "dravio-save", schemaVersion: 5, contentVersion, savedAtMs, revision, checksum, state }`.
+
+**U2.5 — Schema v5 chỉ có ở bản Unity.** TS b33ec7a dừng ở v4. Bản Unity thêm đúng một khóa `breedingNest`: `null`, hoặc `BreedingEgg` theo GDD Phụ lục C.2 (`id, parentIds, speciesId, genotype, mutation, createdAtMs, finishAtMs, durationMs, tapReducedMs, lastTapAtMs, status`).
+- **Migration 4 → 5**: thêm `breedingNest = null`. Rồng nào mang `activity = "breeding"` mà không có tổ (state v4 không thể tạo ra trứng) được trả về `idle`. Ngoài ra không đổi vàng, rồng, gene, phả hệ hay thành tựu.
+- **Lưu trữ bản gốc**: save v4 do TS ghi được giữ nguyên văn trong `archive:schema-4` trước lần ghi v5 đầu tiên.
+- **Mã lỗi**: save v4 hỏng nội dung vẫn báo `invalid-state` như TS, không thành `migration-failed`, vì bước 4 → 5 không biến đổi dữ liệu.
+- **Validator v5**: chặn trứng có bố mẹ không ở trạng thái lai, rồng "breeding" mà không có tổ, `finishAtMs ≠ createdAtMs + durationMs − tapReducedMs`, và phần giảm do gõ vượt 10 %. Nhờ vậy sửa tay để rút ngắn ấp hoặc lai hai lần cùng lúc đều bị từ chối khi nạp.
+- **Tương thích ngược**: TS b33ec7a đọc save v5 sẽ báo `newer-version`, tức chỉ đọc và không ghi đè, đúng chính sách hiện có. CI kiểm cả hai chiều:
+  - mọi save C# đều có file `.v5.json` mà TS phải từ chối là `newer-version`;
+  - khi tổ trống, ảnh chiếu v4 (`.save.json`) phải được TS đọc ra state trùng từng byte, kể cả rồng lai có `parentIds`, `generation 2`, `origin breed`.
+- **Parity với golden persistence TS v4**: các phép so chạy trên ảnh v5 của kết quả TS (`PFix.AsV5`, đúng bước migration), hoặc chiếu save C# về v4 (`PFix.AsV4`/`AsV4Text`). Canonical JSON, SHA-256 và văn bản `serializeSave` của phần chung vẫn trùng từng byte.
 
 - `GameStateJson` ánh xạ `GameState` ↔ `state` JSON. Các trường lấy từ `PlayerState` được trải phẳng lại thành `goldMicro`, `goldRemainder`, `totalGoldEarnedMicro`, `inventory`, `upgrades`, `pityCount`, `stats`, `settings`, đúng như `src/types/state.ts`.
 - Trường optional đang `null` thì bị bỏ khỏi JSON, giống `undefined` của TS.
@@ -35,7 +45,7 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 4, contentV
   - khóa trùng thì giá trị sau thắng;
   - BOM, dấu phẩy thừa, số 0 đứng đầu bị từ chối.
 - Thức ăn đang rơi (`food.drops`) không được lưu (ADR 0004 #10).
-- Migration: 1 → 2 → 4. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
+- Migration: 1 → 2 → 4 → 5. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
 
 ## 3. Lưu nguyên tử, backup, phục hồi
 
@@ -127,6 +137,7 @@ Nội dung bộ test:
 - **Đồng hồ và phiên:** đồng hồ lùi giữa hai phiên, nhảy giờ tới rồi lùi, offline 24 h qua nhiều lần khởi động, crash trước khi lưu quyết toán offline, Hide/Show dồn dập, chuỗi vòng đời ngẫu nhiên (5 seed × 300 bước, kiểm vàng ≤ tốc độ × thời gian thực), phiên thứ hai chỉ đọc, xung đột ghi, save bản mới hơn, bắt đầu lại.
 - **Tương thích chéo:** 18 save do C# ghi được `parseSaveText` của TS đọc với state trùng (`CrossRuntimeExportTests` + `Tools~/verify-csharp-saves.test.ts`).
 - **U2.4 (`ProgressSaveTests`):** `tutorial` / `pendingPack` / thành tựu qua vòng lưu–nạp Schema v4 không đổi một byte canonical; `GameSession` lưu ngay sau `buyTutorialPack` và `claimPack` (không đợi autosave 30 s; lệnh bị từ chối không ghi); 3 lần khởi động lại không cấp lại thưởng và không mua được gói lần hai; save v2 thật sau migration không được cấp gì, lần dispatch đầu ghi nhận `TUT_01`, `TUT_02` và `ACH_FIRST_ADULT` (+100 G) đúng một lần, giống TS. 3 save C# giữa/sau hướng dẫn được xuất cho TS đọc (tổng cộng hơn 20 save chéo).
+- **U2.5 (`BreedingSaveTests`):** tổ đang ấp qua vòng lưu–nạp v5; migration v4 → v5 (giữ mọi trường, lưu `archive:schema-4` nguyên văn, giải phóng rồng "breeding" mồ côi); tổ bị sửa tay bị từ chối khi nạp; `GameSession` lưu ngay sau `buyPack` / `startBreed` / `claimBreed`; tắt app ngay sau giao dịch rồi mở lại: không roll lại, không trừ vàng hai lần, nhận con đúng một lần; mua thất bại không ghi và không đổi vàng.
 
 Chưa chạy:
 - Unity Editor 6000.6.10f1: chưa biên dịch thật, chưa chạy Test Runner. `DravioSessionHost` chỉ được biên dịch với UnityEngine giả.
