@@ -1,0 +1,135 @@
+# Dravio Persistence & Platform (C#) — U2.2
+
+U2.2 port lớp lưu game và chính sách thời gian của Dravio từ TypeScript sang C#. Nguồn đối chiếu là **nldanh13/dravio @ `b33ec7a3dc98b4a74857fe92d143475028fc0d96`**:
+- ADR 0006 (persistence), 0007 (Save Schema), 0009 (`discoveries`), 0010 (vòng đời, ghi đa tab), 0013 (schema v4);
+- `src/persistence/*`, `src/platform/*`;
+- test `tests/unit/persistence.test.ts` và `tests/unit/g1Fixes.test.ts`;
+- fixture `tests/fixtures/save-schema-v1.json`, `save-schema-v2.json`.
+
+U2.2 không đổi luật game nào. Giới hạn offline 24 h, hiệu suất vàng offline 75 %, high-water mark và receipt > 60 s vẫn nằm trong `Dravio.Domain`; lớp này chỉ quyết định *khi nào* gửi `advanceTime` online hay offline.
+
+## 1. Tách lớp
+
+| Assembly | Thư mục | Phụ thuộc | Nội dung |
+|---|---|---|---|
+| `Dravio.Domain` | `Assets/Dravio/Domain` | không có | U2.1, không đổi trong U2.2 |
+| `Dravio.Persistence` | `Assets/Dravio/Persistence` | Domain, `noEngineReferences` | JSON tương thích JS, Save Schema v4, SHA-256, migration, `SaveFile`, `SaveManager`, kho bộ nhớ/file, khóa người ghi, `Autosave` |
+| `Dravio.Platform` | `Assets/Dravio/Platform` | Domain, Persistence, `noEngineReferences` | `TimePolicy`, `LifecycleMapper`, `PumpedScheduler`, `GameSession` |
+| `Dravio.Platform.Unity` | `Assets/Dravio/Platform/Unity` | ba assembly trên + UnityEngine | `DravioSessionHost` (MonoBehaviour), `SystemClock` |
+
+Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ hệ thống. Test `LayeringTests` sẽ fail nếu điều này bị vi phạm.
+
+`DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
+
+## 2. Save Schema v4
+
+Envelope có các trường `{ format: "dravio-save", schemaVersion: 4, contentVersion, savedAtMs, revision, checksum, state }`.
+
+- `GameStateJson` ánh xạ `GameState` ↔ `state` JSON. Các trường lấy từ `PlayerState` được trải phẳng lại thành `goldMicro`, `goldRemainder`, `totalGoldEarnedMicro`, `inventory`, `upgrades`, `pityCount`, `stats`, `settings`, đúng như `src/types/state.ts`.
+- Trường optional đang `null` thì bị bỏ khỏi JSON, giống `undefined` của TS.
+- `checksum` = SHA-256 hex của `canonicalJson(state)`, tức JSON có khóa sắp xếp theo đơn vị UTF-16. Checksum chỉ để phát hiện hỏng hoặc sửa tay, **không phải chữ ký**.
+- `JsonParser` và `JsonWriter` bám đúng `JSON.parse`/`JSON.stringify` của V8:
+  - số in theo Number::toString, tự cài bằng `BigInteger` nên không phụ thuộc `double.ToString` của Mono hay IL2CPP;
+  - `-0` in thành `0`, `NaN`/`Infinity` in thành `null`;
+  - surrogate lẻ được escape `\udxxx`;
+  - khóa trùng thì giá trị sau thắng;
+  - BOM, dấu phẩy thừa, số 0 đứng đầu bị từ chối.
+- Thức ăn đang rơi (`food.drops`) không được lưu (ADR 0004 #10).
+- Migration: 1 → 2 → 4. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
+
+## 3. Lưu nguyên tử, backup, phục hồi
+
+`FileSaveStore` ghi vào `Application.persistentDataPath/saves`.
+
+**Cơ chế ghi.** Mỗi lần lưu tạo một thế hệ bất biến `save-<gen>.json` theo trình tự: ghi file tạm → `Flush(true)` (fsync) → rename không ghi đè. Chỉ sau đó mới xóa các thế hệ cũ hơn 3 bản gần nhất. Như vậy:
+- main = thế hệ mới nhất; backup1, backup2 = hai thế hệ trước đó;
+- mất điện ở bất kỳ bước nào chỉ có thể để lại file `*.tmp` cụt (bị bỏ qua và dọn ở lần lưu sau) hoặc một thế hệ thừa;
+- không có slot nào bị ghi dở.
+
+**Khi đọc.** Thử main → backup1 → backup2. Mỗi slot phải qua JSON, checksum, migration và validate.
+- Mọi slot đều hỏng → `Unrecoverable`. Hệ thống không tự ghi đè; khi người chơi chọn bắt đầu lại, dữ liệu hỏng được đẩy xuống backup.
+
+**Một người ghi.** File `dravio-save-writer.lock` được mở độc quyền; phiên thứ hai chỉ đọc. Ngoài ra còn kiểm compare-and-swap trên main: nếu nơi khác đã ghi thì phiên chuyển sang `Conflict` và không ghi đè.
+
+**Trùng lặp và import.**
+- Save trùng (cùng `saveId` + `revision`) bị bỏ qua.
+- Import đi qua hai bước (xem trước rồi xác nhận). Hệ thống luôn bỏ `registryRef` (Verified) và mọi khóa lạ như `entitlements` hay `purchases`.
+
+## 4. Thời gian online/offline (ADR 0010)
+
+`GameSession` xử lý theo thứ tự sau:
+1. **Khi mở app:** nạp save → `advanceTime` offline (75 %, chặn 24 h) → **lưu ngay** → tick online 1 Hz.
+2. **Autosave:** mỗi 30 s theo thời gian đơn điệu (`realtimeSinceStartup`), nên đổi giờ hệ thống không ảnh hưởng.
+3. **Khi ẩn (Hide):** quyết toán online tới lúc ẩn, rồi lưu ngay.
+4. **Khi hiện lại (Show):** thời gian vắng mặt được tính offline, có receipt nếu > 60 s.
+5. **Khoảng trống giữa hai tick > 5 s** (ngủ máy, treo) thì cũng tính offline.
+
+Tín hiệu Unity được `LifecycleMapper` ánh xạ như sau:
+
+| Tín hiệu Unity | Mobile | Desktop |
+|---|---|---|
+| `OnApplicationPause(true)` | Hide | Hide |
+| `OnApplicationPause(false)` | Show | Show |
+| `OnApplicationFocus(false)` | Hide | Flush: vẫn online vì cửa sổ còn hiện, giống tab mất focus nhưng vẫn hiển thị của bản web |
+| `OnApplicationFocus(true)` | Show | Show |
+| `OnApplicationQuit` | Hide | Hide |
+
+**Chống cộng thưởng offline nhiều lần:**
+- Phần quyết toán offline được lưu ngay sau khi mở app. Nếu app chết trước khi lưu, lần mở sau tính lại *cùng* khoảng thời gian từ mốc cũ, không cộng dồn.
+- `Show` lặp lại không có tác dụng.
+- High-water mark được lưu, nên chỉnh giờ lùi không cho thêm gì. Chỉnh giờ tới để nhận thưởng rồi trả giờ về cũng không được trả hai lần.
+- Khôi phục từ backup cũ không bao giờ cho nhiều vàng hơn đi qua main.
+
+## 5. Khác biệt nền tảng so với bản web
+
+| Chủ đề | TypeScript (trình duyệt) | C# (Unity) |
+|---|---|---|
+| Kho | IndexedDB `dravio/saves`; xoay 3 slot trong một transaction `durability: strict` | Thư mục file; thế hệ bất biến + fsync + rename. Rename thư mục chưa được fsync riêng: .NET không có API này. Với ext4/f2fs/APFS/NTFS, rename sau fsync được xem là đủ an toàn khi mất điện, nhưng chưa được kiểm trên thiết bị. |
+| Archive | khóa `archive:schema-N` trong cùng transaction | file `archive-schema-N.json`, ghi trước thế hệ mới. Mất điện giữa hai bước chỉ để lại archive (vô hại). |
+| Một người ghi | Web Locks, hoặc lease `localStorage` khi không có Web Locks | `FileShare.None` trên file khóa; hệ điều hành tự nhả khi tiến trình chết. Mono/Unity trên macOS/Linux có thể chỉ khóa trong tiến trình (chưa kiểm). CAS vẫn chặn ghi đè. |
+| Vòng đời | `visibilitychange`, `freeze`, `pagehide`, `pageshow` | `OnApplicationPause`/`Focus`/`Quit` (bảng mục 4). Trên iOS/Android, app bị hệ điều hành giết khi chạy nền không có callback; dữ liệu an toàn nhờ save lúc Hide. |
+| Hẹn giờ | `setInterval` | `PumpedScheduler` bơm trong `Update` bằng `realtimeSinceStartup`. Khi app bị treo lâu, mỗi việc chỉ chạy bù một lần. |
+| API | async (Promise), hàng đợi ghi tuần tự | đồng bộ, có khóa nội bộ. Ghi 3–200 KB kèm fsync chạy trên main thread mỗi 30 s và khi Hide; trên thiết bị chậm có thể gây giật một frame (chưa đo). |
+| Khóa lạ trong state | được giữ khi nạp rồi lưu lại (chỉ bị lọc khi import) | model C# có kiểu **bỏ khóa lạ** khi nạp. Checksum vẫn kiểm trên văn bản gốc, nên không ảnh hưởng tính hợp lệ. |
+| Thông điệp lỗi | `validateGameState` trên object thô | Mọi lỗi TS báo đều có trong lỗi C# (đã kiểm trên golden). C# có thể báo thêm lỗi kiểu khi đổi sang model có kiểu. |
+| WebGL | n/a | chưa hỗ trợ. `persistentDataPath` trên WebGL là IDBFS và cần `FS.syncfs` để bền; file khóa không có tác dụng. |
+
+## 6. Kiểm thử
+
+Lệnh chạy ngoài Unity, với .NET SDK 8:
+
+```bash
+dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj"
+```
+
+```bash
+bash "Assets/Dravio/Tests/Persistence/Tools~/KillTest/kill-test.sh" 40
+```
+
+Trong Unity: *Test Runner → EditMode → `Dravio.Persistence.Tests`*.
+
+CI: `.github/workflows/domain-persistence-tests.yml` gồm các bước:
+- test U2.1 và U2.2 trên Ubuntu và Windows;
+- kill-test trên Linux;
+- tái sinh golden từ TS gốc rồi `git diff --exit-code`;
+- TS đọc lại save do C# ghi.
+
+Nội dung bộ test:
+- **Golden** `Tests/Persistence/Golden/ts-persistence-golden-b33ec7a.json`, sinh từ TS gốc bằng `Tools~/persistence-golden.test.ts`, tái sinh trùng từng byte:
+  - 535 số và 17 chuỗi đối chiếu `JSON.stringify`;
+  - 4 state đối chiếu canonical + SHA-256 + `serializeSave` (state mới trùng từng byte);
+  - 54 file đi qua `parseSaveText`: hợp lệ, cụt, BOM, khóa trùng, escape unicode, số mũ, `-0`, `1e400`, sửa tay, checksum hoa, sai kiểu, phiên bản 0/−1/1/2/3/5/99, migration lỗi, khóa lạ, 2 fixture thật v1/v2;
+  - báo cáo lọc import, chính sách thời gian.
+- **Mất điện:**
+  - mô phỏng mất điện ở *từng* thao tác ghi (`MemoryFileSystem`), kể cả lần lưu đầu sau migration;
+  - main hỏng trên đĩa thật: cụt, 0 byte, lật 1 bit, UTF-8 sai, sector toàn 0;
+  - kill-test `SIGKILL` 40 vòng trên tiến trình thật.
+- **Đồng hồ và phiên:** đồng hồ lùi giữa hai phiên, nhảy giờ tới rồi lùi, offline 24 h qua nhiều lần khởi động, crash trước khi lưu quyết toán offline, Hide/Show dồn dập, chuỗi vòng đời ngẫu nhiên (5 seed × 300 bước, kiểm vàng ≤ tốc độ × thời gian thực), phiên thứ hai chỉ đọc, xung đột ghi, save bản mới hơn, bắt đầu lại.
+- **Tương thích chéo:** 18 save do C# ghi được `parseSaveText` của TS đọc với state trùng (`CrossRuntimeExportTests` + `Tools~/verify-csharp-saves.test.ts`).
+
+Chưa chạy:
+- Unity Editor 6000.6.10f1: chưa biên dịch thật, chưa chạy Test Runner. `DravioSessionHost` chỉ được biên dịch với UnityEngine giả.
+- Mono/IL2CPP.
+- Android/iOS: vòng đời thật, app bị kill khi chạy nền, mất điện thật.
+- Windows trên thiết bị (job Windows trong CI là máy ảo, chưa chạy vì CI chưa được kích hoạt trên PR này tại thời điểm viết).
+- Hiệu năng ghi trên main thread.
