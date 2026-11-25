@@ -4,6 +4,8 @@ Quy trình chuẩn để đưa một mô hình rồng (GLB) vào Unity cho game 
 
 > Trạng thái: công cụ đã chạy end-to-end bằng Blender 5.3 (`bpy`) trên **tài nguyên kiểm thử tự sinh** (`TEST_*`). Chưa có GLB thật nào của Dravio được xử lý, và phần Unity chưa được biên dịch hay chạy trong Unity Editor.
 
+> Nhập hàng loạt GLB (Hunyuan3D), archetype rig/animation theo sinh học, prop môi trường và runtime hiển thị rồng sống: xem [`LIVING_DRAGONS.md`](LIVING_DRAGONS.md).
+
 ## Nguyên tắc
 
 1. **Không ghi đè mô hình gốc.** Mọi công cụ chỉ ghi vào thư mục output, từ chối ghi lên file nguồn, và ghi SHA-256 của nguồn trước và sau khi chạy (`source_unchanged`).

@@ -155,6 +155,7 @@ def main():
     ap.add_argument('out_dir', type=Path)
     ap.add_argument('--name')
     ap.add_argument('--budgets', type=Path, default=DEFAULT_BUDGETS)
+    ap.add_argument('--lod-profile', default='lods', help="'lods' (characters) or a propProfiles key, e.g. prop_small")
     ap.add_argument('--symmetry', action='store_true', help='Symmetric (X) decimation; only for symmetric sources')
     ap.add_argument('--protect-group', help='Vertex group decimated less (e.g. face/eyes)')
     ap.add_argument('--frames', type=int, nargs='*', default=DEFAULT_FRAMES)
@@ -163,6 +164,8 @@ def main():
     a = ap.parse_args(cc.script_args())
     src = a.model.resolve()
     budgets = json.loads(a.budgets.read_text(encoding='utf-8'))
+    if a.lod_profile != 'lods':
+        budgets['lods'] = budgets['propProfiles'][a.lod_profile]
     lod_cfg = sorted(budgets['lods'], key=lambda l: l['level'])
     max_inf = budgets['skin']['maxInfluences']
     name = a.name or src.stem

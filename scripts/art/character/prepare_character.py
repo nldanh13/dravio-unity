@@ -318,6 +318,9 @@ def main():
                     help='Write COLOR_0 into the prepared GLB. Off by default: glTF multiplies COLOR_0 '
                          'into Base Color, so keeping it next to a baked texture would apply the colour twice')
     ap.add_argument('--no-weld', action='store_true')
+    ap.add_argument('--decimate-to', type=int, default=0,
+                    help='After baking, collapse-decimate to at most N triangles (e.g. 24000 before rigging '
+                         'a dense generated mesh). UVs are interpolated; 0 = keep the source density.')
     ap.add_argument('--overwrite-outputs', action='store_true')
     a = ap.parse_args(cc.script_args())
     src = a.source.resolve()
@@ -447,6 +450,15 @@ def main():
         for c in list(me.color_attributes):
             me.color_attributes.remove(c)
         report['actions'].append({'step': 'drop_vertex_color'})
+    if a.decimate_to and cc.triangle_count(me) > a.decimate_to:
+        before_tris = cc.triangle_count(me)
+        mod = obj.modifiers.new('PreDecimate', 'DECIMATE')
+        mod.decimate_type = 'COLLAPSE'
+        mod.use_collapse_triangulate = True
+        mod.ratio = a.decimate_to / before_tris
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        report['actions'].append({'step': 'decimate', 'from': before_tris, 'to': cc.triangle_count(me)})
     obj.name = name
     report['texture_set'] = export_texture_set(obj, a.out_dir, name, a.overwrite_outputs, src, needs_bake)
     bpy.ops.wm.save_as_mainfile(filepath=str(outs['blend']), copy=True)

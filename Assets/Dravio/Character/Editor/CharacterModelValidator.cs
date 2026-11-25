@@ -58,18 +58,21 @@ namespace Dravio.Character.Editor
             return Selection.objects.Any(o => AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(o)) is ModelImporter);
         }
 
-        internal static Report Validate(string path)
+        /// <param name="lodProfile">null = character LOD budgets; otherwise a propProfiles key (prop_small, prop_large).</param>
+        internal static Report Validate(string path, string lodProfile = null)
         {
             var r = new Report();
             CharacterBudgets budgets;
-            try { budgets = CharacterBudgets.Load(); }
+            try { budgets = CharacterBudgets.Load(lodProfile); }
             catch (Exception e) { r.Errors.Add(e.Message); return r; }
             var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             var importer = AssetImporter.GetAtPath(path) as ModelImporter;
             if (model == null || importer == null) { r.Errors.Add("Not an imported model: " + path); return r; }
 
             var renderers = model.GetComponentsInChildren<Renderer>(true)
-                .Where(x => x is SkinnedMeshRenderer || x is MeshRenderer).ToArray();
+                .Where(x => x is SkinnedMeshRenderer || x is MeshRenderer)
+                .Where(x => !x.gameObject.name.EndsWith("_Collider", StringComparison.Ordinal)) // prop collision mesh, not rendered
+                .ToArray();
             if (renderers.Length == 0) { r.Errors.Add("No mesh renderers."); return r; }
 
             bool explicitLods = renderers.Any(x => LodRegex.IsMatch(x.gameObject.name));
