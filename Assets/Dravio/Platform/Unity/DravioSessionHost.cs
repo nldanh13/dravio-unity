@@ -74,7 +74,9 @@ namespace Dravio.Platform.Unity
 
         private void OnDestroy()
         {
-            Session?.Dispose();
+            // Stop Play / scene unload must flush even if OnApplicationQuit was not called.
+            try { Session?.OnHide(); }
+            finally { Session?.Dispose(); }
             Session = null;
         }
     }
