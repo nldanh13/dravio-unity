@@ -70,6 +70,7 @@ namespace Dravio
         public void Pet() { if(ready && isActiveAndEnabled) Enter(Activity.Happy,1.7f); }
         public void ToggleDoze() { if(ready && isActiveAndEnabled) { if(current==Activity.Doze) Resume(); else Enter(Activity.Doze,0); } }
         public void ToggleInspect() { if(ready && isActiveAndEnabled) { if(current==Activity.Inspect) Resume(); else Enter(Activity.Inspect,0); } }
+        public void Inspect() { if(ready && isActiveAndEnabled && !IsInspecting) Enter(Activity.Inspect,0); }
         public void Resume() { if(ready && isActiveAndEnabled) Enter(Activity.Idle,1f); }
 
         private void Enter(Activity state,float duration)
