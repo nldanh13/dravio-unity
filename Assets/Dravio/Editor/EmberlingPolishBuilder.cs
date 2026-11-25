@@ -12,46 +12,50 @@ namespace Dravio.Editor
     internal static class EmberlingPolishBuilder
     {
         const string Art = "Assets/Dravio/Art/Polish";
-        public static void Apply(GameObject dragon, GameObject visual, Camera camera)
+        public static void Apply(GameObject dragon, GameObject visual, Camera camera, bool preserveImportedMaterials = false)
         {
             Directory.CreateDirectory(Art);
             AssetDatabase.Refresh();
             var lit = Shader.Find("Universal Render Pipeline/Lit");
             var spark = Shader.Find("Dravio/EmberSpark");
             if(lit==null || spark==null) throw new InvalidOperationException("Missing URP Lit or Dravio spark shader.");
-            var body = visual.GetComponentsInChildren<SkinnedMeshRenderer>(true)
-                .FirstOrDefault(r => r.name.Contains("Emberling_Baby_Body",StringComparison.OrdinalIgnoreCase));
-            if(body==null || body.sharedMesh==null)
-                throw new InvalidOperationException("Polished FBX body mesh missing.");
-            if(!body.sharedMesh.HasVertexAttribute(VertexAttribute.TexCoord0))
-                throw new InvalidOperationException("Polished FBX is missing BodyPaint UV.");
-            var material = NewMaterial(lit,"EmberlingPaint");
-            material.SetColor("_BaseColor",Color.white);
-            material.SetTexture("_BaseMap",SkinTexture());
-            material.SetFloat("_Smoothness",.19f);
-            material.SetFloat("_Metallic",0f);
-            var slots=body.sharedMaterials;
-            for(int i=0;i<slots.Length;i++)slots[i]=material;
-            body.sharedMaterials=slots;
-
-            // Clone flame materials; never change a previously accepted prefab or material.
-            foreach(var r in visual.GetComponentsInChildren<Renderer>(true))
+            if(!preserveImportedMaterials)
             {
-                string name=r.name.ToLowerInvariant();
-                if(!name.Contains("round flame") && !name.Contains("flame core") &&
-                    !name.Contains("round_flame") && !name.Contains("flame_core"))continue;
-                bool core=name.Contains("core");
-                var flame=NewMaterial(lit,core?"FlameCore":"FlameShell");
-                flame.SetColor("_BaseColor",core?new Color(1,.78f,.25f):new Color(1,.32f,.035f));
-                flame.SetFloat("_Smoothness",.12f);
-                flame.EnableKeyword("_EMISSION");
-                flame.SetColor("_EmissionColor",core?new Color(2.4f,1.45f,.38f):new Color(1.55f,.35f,.06f));
-                flame.globalIlluminationFlags=MaterialGlobalIlluminationFlags.None;
-                var mats=r.sharedMaterials;
-                for(int i=0;i<mats.Length;i++)mats[i]=flame;
-                r.sharedMaterials=mats;
+                var body = visual.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                    .FirstOrDefault(r => r.name.Contains("Emberling_Baby_Body",StringComparison.OrdinalIgnoreCase));
+                if(body==null || body.sharedMesh==null)
+                    throw new InvalidOperationException("Polished FBX body mesh missing.");
+                if(!body.sharedMesh.HasVertexAttribute(VertexAttribute.TexCoord0))
+                    throw new InvalidOperationException("Polished FBX is missing BodyPaint UV.");
+                var material = NewMaterial(lit,"EmberlingPaint");
+                material.SetColor("_BaseColor",Color.white);
+                material.SetTexture("_BaseMap",SkinTexture());
+                material.SetFloat("_Smoothness",.19f);
+                material.SetFloat("_Metallic",0f);
+                var slots=body.sharedMaterials;
+                for(int i=0;i<slots.Length;i++)slots[i]=material;
+                body.sharedMaterials=slots;
+
+                // Clone flame materials; never change a previously accepted prefab or material.
+                foreach(var r in visual.GetComponentsInChildren<Renderer>(true))
+                {
+                    string name=r.name.ToLowerInvariant();
+                    if(!name.Contains("round flame") && !name.Contains("flame core") &&
+                        !name.Contains("round_flame") && !name.Contains("flame_core"))continue;
+                    bool core=name.Contains("core");
+                    var flame=NewMaterial(lit,core?"FlameCore":"FlameShell");
+                    flame.SetColor("_BaseColor",core?new Color(1,.78f,.25f):new Color(1,.32f,.035f));
+                    flame.SetFloat("_Smoothness",.12f);
+                    flame.EnableKeyword("_EMISSION");
+                    flame.SetColor("_EmissionColor",core?new Color(2.4f,1.45f,.38f):new Color(1.55f,.35f,.06f));
+                    flame.globalIlluminationFlags=MaterialGlobalIlluminationFlags.None;
+                    var mats=r.sharedMaterials;
+                    for(int i=0;i<mats.Length;i++)mats[i]=flame;
+                    r.sharedMaterials=mats;
+                }
             }
-            var bone=visual.GetComponentsInChildren<Transform>(true).FirstOrDefault(t=>t.name=="Flame");
+            var bones=visual.GetComponentsInChildren<Transform>(true);
+            var bone=bones.FirstOrDefault(t=>t.name=="TailVFX_Anchor") ?? bones.FirstOrDefault(t=>t.name=="Flame");
             if(bone==null)Debug.LogWarning("Dravio: Flame bone not found, tail sparks skipped.");
             else AddSparks(dragon.transform,bone,spark);
             ConfigureCamera(camera);

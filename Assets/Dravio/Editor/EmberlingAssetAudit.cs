@@ -29,6 +29,13 @@ namespace Dravio.Editor
             else Debug.LogError(report);
         }
 
+        [MenuItem("Dravio/Validate Refined GLB FBX")]
+        static void ValidateGlbMenu()
+        {
+            if(Validate("Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx",out var report)) Debug.Log(report);
+            else Debug.LogError(report);
+        }
+
         internal static bool Validate(string path,out string report)
         {
             var errors=new List<string>();
@@ -43,6 +50,10 @@ namespace Dravio.Editor
                 errors.Add("No valid Generic Avatar.");
             var names=new HashSet<string>(model.GetComponentsInChildren<Transform>(true).Select(t=>t.name));
             foreach(var name in Bones)if(!names.Contains(name))errors.Add("Missing bone: "+name);
+            bool sourceGlb=System.IO.Path.GetFileNameWithoutExtension(path)=="EmberlingRefinedGLB";
+            if(sourceGlb)
+                foreach(var name in new[]{"Spine","Neck","Wing_L","Wing_R","TailVFX_Anchor"})
+                    if(!names.Contains(name))errors.Add("Missing GLB rig bone: "+name);
             var clips=assets.OfType<AnimationClip>().Where(c=>!c.name.StartsWith("__preview__",StringComparison.Ordinal)).ToArray();
             foreach(var expected in Clips)
             {
@@ -57,7 +68,20 @@ namespace Dravio.Editor
             var renderers=model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             var body=renderers.FirstOrDefault(r=>r.name.Contains("Emberling_Baby_Body",StringComparison.OrdinalIgnoreCase));
             if(body==null || body.sharedMesh==null)errors.Add("Skinned body missing.");
-            else if(!body.sharedMesh.HasVertexAttribute(VertexAttribute.TexCoord0))errors.Add("Body UV0 missing.");
+            else if(!body.sharedMesh.HasVertexAttribute(VertexAttribute.TexCoord0))
+            {
+                if(!sourceGlb)errors.Add("Body UV0 missing.");
+                else
+                {
+                    // Imported GLBs can be solid-colored or use vertex colors instead
+                    // of UV textures. Permit geometry/animation preview, not texture acceptance.
+                    warnings.Add("GLB body UV0 missing. Geometry/animation preview only; UV-based texture fidelity is NOT validated.");
+                    if(body.sharedMesh.HasVertexAttribute(VertexAttribute.Color))
+                        warnings.Add("Vertex colors present. URP Lit may not display them without a vertex-color material.");
+                    else
+                        warnings.Add("No vertex color channel detected. Check source GLB UVs/materials in Blender.");
+                }
+            }
             long vertices=0,triangles=0;
             foreach(var renderer in renderers)
             {
@@ -71,7 +95,7 @@ namespace Dravio.Editor
             }
             if(triangles>30000)warnings.Add("Prototype exceeds provisional 30k triangle review threshold.");
             if(renderers.Length>24)warnings.Add("Many skinned renderers: profile draw calls on mobile.");
-            report="Dravio Refined FBX audit: "+(errors.Count==0?"PASS (asset structure only)":"FAIL")+
+            report="Dravio Refined FBX audit: "+(errors.Count==0?(warnings.Count==0?"PASS (asset structure only)":"PASS WITH WARNINGS (preview only)"):"FAIL")+
                 "\nSkinned renderers: "+renderers.Length+"; vertices: "+vertices+"; triangles: "+triangles+
                 "\n"+string.Join("\n",errors.Select(e=>"ERROR: "+e).Concat(warnings.Select(w=>"WARNING: "+w)))+
                 "\nVisual deformation, shader, playback and device performance still require testing.";

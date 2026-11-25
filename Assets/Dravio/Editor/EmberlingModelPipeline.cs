@@ -24,6 +24,7 @@ namespace Dravio.Editor
         const string FantasyTarget = Root + "/Scenes/EmberlingFantasyPreview.unity";
         const string RefinedTarget = Root + "/Scenes/EmberlingRefinedPreview.unity";
         const string IntegratedTarget = Root + "/Scenes/OriginIntegratedPreview.unity";
+        const string IntegratedGlbTarget = Root + "/Scenes/OriginIntegratedGLBPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
@@ -49,26 +50,33 @@ namespace Dravio.Editor
         public static void PreviewRefined() => PreviewInternal(true, true, true, true, true, true);
 
         [MenuItem("Dravio/Create or Open Integrated Sanctuary")]
-        public static void PreviewIntegrated()
+        public static void PreviewIntegrated() => OpenIntegrated(false);
+
+        [MenuItem("Dravio/Create or Open Integrated GLB Sanctuary")]
+        public static void PreviewIntegratedGLB() => OpenIntegrated(true);
+
+        private static void OpenIntegrated(bool sourceGlb)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(IntegratedTarget) == null &&
+            string target = sourceGlb ? IntegratedGlbTarget : IntegratedTarget;
+            string fbx = sourceGlb ? "EmberlingRefinedGLB.fbx" : "EmberlingRefined.fbx";
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(target) == null &&
                 AssetDatabase.LoadAssetAtPath<SceneAsset>(Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath) == null)
             {
-                if (AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Art/Models/EmberlingRefined.fbx") == null)
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Art/Models/" + fbx) == null)
                 {
-                    EditorUtility.DisplayDialog("Dravio", "Export EmberlingRefined.fbx first using -Mode Refined.", "OK");
+                    EditorUtility.DisplayDialog("Dravio", "Export " + fbx + " first.", "OK");
                     return;
                 }
                 Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.BuildEverything();
             }
-            PreviewInternal(true, true, true, true, true, true, true);
+            PreviewInternal(true, true, true, true, true, true, true, sourceGlb);
         }
 
-        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false, bool integrated = false)
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false, bool integrated = false, bool sourceGlb = false)
         {
             string source = integrated ? Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath : Source;
-            string target = integrated ? IntegratedTarget : refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
+            string target = sourceGlb ? IntegratedGlbTarget : integrated ? IntegratedTarget : refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (fantasy && AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
             {
@@ -80,27 +88,34 @@ namespace Dravio.Editor
                 }
                 return;
             }
-            string assetPath = refined ? Root + "/Art/Models/EmberlingRefined.fbx" : fantasy ? Root + "/Art/Models/EmberlingPolished.fbx" : AssetDatabase.GetAssetPath(Selection.activeObject);
+            string assetPath = sourceGlb ? Root + "/Art/Models/EmberlingRefinedGLB.fbx" : refined ? Root + "/Art/Models/EmberlingRefined.fbx" : fantasy ? Root + "/Art/Models/EmberlingPolished.fbx" : AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(assetPath) ||
                 !assetPath.StartsWith("Assets/", StringComparison.Ordinal) ||
                 !assetPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase) ||
                 AssetImporter.GetAtPath(assetPath) is not ModelImporter)
             {
-                EditorUtility.DisplayDialog("Dravio", refined ? "Export EmberlingRefined.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Refined first." : fantasy ? "Export EmberlingPolished.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Polished first." : "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
+                EditorUtility.DisplayDialog("Dravio", sourceGlb ? "Export EmberlingRefinedGLB.fbx with --source-glb first." : refined ? "Export EmberlingRefined.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Refined first." : fantasy ? "Export EmberlingPolished.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Polished first." : "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
                 return;
             }
             if (living)
             {
                 // Configure only a separately exported living asset, not the accepted static FBX.
-                if (Path.GetFileNameWithoutExtension(assetPath) != (refined ? "EmberlingRefined" : polish ? "EmberlingPolished" : care ? "EmberlingCare" : wander ? "EmberlingWander" : "EmberlingLiving"))
+                if (Path.GetFileNameWithoutExtension(assetPath) != (sourceGlb ? "EmberlingRefinedGLB" : refined ? "EmberlingRefined" : polish ? "EmberlingPolished" : care ? "EmberlingCare" : wander ? "EmberlingWander" : "EmberlingLiving"))
                 {
-                    EditorUtility.DisplayDialog("Dravio", refined ? "Select EmberlingRefined.fbx." : polish ? "Select EmberlingPolished.fbx." : care ? "Select EmberlingCare.fbx." : wander ? "Select EmberlingWander.fbx." : "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
+                    EditorUtility.DisplayDialog("Dravio", sourceGlb ? "Select EmberlingRefinedGLB.fbx." : refined ? "Select EmberlingRefined.fbx." : polish ? "Select EmberlingPolished.fbx." : care ? "Select EmberlingCare.fbx." : wander ? "Select EmberlingWander.fbx." : "Select EmberlingLiving.fbx, not the original static FBX.", "OK");
                     return;
                 }
                 var importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
                 importer.animationType = ModelImporterAnimationType.Generic;
                 importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
                 importer.importAnimation = true;
+                if (sourceGlb)
+                {
+                    importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+                    importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
+                    importer.importNormals = ModelImporterNormals.Import;
+                    importer.importTangents = ModelImporterTangents.CalculateMikk;
+                }
                 importer.SaveAndReimport();
                 importer = (ModelImporter)AssetImporter.GetAtPath(assetPath);
                 var clips = importer.defaultClipAnimations;
@@ -149,7 +164,8 @@ namespace Dravio.Editor
                     Debug.LogError(report);
                     return;
                 }
-                Debug.Log(report);
+                if (report.Contains("WARNING:")) Debug.LogWarning(report);
+                else Debug.Log(report);
             }
             GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(source) == null)
@@ -189,16 +205,17 @@ namespace Dravio.Editor
                 var bounds = GetLocalBounds(wrapper.transform, renderers);
                 if (bounds.size.y < .001f || !float.IsFinite(bounds.size.y))
                     throw new InvalidOperationException("FBX has invalid bounds.");
-                float factor = 2.05f / bounds.size.y;
+                float factor = (sourceGlb ? .90f : 2.05f) / bounds.size.y;
                 instance.transform.localScale *= factor;
                 instance.transform.localPosition -= new Vector3(bounds.center.x, bounds.min.y, bounds.center.z) * factor;
                 bounds = GetLocalBounds(wrapper.transform, renderers);
                 var hitbox = wrapper.AddComponent<BoxCollider>();
                 hitbox.center = bounds.center;
                 hitbox.size = Vector3.Max(bounds.size, Vector3.one * .05f);
-                ConvertMaterials(renderers, shader, living);
-                if (living) ConfigureIdle(instance, assetPath, wander, care, polish, refined);
-                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (refined ? "/EmberlingRefinedVisual.prefab" : polish ? "/EmberlingPolishedVisual.prefab" : care ? "/EmberlingCareVisual.prefab" : wander ? "/EmberlingWanderVisual.prefab" : living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
+                if (sourceGlb) ConvertImportedGlbMaterials(renderers, shader);
+                else ConvertMaterials(renderers, shader, living);
+                if (living) ConfigureIdle(instance, assetPath, wander, care, polish, refined, sourceGlb);
+                string prefabPath = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (sourceGlb ? "/EmberlingRefinedGLBVisual.prefab" : refined ? "/EmberlingRefinedVisual.prefab" : polish ? "/EmberlingPolishedVisual.prefab" : care ? "/EmberlingCareVisual.prefab" : wander ? "/EmberlingWanderVisual.prefab" : living ? "/EmberlingLivingVisual.prefab" : "/EmberlingBabyVisual.prefab"));
                 prefab = PrefabUtility.SaveAsPrefabAsset(wrapper, prefabPath);
                 if (prefab == null) throw new InvalidOperationException("Prefab save failed.");
             }
@@ -246,7 +263,7 @@ namespace Dravio.Editor
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
             foreach (var child in oldChildren) Object.DestroyImmediate(child.gameObject);
-            root.name = integrated ? "Emberling - Integrated" : refined ? "Emberling - Refined Baby Normal" : polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
+            root.name = sourceGlb ? "Emberling - Integrated GLB" : integrated ? "Emberling - Integrated" : refined ? "Emberling - Refined Baby Normal" : polish ? "Emberling - Polished Baby Normal" : care ? "Emberling - Care Baby Normal" : wander ? "Emberling - Wandering Baby Normal" : living ? "Emberling - Living Baby Normal" : "Emberling - Imported Baby Normal";
             turntable.SetCamera(Camera.main);
             if (care)
             {
@@ -255,7 +272,7 @@ namespace Dravio.Editor
                 else CarePreviewHud.Build(root.gameObject, animator, turntable);
                 if (polish)
                 {
-                    try { EmberlingPolishBuilder.Apply(root.gameObject, visual, Camera.main); }
+                    try { EmberlingPolishBuilder.Apply(root.gameObject, visual, Camera.main, sourceGlb); }
                     catch (Exception error)
                     {
                         Debug.LogError("Dravio: polish generation incomplete. Source scene is intact. Rename the incomplete preview before retrying.");
@@ -309,7 +326,7 @@ namespace Dravio.Editor
             };
         }
 
-        static void ConfigureIdle(GameObject instance, string assetPath, bool wander, bool care, bool polish, bool refined)
+        static void ConfigureIdle(GameObject instance, string assetPath, bool wander, bool care, bool polish, bool refined, bool sourceGlb = false)
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
             var clip = assets.OfType<AnimationClip>().FirstOrDefault(x =>
@@ -328,7 +345,7 @@ namespace Dravio.Editor
                 animator.avatar = assets.OfType<Avatar>().FirstOrDefault(x => x.isValid);
             if (animator.avatar == null || !animator.avatar.isValid)
                 throw new InvalidOperationException("Generic avatar missing or invalid. Check FBX rig import.");
-            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (refined ? "/EmberlingRefined.controller" : polish ? "/EmberlingPolished.controller" : care ? "/EmberlingCare.controller" : wander ? "/EmberlingWander.controller" : "/EmberlingIdle.controller"));
+            string path = AssetDatabase.GenerateUniqueAssetPath(Prefabs + (sourceGlb ? "/EmberlingRefinedGLB.controller" : refined ? "/EmberlingRefined.controller" : polish ? "/EmberlingPolished.controller" : care ? "/EmberlingCare.controller" : wander ? "/EmberlingWander.controller" : "/EmberlingIdle.controller"));
             var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
             var state = controller.AddMotion(clip);
             state.name = "Idle";
@@ -362,6 +379,61 @@ namespace Dravio.Editor
             animator.runtimeAnimatorController = controller;
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
+        // Preserve the actual imported material or an artist's manual remap.
+        // The FBX format may not carry every glTF PBR semantic. The Blender
+        // PBR sidecar is the lossless reference for manual URP channel remapping.
+        static void ConvertImportedGlbMaterials(Renderer[] renderers, Shader shader)
+        {
+            var converted = new System.Collections.Generic.Dictionary<Material, Material>();
+            foreach (var renderer in renderers)
+            {
+                var slots = renderer.sharedMaterials;
+                for (int i = 0; i < slots.Length; i++)
+                {
+                    var src = slots[i];
+                    if (src == null || src.shader == shader) continue;
+                    if (!converted.TryGetValue(src, out var dst))
+                    {
+                        dst = new Material(shader) { name = src.name + " GLB URP" };
+                        if (src.HasProperty("_BaseColor")) dst.SetColor("_BaseColor", src.GetColor("_BaseColor"));
+                        else if (src.HasProperty("_Color")) dst.SetColor("_BaseColor", src.GetColor("_Color"));
+                        CopyMap(src, dst, "_BaseMap", "_BaseMap", "_MainTex");
+                        CopyMap(src, dst, "_BumpMap", "_BumpMap");
+                        CopyMap(src, dst, "_MetallicGlossMap", "_MetallicGlossMap");
+                        CopyMap(src, dst, "_OcclusionMap", "_OcclusionMap");
+                        CopyMap(src, dst, "_EmissionMap", "_EmissionMap");
+                        foreach (var property in new[]{"_Metallic","_Smoothness","_BumpScale","_OcclusionStrength","_Cutoff"})
+                            if (src.HasProperty(property) && dst.HasProperty(property)) dst.SetFloat(property,src.GetFloat(property));
+                        if (!src.HasProperty("_Smoothness") && src.HasProperty("_Glossiness"))
+                            dst.SetFloat("_Smoothness",src.GetFloat("_Glossiness"));
+                        if (src.HasProperty("_EmissionColor")) dst.SetColor("_EmissionColor",src.GetColor("_EmissionColor"));
+                        if (dst.GetTexture("_BumpMap") != null) dst.EnableKeyword("_NORMALMAP");
+                        if (dst.GetTexture("_MetallicGlossMap") != null) dst.EnableKeyword("_METALLICSPECGLOSSMAP");
+                        if (dst.GetTexture("_EmissionMap") != null ||
+                            dst.GetColor("_EmissionColor").maxColorComponent > 0f) dst.EnableKeyword("_EMISSION");
+                        AssetDatabase.CreateAsset(dst, AssetDatabase.GenerateUniqueAssetPath(Materials + "/EmberlingGLBMaterial.mat"));
+                        converted.Add(src,dst);
+                    }
+                    slots[i] = dst;
+                }
+                renderer.sharedMaterials = slots;
+            }
+        }
+
+        static void CopyMap(Material src, Material dst, string destination, params string[] sources)
+        {
+            foreach (string property in sources)
+            {
+                if (!src.HasProperty(property)) continue;
+                var texture = src.GetTexture(property);
+                if (texture == null) continue;
+                dst.SetTexture(destination,texture);
+                dst.SetTextureOffset(destination,src.GetTextureOffset(property));
+                dst.SetTextureScale(destination,src.GetTextureScale(property));
+                return;
+            }
         }
 
         static void ConvertMaterials(Renderer[] renderers, Shader shader, bool living)

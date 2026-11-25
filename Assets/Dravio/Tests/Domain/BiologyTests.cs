@@ -1,3 +1,4 @@
+using System.Linq;
 using Dravio.Domain.Biology;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
@@ -17,7 +18,7 @@ namespace Dravio.Domain.Tests
         [Test]
         public void Frostfin_cannot_fly_and_leviathan_cannot_live_on_land()
         {
-            Assert.That(SpeciesCatalog.GetBiology("frostfin").Locomotion, Does.Not.Contain(Locomotion.Fly));
+            Assert.That(SpeciesCatalog.GetBiology("frostfin").Locomotion.Contains(Locomotion.Fly), Is.False);
             Assert.That(Suitability.Evaluate("leviathan", "origin_meadow", Meadow).Allowed, Is.False);
         }
 

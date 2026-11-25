@@ -211,3 +211,35 @@ Open Unity and choose **Dravio > Create or Open Integrated Sanctuary**. If neces
 3. In fresh Play confirm 150 G at initialization, XP and gold advance with visible time. Feed spawns a fruit; approach and consume once, observe canonical XP/bond; confirm expiry and cooldown rejection. Pet twice rapidly: one accepted animation, one rejection. Check focus loss and resume without hidden-time accrual; stop and restart Play to confirm intentionally volatile state.
 4. Check camera framing, movement inside clearing, no UI drag-through, language, landscape safe areas, shaders and performance on desktop and mobile.
 5. Do not accept or merge to main until runtime tests pass. No independent Unity/Blender execution in this integration authoring environment; the previous PR test reports are not a substitute for integration testing.
+
+## Source GLB character pipeline
+
+Optional, backward-compatible source mode on top of the unified preview. Provide a static unrigged dragon-only GLB with all parts in rest pose, no props/floor, no existing skeleton or shape keys. For a textured source, include UVs and glTF PBR materials. The importer does not remesh, decimate, sculpt over, reproject UVs or replace source materials. It joins mesh objects after baking their node transforms, rotates around Blender +Z by `--yaw-offset` (degrees), centers the X/Y bounding box, grounds the lowest vertex at Z=0 and scales overall height to .90 m. The front must face Blender -Y after yaw; 0 assumes already aligned. The exporter cannot infer the intended front or ground-contact anatomy from arbitrary geometry.
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u2-glb-character --track origin/feat/u2-glb-character
+$blender = "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe"
+& $blender --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- art-exports/EmberlingRefinedGLB.fbx --source-glb art-exports/EmberlingRaw.glb --yaw-offset 0
+if ($LASTEXITCODE -ne 0) { throw "Blender export failed" }
+Copy-Item "art-exports\EmberlingRefinedGLB.fbx" "Assets\Dravio\Art\Models\"
+```
+
+If the GLB faces +Y, use `--yaw-offset 180`; if it faces +X use -90; if it faces -X use 90 (directions in Blender after import). Add `--winged` when the input actually has two wings. The default Emberling remains canonically wingless: Wing_L/R are exported as unweighted placeholders unless `--winged` is set. Existing eye animation channels are retained, but textured eyes in a fused mesh do not physically blink without an appropriate eyelid rig. Wing animation clips are not added.
+
+GLB mode activates the complete 445-frame Refined animation take automatically, without any --refined-preview flag. It fits 22 bones (the original 17 plus Spine, Neck, Wing_L, Wing_R, TailVFX_Anchor) using normalized bounds and vertex samples of low paw regions and the posterior tail region. Bone-heat binding uses ARMATURE_AUTO; the strongest four weights are normalized, and unweighted vertices cause a hard failure. This is an approximate anatomical fit, not reliable automatic rigging for every topology, and not IK or shape-aware retargeting. The same five clips and frame boundaries (Idle, Walk, Eat, Doze, Happy) are maintained. Bone positions, especially tail and wings, require visual QA.
+
+FBX flags: axis_forward=-Z, axis_up=Y, add_leaf_bones=False, use_armature_deform_only=True, path_mode=COPY, embed_textures=True. All output modes use these flags. The source Blender material nodes and packed images are retained in EmberlingRefinedGLB.blend. FBX embedding retains maps that the exporter supports; FBX cannot represent every glTF PBR semantic, packed channel, UV transform, material extension or transparency behavior. The exporter also writes `EmberlingRefinedGLB_PBR/` containing original image bytes and `material-map.json` (glTF materials/textures/samplers). Keep this folder as recovery/reference; glTF metallicRoughnessTexture G is roughness, B is metallic, whereas Unity smoothness is 1 minus roughness. The sidecar is not automatically converted into URP materials. Inspect imported Base Color, normal map import settings, metallic/smoothness and transparency, extract/remap textures if necessary. Do not overwrite source material assets with the procedural paint.
+
+Unity: choose **Dravio > Create or Open Integrated GLB Sanctuary**. It uses the new FBX, retains .90 m model height, the original landscape HUD and domain preview, and preferentially follows TailVFX_Anchor. It creates `Assets/Dravio/Scenes/OriginIntegratedGLBPreview.unity` separately from previous scenes, and a separate prefab/controller. The GLB path imports material descriptions and preserves existing URP/Lit assignments; conversion of non-URP materials copies known texture slots and values only (manual PBR remap may be necessary). The procedural skin/flame material replacement is skipped. Use **Dravio > Validate Refined GLB FBX** after configuration to check the extra bones and existing clips. The original procedural menu and modes are still available.
+
+Artifacts: FBX, editable packed .blend, structural .qa.json and original PBR sidecar. Source GLB itself is never modified. New generated assets should be committed only after local inspection. Actual GLB asset was not supplied; no Blender/Unity execution or FBX round-trip was performed by the code author.
+
+## U1-CHAR — Character asset pipeline
+
+Branch `feat/u1-character-assets` (from `feat/u2-glb-character`). Tools in `scripts/art/character/` (Blender 5.x + pure Python) and `Assets/Dravio/Character/` (Unity Editor menus under **Dravio > Character**, shared budgets, 16-species modelling spec). Process, budgets and naming: `Assets/Dravio/Character/README.md`.
+
+- Inspect UV / vertex colour / Base Color / Normal / Roughness / Metallic, bake vertex colour to a texture, create missing UVs, build LOD0/1/2 on one shared armature, validate mesh/texture/LOD against `Assets/Dravio/Character/Data/character-budgets.json`.
+- Source GLB fix: `emberling_glb_source.py` now imports with glTF `merge_vertices`, because textured GLBs are split at every UV seam and the bone-heat bind otherwise fails with unweighted vertices.
+- Verified only on procedural `TEST_*` models generated by `make_test_assets.py` with Blender 5.3 (`bpy`). No real Dravio GLB has been optimised, and the Unity scripts have not been compiled in Unity.

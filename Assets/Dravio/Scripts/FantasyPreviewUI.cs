@@ -49,9 +49,58 @@ namespace Dravio
             }
             language.onClick.AddListener(()=>{vi=!vi;Localize();});
             collapse.onClick.AddListener(()=>{collapsed=!collapsed;ApplyVisibility();});
+            RepairLayout();
             Select(0);
             Localize();
             Layout();
+        }
+
+        // Also repair already-generated scenes, without recreating their assets.
+        private void RepairLayout()
+        {
+            if(panel==null)return;
+            var navigation=panel.Find("Navigation");
+            if(navigation!=null)
+            {
+                var row=navigation.GetComponent<LayoutElement>();
+                if(row!=null){row.minHeight=40;row.preferredHeight=44;row.flexibleHeight=0;}
+                var group=navigation.GetComponent<HorizontalLayoutGroup>();
+                if(group!=null)group.childForceExpandHeight=false;
+            }
+            foreach(var child in panel.GetComponentsInChildren<LayoutElement>(true))
+            {
+                if(child.gameObject.name=="Page host")continue;
+                if(child.preferredHeight>=0)child.flexibleHeight=0;
+                if(child.gameObject.name=="Touch actions")
+                {
+                    child.minHeight=44;child.preferredHeight=48;
+                    var group=child.GetComponent<HorizontalLayoutGroup>();
+                    if(group!=null)group.childForceExpandHeight=false;
+                    foreach(var button in child.GetComponentsInChildren<Button>(true))
+                    {
+                        var size=button.GetComponent<LayoutElement>();
+                        if(size!=null){size.minHeight=44;size.preferredHeight=48;size.flexibleHeight=0;}
+                    }
+                }
+            }
+            if(pages!=null && pages.Length>0 && pages[0]!=null)
+            {
+                var scroll=pages[0].GetComponent<ScrollRect>();
+                if(scroll!=null && scroll.content!=null)
+                {
+                    // Prioritize actionable controls above the session notes.
+                    foreach(Transform child in scroll.content)
+                    {
+                        var label=child.GetComponent<Text>();
+                        var size=child.GetComponent<LayoutElement>();
+                        if(label!=null && size!=null && size.preferredHeight>=48)
+                            size.preferredHeight=Mathf.Min(size.preferredHeight,36);
+                    }
+                    var layout=scroll.content.GetComponent<VerticalLayoutGroup>();
+                    if(layout!=null)layout.spacing=4;
+                }
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
         }
 
         private void Update()
