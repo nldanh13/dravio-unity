@@ -141,3 +141,24 @@ Select EmberlingPolished.fbx in Unity and choose **Dravio > Preview Selected Pol
 Deferred checks: verify exporter output, first UV channel, five imported animation clips, body material, eye silhouette, seams/stretching, flame emission and spark shader compilation, sparks tracking while walking/rotating, fixed camera, HUD and all care interactions; compare with/without local post-processing. Test PC and mobile quality separately, and profile before claiming performance. If generation fails midway, inspect the Console and rename/back up the incomplete preview scene before retrying. Commit accepted generated assets and their meta files only after review.
 
 Reference API documentation: Unity URP camera data and post-processing (https://docs.unity.com/en-us/engine/6000.0/manual/cameras/urp/universal-additional-camera-data); Blender 5.3 MeshUVLoopLayer (https://docs.blender.org/api/5.3/bpy.types.MeshUVLoopLayer.html). No Blender or Unity runtime verification in the authoring environment.
+
+## U1.5 — Fantasy UI preview
+
+Cumulative from U1.4 commit a7f34a0. The latest locally verified milestone is U1.3a (311fd63); U1.3b through U1.5 require local Unity acceptance. No edits to the separate Environment or Core Domain workstreams.
+
+When Unity is available:
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-fantasy-ui --track origin/feat/u1-fantasy-ui
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Polished
+```
+In Unity choose **Dravio > Create or Open Fantasy Preview**. The menu finds EmberlingPolished.fbx automatically, creates EmberlingFantasyPreview.unity separately from previous scenes, or opens the existing scene without rebuilding it. If the FBX already exists under Assets, the exporter preserves it; review any regenerated local file before replacing it. No new FBX mode is needed.
+
+- Dark wood, gold, parchment palette; header and collapsible drawer; scrollable Care, Biology and Dragons tabs.
+- Vietnamese default and live English switch, including the current visual activity. Language selection is session-only. Built-in font used provisionally; Vietnamese diacritics and mobile font coverage must be visually verified.
+- Landscape right-hand rail, portrait lower drawer, safe-area anchoring, portrait-specific scaling, hide/show controls and UI raycast guard for turntable.
+- Care buttons and existing F/P/N/Space shortcuts retain the same preview actions. R/drag/arrows work during inspection. Roster has exactly the one present preview dragon and an inspect action.
+- Biology fields are extracted at scene generation from the canonical `Assets/Dravio/Data/species-biology.json` Emberling entry, not invented values. Display reference fields only; no gold, health, food quantity, growth progress, comfort, genetics, passport, or inventory fabricated. Rebuild a new preview after backing up an old one if the canonical file changes.
+
+Deferred acceptance: verify compilation, FBX and five clips, menu creation/reopen, care actions, language/diacritics, scroll and tab navigation, roster inspect, hide/show, portrait/landscape (including narrow aspect ratios), safe areas, touch scroll and drag not rotating the dragon through UI, camera framing and performance. This is a functional UI prototype, not production-quality art or a domain-connected UI. No Unity/Blender execution by the code author. Keep prior previews and draft PRs until validated.
