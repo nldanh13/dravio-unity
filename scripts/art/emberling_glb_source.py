@@ -31,7 +31,11 @@ def bounds(mesh):
 
 def import_normalized(source, yaw_degrees):
     """Import a static dragon-only GLB, keep its topology, UV channels and materials."""
-    result = bpy.ops.import_scene.gltf(filepath=str(source))
+    # glTF splits vertices at every UV/normal seam; without merging, a textured GLB
+    # arrives as hundreds of disconnected islands and bone-heat weighting leaves
+    # unweighted vertices (and would tear seams apart when deformed). merge_vertices
+    # only welds vertices with identical position and normal; UVs stay per-loop.
+    result = bpy.ops.import_scene.gltf(filepath=str(source), merge_vertices=True)
     if 'FINISHED' not in result:
         raise RuntimeError("glTF import failed")
     bpy.context.view_layer.update()
