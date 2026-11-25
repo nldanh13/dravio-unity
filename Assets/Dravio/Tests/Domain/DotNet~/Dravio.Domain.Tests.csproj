@@ -1,0 +1,27 @@
+<!--
+  Chạy test domain U2.1 ngoài Unity bằng .NET SDK (Unity bỏ qua thư mục kết thúc bằng "~").
+  Biên dịch đúng các file .cs mà Unity biên dịch, với LangVersion 9 (bằng C# của Unity 6).
+    dotnet test Assets/Dravio/Tests/Domain/DotNet~/Dravio.Domain.Tests.csproj
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);DRAVIO_DOTNET_TESTS</DefineConstants>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../Domain/**/*.cs" />
+    <Compile Include="../*.cs;../Support/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+</Project>
