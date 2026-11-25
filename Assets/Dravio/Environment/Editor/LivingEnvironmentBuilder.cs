@@ -79,7 +79,27 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (data == null) return;
             var locations = AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(OriginSanctuaryEnvironmentBuilder.LocationsAssetPath);
 
-            var old = GameObject.Find(RootName);
+            var root = BuildLivingRoot(RootName, data, locations, new[] { AudioDir }, BuildParticles, addWater: true);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Selection.activeGameObject = root;
+            Debug.Log("Dravio Environment: living environment added (" + data.interactionPoints.Length +
+                      " interaction points). Scrub 'hour' on Environment Time Of Day to preview dawn, day, dusk and night.");
+        }
+
+        internal delegate EnvironmentAmbientParticles ParticleFactory(Transform root, SanctuaryLivingData data,
+                                                                      EnvironmentTimeOfDay tod, EnvironmentWind wind);
+
+        /// <summary>
+        /// One living root in the OPEN scene (replaces an older root of the same name): time of
+        /// day, wind, optional water ripples, particles, ambience and interaction markers.
+        /// Shared by the Origin Sanctuary (above) and the U1-ENV.4 zone scenes.
+        /// </summary>
+        internal static GameObject BuildLivingRoot(string rootName, SanctuaryLivingData data, SanctuaryLocationData locations,
+                                                   string[] audioDirs, ParticleFactory particles, bool addWater)
+        {
+            var old = GameObject.Find(rootName);
             if (old != null) Object.DestroyImmediate(old);
 
             Light sun = null;
@@ -92,7 +112,7 @@ namespace Dravio.EnvironmentArt.EditorTools
                 if (fit != null) cam = fit.GetComponent<Camera>();
             }
 
-            var root = new GameObject(RootName);
+            var root = new GameObject(rootName);
             var living = root.AddComponent<LivingEnvironment>();
             living.data = data;
             living.locations = locations;
@@ -108,11 +128,15 @@ namespace Dravio.EnvironmentArt.EditorTools
             wind.timeOfDay = tod;
             living.wind = wind;
 
-            var water = root.AddComponent<EnvironmentWater>();
-            living.water = water;
+            EnvironmentWater water = null;
+            if (addWater)
+            {
+                water = root.AddComponent<EnvironmentWater>();
+                living.water = water;
+            }
 
-            living.particles = BuildParticles(root.transform, data, tod, wind);
-            living.ambience = BuildAudio(root.transform, data, tod, wind, cam);
+            living.particles = particles(root.transform, data, tod, wind);
+            living.ambience = BuildAudio(root.transform, data, tod, wind, cam, audioDirs);
 
             var inter = root.AddComponent<EnvironmentInteractions>();
             inter.data = data;
@@ -131,11 +155,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             }
 
             if (sun == null) Debug.LogWarning("Dravio Environment: no directional light found; the time of day will not light the scene.");
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-            Selection.activeGameObject = root;
-            Debug.Log("Dravio Environment: living environment added (" + data.interactionPoints.Length +
-                      " interaction points). Scrub 'hour' on Environment Time Of Day to preview dawn, day, dusk and night.");
+            return root;
         }
 
         // ------------------------------------------------------------- particles
@@ -182,7 +202,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return comp;
         }
 
-        static ParticleSystem Ambient(Transform parent, string name, SanctuaryLivingData.ParticleVolume v, Material mat,
+        internal static ParticleSystem Ambient(Transform parent, string name, SanctuaryLivingData.ParticleVolume v, Material mat,
                                       Vector2 size, Color color, Gradient overLife, float noise)
         {
             var go = new GameObject(name);
@@ -234,7 +254,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return ps;
         }
 
-        static ParticleSystem Burst(Transform parent, string name, Material mat, float gravity)
+        internal static ParticleSystem Burst(Transform parent, string name, Material mat, float gravity)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -263,7 +283,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return ps;
         }
 
-        static void Renderer(ParticleSystem ps, Material mat)
+        internal static void Renderer(ParticleSystem ps, Material mat)
         {
             var r = ps.GetComponent<ParticleSystemRenderer>();
             r.renderMode = ParticleSystemRenderMode.Billboard;
@@ -275,7 +295,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             r.maxParticleSize = 0.08f;
         }
 
-        static Gradient AlphaGradient(params (float t, float a)[] keys)
+        internal static Gradient AlphaGradient(params (float t, float a)[] keys)
         {
             var g = new Gradient();
             var a = new GradientAlphaKey[keys.Length];
@@ -284,10 +304,14 @@ namespace Dravio.EnvironmentArt.EditorTools
             return g;
         }
 
-        static Material ParticleMaterial(string name, string texture, bool additive)
+        static Material ParticleMaterial(string name, string texture, bool additive) =>
+            ParticleMaterial(name, TexturesDir + "/" + texture + ".png", additive, MaterialsDir);
+
+        /// <summary>URP Particles/Unlit material (additive or alpha) at materialsDir/name.mat.</summary>
+        internal static Material ParticleMaterial(string name, string texturePath, bool additive, string materialsDir)
         {
-            OriginSanctuaryEnvironmentBuilder.EnsureFolder(MaterialsDir);
-            string path = MaterialsDir + "/" + name + ".mat";
+            OriginSanctuaryEnvironmentBuilder.EnsureFolder(materialsDir);
+            string path = materialsDir + "/" + name + ".mat";
             var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             bool urp = shader != null;
             if (!urp) shader = Shader.Find("Sprites/Default");
@@ -298,7 +322,8 @@ namespace Dravio.EnvironmentArt.EditorTools
                 AssetDatabase.CreateAsset(m, path);
             }
             m.shader = shader;
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(TexturesDir + "/" + texture + ".png");
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+            if (tex == null) Debug.LogWarning("Dravio Environment: particle texture missing: " + texturePath);
             if (urp)
             {
                 m.SetTexture("_BaseMap", tex);
@@ -328,7 +353,18 @@ namespace Dravio.EnvironmentArt.EditorTools
         }
 
         // ----------------------------------------------------------------- audio
-        static EnvironmentAudio BuildAudio(Transform root, SanctuaryLivingData data, EnvironmentTimeOfDay tod, EnvironmentWind wind, Camera cam)
+        static AudioClip FindClip(string[] dirs, string id)
+        {
+            foreach (var d in dirs)
+            {
+                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(d + "/" + id + ".wav");
+                if (clip != null) return clip;
+            }
+            return null;
+        }
+
+        static EnvironmentAudio BuildAudio(Transform root, SanctuaryLivingData data, EnvironmentTimeOfDay tod, EnvironmentWind wind,
+                                           Camera cam, string[] audioDirs)
         {
             var go = new GameObject("Ambience");
             go.transform.SetParent(root, false);
@@ -341,14 +377,14 @@ namespace Dravio.EnvironmentArt.EditorTools
             var missing = new List<string>();
             foreach (var l in data.audioLoops)
             {
-                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(AudioDir + "/" + l.clip + ".wav");
+                var clip = FindClip(audioDirs, l.clip);
                 if (clip == null) missing.Add(l.clip);
                 else loops.Add(new EnvironmentAudio.NamedClip { id = l.id, clip = clip });
             }
             var shots = new List<EnvironmentAudio.NamedClip>();
             foreach (var id in data.oneShots)
             {
-                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(AudioDir + "/" + id + ".wav");
+                var clip = FindClip(audioDirs, id);
                 if (clip == null) missing.Add(id);
                 else shots.Add(new EnvironmentAudio.NamedClip { id = id, clip = clip });
             }

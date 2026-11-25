@@ -7,18 +7,31 @@ namespace Dravio.EnvironmentArt.EditorTools
     /// Mobile import rules for the generated Origin Sanctuary kit. Scoped strictly to
     /// Assets/Dravio/Environment/Models, /Textures and /Audio so the Emberling FBX, its
     /// Animator and every other asset keep their own importer settings.
+    /// U1-ENV.4: the same rules for the zone kits in
+    /// Assets/Dravio/Environment/Zones/&lt;Zone&gt;/Models, /Textures and /Audio.
     /// </summary>
     public sealed class EnvironmentImportSettings : AssetPostprocessor
     {
         public const string ModelsFolder = "Assets/Dravio/Environment/Models/";
         public const string TexturesFolder = "Assets/Dravio/Environment/Textures/";
         public const string AudioFolder = "Assets/Dravio/Environment/Audio/";
+        public const string ZonesFolder = "Assets/Dravio/Environment/Zones/";
 
-        public override uint GetVersion() => 5;
+        public override uint GetVersion() => 6;
+
+        /// <summary>Origin folder (e.g. Environment/Models/) or Environment/Zones/&lt;Zone&gt;/Models/.</summary>
+        static bool InKitFolder(string path, string originFolder, string sub)
+        {
+            if (path.StartsWith(originFolder, System.StringComparison.Ordinal)) return true;
+            if (!path.StartsWith(ZonesFolder, System.StringComparison.Ordinal)) return false;
+            string rest = path.Substring(ZonesFolder.Length);
+            int slash = rest.IndexOf('/');
+            return slash > 0 && rest.Substring(slash + 1).StartsWith(sub + "/", System.StringComparison.Ordinal);
+        }
 
         void OnPreprocessModel()
         {
-            if (!assetPath.StartsWith(ModelsFolder, System.StringComparison.Ordinal)) return;
+            if (!InKitFolder(assetPath, ModelsFolder, "Models")) return;
             var mi = (ModelImporter)assetImporter;
             // Blender export already bakes axis conversion and unit scale (1 m = 1 unit).
             mi.globalScale = 1f;
@@ -48,12 +61,12 @@ namespace Dravio.EnvironmentArt.EditorTools
 
         void OnPreprocessTexture()
         {
-            if (!assetPath.StartsWith(TexturesFolder, System.StringComparison.Ordinal)) return;
+            if (!InKitFolder(assetPath, TexturesFolder, "Textures")) return;
             var ti = (TextureImporter)assetImporter;
             string file = System.IO.Path.GetFileNameWithoutExtension(assetPath);
             if (file.StartsWith("T_ENV_FX_", System.StringComparison.Ordinal))
             {
-                ConfigureFx(ti);
+                ConfigureFx(ti, file);
                 return;
             }
             bool foliage = file.Contains("Foliage");
@@ -90,23 +103,25 @@ namespace Dravio.EnvironmentArt.EditorTools
         }
 
         // U1-ENV.3 particle sprites: tiny white alpha masks.
-        static void ConfigureFx(TextureImporter ti)
+        // U1-ENV.4: caustics (256, tiling), light shaft (64x256) and cloud wisp (128) masks.
+        static void ConfigureFx(TextureImporter ti, string file)
         {
+            int max = file.Contains("Caustics") || file.Contains("LightShaft") ? 256 : file.Contains("CloudWisp") ? 128 : 64;
             ti.textureType = TextureImporterType.Default;
             ti.sRGBTexture = true;
             ti.alphaSource = TextureImporterAlphaSource.FromInput;
             ti.alphaIsTransparency = true;
             ti.mipmapEnabled = true;
-            ti.wrapMode = TextureWrapMode.Clamp;
+            ti.wrapMode = file.Contains("Caustics") ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             ti.filterMode = FilterMode.Bilinear;
             ti.isReadable = false;
-            ti.maxTextureSize = 64;
+            ti.maxTextureSize = max;
             ti.textureCompression = TextureImporterCompression.Compressed;
             foreach (string platform in new[] { "Android", "iPhone" })
             {
                 var ps = ti.GetPlatformTextureSettings(platform);
                 ps.overridden = true;
-                ps.maxTextureSize = 64;
+                ps.maxTextureSize = max;
                 ps.format = TextureImporterFormat.ASTC_4x4;
                 ti.SetPlatformTextureSettings(ps);
             }
@@ -115,7 +130,7 @@ namespace Dravio.EnvironmentArt.EditorTools
         // U1-ENV.3 ambience: mono, Vorbis loops kept compressed in memory, ADPCM one-shots.
         void OnPreprocessAudio()
         {
-            if (!assetPath.StartsWith(AudioFolder, System.StringComparison.Ordinal)) return;
+            if (!InKitFolder(assetPath, AudioFolder, "Audio")) return;
             var ai = (AudioImporter)assetImporter;
             bool loop = System.IO.Path.GetFileNameWithoutExtension(assetPath).StartsWith("AMB_", System.StringComparison.Ordinal);
             ai.forceToMono = true;

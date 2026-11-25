@@ -10,7 +10,7 @@ namespace Dravio.EnvironmentArt
     /// </summary>
     public sealed class SanctuaryMarker : MonoBehaviour
     {
-        public enum Kind { Spawn, Transition, Perch, Interaction }
+        public enum Kind { Spawn, Transition, Perch, Interaction, Rest, ZoneGate, AreaLink }
 
         public Kind kind;
         public string markerId;

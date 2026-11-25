@@ -12,7 +12,7 @@ namespace Dravio.EnvironmentArt
     [DisallowMultipleComponent]
     public sealed class EnvironmentAmbientParticles : MonoBehaviour
     {
-        public enum BurstStyle { PetalPuff, RuneSparkle, HeatMotes, FirefliesGather, Splash, DustPuff }
+        public enum BurstStyle { PetalPuff, RuneSparkle, HeatMotes, FirefliesGather, Splash, DustPuff, Bubbles, CloudPuff }
 
         public EnvironmentTimeOfDay timeOfDay;
         public EnvironmentWind wind;
@@ -22,6 +22,10 @@ namespace Dravio.EnvironmentArt
         public ParticleSystem firefliesPond;
         public ParticleSystem dust;
         public ParticleSystem pondRings;
+        [Header("Burst colours (U1-ENV.4 zones recolour them)")]
+        public Color glowColor = new Color(0.95f, 1f, 0.45f);
+        public Color sparkleColor = new Color(0.55f, 0.95f, 1f);
+        public Color dustColor = new Color(0.72f, 0.58f, 0.42f, 0.7f);
         [Header("Feedback bursts")]
         [Tooltip("Light particles that float up (sparkles, petals, heat motes, fireflies).")]
         public ParticleSystem burstRise;
@@ -133,7 +137,7 @@ namespace Dravio.EnvironmentArt
                         v = new Vector3(r.x * 0.6f, 0.5f + Mathf.Abs(r.y) * 0.5f, r.z * 0.6f);
                         break;
                     case BurstStyle.RuneSparkle:
-                        c = new Color(0.55f, 0.95f, 1f) * 1.6f;
+                        c = sparkleColor * 1.6f;
                         size = Random.Range(0.05f, 0.09f); life = Random.Range(0.8f, 1.5f);
                         v = new Vector3(r.x * 0.35f, 0.7f + Mathf.Abs(r.y) * 0.6f, r.z * 0.35f);
                         break;
@@ -143,7 +147,7 @@ namespace Dravio.EnvironmentArt
                         v = new Vector3(r.x * 0.2f, 0.35f + Mathf.Abs(r.y) * 0.3f, r.z * 0.2f);
                         break;
                     case BurstStyle.FirefliesGather:
-                        c = new Color(0.95f, 1f, 0.45f) * 1.5f;
+                        c = glowColor * 1.5f;
                         size = Random.Range(0.06f, 0.09f); life = Random.Range(2.5f, 4f);
                         v = r * 0.25f + Vector3.up * 0.1f;
                         break;
@@ -152,8 +156,18 @@ namespace Dravio.EnvironmentArt
                         size = Random.Range(0.05f, 0.09f); life = Random.Range(0.5f, 0.8f);
                         v = new Vector3(r.x * 1.1f, 1.6f + Mathf.Abs(r.y) * 1.2f, r.z * 1.1f);
                         break;
+                    case BurstStyle.Bubbles:
+                        c = new Color(0.85f, 0.97f, 1f, 0.85f);
+                        size = Random.Range(0.04f, 0.09f); life = Random.Range(1.4f, 2.2f);
+                        v = new Vector3(r.x * 0.12f, 0.6f + Mathf.Abs(r.y) * 0.5f, r.z * 0.12f);
+                        break;
+                    case BurstStyle.CloudPuff:
+                        c = new Color(1f, 1f, 1f, 0.6f);
+                        size = Random.Range(0.25f, 0.45f); life = Random.Range(1.2f, 1.8f);
+                        v = new Vector3(r.x * 0.6f, 0.15f + Mathf.Abs(r.y) * 0.25f, r.z * 0.6f);
+                        break;
                     default: // DustPuff
-                        c = new Color(0.72f, 0.58f, 0.42f, 0.7f);
+                        c = dustColor;
                         size = Random.Range(0.12f, 0.2f); life = Random.Range(0.7f, 1.1f);
                         v = new Vector3(r.x * 0.7f, 0.5f + Mathf.Abs(r.y) * 0.4f, r.z * 0.7f);
                         break;

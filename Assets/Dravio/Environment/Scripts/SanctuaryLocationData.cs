@@ -12,6 +12,10 @@ namespace Dravio.EnvironmentArt
     /// perches. Uses the canonical habitat string IDs but has no dependency on the
     /// domain assemblies and never changes game state.
     /// All areas are XZ polygons in world space on the flat ground (y = 0).
+    /// U1-ENV.4 adds optional zone data (Ocean / Sky scenes): swim and fly volumes,
+    /// walk areas at their own height (floating islands, seabed), seabed rest points,
+    /// links between walk areas and WorldGraph gateways. They are empty for the Origin
+    /// Sanctuary, so its data and every query above behave exactly as before.
     /// </summary>
     [CreateAssetMenu(menuName = "Dravio/Environment/Sanctuary Location Data", fileName = "OriginSanctuaryLocations")]
     public sealed class SanctuaryLocationData : ScriptableObject
@@ -37,6 +41,8 @@ namespace Dravio.EnvironmentArt
             public string id;
             public string habitatId;
             public string kind;
+            [Tooltip("U1-ENV.4: ground, seabed, swim or air. Empty = ground (Origin data).")]
+            public string medium;
             public float x, y, z, yaw;
             public Vector3 Position => new Vector3(x, y, z);
             public Quaternion Rotation => Quaternion.Euler(0f, yaw, 0f);
@@ -71,6 +77,65 @@ namespace Dravio.EnvironmentArt
             public string habitatId;
             public string source;
             public float[] polygonXZ;
+            [Tooltip("U1-ENV.4: world height of the collider top (0 = unknown, blocks at any height).")]
+            public float top;
+        }
+
+        /// <summary>U1-ENV.4: swim ("swim") or flight ("fly") space: XZ polygon between yMin and yMax.</summary>
+        [Serializable]
+        public sealed class Volume
+        {
+            public string id;
+            public string habitatId;
+            public string medium;
+            public float[] polygonXZ;
+            public float yMin, yMax;
+            public bool Contains(Vector3 w) => w.y >= yMin && w.y <= yMax && SanctuaryLocationData.Contains(polygonXZ, w.x, w.z);
+        }
+
+        /// <summary>U1-ENV.4: a standable surface at height y (island top, seabed) inside a habitat.</summary>
+        [Serializable]
+        public sealed class WalkArea
+        {
+            public string id;
+            public string habitatId;
+            public string displayNameVi;
+            public float[] polygonXZ;
+            public float y;
+        }
+
+        /// <summary>U1-ENV.4: how a dragon gets between two walk areas (bridge, flight hop).</summary>
+        [Serializable]
+        public sealed class AreaLink
+        {
+            public string id;
+            public string areaA;
+            public string areaB;
+            public string[] requires;
+            public string source;
+            public float x, y, z, radius;
+            public Vector3 Position => new Vector3(x, y, z);
+            public bool Allows(string locomotion) => requires != null && Array.IndexOf(requires, locomotion) >= 0;
+        }
+
+        /// <summary>
+        /// U1-ENV.4: where a WorldGraph edge leaves this zone. Data only: the domain owns
+        /// travel and unlocks (Ocean / Sky are locked in G1), the environment never acts on it.
+        /// </summary>
+        [Serializable]
+        public sealed class ZoneGate
+        {
+            public string id;
+            public string worldEdgeId;
+            public string habitatId;
+            public string toZoneId;
+            public string toHabitatId;
+            public string[] requires;
+            public string medium;
+            public string source;
+            public float x, y, z, radius;
+            public bool lockedInG1;
+            public Vector3 Position => new Vector3(x, y, z);
         }
 
         public int version;
@@ -83,6 +148,12 @@ namespace Dravio.EnvironmentArt
         public Perch[] perchPoints = Array.Empty<Perch>();
         public Area[] waterAreas = Array.Empty<Area>();
         public Area[] obstacles = Array.Empty<Area>();
+        // U1-ENV.4 zone data (empty for the Origin Sanctuary).
+        public Volume[] volumes = Array.Empty<Volume>();
+        public WalkArea[] walkAreas = Array.Empty<WalkArea>();
+        public Perch[] restPoints = Array.Empty<Perch>();
+        public AreaLink[] areaLinks = Array.Empty<AreaLink>();
+        public ZoneGate[] zoneGates = Array.Empty<ZoneGate>();
 
         /// <summary>Replaces the contents from the generated JSON (editor tools call this).</summary>
         public void LoadFromJson(string json) => JsonUtility.FromJsonOverwrite(json, this);
@@ -127,15 +198,92 @@ namespace Dravio.EnvironmentArt
         /// <summary>
         /// Safe ground for a walking dragon: inside the habitat (any habitat when null),
         /// clear of obstacles by <see cref="walkClearance"/>, and out of the pond.
-        /// Swimmers may also use the habitat's swim area.
+        /// Swimmers may also use the habitat's swim area. In zones with walk areas
+        /// (U1-ENV.4) the point must also lie on one of them (island top, seabed).
         /// </summary>
         public bool IsWalkable(Vector3 world, string habitatId = null, bool canSwim = false)
         {
             string at = HabitatAt(world);
             if (at == null || (habitatId != null && at != habitatId)) return false;
             if (Blocked(world, walkClearance)) return false;
+            if (walkAreas != null && walkAreas.Length > 0 && WalkAreaAt(world, at) == null) return false;
             if (InWater(world)) return canSwim && InSwimArea(world, at);
             return true;
+        }
+
+        // ------------------------------------------------------- U1-ENV.4 zones
+        /// <summary>Walk area under a world XZ (the one nearest world.y when several overlap).</summary>
+        public WalkArea WalkAreaAt(Vector3 world, string habitatId = null)
+        {
+            WalkArea best = null;
+            if (walkAreas == null) return null;
+            foreach (var a in walkAreas)
+            {
+                if (habitatId != null && a.habitatId != habitatId) continue;
+                if (!Contains(a.polygonXZ, world.x, world.z)) continue;
+                if (best == null || Mathf.Abs(a.y - world.y) < Mathf.Abs(best.y - world.y)) best = a;
+            }
+            return best;
+        }
+
+        /// <summary>Ground height under a point: walk area height, or 0 on the flat Origin ground.</summary>
+        public bool TryGroundHeight(Vector3 world, out float y)
+        {
+            y = 0f;
+            if (walkAreas == null || walkAreas.Length == 0) return HabitatAt(world) != null;
+            var a = WalkAreaAt(world);
+            if (a == null) return false;
+            y = a.y;
+            return true;
+        }
+
+        public bool InVolume(Vector3 world, string medium, string habitatId = null)
+        {
+            if (volumes == null) return false;
+            foreach (var v in volumes)
+                if (v.medium == medium && (habitatId == null || v.habitatId == habitatId) && v.Contains(world)) return true;
+            return false;
+        }
+
+        /// <summary>Open water for a swimmer: a swim volume (zones) or the habitat swim area (Origin pond).</summary>
+        public bool IsSwimmable(Vector3 world, string habitatId = null) =>
+            InVolume(world, "swim", habitatId) || (habitatId != null && InSwimArea(world, habitatId));
+
+        /// <summary>Free flight space, clear of any collider that reaches this height.</summary>
+        public bool IsFlyable(Vector3 world, string habitatId = null, float clearance = 0.35f) =>
+            InVolume(world, "fly", habitatId) && !BlockedAt(world, clearance);
+
+        /// <summary>Like <see cref="Blocked"/> but ignores obstacles whose top is below world.y.</summary>
+        public bool BlockedAt(Vector3 world, float clearance)
+        {
+            foreach (var o in obstacles)
+            {
+                if (o.top > 0f && o.top < world.y - 0.05f) continue;
+                if (Contains(o.polygonXZ, world.x, world.z) || EdgeDistance(o.polygonXZ, world.x, world.z) < clearance)
+                    return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<ZoneGate> GatesFrom(string habitatId)
+        {
+            if (zoneGates == null) yield break;
+            foreach (var g in zoneGates)
+                if (habitatId == null || g.habitatId == habitatId) yield return g;
+        }
+
+        public IEnumerable<Perch> RestPointsIn(string habitatId)
+        {
+            if (restPoints == null) yield break;
+            foreach (var p in restPoints)
+                if (p.habitatId == habitatId) yield return p;
+        }
+
+        public IEnumerable<AreaLink> LinksFrom(string areaId)
+        {
+            if (areaLinks == null) yield break;
+            foreach (var l in areaLinks)
+                if (l.areaA == areaId || l.areaB == areaId) yield return l;
         }
 
         public IEnumerable<SpawnPoint> SpawnPointsIn(string habitatId)
