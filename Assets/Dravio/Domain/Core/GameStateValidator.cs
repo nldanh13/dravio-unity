@@ -326,11 +326,51 @@ namespace Dravio.Domain.Core
                     if (d != null && d.Activity == DragonActivity.Breeding && !breedingParents.Contains(d.Uid))
                         errors.Add("dragons." + d.Uid + ".activity: breeding without nest");
 
+            // U2.7 (schema v6): Bách khoa và trang trí. State v4/v5 cũ (golden TS) không có codex và có thể mang ID trang trí tùy ý.
+            if (s.SchemaVersion >= 6)
+            {
+                if (s.Codex == null) errors.Add("codex: invalid");
+                else
+                {
+                    int last = -1;
+                    var speciesIds = new List<string>();
+                    foreach (DragonSpecies sp in SpeciesCatalog.All) speciesIds.Add(sp.Id);
+                    foreach (CodexEntry e in s.Codex)
+                    {
+                        int idx = e == null ? -1 : speciesIds.IndexOf(e.SpeciesId);
+                        if (idx <= last) { errors.Add("codex: unknown, duplicate or unordered species"); break; }
+                        last = idx;
+                        if (e.DiscoveredMutations == null || e.DiscoveredMutations.Count == 0 || !StrictlyIncreasing(e.DiscoveredMutations) ||
+                            e.ObservedStages == null || e.ObservedStages.Count == 0 || !StrictlyIncreasing(e.ObservedStages) || e.TotalHatched < 0)
+                            errors.Add("codex." + e.SpeciesId + ": invalid");
+                    }
+                }
+                if (s.Zones != null)
+                    foreach (ZoneState z in s.Zones)
+                    {
+                        if (z?.DecorationIds == null || z.ActiveDecorationIds == null) continue;
+                        // ID ngoài catalog được giữ (save cũ của TS cho phép chuỗi bất kỳ); chỉ cấm trùng và bật món chưa sở hữu.
+                        if (new HashSet<string>(z.DecorationIds).Count != z.DecorationIds.Count) errors.Add("zones." + z.Id + ".decorationIds: duplicates");
+                        if (new HashSet<string>(z.ActiveDecorationIds).Count != z.ActiveDecorationIds.Count || !z.ActiveDecorationIds.TrueForAll(z.DecorationIds.Contains))
+                            errors.Add("zones." + z.Id + ".activeDecorationIds: not owned");
+                    }
+            }
+
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
             List<string> claimed = s.ClaimedAchievements;
             if (!UniqueStrings(claimed, ProgressCatalog.IsAchievementId)) errors.Add("claimedAchievements: invalid");
             else if (unlocked != null && !claimed.TrueForAll(unlocked.Contains)) errors.Add("claimedAchievements: not unlocked");
+        }
+
+        private static bool StrictlyIncreasing<T>(List<T> xs) where T : struct, Enum
+        {
+            for (int i = 0; i < xs.Count; i++)
+            {
+                if (!WireNames.IsDefined(xs[i])) return false;
+                if (i > 0 && Convert.ToInt32(xs[i - 1]) >= Convert.ToInt32(xs[i])) return false;
+            }
+            return true;
         }
 
         private static bool UniqueStrings(List<string> v, Func<string, bool> ok)

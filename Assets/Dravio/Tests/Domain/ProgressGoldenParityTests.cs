@@ -22,7 +22,7 @@ namespace Dravio.Domain.Tests
         public void Progress_golden_targets_the_reference_commit_and_same_implemented_achievements()
         {
             Assert.That(GoldenFile.Progress["source"], Is.EqualTo("nldanh13/dravio@" + ContentInfo.ReferenceCommit));
-            Assert.That(Achievements.Implemented, Is.EqualTo(A(GoldenFile.Progress["implemented"])));
+            Assert.That(Achievements.TsImplemented, Is.EqualTo(A(GoldenFile.Progress["implemented"])));
         }
 
         private static IEnumerable<TestCaseData> Scenarios()
@@ -41,6 +41,26 @@ namespace Dravio.Domain.Tests
             ["hatchPreview"] = s.PendingPack == null ? null : StateJson.Dragon(StarterPack.HatchFromPack(s.PendingPack, 0)),
         };
 
+        /// <summary>
+        /// U2.7: Bách khoa và 10 thành tựu mới không có ở TS. Event codexDiscovered và achievementUnlocked của luật mới bị lọc; thưởng của chúng
+        /// được trừ khỏi vàng trước khi so (như cách golden U2.1/U2.3 xử lý thành tựu U2.4).
+        /// </summary>
+        private static bool TsEvent(DomainEvent e) =>
+            !(e is CodexDiscovered) && !(e is AchievementUnlocked a && !Achievements.TsImplemented.Contains(a.AchievementId));
+
+        private static long NewRewards(IEnumerable<DomainEvent> evs) =>
+            evs.OfType<AchievementUnlocked>().Where(a => !Achievements.TsImplemented.Contains(a.AchievementId)).Sum(a => a.RewardGoldMicro);
+
+        private static Dictionary<string, object> TsView(GameState s, bool fullIds, long rewards)
+        {
+            var o = StateJson.ToGoldenFull(s, fullIds);
+            o["goldMicro"] = (double)(s.Player.Gold.Micro - rewards);
+            var ids = new HashSet<string>(Achievements.TsImplemented);
+            o["unlockedAchievements"] = s.UnlockedAchievements.Where(ids.Contains).Select(x => (object)x).ToList();
+            o["claimedAchievements"] = s.ClaimedAchievements.Where(ids.Contains).Select(x => (object)x).ToList();
+            return o;
+        }
+
         [TestCaseSource(nameof(Scenarios))]
         public void Progress_replay_matches_TypeScript_full_state_and_all_events(string name)
         {
@@ -50,6 +70,7 @@ namespace Dravio.Domain.Tests
             Assert.That(MiniJson.Diff(sc["start"], StateJson.ToGoldenFull(state, fullIds: true)), Is.Null, "start round-trip");
             var clock = new FixedClock(0);
             var steps = A(sc["steps"]);
+            long rewards = 0;
             for (int i = 0; i < steps.Count; i++)
             {
                 var st = O(steps[i]);
@@ -60,16 +81,17 @@ namespace Dravio.Domain.Tests
                 Assert.That(r.Duplicate, Is.EqualTo((bool)st["duplicate"]), at + " duplicate");
                 if (!r.Ok) Assert.That(r.Error.WireCode, Is.EqualTo(st["errorCode"]), at + " error code");
                 Assert.That(ReferenceEquals(r.State, state), Is.EqualTo((bool)st["sameStateObject"]), at + " same object");
-                Assert.That(MiniJson.Diff(st["events"], r.Events.Select(e => (object)StateJson.Event(e)).ToList()), Is.Null, at + " events");
+                rewards += NewRewards(r.Events);
+                Assert.That(MiniJson.Diff(st["events"], r.Events.Where(TsEvent).Select(e => (object)StateJson.Event(e)).ToList()), Is.Null, at + " events");
                 if (st["state"] != null)
                 {
-                    Assert.That(MiniJson.Diff(st["state"], StateJson.ToGoldenFull(r.State, fullIds: false)), Is.Null, at + " state");
+                    Assert.That(MiniJson.Diff(st["state"], TsView(r.State, false, rewards)), Is.Null, at + " state");
                     Assert.That(GameStateValidator.Validate(r.State).IsValid, Is.True, at + " invalid: " + GameStateValidator.Validate(r.State));
                 }
                 Assert.That(MiniJson.Diff(st["probe"], Probe(r.State)), Is.Null, at + " probe");
                 state = r.State;
             }
-            Assert.That(MiniJson.Diff(sc["final"], StateJson.ToGoldenFull(state, fullIds: true)), Is.Null, name + " final");
+            Assert.That(MiniJson.Diff(sc["final"], TsView(state, true, rewards)), Is.Null, name + " final");
         }
     }
 }

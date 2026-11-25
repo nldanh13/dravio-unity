@@ -2,7 +2,7 @@
  * Đọc save do C# ghi (DRAVIO_EXPORT_DIR, từ CrossRuntimeExportTests / WorldSaveCompatTests / ProgressSaveTests / BreedingSaveTests)
  * bằng parseSaveText của TypeScript gốc @ b33ec7a3.
  *   - *.save.json: ảnh v4 của save C# (tổ trống) — TS phải đọc được với state trùng *.canonical.txt.
- *   - *.v5.json: save Schema v5 thật của bản Unity (U2.5) — TS phải từ chối "newer-version" (chỉ đọc, không ghi đè).
+ *   - *.unity.json: save schema thật của bản Unity (v6 từ U2.7) — TS phải từ chối "newer-version" (chỉ đọc, không ghi đè).
  *   cp verify-csharp-saves.test.ts <dravio>/tests/unit/zz-verify-csharp-saves.test.ts
  *   DRAVIO_EXPORT_DIR=<dir> npx vitest run tests/unit/zz-verify-csharp-saves.test.ts
  */
@@ -12,11 +12,11 @@ import { expect, it } from 'vitest';
 import { parseSaveText } from '../../src/persistence/saveFile';
 import { canonicalJson } from '../../src/persistence/schema';
 
-it('TypeScript reads every C#-written save (v4 projection) with the same state and refuses v5 as newer', async () => {
+it('TypeScript reads every C#-written save (v4 projection) with the same state and refuses Unity schema as newer', async () => {
   const dir = process.env.DRAVIO_EXPORT_DIR!;
   const files = readdirSync(dir);
   const saves = files.filter((f) => f.endsWith('.save.json'));
-  const v5 = files.filter((f) => f.endsWith('.v5.json'));
+  const v5 = files.filter((f) => f.endsWith('.unity.json'));
   expect(saves.length).toBeGreaterThan(15);
   expect(v5.length).toBeGreaterThanOrEqual(saves.length);
   for (const f of saves) {
@@ -31,5 +31,5 @@ it('TypeScript reads every C#-written save (v4 projection) with the same state a
     expect(r.ok, f).toBe(false);
     if (!r.ok) expect(r.code, f).toBe('newer-version');
   }
-  console.log(`verified ${saves.length} C# saves (v4 projection) and ${v5.length} v5 saves refused as newer`);
+  console.log(`verified ${saves.length} C# saves (v4 projection) and ${v5.length} Unity-schema saves refused as newer`);
 });

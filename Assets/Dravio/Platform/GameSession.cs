@@ -245,7 +245,9 @@ namespace Dravio.Platform
         /// <summary>Lệnh trừ tài nguyên, tạo UID hoặc roll kết quả → lưu ngay sau khi thành công.</summary>
         public static bool IsImmediateSave(GameCommand cmd) =>
             cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand || cmd is BuyPackCommand ||
-            cmd is StartBreedCommand || cmd is ClaimBreedCommand;
+            cmd is StartBreedCommand || cmd is ClaimBreedCommand ||
+            // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
+            cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;
 

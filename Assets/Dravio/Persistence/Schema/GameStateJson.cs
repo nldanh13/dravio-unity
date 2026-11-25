@@ -8,7 +8,7 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v5 (= v4 của TS + breedingNest, U2.5), trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v6 (= v4 của TS + breedingNest (U2.5) + codex (U2.7)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
@@ -21,8 +21,8 @@ namespace Dravio.Persistence.Schema
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
-            // v5 (U2.5, chỉ có ở bản Unity)
-            "breedingNest",
+            // v5 (U2.5) và v6 (U2.7), chỉ có ở bản Unity
+            "breedingNest", "codex",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -80,6 +80,14 @@ namespace Dravio.Persistence.Schema
             o.Set("pendingPack", s.PendingPack == null ? JsonValue.Null : PendingPackToJson(s.PendingPack));
             o.Set("unlockedAchievements", Arr(s.UnlockedAchievements));
             o.Set("breedingNest", s.BreedingNest == null ? JsonValue.Null : NestToJson(s.BreedingNest));
+            var codex = new JsonObject();
+            foreach (CodexEntry e in s.Codex)
+            {
+                var muts = new JsonArray(); foreach (MutationType m in e.DiscoveredMutations) muts.Add(S(m.ToWire()));
+                var stages = new JsonArray(); foreach (GrowthStage gst in e.ObservedStages) stages.Add(S(gst.ToWire()));
+                codex.Set(e.SpeciesId, new JsonObject().Set("discoveredMutations", muts).Set("totalHatched", N(e.TotalHatched)).Set("observedStages", stages));
+            }
+            o.Set("codex", codex);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
@@ -354,6 +362,24 @@ namespace Dravio.Persistence.Schema
                 if (nr.Errors.Count > 0) errors.Add("breedingNest: invalid");
             }
             else if (!(nv is JsonNull)) errors.Add("breedingNest: invalid");
+
+            if (o.Get("codex") is JsonObject co)
+            {
+                var cr = new Reader(new List<string>());
+                s.Codex = new List<CodexEntry>();
+                foreach (var kv in co)
+                {
+                    if (!(kv.Value is JsonObject eo)) { cr.Errors.Add("x"); continue; }
+                    var e = new CodexEntry { SpeciesId = kv.Key, TotalHatched = cr.LongOr(eo, "totalHatched", "x", -1) };
+                    foreach (string m in cr.StrList(eo, "discoveredMutations", "x") ?? new List<string>())
+                        if (WireNames.TryParse(m, out MutationType mt)) e.DiscoveredMutations.Add(mt); else cr.Errors.Add("x");
+                    foreach (string stw in cr.StrList(eo, "observedStages", "x") ?? new List<string>())
+                        if (WireNames.TryParse(stw, out GrowthStage gs)) e.ObservedStages.Add(gs); else cr.Errors.Add("x");
+                    s.Codex.Add(e);
+                }
+                if (cr.Errors.Count > 0) errors.Add("codex: invalid");
+            }
+            else { s.Codex = null; errors.Add("codex: invalid"); }
             return s;
         }
 

@@ -48,7 +48,7 @@ namespace Dravio.Persistence.Tests
         }
 
         [Test]
-        public void World_state_round_trips_through_Save_Schema_v5_without_extra_fields()
+        public void World_state_round_trips_through_Save_Schema_v6_without_extra_fields()
         {
             GameState s = Play();
             Assert.That(s.Discoveries, Is.EqualTo(new[] { "DISC_AQUATIC_HABITAT", "DISC_EMBERLING_THERMAL" }));
@@ -59,8 +59,8 @@ namespace Dravio.Persistence.Tests
             Assert.That(r.Ok, Is.True, r.ToString());
             Assert.That(PFix.Canonical(r.Save.State), Is.EqualTo(PFix.Canonical(SaveSchema.ToPersistedState(s))));
             var state = (Json.JsonObject)((Json.JsonObject)Json.JsonParser.Parse(text)).Get("state");
-            Assert.That(state.Keys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(GameStateJson.StateKeys.OrderBy(k => k, StringComparer.Ordinal)), "schema v5 keys only (v4 + breedingNest)");
-            Assert.That(state.Get("schemaVersion").ToString(), Is.EqualTo("5"));
+            Assert.That(state.Keys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(GameStateJson.StateKeys.OrderBy(k => k, StringComparer.Ordinal)), "schema v6 keys only (v4 + breedingNest + codex)");
+            Assert.That(state.Get("schemaVersion").ToString(), Is.EqualTo("6"));
             string dir = Environment.GetEnvironmentVariable("DRAVIO_EXPORT_DIR");
             PFix.Export(dir, "u23-world", text);
         }

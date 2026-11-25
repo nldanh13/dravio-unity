@@ -227,4 +227,61 @@ namespace Dravio.Domain.Core
         public string EggId { get; }
         public long AtMs { get; }
     }
+
+    // ---- U2.7: khu bảo tồn (implementation mới) ----
+
+    public sealed class DragonSold : DomainEvent
+    {
+        public DragonSold(string dragonUid, string speciesId, long priceGoldMicro) { DragonUid = dragonUid; SpeciesId = speciesId; PriceGoldMicro = priceGoldMicro; }
+        public override string Type => "dragonSold";
+        public string DragonUid { get; }
+        public string SpeciesId { get; }
+        /// <summary>Cộng vào goldMicro, KHÔNG vào totalGoldEarnedMicro (GDD Phụ lục F).</summary>
+        public long PriceGoldMicro { get; }
+    }
+
+    public sealed class DragonLockChanged : DomainEvent
+    {
+        public DragonLockChanged(string dragonUid, bool locked) { DragonUid = dragonUid; Locked = locked; }
+        public override string Type => "dragonLockChanged";
+        public string DragonUid { get; }
+        public bool Locked { get; }
+    }
+
+    public sealed class UpgradeBought : DomainEvent
+    {
+        public UpgradeBought(string upgradeId, int level, long costGoldMicro) { UpgradeId = upgradeId; Level = level; CostGoldMicro = costGoldMicro; }
+        public override string Type => "upgradeBought";
+        public string UpgradeId { get; }
+        /// <summary>Cấp mới sau khi mua.</summary>
+        public int Level { get; }
+        public long CostGoldMicro { get; }
+    }
+
+    public sealed class DecorationBought : DomainEvent
+    {
+        public DecorationBought(string zoneId, string decorationId, long priceGoldMicro) { ZoneId = zoneId; DecorationId = decorationId; PriceGoldMicro = priceGoldMicro; }
+        public override string Type => "decorationBought";
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public long PriceGoldMicro { get; }
+    }
+
+    public sealed class DecorationToggled : DomainEvent
+    {
+        public DecorationToggled(string zoneId, string decorationId, bool active) { ZoneId = zoneId; DecorationId = decorationId; Active = active; }
+        public override string Type => "decorationToggled";
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public bool Active { get; }
+    }
+
+    /// <summary>Ô Bách khoa mới (loài × biến thể) được ghi nhận.</summary>
+    public sealed class CodexDiscovered : DomainEvent
+    {
+        public CodexDiscovered(string speciesId, MutationType mutation) { SpeciesId = speciesId; Mutation = mutation; }
+        public override string Type => "codexDiscovered";
+        public string SpeciesId { get; }
+        public MutationType Mutation { get; }
+    }
 }

@@ -57,7 +57,7 @@ namespace Dravio.Domain.Core
                 Activity = DragonActivity.Idle,
                 BreedCooldownUntilMs = 0,
             };
-            return new GameState
+            var state = new GameState
             {
                 SchemaVersion = ContentInfo.SchemaVersion,
                 ContentVersion = ContentInfo.ContentVersion,
@@ -105,6 +105,9 @@ namespace Dravio.Domain.Core
                 UnlockedAchievements = new List<string>(),
                 ClaimedAchievements = new List<string>(),
             };
+            // U2.7: Emberling khởi đầu là khám phá Bách khoa đầu tiên (không phải lần nở: TotalHatched = 0).
+            Progression.Codex.Observe(state, null);
+            return state;
         }
     }
 }

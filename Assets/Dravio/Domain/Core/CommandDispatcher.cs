@@ -4,6 +4,7 @@ using Dravio.Domain.Biology;
 using Dravio.Domain.Breeding;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Progression;
+using Dravio.Domain.Sanctuary;
 using Dravio.Domain.Text;
 using Dravio.Domain.World;
 
@@ -82,6 +83,13 @@ namespace Dravio.Domain.Core
                 case StartBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckStartBreed(s, c.ParentA, c.ParentB, nowMs), () => Hatchery.ApplyStartBreed(s, c.ParentA, c.ParentB, nowMs, events));
                 case TapEggCommand _: return SettleThen(s, nowMs, events, () => Hatchery.CheckTap(s, nowMs), () => Hatchery.ApplyTap(s, nowMs, events));
                 case ClaimBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckClaimBreed(s, c.Target, nowMs), () => Hatchery.ApplyClaimBreed(s, c.Target, nowMs, events));
+                // ---- U2.7 (implementation mới): giao dịch vàng quyết toán online tới now trước (giá bán theo stage hiện tại) ----
+                case SellDragonCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckSell(s, c.DragonUid), () => SanctuaryRules.ApplySell(s, c.DragonUid, events));
+                case BulkSellCommand c: return SettleThen(s, nowMs, events, () => null, () => SanctuaryRules.ApplyBulkSell(s, c.ExpectedTotalGoldMicro, events));
+                case LockDragonCommand c: return ToError(SanctuaryRules.ApplyLock(s, c.DragonUid, c.Locked, events));
+                case BuyUpgradeCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckUpgrade(s, c.UpgradeId), () => SanctuaryRules.ApplyUpgrade(s, c.UpgradeId, events));
+                case BuyDecorationCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckBuyDecoration(s, c.ZoneId, c.DecorationId), () => SanctuaryRules.ApplyBuyDecoration(s, c.ZoneId, c.DecorationId, events));
+                case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
                 default:
                     // Không có kiểu lệnh tự khai báo hoàn thành/khám phá (recordDiscovery, completeTutorial, grantHabitatUnlock…).
                     return new DomainError(DomainErrorCode.InvalidCommand, "unsupported command type " + cmd.Type);

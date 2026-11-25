@@ -8,11 +8,11 @@ namespace Dravio.Domain.Catalog
     public static class ContentInfo
     {
         /// <summary>
-        /// Dravio Save Schema của bản Unity: 5. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
+        /// Dravio Save Schema của bản Unity: 6. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
         /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
-        /// thêm breedingNest (GDD Phụ lục C.2). <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
+        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 5;
+        public const int SchemaVersion = 6;
 
         /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
         public const int TsSchemaVersion = 4;
@@ -240,6 +240,44 @@ namespace Dravio.Domain.Catalog
         public const int MaxDragons = 500;
     }
 
+    /// <summary>
+    /// Trang trí (GDD 3.1 Phụ lục E, giữ ID và giá v2). "Mỗi món một bản sao theo khu; bật/tắt miễn phí, không bán lại; 6 vị trí định sẵn P0;
+    /// chỉ đặt ở môi trường hợp lệ; hiệu ứng sinh cảnh là đề xuất, KHÔNG cộng vàng." TS b33ec7a không có catalog này — implementation mới.
+    /// GDD không ghi môi trường hợp lệ của từng món nên mọi zone đã mở đều nhận được (ghi trong danh sách quyết định còn thiếu).
+    /// </summary>
+    public sealed class DecorationDef
+    {
+        internal DecorationDef(string id, string nameVi, long priceG, string effectVi) { Id = id; NameVi = nameVi; PriceG = priceG; EffectVi = effectVi; }
+        public string Id { get; }
+        public string NameVi { get; }
+        public long PriceG { get; }
+        /// <summary>Hiệu ứng hình ảnh đề xuất (lớp trình bày); không có hiệu ứng kinh tế.</summary>
+        public string EffectVi { get; }
+    }
+
+    public static class DecorationCatalog
+    {
+        public static readonly IReadOnlyList<DecorationDef> All = Array.AsReadOnly(new[]
+        {
+            new DecorationDef("cherry_tree", "Cây Anh Đào", 350, "Cánh hoa, điểm nghỉ"),
+            new DecorationDef("crystal_pond", "Hồ Pha Lê", 1200, "Sóng nhẹ, tương tác nước"),
+            new DecorationDef("sky_lantern", "Đèn Lồng Bay", 2500, "Ánh sáng ấm"),
+            new DecorationDef("ancient_gate", "Cổng Đá Cổ", 6000, "Rune phát sáng"),
+            new DecorationDef("glow_mushroom", "Nấm Phát Sáng", 12000, "Đom đóm"),
+            new DecorationDef("star_observatory", "Đài Quan Sát Sao", 25000, "Vệt sao; công trình chức năng P1 riêng"),
+        });
+
+        public static bool TryGet(string id, out DecorationDef def)
+        {
+            foreach (DecorationDef d in All) if (d.Id == id) { def = d; return true; }
+            def = null;
+            return false;
+        }
+
+        /// <summary>Vị trí cố định mỗi khu P0 (= số món, mỗi món một bản sao/khu).</summary>
+        public const int SlotsPerZone = 6;
+    }
+
     /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>
     public sealed class PackDef
     {
@@ -346,6 +384,9 @@ namespace Dravio.Domain.Catalog
         public static readonly MutationType TutorialPackMutation = MutationType.Normal;
 
         public static bool IsDiscoveryId(string id) => Contains(DiscoveryIds, id);
+        /// <summary>ACH_CODEX_MASTER: "≥ 32/64 biến thể gốc" (GDD trang 22 và Phụ lục F).</summary>
+        public const int CodexMasterCells = 32;
+
         public static bool IsAchievementId(string id) => Contains(AchievementIds, id);
 
         public static HabitatUnlockRule UnlockRuleFor(string habitatId)

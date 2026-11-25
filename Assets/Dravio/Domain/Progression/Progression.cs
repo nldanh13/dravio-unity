@@ -93,6 +93,7 @@ namespace Dravio.Domain.Progression
             state.Dragons.Add(dragon);
             state.PendingPack = null;
             state.Player.Stats.TotalHatched += 1;
+            Codex.RecordHatch(state, dragon.SpeciesId);
             events.Add(new DragonHatched(dragon.Uid, dragon.SpeciesId, dragon.Mutation, dragon.Location, pack.Tutorial));
             return null;
         }
@@ -105,7 +106,13 @@ namespace Dravio.Domain.Progression
     /// </summary>
     public static class Achievements
     {
-        public static readonly IReadOnlyList<string> Implemented = Array.AsReadOnly(new[] { "ACH_FIRST_HATCH", "ACH_FIRST_ADULT" });
+        /// <summary>Hai luật đầu port từ TS (parity); 10 luật còn lại là implementation mới của U2.7 theo GDD Phụ lục F.</summary>
+        public static readonly IReadOnlyList<string> Implemented = ProgressCatalog.AchievementIds;
+
+        /// <summary>Hai luật có ở TS b33ec7a (golden U2.4).</summary>
+        public static readonly IReadOnlyList<string> TsImplemented = Array.AsReadOnly(new[] { "ACH_FIRST_HATCH", "ACH_FIRST_ADULT" });
+
+        private static long G(long g) => MicroGold.FromWholeGold(g).Micro;
 
         private static bool Rule(string id, GameState s)
         {
@@ -116,6 +123,25 @@ namespace Dravio.Domain.Progression
                     foreach (DragonState d in s.Dragons)
                         if (d.Location.Kind != LocationKind.Released && EconomyRates.GrowthStageOf(d.XpSec, SpeciesCatalog.Get(d.SpeciesId)) == GrowthStage.Adult) return true;
                     return false;
+                // ---- U2.7 (GDD Phụ lục F) ----
+                case "ACH_FIRST_BREED": return s.Player.Stats.TotalBred >= 1;          // "Nhận rồng lai đầu tiên"
+                case "ACH_MUTATION_CRYSTAL": return Codex.AnyWithMutation(s, MutationType.Crystal);
+                case "ACH_MUTATION_GOLDEN": return Codex.AnyWithMutation(s, MutationType.Golden);
+                case "ACH_MUTATION_PRISMATIC": return Codex.AnyWithMutation(s, MutationType.Prismatic);
+                case "ACH_LEGENDARY": return Codex.AnyOfRarity(s, Rarity.Legendary);
+                // totalGoldEarned chỉ gồm vàng sản xuất online/offline (không vốn đầu, bán rồng, thưởng).
+                case "ACH_GOLD_10K": return s.Player.TotalGoldEarned.Micro >= G(10_000);
+                case "ACH_GOLD_250K": return s.Player.TotalGoldEarned.Micro >= G(250_000);
+                case "ACH_DECOR_ALL":                                                   // "Sở hữu đủ 6 loại trang trí bất kỳ đảo"
+                    foreach (DecorationDef def in DecorationCatalog.All)
+                    {
+                        bool owned = false;
+                        foreach (ZoneState z in s.Zones) if (z.DecorationIds.Contains(def.Id)) owned = true;
+                        if (!owned) return false;
+                    }
+                    return true;
+                case "ACH_CODEX_16": return Codex.SpeciesDiscovered(s) >= SpeciesCatalog.All.Count;
+                case "ACH_CODEX_MASTER": return Codex.CellsDiscovered(s) >= ProgressCatalog.CodexMasterCells;
                 default: return false;
             }
         }
@@ -235,6 +261,8 @@ namespace Dravio.Domain.Progression
         public static readonly BuiltInProgressEvaluator Instance = new BuiltInProgressEvaluator();
         public void Evaluate(GameState working, List<DomainEvent> events)
         {
+            // U2.7: Bách khoa trước, để thành tựu đọc được khám phá của chính lệnh vừa chạy.
+            Codex.Observe(working, events);
             Achievements.Evaluate(working, events);
             Tutorial.Evaluate(working, events);
         }

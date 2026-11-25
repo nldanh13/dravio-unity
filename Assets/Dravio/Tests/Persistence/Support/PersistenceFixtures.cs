@@ -57,27 +57,30 @@ namespace Dravio.Persistence.Tests.Support
         public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
 
         /// <summary>
-        /// State v4 của TS → v5 bằng đúng bước migration 4 → 5 của C# (thêm breedingNest = null). Golden TS dừng ở v4, nên mọi phép so
-        /// parity của U2.2 chạy trên ảnh v5 này: phần chung phải trùng từng byte, khác biệt chỉ là bước migration đã kiểm riêng.
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 của C# (thêm breedingNest = null, codex).
+        /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
         /// </summary>
-        public static JsonObject AsV5(JsonObject tsV4State)
+        public static JsonObject AsUnity(JsonObject tsV4State)
         {
             MigrateResult m = Migrations.Migrate(4, tsV4State);
             if (!m.Ok) throw new InvalidOperationException(string.Join("; ", m.Details));
             return m.State;
         }
 
-        /// <summary>Chiếu ngược state v5 về v4 của TS (chỉ hợp lệ khi tổ trống): bỏ breedingNest, schemaVersion = 4.</summary>
-        public static JsonObject AsV4(JsonObject v5State)
+        /// <summary>
+        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest và codex (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
+        /// schemaVersion = 4. Trang trí đã mua vẫn nằm trong zones.decorationIds — TS chấp nhận chuỗi bất kỳ ở đó.
+        /// </summary>
+        public static JsonObject AsV4(JsonObject unityState)
         {
-            if (!(v5State.Get("breedingNest") is JsonNull)) throw new InvalidOperationException("breedingNest not empty: no v4 projection");
+            if (!(unityState.Get("breedingNest") is JsonNull)) throw new InvalidOperationException("breedingNest not empty: no v4 projection");
             var o = new JsonObject();
-            foreach (var kv in v5State) if (kv.Key != "breedingNest") o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            foreach (var kv in unityState) if (kv.Key != "breedingNest" && kv.Key != "codex") o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
             return o;
         }
 
         /// <summary>
-        /// Xuất một save C# cho bộ đọc TS (CI: Tools~/verify-csharp-saves.test.ts). name.v5.json là file v5 thật — TS phải từ chối
+        /// Xuất một save C# cho bộ đọc TS (CI: Tools~/verify-csharp-saves.test.ts). name.unity.json là file schema Unity thật (v6) — TS phải từ chối
         /// "newer-version" (chỉ đọc, không ghi đè). Khi tổ trống còn có name.save.json = ảnh v4 + name.canonical.txt mà TS phải đọc trùng state.
         /// </summary>
         public static void Export(string dir, string name, string v5Text)
@@ -85,7 +88,7 @@ namespace Dravio.Persistence.Tests.Support
             if (dir == null) return;
             var utf8 = new System.Text.UTF8Encoding(false);
             Directory.CreateDirectory(dir);
-            File.WriteAllText(Path.Combine(dir, name + ".v5.json"), v5Text, utf8);
+            File.WriteAllText(Path.Combine(dir, name + ".unity.json"), v5Text, utf8);
             var state = (JsonObject)((JsonObject)JsonParser.Parse(v5Text)).Get("state");
             if (!(state.Get("breedingNest") is JsonNull)) return;
             File.WriteAllText(Path.Combine(dir, name + ".save.json"), AsV4Text(v5Text), utf8);
@@ -113,6 +116,7 @@ namespace Dravio.Persistence.Tests.Support
         {
             JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
             JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 6) s.Remove("codex");
             if (version < 5) s.Remove("breedingNest");
             if (version < 4) foreach (string k in new[] { "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements" }) s.Remove(k);
             if (version == 1 || version == 3) s.Remove("discoveries");

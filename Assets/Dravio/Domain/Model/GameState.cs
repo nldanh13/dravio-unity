@@ -122,6 +122,27 @@ namespace Dravio.Domain
         }
     }
 
+    /// <summary>
+    /// Một mục Bách khoa (GDD 3.1 Phụ lục C.2 codex; schema v6, U2.7). Chỉ tăng, không bao giờ giảm: khám phá được giữ sau khi bán
+    /// hoặc thả (GDD Phụ lục F). Thứ tự danh sách theo catalog (biến thể Normal → Prismatic, stage Baby → Adult).
+    /// </summary>
+    public sealed class CodexEntry
+    {
+        public string SpeciesId { get; set; }
+        public List<MutationType> DiscoveredMutations { get; set; } = new List<MutationType>();
+        /// <summary>Số lần nở loài này (claimPack / claimBreed); rồng có sẵn lúc tạo save không tính.</summary>
+        public long TotalHatched { get; set; }
+        public List<GrowthStage> ObservedStages { get; set; } = new List<GrowthStage>();
+
+        public CodexEntry Clone()
+        {
+            var c = (CodexEntry)MemberwiseClone();
+            c.DiscoveredMutations = new List<MutationType>(DiscoveredMutations);
+            c.ObservedStages = new List<GrowthStage>(ObservedStages);
+            return c;
+        }
+    }
+
     /// <summary>Tiến trình hướng dẫn (schema v4, ADR 0013). U2.1 chỉ giữ và kiểm tra dữ liệu, chưa port evaluateTutorial.</summary>
     public sealed class TutorialState
     {
@@ -171,6 +192,8 @@ namespace Dravio.Domain
         public PendingPack PendingPack { get; set; }
         /// <summary>(breedingNest) Trứng lai đang ấp hoặc chờ nhận; null = tổ trống. Schema v5.</summary>
         public BreedingEgg BreedingNest { get; set; }
+        /// <summary>(codex) Bách khoa theo loài, thứ tự catalog; chỉ chứa loài đã khám phá. Schema v6.</summary>
+        public List<CodexEntry> Codex { get; set; } = new List<CodexEntry>();
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
 
@@ -189,6 +212,7 @@ namespace Dravio.Domain
             c.Tutorial = Tutorial?.Clone();
             c.PendingPack = PendingPack?.Clone();
             c.BreedingNest = BreedingNest?.Clone();
+            if (Codex != null) { c.Codex = new List<CodexEntry>(Codex.Count); foreach (var e in Codex) c.Codex.Add(e?.Clone()); }
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);
             return c;

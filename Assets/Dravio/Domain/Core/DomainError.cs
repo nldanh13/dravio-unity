@@ -5,7 +5,7 @@ namespace Dravio.Domain.Core
 {
     /// <summary>
     /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS (khóa i18n
-    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
+    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai) và 10 mã của U2.7 (kho, nâng cấp, trang trí). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
     /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile; U2.4 thêm gói Starter và hướng dẫn.
     /// </summary>
     public enum DomainErrorCode
@@ -61,6 +61,17 @@ namespace Dravio.Domain.Core
         [WireName("breed-different-group")] BreedDifferentGroup,
         [WireName("breed-related")] BreedRelated,
         [WireName("breed-no-candidates")] BreedNoCandidates,
+        // ---- U2.7: quản lý khu bảo tồn (implementation mới) ----
+        [WireName("dragon-locked")] DragonLocked,
+        [WireName("dragon-busy")] DragonBusy,
+        [WireName("last-dragon")] LastDragon,
+        [WireName("nothing-to-sell")] NothingToSell,
+        [WireName("quote-changed")] QuoteChanged,
+        [WireName("unknown-upgrade")] UnknownUpgrade,
+        [WireName("upgrade-maxed")] UpgradeMaxed,
+        [WireName("unknown-decoration")] UnknownDecoration,
+        [WireName("decoration-owned")] DecorationOwned,
+        [WireName("decoration-not-owned")] DecorationNotOwned,
     }
 
     /// <summary>Lỗi nghiệp vụ trả về từ dispatch. Không phải exception: lệnh bị từ chối là luồng bình thường.</summary>

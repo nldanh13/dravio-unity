@@ -198,6 +198,69 @@ namespace Dravio.Domain.Core
             Target != null && (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
     }
 
+    // ---- U2.7: implementation mới theo GDD 3.1 (Phụ lục C.3, E, F) — TS b33ec7a chỉ có hàm thuần sellPriceG / upgradeCostG ----
+
+    /// <summary>Bán một rồng (sellDragon): giá = floor(baseSell × stageSell × mutationSell) tại thời điểm bán.</summary>
+    public sealed class SellDragonCommand : GameCommand
+    {
+        public SellDragonCommand(string requestId, string dragonUid) : base(requestId) { DragonUid = dragonUid; }
+        public string DragonUid { get; }
+        public override string Type => "sellDragon";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    /// <summary>
+    /// Bán nhanh mọi rồng Common Adult chưa khóa, không bận, chừa một rồng (bulkSell, GDD Phụ lục F). <see cref="ExpectedTotalGoldMicro"/> là tổng
+    /// người chơi đã xác nhận trên UI; nếu sau quyết toán tổng khác thì từ chối (quote-changed), không bán gì.
+    /// </summary>
+    public sealed class BulkSellCommand : GameCommand
+    {
+        public BulkSellCommand(string requestId, long expectedTotalGoldMicro) : base(requestId) { ExpectedTotalGoldMicro = expectedTotalGoldMicro; }
+        public long ExpectedTotalGoldMicro { get; }
+        public override string Type => "bulkSell";
+        internal override bool IsWellFormed() => ExpectedTotalGoldMicro > 0;
+    }
+
+    /// <summary>Khóa/mở khóa chống bán rồng yêu thích (lockDragon). Rồng bị khóa vẫn lai được (ADR 0003).</summary>
+    public sealed class LockDragonCommand : GameCommand
+    {
+        public LockDragonCommand(string requestId, string dragonUid, bool locked) : base(requestId) { DragonUid = dragonUid; Locked = locked; }
+        public string DragonUid { get; }
+        public bool Locked { get; }
+        public override string Type => "lockDragon";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    /// <summary>Mua một cấp nâng cấp (buyUpgrade): cost = floor(base × scale^level), trừ vàng và tăng cấp cùng transaction (GDD Phụ lục E).</summary>
+    public sealed class BuyUpgradeCommand : GameCommand
+    {
+        public BuyUpgradeCommand(string requestId, string upgradeId) : base(requestId) { UpgradeId = upgradeId; }
+        public string UpgradeId { get; }
+        public override string Type => "buyUpgrade";
+        internal override bool IsWellFormed() => IsId(UpgradeId);
+    }
+
+    /// <summary>Mua một món trang trí cho một khu (buyDecoration): mỗi món một bản sao theo khu, không bán lại.</summary>
+    public sealed class BuyDecorationCommand : GameCommand
+    {
+        public BuyDecorationCommand(string requestId, string zoneId, string decorationId) : base(requestId) { ZoneId = zoneId; DecorationId = decorationId; }
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public override string Type => "buyDecoration";
+        internal override bool IsWellFormed() => IsId(ZoneId) && IsId(DecorationId);
+    }
+
+    /// <summary>Bật/tắt món trang trí đã sở hữu (toggleDecoration), miễn phí.</summary>
+    public sealed class ToggleDecorationCommand : GameCommand
+    {
+        public ToggleDecorationCommand(string requestId, string zoneId, string decorationId, bool active) : base(requestId) { ZoneId = zoneId; DecorationId = decorationId; Active = active; }
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public bool Active { get; }
+        public override string Type => "toggleDecoration";
+        internal override bool IsWellFormed() => IsId(ZoneId) && IsId(DecorationId);
+    }
+
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
     public sealed class DispatchResult
     {
