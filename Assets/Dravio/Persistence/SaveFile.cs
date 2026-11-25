@@ -88,7 +88,10 @@ namespace Dravio.Persistence
             GameState gs = GameStateJson.FromJson(m.State, errors);
             foreach (string e in GameStateValidator.Validate(gs).Errors) if (!errors.Contains(e)) errors.Add(e);
             bool current = version == SaveSchema.CurrentVersion;
-            if (errors.Count > 0) return ParseResult.Fail(current ? SaveErrorCode.InvalidState : SaveErrorCode.MigrationFailed, errors);
+            // Bước 4 → 5 (U2.5) chỉ thêm tổ rỗng, không biến đổi dữ liệu: save v4 hỏng nội dung vẫn báo invalid-state như TS,
+            // để thông điệp cho người chơi không đổi. migration-failed dành cho save v1/v2 hỏng sau migration thật.
+            bool contentCurrent = version >= Dravio.Domain.Catalog.ContentInfo.TsSchemaVersion;
+            if (errors.Count > 0) return ParseResult.Fail(contentCurrent ? SaveErrorCode.InvalidState : SaveErrorCode.MigrationFailed, errors);
             long savedAtMs = GameStateJson.Reader.AsSafeLong(env.Get("savedAtMs"), out long sa) ? sa : gs.Clock.LastProcessedAtMs;
             return ParseResult.Success(new ParsedSave(gs, savedAtMs, current ? (int?)null : version, Array.Empty<string>(), m.State));
         }

@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace Dravio.Persistence.Tests
 {
     /// <summary>
-    /// U2.4 × Save Schema v4: tutorial / pendingPack / thành tựu qua vòng lưu–nạp, lưu ngay sau mua/nhận gói
+    /// U2.4 × Save Schema v4/v5: tutorial / pendingPack / thành tựu qua vòng lưu–nạp, lưu ngay sau mua/nhận gói
     /// (IMMEDIATE_SAVE của gameSession.ts), thưởng không nhận lại sau khởi động lại, và migration v2 → v4 rồi ghi nhận tiến độ.
     /// </summary>
     public sealed class ProgressSaveTests
@@ -77,10 +77,7 @@ namespace Dravio.Persistence.Tests
                 ParseResult back = SaveFile.Parse(text);
                 Assert.That(back.Ok, Is.True, name);
                 Assert.That(PFix.Canonical(back.Save.State), Is.EqualTo(PFix.Canonical(SaveSchema.ToPersistedState(st))), name);
-                if (dir == null) continue;
-                Directory.CreateDirectory(dir);
-                File.WriteAllText(Path.Combine(dir, name + ".save.json"), text, new System.Text.UTF8Encoding(false));
-                File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), PFix.Canonical(back.Save.State), new System.Text.UTF8Encoding(false));
+                PFix.Export(dir, name, text);
             }
             Assert.That(skipped.UnlockedAchievements, Is.EqualTo(new[] { "ACH_FIRST_HATCH", "ACH_FIRST_ADULT" }));
         }

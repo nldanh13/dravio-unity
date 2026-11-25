@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Dravio.Domain.Biology;
+using Dravio.Domain.Breeding;
+using Dravio.Domain.Expedition;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Progression;
+using Dravio.Domain.Sanctuary;
 using Dravio.Domain.Text;
 using Dravio.Domain.World;
 
@@ -76,6 +79,23 @@ namespace Dravio.Domain.Core
                 case BuyTutorialPackCommand _: return SettleThen(s, nowMs, events, () => StarterPack.CheckBuy(s), () => StarterPack.ApplyBuy(s, nowMs, events));
                 // Nhận: rồng mới có thể vào sinh cảnh; quyết toán trước để vàng cũ tính theo đội hình cũ.
                 case ClaimPackCommand c: return SettleThen(s, nowMs, events, () => StarterPack.CheckClaim(s, c.Target, nowMs), () => StarterPack.ApplyClaim(s, c.Target, nowMs, events));
+                // ---- U2.5 (implementation mới, GDD/ADR 0003): mọi giao dịch kiểm trước, quyết toán online tới now, rồi áp dụng ----
+                case BuyPackCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckBuyPack(s, c.PackId), () => Hatchery.ApplyBuyPack(s, c.PackId, nowMs, events));
+                case StartBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckStartBreed(s, c.ParentA, c.ParentB, nowMs), () => Hatchery.ApplyStartBreed(s, c.ParentA, c.ParentB, nowMs, events));
+                case TapEggCommand _: return SettleThen(s, nowMs, events, () => Hatchery.CheckTap(s, nowMs), () => Hatchery.ApplyTap(s, nowMs, events));
+                case ClaimBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckClaimBreed(s, c.Target, nowMs), () => Hatchery.ApplyClaimBreed(s, c.Target, nowMs, events));
+                // ---- U2.7 (implementation mới): giao dịch vàng quyết toán online tới now trước (giá bán theo stage hiện tại) ----
+                case SellDragonCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckSell(s, c.DragonUid), () => SanctuaryRules.ApplySell(s, c.DragonUid, events));
+                case BulkSellCommand c: return SettleThen(s, nowMs, events, () => null, () => SanctuaryRules.ApplyBulkSell(s, c.ExpectedTotalGoldMicro, events));
+                case LockDragonCommand c: return ToError(SanctuaryRules.ApplyLock(s, c.DragonUid, c.Locked, events));
+                case BuyUpgradeCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckUpgrade(s, c.UpgradeId), () => SanctuaryRules.ApplyUpgrade(s, c.UpgradeId, events));
+                case BuyDecorationCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckBuyDecoration(s, c.ZoneId, c.DecorationId), () => SanctuaryRules.ApplyBuyDecoration(s, c.ZoneId, c.DecorationId, events));
+                // ---- U2.8 (implementation mới): thám hiểm — kiểm, quyết toán online (rồng ngừng sản xuất đúng lúc đi), rồi áp dụng ----
+                case StartExpeditionCommand c: return SettleThen(s, nowMs, events, () => Expeditions.CheckStart(s, c.RouteId, c.DragonUid, out _), () => Expeditions.ApplyStart(s, c.RouteId, c.DragonUid, nowMs, events));
+                // Mở thế giới không đổi vị trí rồng nên không cần quyết toán thời gian.
+                case UnlockZoneCommand c: return ToError(WorldExpansion.ApplyZoneUnlockCommand(s, c.ZoneId, nowMs, events));
+                case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () => Expeditions.ApplyClaim(s, nowMs, events));
+                case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
                 default:
                     // Không có kiểu lệnh tự khai báo hoàn thành/khám phá (recordDiscovery, completeTutorial, grantHabitatUnlock…).
                     return new DomainError(DomainErrorCode.InvalidCommand, "unsupported command type " + cmd.Type);
@@ -129,26 +149,55 @@ namespace Dravio.Domain.Core
             long remainder = s.Player.GoldRemainder;
             long gold = 0;
             var matured = new List<string>();
+            long fromMs = s.Clock.LastProcessedAtMs;
+            // U2.5: tổ ấp xong trong khoảng này thì bố mẹ (đang "breeding", không sản xuất) được giải phóng đúng tại finishAtMs:
+            // phần trước mốc không sản xuất, phần sau mốc sản xuất theo vị trí. Thời gian mô phỏng có thể bị chặn 24 h nên mốc
+            // được kẹp vào [0, elapsedMs].
+            // U2.8: thám hiểm xong trong khoảng này cũng giải phóng rồng đúng tại finishAtMs (cùng cách tách đôi). Một rồng chỉ ở một job.
+            long? nestDoneAt = Hatchery.CompletesBy(s, next.LastProcessedAtMs);
+            long? expDoneAt = Expeditions.CompletesBy(s, next.LastProcessedAtMs);
+            long Pre(long? at) => at.HasValue ? Math.Max(0, Math.Min(elapsedMs, at.Value - fromMs)) : 0;
+            var releasedParents = new List<DragonState>();
             foreach (DragonState d in s.Dragons)
             {
                 if (d.Location.Kind == LocationKind.Released || elapsedMs == 0) continue;
-                GrowthResult r = Lifecycle.AdvanceDragon(d, elapsedMs, Placement.IsProducing(s, d), mode, remainder);
+                bool nestSplit = nestDoneAt.HasValue && Hatchery.IsNestParent(s, d);
+                bool expSplit = expDoneAt.HasValue && Expeditions.IsTraveller(s, d);
+                bool split = nestSplit || expSplit;
+                long firstMs = nestSplit ? Pre(nestDoneAt) : expSplit ? Pre(expDoneAt) : elapsedMs;
+                GrowthResult r = Lifecycle.AdvanceDragon(d, firstMs, Placement.IsProducing(s, d), mode, remainder);
                 remainder = r.Remainder;
                 gold = checked(gold + r.GoldMicro);
-                foreach (StageChange c in r.StageChanges)
+                var changes = new List<StageChange>(r.StageChanges);
+                d.XpSec = r.XpMs / 1000.0;
+                if (split)
+                {
+                    d.Activity = DragonActivity.Idle;
+                    releasedParents.Add(d);
+                    GrowthResult r2 = Lifecycle.AdvanceDragon(d, elapsedMs - firstMs, Placement.IsProducing(s, d), mode, remainder);
+                    remainder = r2.Remainder;
+                    gold = checked(gold + r2.GoldMicro);
+                    changes.AddRange(r2.StageChanges);
+                    d.XpSec = r2.XpMs / 1000.0;
+                }
+                foreach (StageChange c in changes)
                 {
                     local.Add(new StageChanged(d.Uid, c.From, c.To));
                     if (c.To == GrowthStage.Adult) matured.Add(d.Uid);
                 }
-                d.XpSec = r.XpMs / 1000.0;
             }
-            long fromMs = s.Clock.LastProcessedAtMs;
+            // Trả activity để Complete tự giải phóng (và ghi cooldown) ở một chỗ duy nhất.
+            foreach (DragonState d in releasedParents) d.Activity = Expeditions.IsTraveller(s, d) ? DragonActivity.Expedition : DragonActivity.Breeding;
             s.Player.Gold = s.Player.Gold + MicroGold.FromMicro(gold);
             s.Player.GoldRemainder = remainder;
             s.Player.TotalGoldEarned = s.Player.TotalGoldEarned + MicroGold.FromMicro(gold);
             s.Clock = next;
             events.Add(new TimeAdvanced(fromMs, next.LastProcessedAtMs, elapsedMs, mode, gold));
             events.AddRange(local);
+            // Event hoàn tất theo thứ tự thời gian (tổ trước khi cùng mốc).
+            if (nestDoneAt.HasValue && (!expDoneAt.HasValue || nestDoneAt.Value <= expDoneAt.Value)) { Hatchery.Complete(s, nestDoneAt.Value, events); nestDoneAt = null; }
+            if (expDoneAt.HasValue) Expeditions.Complete(s, expDoneAt.Value, events);
+            if (nestDoneAt.HasValue) Hatchery.Complete(s, nestDoneAt.Value, events);
             if (mode == AdvanceMode.Offline && elapsedMs > CareRules.OfflineReceiptMinMs)
             {
                 string id = "offline-" + next.LastProcessedAtMs.ToString(System.Globalization.CultureInfo.InvariantCulture);

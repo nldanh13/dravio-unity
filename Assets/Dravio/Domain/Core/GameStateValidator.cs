@@ -297,11 +297,130 @@ namespace Dravio.Domain.Core
                     errors.Add("pendingPack: tutorial pack without starterPackUsed");
             }
 
+            // U2.5 (schema v5): tổ ấp. Bố mẹ của trứng đang ấp phải tồn tại, chưa thả và ở activity = breeding;
+            // ngoài tổ thì không rồng nào được ở activity = breeding (chống rồng bị khóa vĩnh viễn hoặc nhân bản trứng).
+            BreedingEgg egg = s.BreedingNest;
+            var breedingParents = new HashSet<string>(StringComparer.Ordinal);
+            if (egg != null)
+            {
+                SpeciesCatalog.TryGet(egg.SpeciesId, out DragonSpecies eggSpecies);
+                if (egg.Id == null || egg.Id.Length == 0 || egg.Id.Length > 64 || eggSpecies == null || !Genetics.IsValidGenotype(egg.Genotype, eggSpecies.Loci) ||
+                    !WireNames.IsDefined(egg.Mutation) || !WireNames.IsDefined(egg.Status) || egg.ParentIds == null || egg.ParentIds.Length != 2 ||
+                    egg.ParentIds[0] == null || egg.ParentIds[1] == null || egg.ParentIds[0] == egg.ParentIds[1] ||
+                    egg.CreatedAtMs < 0 || egg.DurationMs <= 0 || egg.TapReducedMs < 0 || egg.LastTapAtMs < 0 ||
+                    egg.TapReducedMs > (long)Math.Floor(egg.DurationMs * BreedingCatalog.TapMaxShare) ||
+                    egg.FinishAtMs != egg.CreatedAtMs + egg.DurationMs - egg.TapReducedMs)
+                    errors.Add("breedingNest: invalid");
+                else if (egg.Status == EggStatus.Incubating)
+                    foreach (string pid in egg.ParentIds)
+                    {
+                        DragonState pd = s.FindDragon(pid);
+                        if (pd == null || pd.Location.Kind == LocationKind.Released || pd.Activity != DragonActivity.Breeding)
+                            errors.Add("breedingNest: parent " + pid + " not breeding");
+                        else breedingParents.Add(pid);
+                    }
+            }
+            // Chỉ áp dụng từ schema v5: state v4 của TS (không có tổ) có thể mang activity = breeding; migration v4 → v5 trả các rồng đó về idle.
+            if (s.Dragons != null && s.SchemaVersion >= 5)
+                foreach (DragonState d in s.Dragons)
+                    if (d != null && d.Activity == DragonActivity.Breeding && !breedingParents.Contains(d.Uid))
+                        errors.Add("dragons." + d.Uid + ".activity: breeding without nest");
+
+            // U2.7 (schema v6): Bách khoa và trang trí. State v4/v5 cũ (golden TS) không có codex và có thể mang ID trang trí tùy ý.
+            if (s.SchemaVersion >= 6)
+            {
+                if (s.Codex == null) errors.Add("codex: invalid");
+                else
+                {
+                    int last = -1;
+                    var speciesIds = new List<string>();
+                    foreach (DragonSpecies sp in SpeciesCatalog.All) speciesIds.Add(sp.Id);
+                    foreach (CodexEntry e in s.Codex)
+                    {
+                        int idx = e == null ? -1 : speciesIds.IndexOf(e.SpeciesId);
+                        if (idx <= last) { errors.Add("codex: unknown, duplicate or unordered species"); break; }
+                        last = idx;
+                        if (e.DiscoveredMutations == null || e.DiscoveredMutations.Count == 0 || !StrictlyIncreasing(e.DiscoveredMutations) ||
+                            e.ObservedStages == null || e.ObservedStages.Count == 0 || !StrictlyIncreasing(e.ObservedStages) || e.TotalHatched < 0)
+                            errors.Add("codex." + e.SpeciesId + ": invalid");
+                    }
+                }
+                if (s.Zones != null)
+                    foreach (ZoneState z in s.Zones)
+                    {
+                        if (z?.DecorationIds == null || z.ActiveDecorationIds == null) continue;
+                        // ID ngoài catalog được giữ (save cũ của TS cho phép chuỗi bất kỳ); chỉ cấm trùng và bật món chưa sở hữu.
+                        if (new HashSet<string>(z.DecorationIds).Count != z.DecorationIds.Count) errors.Add("zones." + z.Id + ".decorationIds: duplicates");
+                        if (new HashSet<string>(z.ActiveDecorationIds).Count != z.ActiveDecorationIds.Count || !z.ActiveDecorationIds.TrueForAll(z.DecorationIds.Contains))
+                            errors.Add("zones." + z.Id + ".activeDecorationIds: not owned");
+                    }
+            }
+
+            // U2.8 (schema v7): thám hiểm. Rồng đang đi phải tồn tại, chưa thả, activity = expedition; ngoài job không rồng nào ở trạng thái đó.
+            if (s.SchemaVersion >= 7)
+            {
+                ExpeditionJob j = s.Expedition;
+                string traveller = null;
+                if (j != null)
+                {
+                    bool knownRoute = ExpeditionCatalog.TryGet(j.RouteId, out ExpeditionRoute route);
+                    bool rewardsOk = j.Rewards != null && j.Rewards.TrueForAll(kv => IndexOf(ExpeditionCatalog.MaterialIds, kv.Key) >= 0 && kv.Value > 0);
+                    int total = 0; if (j.Rewards != null) foreach (var kv in j.Rewards) total += kv.Value;
+                    if (j.Id == null || j.Id.Length == 0 || j.Id.Length > 64 || !knownRoute || !WireNames.IsDefined(j.Status) || j.StartedAtMs < 0 || !rewardsOk ||
+                        j.FinishAtMs != j.StartedAtMs + route.DurationMs || total < route.MinQty || total > route.MaxQty)
+                        errors.Add("expedition: invalid");
+                    else if (j.Status == ExpeditionStatus.InProgress)
+                    {
+                        DragonState d = s.FindDragon(j.DragonUid);
+                        if (d == null || d.Location.Kind == LocationKind.Released || d.Activity != DragonActivity.Expedition) errors.Add("expedition: dragon " + j.DragonUid + " not travelling");
+                        else traveller = d.Uid;
+                    }
+                }
+                if (s.Dragons != null)
+                    foreach (DragonState d in s.Dragons)
+                        if (d != null && d.Activity == DragonActivity.Expedition && d.Uid != traveller) errors.Add("dragons." + d.Uid + ".activity: expedition without job");
+
+                // Mở thế giới (ADR U2.8-0201): nhiệm vụ và thưởng là ID catalog, không trùng; trứng chờ phải là thưởng đã cấp, mỗi thưởng một lần.
+                if (s.CompletedQuests == null || !UniqueStrings(s.CompletedQuests, WorldUnlockCatalog.IsQuestId)) errors.Add("completedQuests: invalid");
+                if (s.GrantedRewards == null || !UniqueStrings(s.GrantedRewards, WorldUnlockCatalog.IsRewardId)) errors.Add("grantedRewards: invalid");
+                else
+                {
+                    foreach (string rid in s.GrantedRewards)
+                        foreach (ZoneUnlockRule r in WorldUnlockCatalog.Rules)
+                            if (r.RewardId == rid && s.FindZone(r.ZoneId)?.Unlocked != true) errors.Add("grantedRewards: " + rid + " without unlocked zone");
+                    if (s.RewardQueue == null) errors.Add("rewardQueue: invalid");
+                    else
+                    {
+                        var seen = new HashSet<string>(StringComparer.Ordinal);
+                        foreach (QueuedEgg q in s.RewardQueue)
+                            if (q == null || !s.GrantedRewards.Contains(q.RewardId) || !seen.Add(q.RewardId) || !SpeciesCatalog.TryGet(q.SpeciesId, out _) ||
+                                !WireNames.IsDefined(q.Mutation) || q.QueuedAtMs < 0 || (s.PendingPack != null && s.PendingPack.PackId == q.RewardId))
+                                errors.Add("rewardQueue: invalid entry");
+                    }
+                }
+            }
+
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
             List<string> claimed = s.ClaimedAchievements;
             if (!UniqueStrings(claimed, ProgressCatalog.IsAchievementId)) errors.Add("claimedAchievements: invalid");
             else if (unlocked != null && !claimed.TrueForAll(unlocked.Contains)) errors.Add("claimedAchievements: not unlocked");
+        }
+
+        private static int IndexOf(IReadOnlyList<string> xs, string v)
+        {
+            for (int i = 0; i < xs.Count; i++) if (xs[i] == v) return i;
+            return -1;
+        }
+
+        private static bool StrictlyIncreasing<T>(List<T> xs) where T : struct, Enum
+        {
+            for (int i = 0; i < xs.Count; i++)
+            {
+                if (!WireNames.IsDefined(xs[i])) return false;
+                if (i > 0 && Convert.ToInt32(xs[i - 1]) >= Convert.ToInt32(xs[i])) return false;
+            }
+            return true;
         }
 
         private static bool UniqueStrings(List<string> v, Func<string, bool> ok)

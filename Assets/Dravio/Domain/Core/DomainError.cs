@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace Dravio.Domain.Core
 {
     /// <summary>
-    /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS để khóa i18n
-    /// <c>commandError.&lt;code&gt;</c> không đổi. U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
+    /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS (khóa i18n
+    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai) 10 mã của U2.7 (kho, nâng cấp, trang trí) và 9 mã của U2.8 (đường đi, thám hiểm, mở thế giới). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
     /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile; U2.4 thêm gói Starter và hướng dẫn.
     /// </summary>
     public enum DomainErrorCode
@@ -41,6 +41,47 @@ namespace Dravio.Domain.Core
         [WireName("pack-pending")] PackPending,
         [WireName("no-pending-pack")] NoPendingPack,
         [WireName("not-enough-gold")] NotEnoughGold,
+        // ---- U2.5: implementation mới (không có ở TS b33ec7a, không thuộc 30 mã có parity) ----
+        [WireName("unknown-pack")] UnknownPack,
+        [WireName("storage-full")] StorageFull,
+        [WireName("nest-busy")] NestBusy,
+        [WireName("no-egg")] NoEgg,
+        [WireName("egg-not-ready")] EggNotReady,
+        [WireName("egg-ready")] EggReady,
+        [WireName("tap-too-fast")] TapTooFast,
+        [WireName("tap-limit")] TapLimit,
+        // Từ chối cặp lai: một mã cho mỗi BreedRejection của checkBreed (TS), tiền tố "breed-".
+        [WireName("breed-same-dragon")] BreedSameDragon,
+        [WireName("breed-invalid-genotype")] BreedInvalidGenotype,
+        [WireName("breed-released")] BreedReleased,
+        [WireName("breed-emergency-shelter")] BreedEmergencyShelter,
+        [WireName("breed-not-adult")] BreedNotAdult,
+        [WireName("breed-busy")] BreedBusy,
+        [WireName("breed-cooldown")] BreedCooldown,
+        [WireName("breed-different-group")] BreedDifferentGroup,
+        [WireName("breed-related")] BreedRelated,
+        [WireName("breed-no-candidates")] BreedNoCandidates,
+        // ---- U2.7: quản lý khu bảo tồn (implementation mới) ----
+        [WireName("dragon-locked")] DragonLocked,
+        [WireName("dragon-busy")] DragonBusy,
+        [WireName("last-dragon")] LastDragon,
+        [WireName("nothing-to-sell")] NothingToSell,
+        [WireName("quote-changed")] QuoteChanged,
+        [WireName("unknown-upgrade")] UnknownUpgrade,
+        [WireName("upgrade-maxed")] UpgradeMaxed,
+        [WireName("unknown-decoration")] UnknownDecoration,
+        [WireName("decoration-owned")] DecorationOwned,
+        [WireName("decoration-not-owned")] DecorationNotOwned,
+        // ---- U2.8: thế giới và thám hiểm (implementation mới) ----
+        [WireName("no-route")] NoRoute,
+        [WireName("unknown-route")] UnknownRoute,
+        [WireName("route-locked")] RouteLocked,
+        [WireName("expedition-busy")] ExpeditionBusy,
+        [WireName("dragon-unsuited")] DragonUnsuited,
+        [WireName("no-expedition")] NoExpedition,
+        [WireName("expedition-not-ready")] ExpeditionNotReady,
+        [WireName("route-rewards-undefined")] RouteRewardsUndefined,
+        [WireName("unknown-zone")] UnknownZone,
     }
 
     /// <summary>Lỗi nghiệp vụ trả về từ dispatch. Không phải exception: lệnh bị từ chối là luồng bình thường.</summary>
