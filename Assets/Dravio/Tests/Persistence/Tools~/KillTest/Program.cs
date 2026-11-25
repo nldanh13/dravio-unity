@@ -5,7 +5,7 @@ using Dravio.Persistence;
 using Dravio.Persistence.Storage;
 
 // write <dir>: ghi save liên tục (mỗi lần +1 s thời gian game), in "rev N" sau mỗi lần Save trả về.
-// check <dir> <minRev>: nạp lại, kiểm cả 3 slot, yêu cầu revision ≥ bản đã được xác nhận ghi xong.
+// check <dir> <minRev>: nạp lại, kiểm cả 3 slot, yêu cầu revision ≥ bản đã được xác nhận ghi xong (minRev = 0: chưa xác nhận bản nào, chấp nhận thư mục trống).
 public static class Program
 {
     public static int Main(string[] args)
@@ -35,6 +35,8 @@ public static class Program
         foreach (SaveSlot slot in new[] { SaveSlot.Main, SaveSlot.Backup1, SaveSlot.Backup2 }) if (store.Get(slot) != null && SaveFile.Parse(store.Get(slot)).Ok) valid++;
         long rev = r.Kind == LoadKind.Loaded ? r.Save.State.Revision : -1;
         Console.WriteLine($"{r.Kind} slot={r.Slot} rev={rev} minConfirmed={min} validSlots={valid} failures={r.Failures.Count}");
+        // Bị kill trước lần ghi đầu tiên (chưa có bản nào được xác nhận; revision đầu tiên ≥ 1): thư mục trống là kết quả đúng.
+        if (min == 0 && r.Kind == LoadKind.Empty && valid == 0 && r.Failures.Count == 0) return 0;
         return r.Kind == LoadKind.Loaded && r.Slot == SaveSlot.Main && rev >= min && r.Failures.Count == 0 ? 0 : 1;
     }
 }

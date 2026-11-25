@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dravio.Domain;
 using Dravio.Domain.Catalog;
 using Dravio.Persistence.Json;
 
@@ -32,7 +33,7 @@ namespace Dravio.Persistence.Schema
     /// Migration theo schemaVersion (src/persistence/migrations.ts; ADR 0006, 0007, 0009, 0013).
     /// v1 → v2 thêm discoveries (ghi bù khám phá cho sinh cảnh đã mở, ADR 0010); v2 → v4 thêm tutorial,
     /// pendingPack, unlockedAchievements, claimedAchievements; số 3 là bí danh tiền phát hành của v1 và được dành riêng.
-    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null.
+    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng).
     /// </summary>
     public static class Migrations
     {
@@ -78,6 +79,52 @@ namespace Dravio.Persistence.Schema
                     var fixedDragons = new JsonArray();
                     foreach (JsonValue d in dragons)
                         fixedDragons.Add(d is JsonObject dob && dob.Get("activity") is JsonString a && a.Value == "breeding"
+                            ? dob.ShallowCopy().Set("activity", JsonValue.From("idle")) : d);
+                    next.Set("dragons", fixedDragons);
+                }
+                return next;
+            }),
+            // U2.7 (chỉ bản Unity): thêm Bách khoa, ghi bù từ rồng đang có (kể cả đã thả — người chơi từng sở hữu). Ô = loài × biến thể,
+            // stage quan sát = mọi stage ≤ stage hiện tại. totalHatched theo loài không có dữ liệu ở v5 nên để 0 (không suy diễn).
+            // Trang trí giữ nguyên, kể cả ID ngoài catalog (TS chấp nhận chuỗi bất kỳ): bảo toàn dữ liệu bản trước.
+            new MigrationStep(5, 6, state =>
+            {
+                if (state.ContainsKey("codex")) throw new InvalidOperationException("v5 state already has codex");
+                var muts = new Dictionary<string, SortedSet<int>>();
+                var stages = new Dictionary<string, int>();
+                if (state.Get("dragons") is JsonArray dragons)
+                    foreach (JsonValue dv in dragons)
+                    {
+                        if (!(dv is JsonObject d) || !(d.Get("speciesId") is JsonString sid) || !SpeciesCatalog.TryGet(sid.Value, out DragonSpecies sp)) continue;
+                        if (!(d.Get("mutation") is JsonString mv) || !Dravio.Domain.WireNames.TryParse(mv.Value, out MutationType m)) continue;
+                        double xp = d.Get("xpSec") is JsonNumber xn ? xn.Value : 0;
+                        int stage = (int)Dravio.Domain.Economy.EconomyRates.GrowthStageOf(xp, sp);
+                        if (!muts.TryGetValue(sp.Id, out SortedSet<int> set)) muts[sp.Id] = set = new SortedSet<int>();
+                        set.Add((int)m);
+                        stages[sp.Id] = Math.Max(stages.TryGetValue(sp.Id, out int cur) ? cur : 0, stage);
+                    }
+                var codex = new JsonObject();
+                foreach (DragonSpecies sp in SpeciesCatalog.All)
+                {
+                    if (!muts.TryGetValue(sp.Id, out SortedSet<int> set)) continue;
+                    var ma = new JsonArray(); foreach (int m in set) ma.Add(JsonValue.From(Dravio.Domain.WireNames.ToWire((MutationType)m)));
+                    var sa = new JsonArray(); for (int st = 0; st <= stages[sp.Id]; st++) sa.Add(JsonValue.From(Dravio.Domain.WireNames.ToWire((GrowthStage)st)));
+                    codex.Set(sp.Id, new JsonObject().Set("discoveredMutations", ma).Set("totalHatched", JsonValue.From(0L)).Set("observedStages", sa));
+                }
+                return state.ShallowCopy().Set("codex", codex);
+            }),
+            // U2.8 (chỉ bản Unity): thêm slot thám hiểm trống và trạng thái mở thế giới rỗng (ADR 0201: chưa nhiệm vụ nào hoàn thành, chưa trao trứng). Bản trước chưa có lệnh thám hiểm nên rồng mang activity = "expedition" không có
+            // chuyến nào — trả về "idle" để không bị khóa vĩnh viễn. Không đổi trường nào khác (vật liệu trong inventory giữ nguyên).
+            new MigrationStep(6, 7, state =>
+            {
+                if (state.ContainsKey("expedition")) throw new InvalidOperationException("v6 state already has expedition");
+                JsonObject next = state.ShallowCopy().Set("expedition", JsonValue.Null)
+                    .Set("completedQuests", new JsonArray()).Set("grantedRewards", new JsonArray()).Set("rewardQueue", new JsonArray());
+                if (state.Get("dragons") is JsonArray dragons)
+                {
+                    var fixedDragons = new JsonArray();
+                    foreach (JsonValue d in dragons)
+                        fixedDragons.Add(d is JsonObject dob && dob.Get("activity") is JsonString a && a.Value == "expedition"
                             ? dob.ShallowCopy().Set("activity", JsonValue.From("idle")) : d);
                     next.Set("dragons", fixedDragons);
                 }

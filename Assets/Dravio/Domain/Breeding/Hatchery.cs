@@ -33,7 +33,7 @@ namespace Dravio.Domain.Breeding
             return n;
         }
 
-        private static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
+        public static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
 
         // ---------------- Gói trứng ----------------
 
@@ -256,6 +256,7 @@ namespace Dravio.Domain.Breeding
             s.BreedingNest = null;
             s.Player.Stats.TotalHatched += 1;
             s.Player.Stats.TotalBred += 1;
+            Codex.RecordHatch(s, child.SpeciesId);
             events.Add(new DragonHatched(child.Uid, child.SpeciesId, child.Mutation, child.Location, false));
             return null;
         }

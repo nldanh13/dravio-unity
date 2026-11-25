@@ -21,9 +21,9 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 `DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
 
-## 2. Save Schema v5 (v4 của TS + `breedingNest`)
+## 2. Save Schema v7 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới)
 
-Envelope có các trường `{ format: "dravio-save", schemaVersion: 5, contentVersion, savedAtMs, revision, checksum, state }`.
+Envelope có các trường `{ format: "dravio-save", schemaVersion: 7, contentVersion, savedAtMs, revision, checksum, state }`.
 
 **U2.5 — Schema v5 chỉ có ở bản Unity.** TS b33ec7a dừng ở v4. Bản Unity thêm đúng một khóa `breedingNest`: `null`, hoặc `BreedingEgg` theo GDD Phụ lục C.2 (`id, parentIds, speciesId, genotype, mutation, createdAtMs, finishAtMs, durationMs, tapReducedMs, lastTapAtMs, status`).
 - **Migration 4 → 5**: thêm `breedingNest = null`. Rồng nào mang `activity = "breeding"` mà không có tổ (state v4 không thể tạo ra trứng) được trả về `idle`. Ngoài ra không đổi vàng, rồng, gene, phả hệ hay thành tựu.
@@ -45,7 +45,20 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 5, contentV
   - khóa trùng thì giá trị sau thắng;
   - BOM, dấu phẩy thừa, số 0 đứng đầu bị từ chối.
 - Thức ăn đang rơi (`food.drops`) không được lưu (ADR 0004 #10).
-- Migration: 1 → 2 → 4 → 5. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
+**U2.7 — Schema v6** thêm `codex`: `{ [speciesId]: { discoveredMutations, totalHatched, observedStages } }`, theo GDD Phụ lục C.2 và thứ tự catalog.
+- **Migration 5 → 6**:
+  - Ghi bù Bách khoa từ mọi rồng đang có, kể cả rồng đã thả. Biến thể của rồng được ghi thành ô đã khám phá; stage quan sát gồm mọi stage ≤ stage hiện tại. `totalHatched` để 0 vì không có dữ liệu, không suy diễn.
+  - Không đổi trường nào khác. ID trang trí ngoài catalog trong save TS cũ được **giữ nguyên**, vì TS cho phép chuỗi bất kỳ ở đó.
+  - Bản gốc nằm trong `archive:schema-5`, và save v4 của TS vẫn nằm trong `archive:schema-4`.
+- **Validator v6**: Bách khoa phải đúng loài, đúng thứ tự, không trùng. Trang trí: không trùng, và món đang bật phải là món đã sở hữu.
+- **Tương thích chéo với TS**: ảnh chiếu v4 bỏ `breedingNest` và `codex`. Trang trí, khóa và cấp nâng cấp là các trường có sẵn ở v4 nên TS vẫn đọc trùng state. File `.unity.json` (v6 thật) bị TS từ chối với `newer-version`.
+- **Lưu ngay**: sau `sellDragon`, `bulkSell`, `buyUpgrade`, `buyDecoration`, `lockDragon`.
+**U2.8 — Schema v7** thêm `completedQuests` (mảng ID nhiệm vụ), `grantedRewards` (mảng ID thưởng mở thế giới, mỗi cái một lần), `rewardQueue` (mảng `{ rewardId, speciesId, mutation, queuedAtMs }`: trứng thưởng chờ có chỗ; ADR 0201) và `expedition`: `null`, hoặc `{ id, routeId, dragonUid, startedAtMs, finishAtMs, rewards: { vậtLiệu: số }, status: "in-progress" | "ready" }`.
+- **Migration 6 → 7**: thêm `expedition = null`. Rồng mang `activity = "expedition"` mà không có chuyến (chỉ có thể do sửa tay) được trả về `idle`. Vật liệu trong `inventory` giữ nguyên. Bản gốc nằm trong `archive:schema-6`.
+- **Validator v7**: tuyến phải có trong catalog; `finishAtMs = startedAtMs + thời lượng`; thưởng tổng 2–4 và đúng vật liệu; rồng đang đi phải có `activity = expedition`; không rồng "expedition" nào thiếu chuyến. Sửa tay để rút ngắn chuyến hoặc tăng thưởng đều bị từ chối khi nạp. Nhiệm vụ/thưởng phải là ID catalog, không trùng; thưởng chỉ hợp lệ khi vùng của nó đã mở; hàng chờ chỉ chứa thưởng đã trao, không trùng, và không trùng trứng đang chờ nhận. Migration v6 → v7 đặt cả ba mảng là rỗng.
+- **Ảnh chiếu v4 cho TS**: bỏ `expedition` khi slot trống; thế giới đã mở và vật liệu vẫn hợp lệ với TS.
+- **Lưu ngay** sau `startExpedition` (seed + thưởng đã chốt) và `claimExpedition`.
+- Migration: 1 → 2 → 4 → 5 → 6 → 7. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
 
 ## 3. Lưu nguyên tử, backup, phục hồi
 
@@ -137,6 +150,18 @@ Nội dung bộ test:
 - **Đồng hồ và phiên:** đồng hồ lùi giữa hai phiên, nhảy giờ tới rồi lùi, offline 24 h qua nhiều lần khởi động, crash trước khi lưu quyết toán offline, Hide/Show dồn dập, chuỗi vòng đời ngẫu nhiên (5 seed × 300 bước, kiểm vàng ≤ tốc độ × thời gian thực), phiên thứ hai chỉ đọc, xung đột ghi, save bản mới hơn, bắt đầu lại.
 - **Tương thích chéo:** 18 save do C# ghi được `parseSaveText` của TS đọc với state trùng (`CrossRuntimeExportTests` + `Tools~/verify-csharp-saves.test.ts`).
 - **U2.4 (`ProgressSaveTests`):** `tutorial` / `pendingPack` / thành tựu qua vòng lưu–nạp Schema v4 không đổi một byte canonical; `GameSession` lưu ngay sau `buyTutorialPack` và `claimPack` (không đợi autosave 30 s; lệnh bị từ chối không ghi); 3 lần khởi động lại không cấp lại thưởng và không mua được gói lần hai; save v2 thật sau migration không được cấp gì, lần dispatch đầu ghi nhận `TUT_01`, `TUT_02` và `ACH_FIRST_ADULT` (+100 G) đúng một lần, giống TS. 3 save C# giữa/sau hướng dẫn được xuất cho TS đọc (tổng cộng hơn 20 save chéo).
+- **U2.8 (`ExpeditionSaveTests`):**
+  - Migration v6 → v7.
+  - Thám hiểm và thế giới mở rộng qua lưu–nạp; phần thưởng không roll lại khi nạp.
+  - Sửa tay bị từ chối.
+  - Thoát game giữa chuyến: mở lại sau 1 giờ thì chuyến đã hoàn tất offline.
+  - Nhận thưởng đúng một lần qua nhiều lần khởi động lại.
+- **U2.7 (`SanctuarySaveTests`):**
+  - Migration v5 → v6 ghi bù Bách khoa (kể cả rồng đã thả), giữ ID trang trí lạ, giữ `archive:schema-5`. Lần dispatch đầu sau đó mở thành tựu biến thể/Legendary đúng một lần.
+  - Bách khoa, trang trí, khóa và nâng cấp qua vòng lưu–nạp; ảnh chiếu v4 cho TS đọc.
+  - Lưu ngay sau giao dịch.
+  - Khởi động lại: rồng đã bán không quay lại, không nhận lại thưởng, khóa vẫn còn.
+  - `requestId` trùng không bán lần hai.
 - **U2.5 (`BreedingSaveTests`):** tổ đang ấp qua vòng lưu–nạp v5; migration v4 → v5 (giữ mọi trường, lưu `archive:schema-4` nguyên văn, giải phóng rồng "breeding" mồ côi); tổ bị sửa tay bị từ chối khi nạp; `GameSession` lưu ngay sau `buyPack` / `startBreed` / `claimBreed`; tắt app ngay sau giao dịch rồi mở lại: không roll lại, không trừ vàng hai lần, nhận con đúng một lần; mua thất bại không ghi và không đổi vàng.
 
 Chưa chạy:
