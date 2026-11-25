@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dravio.Domain.Catalog;
+using Dravio.Domain.World;
 
 namespace Dravio.Domain.Core
 {
@@ -80,6 +81,55 @@ namespace Dravio.Domain.Core
         public string Nickname { get; }
         public override string Type => "renameDragon";
         internal override bool IsWellFormed() => IsId(DragonUid) && (Nickname?.Length ?? 0) <= 1024;
+    }
+
+    /// <summary>Chuyển rồng tới microhabitat đã mở (kiểm sinh học + sức chứa) hoặc vào kho an toàn (ADR 0008).</summary>
+    public sealed class MoveDragonCommand : GameCommand
+    {
+        public MoveDragonCommand(string requestId, string dragonUid, MoveTarget target) : base(requestId) { DragonUid = dragonUid; Target = target; }
+        public string DragonUid { get; }
+        public MoveTarget Target { get; }
+        public override string Type => "moveDragon";
+        internal override bool IsWellFormed() =>
+            IsId(DragonUid) && Target != null &&
+            (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
+    }
+
+    /// <summary>Chọn/bỏ rồng khỏi ngân sách sản xuất (5 + 2 × cấp, tối đa 25).</summary>
+    public sealed class SetProductionSlotCommand : GameCommand
+    {
+        public SetProductionSlotCommand(string requestId, string dragonUid, bool enabled) : base(requestId) { DragonUid = dragonUid; Enabled = enabled; }
+        public string DragonUid { get; }
+        public bool Enabled { get; }
+        public override string Type => "setProductionSlot";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    /// <summary>Mở microhabitat miễn phí khi đã có khám phá điều kiện (ADR 0009).</summary>
+    public sealed class UnlockHabitatCommand : GameCommand
+    {
+        public UnlockHabitatCommand(string requestId, string habitatId) : base(requestId) { HabitatId = habitatId; }
+        public string HabitatId { get; }
+        public override string Type => "unlockHabitat";
+        internal override bool IsWellFormed() => IsId(HabitatId);
+    }
+
+    /// <summary>Khảo sát biển khám phá của microhabitat chưa mở để ghi nhận khám phá (ADR 0013).</summary>
+    public sealed class SurveyHabitatCommand : GameCommand
+    {
+        public SurveyHabitatCommand(string requestId, string habitatId) : base(requestId) { HabitatId = habitatId; }
+        public string HabitatId { get; }
+        public override string Type => "surveyHabitat";
+        internal override bool IsWellFormed() => IsId(HabitatId);
+    }
+
+    /// <summary>Mở hồ sơ sinh học của một loài đang nuôi (TUT_03).</summary>
+    public sealed class ViewBiologyProfileCommand : GameCommand
+    {
+        public ViewBiologyProfileCommand(string requestId, string speciesId) : base(requestId) { SpeciesId = speciesId; }
+        public string SpeciesId { get; }
+        public override string Type => "viewBiologyProfile";
+        internal override bool IsWellFormed() => IsId(SpeciesId);
     }
 
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
