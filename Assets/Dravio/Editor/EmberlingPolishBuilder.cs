@@ -23,7 +23,7 @@ namespace Dravio.Editor
                 .FirstOrDefault(r => r.name.Contains("Emberling_Baby_Body",StringComparison.OrdinalIgnoreCase));
             if(body==null || body.sharedMesh==null)
                 throw new InvalidOperationException("Polished FBX body mesh missing.");
-            if(body.sharedMesh.uv.Length==0)
+            if(!body.sharedMesh.HasVertexAttribute(VertexAttribute.TexCoord0))
                 throw new InvalidOperationException("Polished FBX is missing BodyPaint UV.");
             var material = NewMaterial(lit,"EmberlingPaint");
             material.SetColor("_BaseColor",Color.white);
