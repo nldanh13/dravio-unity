@@ -1,6 +1,6 @@
 param(
     [string]$Blender = "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe",
-    [ValidateSet("Wander","Care")][string]$Mode = "Care"
+    [ValidateSet("Wander","Care","Polished")][string]$Mode = "Polished"
 )
 $ErrorActionPreference = "Stop"
 Push-Location (Join-Path $PSScriptRoot "../..")
@@ -8,7 +8,7 @@ try {
     if (!(Test-Path "ProjectSettings/ProjectVersion.txt")) { throw "Not a Unity project root." }
     if (!(Test-Path $Blender -PathType Leaf)) { throw "Blender executable not found: $Blender" }
     $name = "Emberling$Mode"
-    $flag = if ($Mode -eq "Care") { "--care-preview" } else { "--walk-preview" }
+    $flag = switch ($Mode) { "Polished" { "--polish-preview" } "Care" { "--care-preview" } "Wander" { "--walk-preview" } }
     $export = "art-exports/$name.fbx"
     & $Blender --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- $export $flag
     if ($LASTEXITCODE -ne 0) { throw "Blender export failed ($LASTEXITCODE)." }
