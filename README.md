@@ -118,3 +118,26 @@ Deferred acceptance checklist (run when Unity is available):
 6. Check HUD at 16:9 and portrait, colors, frame rate, no action state alters actual game data. Save/commit generated assets only after inspection.
 
 No Blender, Unity, input or visual test was executed on U1.3b/U1.3c by the code author. Skinning/gait and dozing are provisional; production IK, full lying-down posture, jaw animation, texture painting and mobile optimization remain future work. Keep PRs as drafts until accepted.
+
+## U1.4 — Character visual polish preview
+
+Cumulative branch from U1.3c (b481fc4). U1.3b/c and U1.4 are not yet tested in the user's Unity editor; the locally verified baseline is U1.3a (311fd63). No edits to Domain, Environment, shared URP pipeline assets or ProjectSettings.
+
+The optional Polished export includes all five prior clips plus an approximate cylindrical body UV, slightly recessed eyes and a tapered rounded flame shape. Unity generates a 512×512 mipmapped procedural scale/paint texture with a continuous cream belly gradient, matte skin and emissive flame materials. The projection may stretch at paws, tail and head: this is not a professional unwrap, normal map or hand-painted texture. The .blend has the UVs, while the paint texture is generated in Unity.
+
+The new scene adds a small world-space tail-following particle system (maximum 24 particles), a point light with subtle flicker, local Bloom/color-adjustment profile and SMAA on the fixed camera. Bloom and extra light rendering depend on the selected URP pipeline capabilities. No SSAO/renderer feature change, no global graphics setting changes, no measured frame-rate or mobile acceptance. The polish-specific material overrides and VFX are on the generated scene instance, not yet a standalone finished character prefab.
+
+When Unity is available, use the latest branch directly:
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+git fetch origin
+git switch -c feat/u1-visual-polish --track origin/feat/u1-visual-polish
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1 -Mode Polished
+```
+
+Select EmberlingPolished.fbx in Unity and choose **Dravio > Preview Selected Polished Emberling FBX**. A separate EmberlingPolishedPreview scene is created, with the care preview buttons and all five clips. Existing accepted scenes and FBX are preserved. The helper also supports -Mode Wander and -Mode Care; it never overwrites existing FBX files under Assets.
+
+Deferred checks: verify exporter output, first UV channel, five imported animation clips, body material, eye silhouette, seams/stretching, flame emission and spark shader compilation, sparks tracking while walking/rotating, fixed camera, HUD and all care interactions; compare with/without local post-processing. Test PC and mobile quality separately, and profile before claiming performance. If generation fails midway, inspect the Console and rename/back up the incomplete preview scene before retrying. Commit accepted generated assets and their meta files only after review.
+
+Reference API documentation: Unity URP camera data and post-processing (https://docs.unity.com/en-us/engine/6000.0/manual/cameras/urp/universal-additional-camera-data); Blender 5.3 MeshUVLoopLayer (https://docs.blender.org/api/5.3/bpy.types.MeshUVLoopLayer.html). No Blender or Unity runtime verification in the authoring environment.
