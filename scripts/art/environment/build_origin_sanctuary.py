@@ -1323,4 +1323,5 @@ def main():
     print("[env] done ->", OUT)
 
 
-main()
+if __name__ == "__main__":  # importable by build_zone_kits.py (U1-ENV.4)
+    main()

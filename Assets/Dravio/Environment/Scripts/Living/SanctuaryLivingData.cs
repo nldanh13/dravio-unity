@@ -50,6 +50,10 @@ namespace Dravio.EnvironmentArt
             public int capacity = 1;
             public string[] preferredPhases;
             public bool requiresSwim;
+            [Tooltip("U1-ENV.4: approach point is in flight space (Sky updrafts).")]
+            public bool requiresFly;
+            [Tooltip("U1-ENV.4: ground, seabed, swim or air. Empty = ground (Origin data).")]
+            public string medium;
             public string animationHint;
             public string feedback;
             public string sfx;
@@ -84,6 +88,8 @@ namespace Dravio.EnvironmentArt
         public sealed class ParticleVolume
         {
             public string id;
+            [Tooltip("U1-ENV.4: ambient slot / time-of-day weight (fireflies, firefliesPond, dust, pondRings). Empty = by id.")]
+            public string channel;
             public float[] center;
             public float[] size;
             public int maxParticles;
@@ -110,6 +116,30 @@ namespace Dravio.EnvironmentArt
         }
 
         /// <summary>Evaluated time-of-day state (no allocations).</summary>
+        /// <summary>U1-ENV.4: per-zone linear fog distances (0 = keep the scene's).</summary>
+        [Serializable]
+        public sealed class Fog
+        {
+            public string mode;
+            public float start, end;
+        }
+
+        /// <summary>
+        /// U1-ENV.4: cosmetic light quads (caustics on the seabed, sun shafts through the
+        /// water). Alpha follows the light intensity; see EnvironmentScrollingFx.
+        /// </summary>
+        [Serializable]
+        public sealed class FxQuad
+        {
+            public string id;
+            public string kind;
+            public string texture;
+            public float x, y, z, width, height, yaw, tilt, alpha, tiling;
+            public float[] scroll;
+            public Vector3 Position => new Vector3(x, y, z);
+            public Vector2 Scroll => scroll != null && scroll.Length >= 2 ? new Vector2(scroll[0], scroll[1]) : Vector2.zero;
+        }
+
         public struct State
         {
             public float hour;
@@ -150,6 +180,9 @@ namespace Dravio.EnvironmentArt
         public AudioLoop[] audioLoops = Array.Empty<AudioLoop>();
         public AudioEmitter[] audioEmitters = Array.Empty<AudioEmitter>();
         public string[] oneShots = Array.Empty<string>();
+        // U1-ENV.4 (zone scenes only; absent from the Origin JSON).
+        public Fog fog = new Fog();
+        public FxQuad[] fx = Array.Empty<FxQuad>();
 
         public void LoadFromJson(string json) => JsonUtility.FromJsonOverwrite(json, this);
 
@@ -264,6 +297,14 @@ namespace Dravio.EnvironmentArt
         {
             foreach (var v in particleVolumes)
                 if (v.id == id) return v;
+            return null;
+        }
+
+        /// <summary>U1-ENV.4: the volume feeding an ambient slot (by channel, else by Origin id).</summary>
+        public ParticleVolume FindChannel(string channel)
+        {
+            foreach (var v in particleVolumes)
+                if (v.channel == channel) return v;
             return null;
         }
 

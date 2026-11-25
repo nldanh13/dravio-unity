@@ -57,7 +57,7 @@ namespace Dravio.EnvironmentArt
         /// </summary>
         public SanctuaryLivingData.InteractionPoint FindNearest(Vector3 from, string kind = null, string habitatId = null,
                                                                  bool canSwim = false, bool includeOccupied = false,
-                                                                 float phaseBonusMetres = 2f)
+                                                                 float phaseBonusMetres = 2f, bool canFly = true)
         {
             if (data == null) return null;
             DayPhase phase = timeOfDay != null ? timeOfDay.Phase : DayPhase.Day;
@@ -68,6 +68,7 @@ namespace Dravio.EnvironmentArt
                 if (kind != null && p.kind != kind) continue;
                 if (habitatId != null && p.habitatId != habitatId) continue;
                 if (p.requiresSwim && !canSwim) continue;
+                if (p.requiresFly && !canFly) continue;
                 if (!includeOccupied && !IsFree(p.id)) continue;
                 float score = Vector3.Distance(from, p.Position) - (p.Prefers(phase) ? phaseBonusMetres : 0f);
                 if (score < bestScore) { bestScore = score; best = p; }
@@ -139,6 +140,12 @@ namespace Dravio.EnvironmentArt
                     break;
                 case "dust_puff":
                     if (particles != null) particles.Burst(EnvironmentAmbientParticles.BurstStyle.DustPuff, at, 8);
+                    break;
+                case "bubbles": // U1-ENV.4 Ocean
+                    if (particles != null) particles.Burst(EnvironmentAmbientParticles.BurstStyle.Bubbles, at, 10);
+                    break;
+                case "cloud_puff": // U1-ENV.4 Sky
+                    if (particles != null) particles.Burst(EnvironmentAmbientParticles.BurstStyle.CloudPuff, at, 6);
                     break;
                 case "fireflies_gather":
                     if (particles != null)

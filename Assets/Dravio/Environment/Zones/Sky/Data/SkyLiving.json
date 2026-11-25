@@ -1,0 +1,1028 @@
+{
+ "version": 1,
+ "zoneId": "sky",
+ "layoutVersion": 1,
+ "defaultHour": 13.0,
+ "dayLengthMinutes": 24.0,
+ "phases": [
+  {
+   "id": "dawn",
+   "start": 5.0,
+   "end": 7.0
+  },
+  {
+   "id": "day",
+   "start": 7.0,
+   "end": 17.5
+  },
+  {
+   "id": "dusk",
+   "start": 17.5,
+   "end": 19.5
+  },
+  {
+   "id": "night",
+   "start": 19.5,
+   "end": 5.0
+  }
+ ],
+ "keyframes": [
+  {
+   "hour": 0.0,
+   "isMoon": true,
+   "lightElevation": 48,
+   "lightAzimuth": -10,
+   "lightColor": [
+    0.62,
+    0.72,
+    1.0
+   ],
+   "lightIntensity": 0.4452,
+   "shadowStrength": 0.4,
+   "ambientSky": [
+    0.3,
+    0.36,
+    0.58
+   ],
+   "ambientEquator": [
+    0.2,
+    0.25,
+    0.4
+   ],
+   "ambientGround": [
+    0.1,
+    0.1,
+    0.15
+   ],
+   "fogColor": [
+    0.11,
+    0.14,
+    0.28
+   ],
+   "nightGlow": 1.0,
+   "ambientFloorCut": 0.75,
+   "wind": 0.8925,
+   "fireflies": 1.0,
+   "dust": 0.25,
+   "pondRings": 0.6,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.7,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.7425,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 3.0,
+   "isMoon": true,
+   "lightElevation": 34,
+   "lightAzimuth": -45,
+   "lightColor": [
+    0.62,
+    0.72,
+    1.0
+   ],
+   "lightIntensity": 0.3816,
+   "shadowStrength": 0.35,
+   "ambientSky": [
+    0.3,
+    0.36,
+    0.58
+   ],
+   "ambientEquator": [
+    0.2,
+    0.25,
+    0.4
+   ],
+   "ambientGround": [
+    0.1,
+    0.1,
+    0.15
+   ],
+   "fogColor": [
+    0.11,
+    0.14,
+    0.28
+   ],
+   "nightGlow": 1.0,
+   "ambientFloorCut": 0.75,
+   "wind": 0.825,
+   "fireflies": 0.7,
+   "dust": 0.25,
+   "pondRings": 0.6,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.56,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.725,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 4.8,
+   "isMoon": true,
+   "lightElevation": 12,
+   "lightAzimuth": -78,
+   "lightColor": [
+    0.6466,
+    0.7375,
+    0.9944
+   ],
+   "lightIntensity": 0.106,
+   "shadowStrength": 0.25,
+   "ambientSky": [
+    0.3894,
+    0.415,
+    0.5908
+   ],
+   "ambientEquator": [
+    0.2968,
+    0.3124,
+    0.4416
+   ],
+   "ambientGround": [
+    0.1315,
+    0.1315,
+    0.1857
+   ],
+   "fogColor": [
+    0.202,
+    0.2201,
+    0.3554
+   ],
+   "nightGlow": 0.8,
+   "ambientFloorCut": 0.6,
+   "wind": 0.825,
+   "fireflies": 0.4,
+   "dust": 0.36,
+   "pondRings": 0.64,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.35,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.725,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 5.0,
+   "isMoon": true,
+   "lightElevation": 8,
+   "lightAzimuth": -86,
+   "lightColor": [
+    0.6599,
+    0.7462,
+    0.9916
+   ],
+   "lightIntensity": 0.0,
+   "shadowStrength": 0.0,
+   "ambientSky": [
+    0.4578,
+    0.4504,
+    0.6062
+   ],
+   "ambientEquator": [
+    0.368,
+    0.36,
+    0.48
+   ],
+   "ambientGround": [
+    0.1741,
+    0.1652,
+    0.2125
+   ],
+   "fogColor": [
+    0.2743,
+    0.2823,
+    0.4106
+   ],
+   "nightGlow": 0.7,
+   "ambientFloorCut": 0.5,
+   "wind": 0.825,
+   "fireflies": 0.3,
+   "dust": 0.415,
+   "pondRings": 0.66,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.28,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.725,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 5.05,
+   "isMoon": false,
+   "lightElevation": 0,
+   "lightAzimuth": 84,
+   "lightColor": [
+    1.0,
+    0.5941,
+    0.4994
+   ],
+   "lightIntensity": 0.0,
+   "shadowStrength": 0.0,
+   "ambientSky": [
+    0.4578,
+    0.4504,
+    0.6062
+   ],
+   "ambientEquator": [
+    0.368,
+    0.36,
+    0.48
+   ],
+   "ambientGround": [
+    0.1741,
+    0.1652,
+    0.2125
+   ],
+   "fogColor": [
+    0.2743,
+    0.2823,
+    0.4106
+   ],
+   "nightGlow": 0.7,
+   "ambientFloorCut": 0.5,
+   "wind": 0.825,
+   "fireflies": 0.3,
+   "dust": 0.415,
+   "pondRings": 0.66,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.28,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.725,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 6.0,
+   "isMoon": false,
+   "lightElevation": 9,
+   "lightAzimuth": 74,
+   "lightColor": [
+    1.0,
+    0.7305,
+    0.5956
+   ],
+   "lightIntensity": 0.6572,
+   "shadowStrength": 0.45,
+   "ambientSky": [
+    0.7182,
+    0.6792,
+    0.7837
+   ],
+   "ambientEquator": [
+    0.646,
+    0.5928,
+    0.6092
+   ],
+   "ambientGround": [
+    0.3569,
+    0.3183,
+    0.3356
+   ],
+   "fogColor": [
+    0.631,
+    0.6076,
+    0.6826
+   ],
+   "nightGlow": 0.35,
+   "ambientFloorCut": 0.2,
+   "wind": 1.095,
+   "fireflies": 0.1,
+   "dust": 0.6075,
+   "pondRings": 0.73,
+   "audioBirds": 0.8,
+   "audioCrickets": 0.105,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.795,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 8.0,
+   "isMoon": false,
+   "lightElevation": 30,
+   "lightAzimuth": 40,
+   "lightColor": [
+    1.0,
+    0.9115,
+    0.803
+   ],
+   "lightIntensity": 1.2508,
+   "shadowStrength": 0.65,
+   "ambientSky": [
+    0.78,
+    0.854,
+    0.961
+   ],
+   "ambientEquator": [
+    0.684,
+    0.74,
+    0.716
+   ],
+   "ambientGround": [
+    0.4395,
+    0.4135,
+    0.4195
+   ],
+   "fogColor": [
+    0.706,
+    0.811,
+    0.876
+   ],
+   "nightGlow": 0.0,
+   "ambientFloorCut": 0.0,
+   "wind": 1.5,
+   "fireflies": 0.0,
+   "dust": 0.8,
+   "pondRings": 0.8,
+   "audioBirds": 0.68,
+   "audioCrickets": 0.0,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.9,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 13.0,
+   "isMoon": false,
+   "lightElevation": 46.0,
+   "lightAzimuth": -38.0,
+   "lightColor": [
+    1.0,
+    0.9375,
+    0.829
+   ],
+   "lightIntensity": 1.431,
+   "shadowStrength": 0.75,
+   "ambientSky": [
+    0.793,
+    0.867,
+    0.9675
+   ],
+   "ambientEquator": [
+    0.684,
+    0.752,
+    0.716
+   ],
+   "ambientGround": [
+    0.4525,
+    0.4265,
+    0.426
+   ],
+   "fogColor": [
+    0.7,
+    0.814,
+    0.87
+   ],
+   "nightGlow": 0.0,
+   "ambientFloorCut": 0.0,
+   "wind": 1.5,
+   "fireflies": 0.0,
+   "dust": 0.8,
+   "pondRings": 0.8,
+   "audioBirds": 0.48,
+   "audioCrickets": 0.0,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.9,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 16.5,
+   "isMoon": false,
+   "lightElevation": 26,
+   "lightAzimuth": -62,
+   "lightColor": [
+    1.0,
+    0.8855,
+    0.725
+   ],
+   "lightIntensity": 1.272,
+   "shadowStrength": 0.72,
+   "ambientSky": [
+    0.793,
+    0.828,
+    0.909
+   ],
+   "ambientEquator": [
+    0.708,
+    0.716,
+    0.68
+   ],
+   "ambientGround": [
+    0.4525,
+    0.407,
+    0.4
+   ],
+   "fogColor": [
+    0.724,
+    0.802,
+    0.852
+   ],
+   "nightGlow": 0.0,
+   "ambientFloorCut": 0.0,
+   "wind": 1.6,
+   "fireflies": 0.0,
+   "dust": 0.8,
+   "pondRings": 0.8,
+   "audioBirds": 0.48,
+   "audioCrickets": 0.0,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.935,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 18.3,
+   "isMoon": false,
+   "lightElevation": 7,
+   "lightAzimuth": -78,
+   "lightColor": [
+    1.0,
+    0.6389,
+    0.4517
+   ],
+   "lightIntensity": 0.8268,
+   "shadowStrength": 0.55,
+   "ambientSky": [
+    0.6831,
+    0.5732,
+    0.6608
+   ],
+   "ambientEquator": [
+    0.6888,
+    0.5504,
+    0.53
+   ],
+   "ambientGround": [
+    0.3481,
+    0.2835,
+    0.2886
+   ],
+   "fogColor": [
+    0.6413,
+    0.5386,
+    0.5732
+   ],
+   "nightGlow": 0.45,
+   "ambientFloorCut": 0.2,
+   "wind": 1.365,
+   "fireflies": 0.35,
+   "dust": 0.5525,
+   "pondRings": 0.71,
+   "audioBirds": 0.24,
+   "audioCrickets": 0.245,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.865,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 19.2,
+   "isMoon": false,
+   "lightElevation": 2,
+   "lightAzimuth": -85,
+   "lightColor": [
+    0.8579,
+    0.4489,
+    0.4273
+   ],
+   "lightIntensity": 0.1696,
+   "shadowStrength": 0.3,
+   "ambientSky": [
+    0.42,
+    0.3684,
+    0.5831
+   ],
+   "ambientEquator": [
+    0.3628,
+    0.3112,
+    0.4312
+   ],
+   "ambientGround": [
+    0.1615,
+    0.1426,
+    0.1862
+   ],
+   "fogColor": [
+    0.27,
+    0.2343,
+    0.3707
+   ],
+   "nightGlow": 0.85,
+   "ambientFloorCut": 0.55,
+   "wind": 1.095,
+   "fireflies": 0.85,
+   "dust": 0.3325,
+   "pondRings": 0.63,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.595,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.795,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 19.4,
+   "isMoon": false,
+   "lightElevation": 0,
+   "lightAzimuth": -88,
+   "lightColor": [
+    0.807,
+    0.4199,
+    0.4375
+   ],
+   "lightIntensity": 0.0,
+   "shadowStrength": 0.0,
+   "ambientSky": [
+    0.3747,
+    0.3589,
+    0.5754
+   ],
+   "ambientEquator": [
+    0.2976,
+    0.2912,
+    0.44
+   ],
+   "ambientGround": [
+    0.1351,
+    0.1254,
+    0.1775
+   ],
+   "fogColor": [
+    0.1947,
+    0.1981,
+    0.3459
+   ],
+   "nightGlow": 0.9,
+   "ambientFloorCut": 0.65,
+   "wind": 1.0275,
+   "fireflies": 0.9,
+   "dust": 0.305,
+   "pondRings": 0.62,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.63,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.7775,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 19.45,
+   "isMoon": true,
+   "lightElevation": 6,
+   "lightAzimuth": 72,
+   "lightColor": [
+    0.6333,
+    0.7288,
+    0.9972
+   ],
+   "lightIntensity": 0.0,
+   "shadowStrength": 0.0,
+   "ambientSky": [
+    0.3747,
+    0.3589,
+    0.5754
+   ],
+   "ambientEquator": [
+    0.2976,
+    0.2912,
+    0.44
+   ],
+   "ambientGround": [
+    0.1351,
+    0.1254,
+    0.1775
+   ],
+   "fogColor": [
+    0.1947,
+    0.1981,
+    0.3459
+   ],
+   "nightGlow": 0.9,
+   "ambientFloorCut": 0.65,
+   "wind": 1.0275,
+   "fireflies": 0.9,
+   "dust": 0.305,
+   "pondRings": 0.62,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.63,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.7775,
+   "audioPond": 0.0
+  },
+  {
+   "hour": 21.0,
+   "isMoon": true,
+   "lightElevation": 32,
+   "lightAzimuth": 34,
+   "lightColor": [
+    0.62,
+    0.72,
+    1.0
+   ],
+   "lightIntensity": 0.4028,
+   "shadowStrength": 0.4,
+   "ambientSky": [
+    0.3,
+    0.36,
+    0.58
+   ],
+   "ambientEquator": [
+    0.2,
+    0.25,
+    0.4
+   ],
+   "ambientGround": [
+    0.1,
+    0.1,
+    0.15
+   ],
+   "fogColor": [
+    0.11,
+    0.14,
+    0.28
+   ],
+   "nightGlow": 1.0,
+   "ambientFloorCut": 0.75,
+   "wind": 0.96,
+   "fireflies": 1.0,
+   "dust": 0.25,
+   "pondRings": 0.6,
+   "audioBirds": 0.0,
+   "audioCrickets": 0.7,
+   "audioFrogs": 0.0,
+   "audioInsects": 0.6,
+   "audioWind": 0.76,
+   "audioPond": 0.0
+  }
+ ],
+ "interactionPoints": [
+  {
+   "id": "sky_low_island.interact_sniff_flowers_01",
+   "habitatId": "sky_low_island",
+   "kind": "sniff_flowers",
+   "medium": "ground",
+   "x": -1.6,
+   "y": 0.0,
+   "z": -3.0,
+   "yaw": -159.44,
+   "targetX": -1.9,
+   "targetY": 0.2,
+   "targetZ": -3.8,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "sniff",
+   "feedback": "petal_puff",
+   "sfx": "SFX_Sky_Petal_Rustle"
+  },
+  {
+   "id": "sky_low_island.interact_sniff_flowers_02",
+   "habitatId": "sky_low_island",
+   "kind": "sniff_flowers",
+   "medium": "ground",
+   "x": 1.6,
+   "y": 0.0,
+   "z": -3.0,
+   "yaw": 153.43,
+   "targetX": 2.0,
+   "targetY": 0.2,
+   "targetZ": -3.8,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "sniff",
+   "feedback": "petal_puff",
+   "sfx": "SFX_Sky_Petal_Rustle"
+  },
+  {
+   "id": "sky_low_island.interact_inspect_rune_01",
+   "habitatId": "sky_low_island",
+   "kind": "inspect_rune",
+   "medium": "ground",
+   "x": 1.3,
+   "y": 0.0,
+   "z": 2.9,
+   "yaw": 21.8,
+   "targetX": 1.7,
+   "targetY": 1.0,
+   "targetZ": 3.9,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk",
+    "night"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "inspect",
+   "feedback": "rune_sparkle",
+   "sfx": "SFX_Sky_Wind_Chime"
+  },
+  {
+   "id": "sky_low_island.interact_rest_01",
+   "habitatId": "sky_low_island",
+   "kind": "rest",
+   "medium": "ground",
+   "x": -2.0,
+   "y": 0.0,
+   "z": 2.3,
+   "yaw": -47.49,
+   "targetX": -3.2,
+   "targetY": 0.5,
+   "targetZ": 3.4,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk",
+    "night"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "rest",
+   "feedback": "petal_puff",
+   "sfx": "SFX_Sky_Petal_Rustle"
+  },
+  {
+   "id": "sky_low_island.interact_watch_clouds_01",
+   "habitatId": "sky_low_island",
+   "kind": "watch_clouds",
+   "medium": "ground",
+   "x": 0.4,
+   "y": 0.0,
+   "z": -4.3,
+   "yaw": 180.0,
+   "targetX": 0.4,
+   "targetY": -3.0,
+   "targetZ": -7.5,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "look",
+   "feedback": "cloud_puff",
+   "sfx": "SFX_Sky_Cloud_Puff"
+  },
+  {
+   "id": "sky_low_island.interact_stargaze_01",
+   "habitatId": "sky_low_island",
+   "kind": "stargaze",
+   "medium": "ground",
+   "x": 5.6,
+   "y": 0.9,
+   "z": -1.1,
+   "yaw": 0.0,
+   "targetX": 5.6,
+   "targetY": 6.0,
+   "targetZ": 2.0,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "night"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "look_up",
+   "feedback": "fireflies_gather",
+   "sfx": ""
+  },
+  {
+   "id": "sky_low_island.interact_inspect_shrine_01",
+   "habitatId": "sky_low_island",
+   "kind": "inspect_shrine",
+   "medium": "ground",
+   "x": -5.6,
+   "y": 1.6,
+   "z": 2.9,
+   "yaw": -21.04,
+   "targetX": -6.1,
+   "targetY": 2.6,
+   "targetZ": 4.2,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day",
+    "dusk",
+    "night"
+   ],
+   "requiresSwim": false,
+   "requiresFly": false,
+   "animationHint": "inspect",
+   "feedback": "rune_sparkle",
+   "sfx": "SFX_Sky_Wind_Chime"
+  },
+  {
+   "id": "sky_low_island.interact_ride_updraft_01",
+   "habitatId": "sky_low_island",
+   "kind": "ride_updraft",
+   "medium": "air",
+   "x": -5.4,
+   "y": 2.4,
+   "z": -3.0,
+   "yaw": 0.0,
+   "targetX": -5.4,
+   "targetY": 3.4,
+   "targetZ": -3.0,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "day",
+    "dusk"
+   ],
+   "requiresSwim": false,
+   "requiresFly": true,
+   "animationHint": "glide",
+   "feedback": "cloud_puff",
+   "sfx": "SFX_Sky_Wing_Gust"
+  },
+  {
+   "id": "sky_low_island.interact_ride_updraft_02",
+   "habitatId": "sky_low_island",
+   "kind": "ride_updraft",
+   "medium": "air",
+   "x": 3.8,
+   "y": 2.6,
+   "z": 2.8,
+   "yaw": 0.0,
+   "targetX": 3.8,
+   "targetY": 3.4,
+   "targetZ": 2.8,
+   "radius": 0.6,
+   "capacity": 1,
+   "preferredPhases": [
+    "dawn",
+    "day"
+   ],
+   "requiresSwim": false,
+   "requiresFly": true,
+   "animationHint": "glide",
+   "feedback": "cloud_puff",
+   "sfx": "SFX_Sky_Wing_Gust"
+  }
+ ],
+ "pond": {
+  "center": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "radii": [
+   0.0,
+   0.0
+  ],
+  "swimRadii": [
+   0.0,
+   0.0
+  ]
+ },
+ "particleVolumes": [
+  {
+   "id": "star_motes",
+   "channel": "fireflies",
+   "center": [
+    0.0,
+    2.4,
+    1.0
+   ],
+   "size": [
+    15.0,
+    3.0,
+    12.0
+   ],
+   "maxParticles": 40,
+   "lifetime": [
+    5.0,
+    9.0
+   ]
+  },
+  {
+   "id": "shrine_motes",
+   "channel": "firefliesPond",
+   "center": [
+    -6.1,
+    2.4,
+    4.2
+   ],
+   "size": [
+    2.4,
+    1.6,
+    2.4
+   ],
+   "maxParticles": 12,
+   "lifetime": [
+    4.0,
+    7.0
+   ]
+  },
+  {
+   "id": "petals",
+   "channel": "dust",
+   "center": [
+    0.0,
+    1.6,
+    0.5
+   ],
+   "size": [
+    15.0,
+    2.6,
+    11.0
+   ],
+   "maxParticles": 40,
+   "lifetime": [
+    7.0,
+    11.0
+   ]
+  },
+  {
+   "id": "cloud_wisps",
+   "channel": "pondRings",
+   "center": [
+    0.0,
+    -1.6,
+    -2.0
+   ],
+   "size": [
+    22.0,
+    1.2,
+    6.0
+   ],
+   "maxParticles": 10,
+   "lifetime": [
+    10.0,
+    16.0
+   ]
+  }
+ ],
+ "audioLoops": [
+  {
+   "id": "wind",
+   "clip": "AMB_Sky_High_Wind_Loop",
+   "weightKey": "audioWind",
+   "emitterId": ""
+  },
+  {
+   "id": "birds",
+   "clip": "AMB_Sky_Birds_Loop",
+   "weightKey": "audioBirds",
+   "emitterId": ""
+  },
+  {
+   "id": "night",
+   "clip": "AMB_Sky_Night_Shimmer_Loop",
+   "weightKey": "audioCrickets",
+   "emitterId": ""
+  },
+  {
+   "id": "chimes",
+   "clip": "AMB_Sky_Chimes_Loop",
+   "weightKey": "audioInsects",
+   "emitterId": "sky_shrine"
+  }
+ ],
+ "audioEmitters": [
+  {
+   "id": "sky_shrine",
+   "x": -6.1,
+   "y": 1.6,
+   "z": 4.2,
+   "innerRadius": 2.5,
+   "outerRadius": 10.0
+  }
+ ],
+ "oneShots": [
+  "SFX_Sky_Cloud_Puff",
+  "SFX_Sky_Petal_Rustle",
+  "SFX_Sky_Wind_Chime",
+  "SFX_Sky_Wing_Gust"
+ ],
+ "fog": {
+  "mode": "linear",
+  "start": 26.0,
+  "end": 60.0
+ },
+ "fx": []
+}
