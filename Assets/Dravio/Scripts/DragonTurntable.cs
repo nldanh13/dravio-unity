@@ -30,8 +30,8 @@ namespace Dravio
             {
                 uiHits.Clear();
                 EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = position }, uiHits);
-                foreach (var hit in uiHits)
-                    if (hit.module is GraphicRaycaster) return false;
+                foreach (var uiHit in uiHits)
+                    if (uiHit.module is GraphicRaycaster) return false;
             }
             return viewCamera != null &&
                 Physics.Raycast(viewCamera.ScreenPointToRay(position), out RaycastHit hit) &&
