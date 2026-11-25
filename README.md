@@ -235,3 +235,34 @@ FBX flags: axis_forward=-Z, axis_up=Y, add_leaf_bones=False, use_armature_deform
 Unity: choose **Dravio > Create or Open Integrated GLB Sanctuary**. It uses the new FBX, retains .90 m model height, the original landscape HUD and domain preview, and preferentially follows TailVFX_Anchor. It creates `Assets/Dravio/Scenes/OriginIntegratedGLBPreview.unity` separately from previous scenes, and a separate prefab/controller. The GLB path imports material descriptions and preserves existing URP/Lit assignments; conversion of non-URP materials copies known texture slots and values only (manual PBR remap may be necessary). The procedural skin/flame material replacement is skipped. Use **Dravio > Validate Refined GLB FBX** after configuration to check the extra bones and existing clips. The original procedural menu and modes are still available.
 
 Artifacts: FBX, editable packed .blend, structural .qa.json and original PBR sidecar. Source GLB itself is never modified. New generated assets should be committed only after local inspection. Actual GLB asset was not supplied; no Blender/Unity execution or FBX round-trip was performed by the code author.
+
+## U3 — Playable sanctuary integration
+
+Branch `feat/u3-playable-sanctuary` combines GLB #16 with the user's Unity fixes, Environment #14/#18/#20 and Domain/Persistence #15/#17/#19. Technical merge PRs #21 and #22 target this isolated branch only. Main and the original AI branches are unchanged. Future character assets and hatching/breeding workstreams remain separate.
+
+### First open
+
+Stop Play, save any desired local edits and inspect `git status`. Keep local FBX and generated scenes. From the project folder:
+
+```powershell
+git fetch origin
+git switch -c feat/u3-playable-sanctuary --track origin/feat/u3-playable-sanctuary
+```
+
+If the branch already exists, switch to it and pull --ff-only. If Git reports conflicting local changes, stop and review them; never reset or force switch. The existing `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` is reused, or the Refined procedural FBX if GLB is unavailable. No new export required. Refresh Unity, check Console, then choose **Dravio > Open Game**, and Play. This generates a new environment source `Assets/Dravio/Environment/Scenes/OriginPlayable_Environment.unity` and a new `Assets/Dravio/Scenes/OriginPlayable.unity` from current authored environment data. No old scene is overwritten. Generated environment material/prefab assets may be updated by the existing builder; back up custom changes first. Legacy preview menus are grouped, audits under Character. If generation fails and leaves an incomplete scene, back up/rename it before retrying.
+
+### Gameplay
+
+The new scene contains one DravioSessionHost. It owns tick, focus/pause, offline receipts, save/load, autosave and writer lock. The previous transient adapter clock is bypassed only in this scene. Existing legacy scenes retain their in-memory behavior. Save path: `Application.persistentDataPath/saves`. Save files are outside the project repository. Stop Play flushes via OnHide; save now also available in Care. A fresh persistent game starts from canonical founder state, not the prior transient preview. Do not manually delete save files to resolve errors; read the session status and preserve backups. No ×2 offline bonus implemented. The initial receipt is shown if present.
+
+Four HUD tabs: Care, Biology, Dragons, Guide. Guide displays actual tutorial step and buttons for surveys/unlocks, Starter purchase (100 G), claim into meadow or storage. Biology includes explicit record-profile button. All commands route through the session and the domain validates prerequisites and rewards. Successful Starter transactions are saved immediately by GameSession. The roster includes newly acquired dragons; only the Emberling scene model exists today. Other species are data-only until artist assets arrive. Numeric growth does not change mesh. No general breeding or egg packs beyond Starter yet.
+
+The current Origin location data is used to select the Emberling spawn and walkable target segments; food is placed nearby when safe. This is not A*, a navmesh, interhabitat movement UI or multi-dragon steering; it rejects paths intersecting authored obstacle/water zones rather than finding detours. Existing legacy previews retain the old waypoints. Camera fit observes the HUD panel and yields to close-up inspection, then returns to authored landscape framing. Landscape settings retained. Living environment adds day/night, ambient audio, wind and particles. Ocean/Sky environment kits are present for separate testing, but not unlocked in gameplay.
+
+### Acceptance checklist
+
+- Confirm Unity compilation (including new AI assemblies and NUnit tests), shader compilation and latest GitHub CI. The code author did not run Unity/Blender.
+- Generate Open Game scene, inspect Console, spawn, UI and actual GLB color/rig. Check facing and food approach; verify no walk into pond/obstacle. Check right rail camera inset and inspection/resume.
+- Start a fresh persistent save and verify canonical 150 G, feed, pet, profile, surveys/unlocks, Starter and rewards; ensure the roster changes. Try duplicate purchase/claim and rejected commands. Save, stop/reopen; check gold, dragons and tutorial preserved. Verify offline receipt and no double grant. Test read-only/invalid-save path without destroying user data.
+- Check mobile landscape and performance; the user's GLB remains 114,100 triangles without UV0 and is not production ready. Character optimization is the separate AI assignment.
+- No runtime acceptance or main merge until local testing succeeds.
