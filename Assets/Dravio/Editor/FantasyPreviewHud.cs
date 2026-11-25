@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using Dravio.Platform.Unity;
+using Dravio.Character;
 using Dravio.Domain.Catalog;
 using Dravio.EnvironmentArt;
 using Dravio.EnvironmentArt.EditorTools;
@@ -83,7 +84,7 @@ namespace Dravio.Editor
             vertical.childForceExpandHeight=false;vertical.childForceExpandWidth=true;
             if(playable)panel.gameObject.AddComponent<SanctuaryUiInsetSource>();
 
-            Label(ui,panel,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
+            var selectedTitle=Label(ui,panel,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40,!playable);
             var status=Label(ui,panel,"Resting","Đang nghỉ",16,Paper,TextAnchor.MiddleLeft,30,false);
             var tabsRoot=RectNode("Navigation",panel);
             var tabLayout=tabsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -160,11 +161,21 @@ namespace Dravio.Editor
 
             Label(ui,roster,"Preview residents","Rồng trong bản thử",18,Gold,TextAnchor.MiddleLeft,36);
             Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
-            var rosterInspect=Button(ui,roster,"Inspect Emberling","Quan sát Emberling",46);
+            var rosterInspect=Button(ui,roster,playable?"Inspect selected":"Inspect Emberling",playable?"Quan sát rồng đã chọn":"Quan sát Emberling",46);
+            Text livingProfile=null,livingTravel=null;
+            Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null;
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
-                Label(ui,roster,"Other species appear in this roster; only Emberling has a visual model in this build.","Các loài khác hiển thị trong danh sách; bản này chỉ có mô hình Emberling.",14,Muted,TextAnchor.MiddleLeft,70);
+                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,190,false);
+                nextDragon=Button(ui,roster,"Next dragon","Rồng tiếp theo",46);
+                observeDragon=Button(ui,roster,"Record species observation","Ghi nhận hồ sơ loài",46);
+                livingTravel=Label(ui,roster,"—","—",14,Muted,TextAnchor.UpperLeft,80,false);
+                nextTravel=Button(ui,roster,"Next habitat","Sinh cảnh tiếp theo",46);
+                moveDragon=Button(ui,roster,"Move to habitat","Chuyển sinh cảnh",46);
+                storeDragon=Button(ui,roster,"Move to storage","Chuyển vào kho",46);
+                foreach(var button in new[]{nextDragon,observeDragon,nextTravel,moveDragon,storeDragon})button.interactable=false;
+                Label(ui,roster,"Only catalog models with a safe spawn are shown. Stage fallback and missing models are reported.","Chỉ hiển thị model đúng loài có điểm đặt an toàn. Có báo model thiếu hoặc thay thế độ tuổi.",14,Muted,TextAnchor.MiddleLeft,80);
                 guide=Page(host,"Guide");
                 tutorialStatus=Label(ui,guide,"Loading tutorial","Đang tải hướng dẫn",16,Gold,TextAnchor.MiddleLeft,54,false);
                 guideFeedback=Label(ui,guide,"—","—",14,Muted,TextAnchor.MiddleLeft,42,false);
@@ -241,7 +252,8 @@ namespace Dravio.Editor
             if(integrated)
             {
                 var session=dragon.AddComponent<SanctuaryDomainPreview>();
-                session.Configure(gold,progress,notice,CreateFruit());
+                var fruitVisual=CreateFruit();
+                session.Configure(gold,progress,notice,fruitVisual);
                 controller.ConfigureDomain(session);
                 if(playable)
                 {
@@ -250,6 +262,14 @@ namespace Dravio.Editor
                     var locationData=AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(OriginSanctuaryEnvironmentBuilder.LocationsAssetPath);
                     if(locationData==null)throw new InvalidOperationException("Playable location data missing.");
                     session.ConfigurePersistent(persistence,locationData,saveStatus,tutorialStatus,rosterStatus,guideFeedback);
+                    var visualRoot=new GameObject("Living Sanctuary Presentation");
+                    var manager=visualRoot.AddComponent<DragonVisualManager>();
+                    manager.catalog=AssetDatabase.LoadAssetAtPath<DragonVisualCatalog>("Assets/Dravio/Character/Data/DragonVisualCatalog.asset");
+                    var living=visualRoot.AddComponent<LivingSanctuaryPresentation>();
+                    living.Configure(persistence,locationData,manager,controller,session,fruitVisual,
+                        selectedTitle,status,progress,notice,livingProfile,livingTravel,
+                        feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observeDragon,nextTravel,moveDragon,storeDragon);
+                    session.ConfigureLiving(living);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyRocks.onClick,session.SurveyRocks);

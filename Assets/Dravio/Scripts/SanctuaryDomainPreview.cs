@@ -39,7 +39,11 @@ namespace Dravio
         [SerializeField] private Text healthStatus,careCaseStatus,carePlanStatus;
         [SerializeField] private Button healthNext,healthShelter,healthAssess,healthNextPlan,healthApplyPlan,healthStart,healthReview,healthDischarge;
         private string healthUid,healthCaseId,healthPlanId;
+        [SerializeField] private LivingSanctuaryPresentation livingPresentation;
+        private bool livingMode;
         private string parentA, parentB;
+        public void ConfigureLiving(LivingSanctuaryPresentation presentation)=>livingPresentation=presentation;
+        public void EnableLivingPresentation(){livingMode=true;foodId=null;if(fruit!=null)fruit.SetActive(false);}
         private GameSession Session=>host!=null?host.Session:null;
         private bool persistentMode=>host!=null;
         public string HabitatId=>state?.FindDragon(uid)?.Location?.HabitatId ?? "origin_meadow";
@@ -125,7 +129,7 @@ namespace Dravio
             if(Session==null)return;
             state=Session.State;
             uid=state?.Dragons.FirstOrDefault(d=>d.SpeciesId=="emberling" && d.Location.Kind==LocationKind.Zone && d.Location.ZoneId=="origin")?.Uid;
-            if(state!=null && foodId==null)
+            if(!livingMode && state!=null && foodId==null)
             {
                 var drop=state.Food.Drops.FirstOrDefault(d=>d.ZoneId=="origin" && d.HabitatId==HabitatId && d.DietId==DietId.Fruit);
                 if(drop!=null)
@@ -173,7 +177,7 @@ namespace Dravio
             }
         }
 
-        public void SetVietnamese(bool value){vi=value;Refresh();}
+        public void SetVietnamese(bool value){vi=value;Refresh();if(livingPresentation!=null)livingPresentation.SetVietnamese(value);}
         private string Id()=>"preview-"+(++request).ToString(CultureInfo.InvariantCulture);
 
         private DispatchResult Dispatch(GameCommand command)
@@ -624,6 +628,7 @@ namespace Dravio
                     (state.PendingPack!=null?(vi?" · Có trứng chờ nhận":" · Egg pending"):"");
             }
             if(rosterStatus!=null)rosterStatus.text=string.Join("\n",state.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.SpeciesId+" · "+(d.Location.Kind==LocationKind.Storage?(vi?"Kho":"Storage"):d.Location.HabitatId)+" · "+Lifecycle.StageOf(d)));
+            if(livingMode)return; // The selected resident profile is owned by the living presenter.
             var dragon=state.FindDragon(uid);
             if(dragon==null){if(progress!=null)progress.text=vi?"Không có Emberling tại Origin":"No Emberling in Origin";return;}
             var species=SpeciesCatalog.Get(dragon.SpeciesId);
