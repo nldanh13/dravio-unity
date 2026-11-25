@@ -8,6 +8,9 @@ using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.World;
 using Dravio.Domain.Progression;
+using Dravio.Domain.Queries;
+using Dravio.Domain.Economy;
+using Dravio.Domain.Sanctuary;
 using Dravio.Platform;
 using Dravio.Platform.Unity;
 using Dravio.EnvironmentArt;
@@ -28,6 +31,10 @@ namespace Dravio
         [SerializeField] private SanctuaryLocationData locations;
         [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus, guideNotice;
         [SerializeField] private Text hatcheryStatus, parentsStatus, hatcheryNotice;
+        [SerializeField] private Text managementSummary,managementWorld,managementCodex,managementMaterials,managementExpedition,managementFeedback;
+        [SerializeField] private Button unlockOceanButton,unlockSkyButton,claimExpeditionButton;
+        [SerializeField] private Text[] upgradeStatus;
+        [SerializeField] private Button[] upgradeButtons;
         private string parentA, parentB;
         private GameSession Session=>host!=null?host.Session:null;
         private bool persistentMode=>host!=null;
@@ -55,6 +62,14 @@ namespace Dravio
 
         public void ConfigureHatchery(Text status,Text parents,Text feedback)
         {hatcheryStatus=status;parentsStatus=parents;hatcheryNotice=feedback;}
+
+        public void ConfigureManagement(Text summary,Text world,Text codex,Text materials,Text expedition,Text feedback,
+            Button ocean,Button sky,Button claim,Text[] upgrades,Button[] purchases)
+        {
+            managementSummary=summary;managementWorld=world;managementCodex=codex;managementMaterials=materials;
+            managementExpedition=expedition;managementFeedback=feedback;unlockOceanButton=ocean;unlockSkyButton=sky;
+            claimExpeditionButton=claim;upgradeStatus=upgrades;upgradeButtons=purchases;
+        }
 
         private void Awake()
         {
@@ -305,6 +320,100 @@ namespace Dravio
             parentsStatus.text=details;
         }
 
+        // All mutations use the existing session and the canonical Domain command bus.
+        public void UnlockOcean(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"ocean"),"Ocean unlocked.","Đã mở Thủy Vực.");}
+        public void UnlockSky(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"sky"),"Sky unlocked.","Đã mở Thiên Giới.");}
+        public void ClaimExpeditionReward(){if(persistentMode)GuideCommand(id=>new ClaimExpeditionCommand(id),"Expedition reward claimed.","Đã nhận thưởng thám hiểm.");}
+        public void BuySanctuaryUpgrade(string upgradeId)
+        {
+            if(persistentMode)GuideCommand(id=>new BuyUpgradeCommand(id,upgradeId),"Upgrade purchased.","Đã mua nâng cấp.");
+        }
+
+        private string ZoneName(string id)=>id switch
+        {
+            "origin"=>vi?"Khởi Nguyên":"Origin",
+            "ocean"=>vi?"Thủy Vực":"Ocean",
+            "sky"=>vi?"Thiên Giới":"Sky",
+            _=>id
+        };
+        private string UpgradeName(string id)=>id switch
+        {
+            "islandCapacityLevel"=>vi?"Ngân sách sản xuất":"Production budget",
+            "foodQualityLevel"=>vi?"Chất lượng thức ăn":"Food quality",
+            "foodCooldownLevel"=>vi?"Số thức ăn đồng thời":"Food capacity",
+            "mutationLuckLevel"=>vi?"May mắn biến thể":"Mutation luck",
+            "hatchSpeedLevel"=>vi?"Tốc độ ấp":"Hatch speed",
+            _=>id
+        };
+        private string RequirementName(string id)
+        {
+            if(id=="tutorial-completed")return vi?"Hoàn thành hướng dẫn":"Complete tutorial";
+            if(id=="origin-habitats")return vi?"Mở đủ sinh cảnh Khởi Nguyên":"Unlock Origin habitats";
+            if(id.StartsWith("zone:",StringComparison.Ordinal))return (vi?"Mở ":"Unlock ")+ZoneName(id.Substring(5));
+            if(id.StartsWith("quest:",StringComparison.Ordinal))return (vi?"Nhiệm vụ (chưa có nội dung): ":"Quest (not implemented): ")+id.Substring(6);
+            return id;
+        }
+
+        private void RefreshManagement()
+        {
+            if(managementSummary==null)return; // Older generated scenes do not have this page.
+            bool ready=CanSend && persistentMode;
+            unlockOceanButton.interactable=false;
+            unlockSkyButton.interactable=false;
+            claimExpeditionButton.interactable=false;
+            foreach(var button in upgradeButtons)button.interactable=false;
+            if(state==null)return;
+
+            var summary=Ecosystem.Summary(state);
+            managementSummary.text=(vi?"Rồng: ":"Dragons: ")+summary.Living+
+                "\n"+(vi?"Sản xuất: ":"Producing: ")+summary.Producing+"/"+summary.ProductionBudget+
+                "\n"+(vi?"Kho: ":"Storage: ")+summary.StorageUsed+"/"+summary.StorageLimit+
+                "\n"+GoldText(summary.RateMicroGPerSec)+" G/s";
+            var unlocks=Ecosystem.ZoneUnlocks(state);
+            managementWorld.text=string.Join("\n\n",Ecosystem.World(state).Select(z=>
+            {
+                var rule=unlocks.FirstOrDefault(x=>x.ZoneId==z.ZoneId);
+                string detail=ZoneName(z.ZoneId)+" · "+(z.Unlocked?(vi?"Đã mở":"Unlocked"):(vi?"Đã khóa":"Locked"))+
+                    " · "+z.Occupancy+"/"+z.Capacity;
+                if(rule!=null && !rule.Unlocked && rule.Missing.Count>0)
+                    detail+="\n"+string.Join("; ",rule.Missing.Select(RequirementName));
+                if(rule!=null && rule.RewardQueued)detail+="\n"+(vi?"Trứng thưởng đang chờ":"Reward egg queued");
+                return detail;
+            }));
+            unlockOceanButton.interactable=ready && unlocks.Any(x=>x.ZoneId=="ocean" && !x.Unlocked && x.Blocked==null);
+            unlockSkyButton.interactable=ready && unlocks.Any(x=>x.ZoneId=="sky" && !x.Unlocked && x.Blocked==null);
+
+            for(int i=0;i<EconomyTables.Upgrades.Count && i<upgradeButtons.Length && i<upgradeStatus.Length;i++)
+            {
+                var def=EconomyTables.Upgrades[i];
+                int level=def.LevelOf(state.Player.Upgrades);
+                long? cost=EconomyRates.UpgradeCostG(def,level);
+                upgradeStatus[i].text=UpgradeName(def.Id)+" · "+level+"/"+def.Max+"\n"+
+                    (cost.HasValue?cost.Value.ToString(CultureInfo.InvariantCulture)+" G":(vi?"Đã tối đa":"Max level"));
+                upgradeButtons[i].interactable=ready && SanctuaryRules.CheckUpgrade(state,def.Id)==null;
+            }
+            var job=state.Expedition;
+            if(job==null)managementExpedition.text=vi?"Chưa có chuyến thám hiểm.":"No active expedition.";
+            else
+            {
+                long left=Math.Max(0,job.FinishAtMs-state.Clock.LastProcessedAtMs);
+                managementExpedition.text=job.RouteId+"\n"+(job.Status==ExpeditionStatus.Ready?
+                    (vi?"Có thể nhận thưởng":"Ready to claim"):TimeSpan.FromMilliseconds(left).ToString(@"hh\:mm\:ss"));
+                claimExpeditionButton.interactable=ready && job.Status==ExpeditionStatus.Ready;
+            }
+            managementMaterials.text=string.Join("\n",Ecosystem.Materials(state).Select(m=>
+                (vi?m.NameVi:m.MaterialId)+": "+m.Quantity+(m.Active?"":(vi?" (chưa kích hoạt)":" (inactive)"))));
+            var discovery=Ecosystem.Discovery(state);
+            managementCodex.text=(vi?"Loài: ":"Species: ")+discovery.SpeciesDiscovered+"/"+discovery.SpeciesTotal+
+                " · "+(vi?"Biến thể: ":"Variants: ")+discovery.CodexCells+"/"+discovery.CodexCellsTotal+
+                "\n"+(vi?"Thành tựu: ":"Achievements: ")+discovery.AchievementsUnlocked.Count+
+                "\n\n"+string.Join("\n",SpeciesCatalog.All.Select(sp=>
+                {
+                    var entry=discovery.Codex.FirstOrDefault(e=>e.SpeciesId==sp.Id);
+                    return sp.Id+" · "+(entry==null?"0/4":entry.DiscoveredMutations.Count+"/4");
+                }));
+        }
+
         public void SaveGame(){if(Session!=null && Session.Status==SessionStatus.Ready)Session.SaveNow();}
 
         public bool RequestFood()
@@ -364,12 +473,14 @@ namespace Dravio
             }
         }
 
-        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;if(guideNotice!=null)guideNotice.text=vi?vn:en;if(hatcheryNotice!=null)hatcheryNotice.text=vi?vn:en;}
+        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;if(guideNotice!=null)guideNotice.text=vi?vn:en;if(hatcheryNotice!=null)hatcheryNotice.text=vi?vn:en;if(managementFeedback!=null)managementFeedback.text=vi?vn:en;}
         private void Refresh()
         {
             if(notice!=null)notice.text=vi?messageVi:messageEn;
             if(guideNotice!=null)guideNotice.text=vi?messageVi:messageEn;
             if(hatcheryNotice!=null)hatcheryNotice.text=vi?messageVi:messageEn;
+            if(managementFeedback!=null)managementFeedback.text=vi?messageVi:messageEn;
+            RefreshManagement();
             if(saveStatus!=null && Session!=null)
             {
                 saveStatus.text=Session.Status!=SessionStatus.Ready?(vi?"Phiên: ":"Session: ")+Session.Status:

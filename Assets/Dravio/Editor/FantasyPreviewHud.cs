@@ -95,8 +95,16 @@ namespace Dravio.Editor
             var tabs=new List<Button>{Button(ui,tabsRoot,"Care","Chăm sóc",44),Button(ui,tabsRoot,"Biology","Sinh học",44),Button(ui,tabsRoot,"Dragons","Rồng",44)};
             if(playable)
             {
-                tabs.Add(Button(ui,tabsRoot,"Guide","Hướng dẫn",44));
-                tabs.Add(Button(ui,tabsRoot,"Eggs","Trứng",44));
+                // Two rows keep the existing tabs usable on narrow landscape screens.
+                var second=RectNode("Management navigation",panel);
+                var layout=second.gameObject.AddComponent<HorizontalLayoutGroup>();
+                layout.spacing=5;layout.childControlWidth=true;layout.childControlHeight=true;
+                layout.childForceExpandWidth=true;layout.childForceExpandHeight=false;
+                var size=second.gameObject.AddComponent<LayoutElement>();
+                size.minHeight=40;size.preferredHeight=44;size.layoutPriority=10;
+                tabs.Add(Button(ui,second,"Guide","Hướng dẫn",44));
+                tabs.Add(Button(ui,second,"Eggs","Trứng",44));
+                tabs.Add(Button(ui,second,"Manage","Quản lý",44));
             }
             var host=RectNode("Page host",panel);
             var hostSize=host.gameObject.AddComponent<LayoutElement>();
@@ -106,7 +114,11 @@ namespace Dravio.Editor
             var roster=Page(host,"Dragons");
 
             Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
-            RectTransform guide=null,hatchery=null;
+            RectTransform guide=null,hatchery=null,management=null;
+            Text managementSummary=null,managementWorld=null,managementCodex=null,managementMaterials=null,managementExpedition=null,managementFeedback=null;
+            var upgradeStatus=new List<Text>();
+            var upgradeButtons=new List<Button>();
+            Button unlockOcean=null,unlockSky=null,claimExpedition=null;
             Text hatcheryStatus=null,parentsStatus=null,hatcheryFeedback=null;
             Button standard=null,elemental=null,mystic=null,astral=null,packMeadow=null,packStorage=null,selectA=null,selectB=null,breed=null,tap=null,breedMeadow=null,breedStorage=null;
             Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
@@ -182,6 +194,31 @@ namespace Dravio.Editor
                 breedMeadow=Button(ui,hatchery,"Claim nest to meadow","Nhận rồng lai vào đồng cỏ",46);
                 breedStorage=Button(ui,hatchery,"Claim nest to storage","Nhận rồng lai vào kho",46);
                 Label(ui,hatchery,"No ads. Health-based breeding checks await the health engine.","Không quảng cáo. Điều kiện sức khỏe khi lai sẽ có khi tích hợp hệ thống sức khỏe.",13,Muted,TextAnchor.MiddleLeft,64);
+
+                management=Page(host,"Management");
+                Label(ui,management,"Sanctuary overview","Tổng quan khu bảo tồn",18,Gold,TextAnchor.MiddleLeft,36);
+                managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
+                managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
+                Label(ui,management,"World progress","Tiến độ thế giới",18,Gold,TextAnchor.MiddleLeft,36);
+                managementWorld=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,240,false);
+                unlockOcean=Button(ui,management,"Unlock Ocean","Mở Thủy Vực",46);
+                unlockSky=Button(ui,management,"Unlock Sky","Mở Thiên Giới",46);
+                Label(ui,management,"World unlocking does not load a new 3D scene. Quest gameplay is pending.","Mở khóa thế giới chưa chuyển cảnh 3D. Nội dung nhiệm vụ đang chờ.",14,Muted,TextAnchor.MiddleLeft,66);
+                Label(ui,management,"Upgrades","Nâng cấp",18,Gold,TextAnchor.MiddleLeft,36);
+                foreach(var def in EconomyTables.Upgrades)
+                {
+                    upgradeStatus.Add(Label(ui,management,"—","—",15,Paper,TextAnchor.MiddleLeft,50,false));
+                    upgradeButtons.Add(Button(ui,management,"Buy next level","Mua cấp tiếp",46));
+                }
+                Label(ui,management,"Capacity upgrade increases the production budget, not physical habitat slots.","Nâng cấp sức chứa tăng ngân sách sản xuất, không tăng chỗ ở vật lý.",14,Muted,TextAnchor.MiddleLeft,66);
+                Label(ui,management,"Expedition","Thám hiểm",18,Gold,TextAnchor.MiddleLeft,36);
+                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,105,false);
+                claimExpedition=Button(ui,management,"Claim expedition rewards","Nhận thưởng thám hiểm",46);
+                Label(ui,management,"Starting expeditions is deferred until health checks and living-dragon presentation are integrated.","Chưa mở nút khởi hành cho đến khi tích hợp kiểm tra sức khỏe và hiển thị rồng.",14,Muted,TextAnchor.MiddleLeft,80);
+                Label(ui,management,"Materials","Vật liệu",18,Gold,TextAnchor.MiddleLeft,36);
+                managementMaterials=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,130,false);
+                Label(ui,management,"Codex","Bách khoa",18,Gold,TextAnchor.MiddleLeft,36);
+                managementCodex=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,500,false);
             }
             else Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
@@ -221,6 +258,16 @@ namespace Dravio.Editor
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(tap.onClick,session.TapBreedingEgg);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(breedMeadow.onClick,session.ClaimBreedMeadow);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(breedStorage.onClick,session.ClaimBreedStorage);
+                    session.ConfigureManagement(managementSummary,managementWorld,managementCodex,managementMaterials,
+                        managementExpedition,managementFeedback,unlockOcean,unlockSky,claimExpedition,
+                        upgradeStatus.ToArray(),upgradeButtons.ToArray());
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockOcean.onClick,session.UnlockOcean);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockSky.onClick,session.UnlockSky);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(claimExpedition.onClick,session.ClaimExpeditionReward);
+                    for(int i=0;i<upgradeButtons.Count;i++)
+                        UnityEditor.Events.UnityEventTools.AddStringPersistentListener(upgradeButtons[i].onClick,session.BuySanctuaryUpgrade,EconomyTables.Upgrades[i].Id);
+                    unlockOcean.interactable=unlockSky.interactable=claimExpedition.interactable=false;
+                    foreach(var button in upgradeButtons)button.interactable=false;
                 }
             }
             var runtime=canvasGo.AddComponent<FantasyPreviewUI>();
@@ -231,6 +278,7 @@ namespace Dravio.Editor
             {
                 pages.Add(guide.parent.parent.gameObject);
                 pages.Add(hatchery.parent.parent.gameObject);
+                pages.Add(management.parent.parent.gameObject);
             }
             runtime.Configure(safe,panel,pages.ToArray(),
                 tabs.ToArray(),lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
