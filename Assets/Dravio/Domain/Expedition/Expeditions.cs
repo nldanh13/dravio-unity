@@ -11,8 +11,7 @@ namespace Dravio.Domain.Expedition
     /// Thám hiểm P0 (U2.8 — IMPLEMENTATION MỚI theo GDD 3.1 trang 22; TS b33ec7a không có). Luật lấy từ GDD:
     /// một slot chung; chuyến đi chốt thời gian, seed và bảng thưởng khi bắt đầu; rồng đi thám hiểm không sinh vàng, không lai, không bán/chuyển;
     /// hoàn tất offline; nhận thưởng một lần; không tự khởi hành tiếp. MVP thành công 100 % (ADR U2.8-0201). Ngưỡng sức khỏe ADR
-    /// (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) CHƯA kiểm được vì chưa có dữ liệu sức khỏe U2.6 — không giả lập
-    /// "khỏe"; API trả các điều kiện chưa hỗ trợ trong <see cref="UncheckedHealthConditions"/>.
+    /// (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) được kiểm từ U2.6 bằng dữ liệu vitals / healthCases thật.
     /// RNG: luồng riêng hashSeed("expedition", saveId, revision) — tất định theo state, độc lập RNG hình ảnh.
     /// </summary>
     public static class Expeditions
@@ -34,7 +33,11 @@ namespace Dravio.Domain.Expedition
                 case ExpeditionRequirement.Swimmer: ok = Contains(loco, Locomotion.Swim); detail = ok ? null : "requires-swim"; break;
                 default: ok = Contains(loco, Locomotion.Fly); detail = ok ? null : "requires-fly"; break;
             }
-            return ok ? (DomainErrorCode?)null : DomainErrorCode.DragonUnsuited;
+            if (!ok) return DomainErrorCode.DragonUnsuited;
+            // U2.6 — ADR 0201 mục 4: Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở (kiểm sau cùng, giữ thứ tự lỗi U2.8).
+            List<string> shortfalls = Health.HealthChecks.ExpeditionShortfalls(s, d);
+            if (shortfalls.Count > 0) { detail = shortfalls[0]; return shortfalls[0] == Health.HealthChecks.NoOpenCase ? DomainErrorCode.DragonBusy : DomainErrorCode.VitalsBelowThreshold; }
+            return null;
         }
 
         private static bool Contains<T>(IReadOnlyList<T> xs, T v)
@@ -46,8 +49,8 @@ namespace Dravio.Domain.Expedition
         /// <summary>Tuyến bị khóa khi thế giới của nó chưa mở (không vượt khóa thế giới hiện hành).</summary>
         public static bool RouteOpen(GameState s, ExpeditionRoute route) => s.FindZone(route.ZoneId)?.Unlocked == true;
 
-        /// <summary>Điều kiện sức khỏe ADR U2.8-0201 chưa được hỗ trợ (chưa có dữ liệu U2.6). Rỗng khi tích hợp xong.</summary>
-        public static readonly IReadOnlyList<string> UncheckedHealthConditions = Array.AsReadOnly(new[] { "health>=80", "mobility>=80", "comfort>=60", "no-open-care-case" });
+        /// <summary>Điều kiện sức khỏe ADR U2.8-0201 chưa kiểm được. U2.6 đã kiểm đủ cả bốn điều kiện nên danh sách rỗng (giữ API cho UI cũ).</summary>
+        public static readonly IReadOnlyList<string> UncheckedHealthConditions = Array.AsReadOnly(new string[0]);
 
         public static DomainErrorCode? CheckStart(GameState s, string routeId, string uid, out string detail)
         {

@@ -83,6 +83,12 @@ namespace Dravio.Character.Editor
         {
             var mi = AssetImporter.GetAtPath(modelPath) as ModelImporter;
             if (mi == null) { log.AppendLine("  model not imported: " + modelPath); return false; }
+            if (e.approved)
+            {
+                // Approved by the art director: importer settings, clips, material and prefab stay exactly as they are.
+                log.AppendLine("  approved (approved-assets.json): import settings, clips and prefab not touched");
+                return true;
+            }
             FixTextureTypes(folder, e.name, log);
             bool animated = e.rigged && e.clipList != null && e.clipList.Length > 0;
             if (animated) ConfigureClips(mi, e, log);
@@ -112,6 +118,15 @@ namespace Dravio.Character.Editor
             entry.anchors = e.anchors ?? new string[0];
             entry.ikChains = (e.ikChains ?? new ImportManifest.IkChain[0])
                 .Select(c => new DragonVisualCatalog.IkChain { upper = c.upper, lower = c.lower, foot = c.foot }).ToArray();
+            entry.clipSpeeds = animated
+                ? e.clipList.Where(c => c.groundSpeed > 0f).Select(c => new DragonVisualCatalog.ClipSpeed { clip = c.name, groundSpeed = c.groundSpeed }).ToArray()
+                : new DragonVisualCatalog.ClipSpeed[0];
+            var walk = animated ? e.clipList.FirstOrDefault(c => c.name == "Walk") : null;
+            entry.locomotionReferenceSpeed = walk != null ? walk.groundSpeed : 0f;
+            entry.animQaStatus = e.animQa != null ? e.animQa.status : null;
+            entry.animQaWarnings = e.animQa != null && e.animQa.warnings != null ? e.animQa.warnings : new string[0];
+            if (entry.animQaWarnings.Length > 0)
+                log.AppendLine("  animation QA " + entry.animQaStatus + ": " + string.Join(" | ", entry.animQaWarnings));
             entry.eatSeconds = ClipSeconds(e, "Eat");
             entry.happySeconds = ClipSeconds(e, "Happy");
             entry.validation = e.validation;

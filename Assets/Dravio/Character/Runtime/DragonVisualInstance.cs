@@ -88,7 +88,7 @@ namespace Dravio.Character
                 _animator.SetInteger(DragonAnimatorParams.LocomotionHash, (int)ShownLocomotion);
                 _animator.SetFloat(DragonAnimatorParams.SpeedHash, state.speed);
                 _animator.SetFloat(DragonAnimatorParams.PlaybackRateHash,
-                    DragonAnimationMap.PlaybackRate(ShownLocomotion, state.speed, Entry.locomotionReferenceSpeed));
+                    DragonAnimationMap.PlaybackRate(ShownLocomotion, state.speed, DragonVisualCatalog.ReferenceSpeed(Entry, ShownLocomotion)));
             }
             if (!substituted || !_map.IsAnimated) { _lastSubstitution = null; return true; }
             if (_lastSubstitution == state.locomotion) return true;

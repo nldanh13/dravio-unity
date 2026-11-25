@@ -4,6 +4,7 @@ using Dravio.Domain.Biology;
 using Dravio.Domain.Breeding;
 using Dravio.Domain.Expedition;
 using Dravio.Domain.Catalog;
+using Dravio.Domain.Health;
 using Dravio.Domain.Progression;
 using Dravio.Domain.Sanctuary;
 using Dravio.Domain.Text;
@@ -29,7 +30,27 @@ namespace Dravio.Domain.Core
     /// </summary>
     public static class CommandDispatcher
     {
-        public static DispatchResult Dispatch(GameState state, GameCommand command, IClock clock, IReadOnlyList<IPostCommandEvaluator> postEvaluators = null)
+        [ThreadStatic] private static DisasterRules _disasterRules;
+
+        /// <summary>Luật thiên tai của lệnh đang xử lý (mặc định <see cref="DisasterRules.Production"/>: thiên tai tự nhiên tắt, ADR 0202).</summary>
+        internal static DisasterRules Disasters => _disasterRules ?? DisasterRules.Production;
+
+        public static DispatchResult Dispatch(GameState state, GameCommand command, IClock clock, IReadOnlyList<IPostCommandEvaluator> postEvaluators = null) =>
+            Dispatch(state, command, clock, postEvaluators, null);
+
+        /// <summary>
+        /// Như trên, với bộ luật thiên tai tùy chọn (test, bản cân bằng). null = <see cref="DisasterRules.Production"/>. Cùng state + lệnh + đồng hồ + luật
+        /// luôn cho cùng kết quả.
+        /// </summary>
+        public static DispatchResult Dispatch(GameState state, GameCommand command, IClock clock, IReadOnlyList<IPostCommandEvaluator> postEvaluators, DisasterRules disasterRules)
+        {
+            DisasterRules previous = _disasterRules;
+            _disasterRules = disasterRules;
+            try { return DispatchCore(state, command, clock, postEvaluators); }
+            finally { _disasterRules = previous; }
+        }
+
+        private static DispatchResult DispatchCore(GameState state, GameCommand command, IClock clock, IReadOnlyList<IPostCommandEvaluator> postEvaluators)
         {
             if (state == null) throw new ArgumentNullException(nameof(state));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
@@ -96,6 +117,20 @@ namespace Dravio.Domain.Core
                 case UnlockZoneCommand c: return ToError(WorldExpansion.ApplyZoneUnlockCommand(s, c.ZoneId, nowMs, events));
                 case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () => Expeditions.ApplyClaim(s, nowMs, events));
                 case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
+                // ---- U2.6 (implementation mới): trú ẩn và chăm sóc — kiểm, quyết toán online tới now (tiến trình ca, sản xuất), rồi áp dụng ----
+                case MoveToShelterCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => DisasterEngine.CheckMoveToShelter(s, d), d => DisasterEngine.ApplyMoveToShelter(s, d, events));
+                case AssessCaseCommand c: return SettleThen(s, nowMs, events, () => CareCenter.CheckAssess(s, c.CaseId), () => CareCenter.ApplyAssess(s, c.CaseId, events));
+                case SetCarePlanCommand c:
+                {
+                    DomainErrorCode? pre = CareCenter.CheckSetPlan(s, c.CaseId, c.PlanId, out string why);
+                    if (pre != null) return new DomainError(pre.Value, why);
+                    return SettleThen(s, nowMs, events, () => null, () => CareCenter.ApplySetPlan(s, c.CaseId, c.PlanId, events));
+                }
+                case StartCareCommand c: return SettleThen(s, nowMs, events, () => CareCenter.CheckStart(s, c.CaseId), () => CareCenter.ApplyStart(s, c.CaseId, nowMs, events));
+                case ReviewCaseCommand c:
+                    // Kiểm sau khi quyết toán: ca có thể vừa đủ thời lượng tại now. Lệnh bị từ chối vẫn không đổi state (dispatcher bỏ bản sao).
+                    return SettleThen(s, nowMs, events, () => s.FindCase(c.CaseId) == null ? DomainErrorCode.UnknownCase : (DomainErrorCode?)null, () => CareCenter.ApplyReview(s, c.CaseId, events));
+                case DischargeDragonCommand c: return SettleThen(s, nowMs, events, () => s.FindCase(c.CaseId) == null ? DomainErrorCode.UnknownCase : (DomainErrorCode?)null, () => CareCenter.ApplyDischarge(s, c.CaseId, c.Target, events));
                 default:
                     // Không có kiểu lệnh tự khai báo hoàn thành/khám phá (recordDiscovery, completeTutorial, grantHabitatUnlock…).
                     return new DomainError(DomainErrorCode.InvalidCommand, "unsupported command type " + cmd.Type);
@@ -141,6 +176,31 @@ namespace Dravio.Domain.Core
         /// (online 100 %, offline 75 %), elapsed chặn 24h, đồng hồ lùi giữ high-water mark. Không sinh thiên tai.
         /// </summary>
         internal static void SettleTime(GameState s, long nowMs, AdvanceMode mode, List<DomainEvent> events)
+        {
+            // U2.6: thiên tai chỉ tiến khi World foreground online (GDD tr. 9; ADR 0003). Offline / Zen / Companion: tự đưa rồng vào nơi trú
+            // nếu đang có cảnh báo, không tích dự báo, không sinh sự kiện hay tổn thương mới.
+            DisasterRules rules = Disasters;
+            bool worldOnline = mode == AdvanceMode.Online && s.Player.Settings.Mode == AppMode.World;
+            if (!worldOnline) DisasterEngine.AutoShelter(s, events);
+            bool hazards = rules.Enabled && worldOnline;
+            if (hazards)
+            {
+                // Tách quyết toán đúng tại mỗi mốc (kiểm hazard / hết dự báo), để vàng và vị trí trước mốc tính theo đội hình cũ — giống hệt tick 1 Hz.
+                while (true)
+                {
+                    long raw = Math.Max(nowMs, s.Clock.HighWaterAtMs) - s.Clock.LastProcessedAtMs;
+                    if (raw <= 0 || raw > TimeRules.OfflineCapMs) break;
+                    long? offset = DisasterEngine.NextMilestoneOffset(s, rules);
+                    if (offset == null || offset.Value >= raw) break;
+                    SettleCore(s, s.Clock.LastProcessedAtMs + offset.Value, mode, events, true);
+                    DisasterEngine.ProcessMilestones(s, rules, s.Clock.LastProcessedAtMs, events);
+                }
+            }
+            SettleCore(s, nowMs, mode, events, hazards);
+            if (hazards) DisasterEngine.ProcessMilestones(s, rules, s.Clock.LastProcessedAtMs, events);
+        }
+
+        private static void SettleCore(GameState s, long nowMs, AdvanceMode mode, List<DomainEvent> events, bool accrueHazard)
         {
             ElapsedResult er = TimeRules.ComputeElapsed(s.Clock, nowMs);
             long elapsedMs = er.ElapsedMs;
@@ -214,6 +274,9 @@ namespace Dravio.Domain.Core
                 events.Add(new OfflineReceiptCreated(id, gold, elapsedMs));
             }
             ExpireFood(s, next.LastProcessedAtMs, events);
+            // U2.6: tiến trình chăm sóc theo mốc thời gian tuyệt đối (như tổ ấp / thám hiểm); đồng hồ hazard tích phần World foreground.
+            CareCenter.Progress(s, next.LastProcessedAtMs, events);
+            if (accrueHazard) DisasterEngine.Accrue(s, elapsedMs);
         }
 
         private static DomainError Feed(GameState s, FeedCommand c, long nowMs, List<DomainEvent> events)

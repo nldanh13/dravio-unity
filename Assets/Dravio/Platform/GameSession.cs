@@ -22,6 +22,11 @@ namespace Dravio.Platform
         public Func<string> NewId { get; set; } = () => Guid.NewGuid().ToString();
         /// <summary>Trạng thái hiển thị lúc khởi động (Unity: Application.isFocused / không paused).</summary>
         public bool StartVisible { get; set; } = true;
+        /// <summary>
+        /// U2.6: luật thiên tai. Mặc định <see cref="Dravio.Domain.Catalog.DisasterRules.Production"/> (thiên tai tự nhiên TẮT tới khi ADR 0202 được duyệt).
+        /// Chỉ build cân bằng / QA mới truyền bộ luật khác.
+        /// </summary>
+        public Dravio.Domain.Catalog.DisasterRules DisasterRules { get; set; }
     }
 
     /// <summary>
@@ -37,6 +42,7 @@ namespace Dravio.Platform
         private IDisposable _tick;
         private bool _hidden;
         private bool _swapping;
+        private bool _saveAfterApply;
 
         public GameSession(SessionEnvironment env)
         {
@@ -96,6 +102,7 @@ namespace Dravio.Platform
             // Thời gian vắng mặt tính offline (75 %, chặn 24 h) trước khi chạy online — rồi lưu NGAY,
             // để đóng app ngay sau đó không làm lại được phần thưởng offline với mốc cũ.
             State = Apply(state, AdvanceMode.Offline);
+            _saveAfterApply = false; // lưu ngay bên dưới
             _hidden = !_env.StartVisible;
             Status = SessionStatus.Ready;
             Notify();
@@ -113,8 +120,9 @@ namespace Dravio.Platform
 
         private GameState Apply(GameState state, AdvanceMode mode)
         {
-            DispatchResult r = CommandDispatcher.Dispatch(state, new AdvanceTimeCommand(_env.NewId(), mode), _env.Clock);
+            DispatchResult r = CommandDispatcher.Dispatch(state, new AdvanceTimeCommand(_env.NewId(), mode), _env.Clock, null, _env.DisasterRules);
             if (r.Ok && r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
+            if (r.Ok && HasImmediateSaveEvent(r.Events)) _saveAfterApply = true;
             return r.Ok ? r.State : state;
         }
 
@@ -139,6 +147,25 @@ namespace Dravio.Platform
             AdvanceMode mode = TimePolicy.ModeFor(s.Clock.LastProcessedAtMs, _env.Clock.NowMs(), true);
             State = Apply(s, mode);
             Notify();
+            FlushImmediate();
+        }
+
+        /// <summary>
+        /// U2.6: tick tạo cảnh báo, ca chăm sóc hoặc tự đưa rồng vào nơi trú → lưu ngay (không đợi autosave 30 s), để tắt app ngay sau đó không làm
+        /// mất hay tạo lại ca (GDD tr. 24 "case chỉ tạo một lần").
+        /// </summary>
+        private void FlushImmediate()
+        {
+            if (!_saveAfterApply) return;
+            _saveAfterApply = false;
+            SaveNow();
+        }
+
+        public static bool HasImmediateSaveEvent(IReadOnlyList<DomainEvent> events)
+        {
+            foreach (DomainEvent e in events)
+                if (e is HazardForecast || e is DisasterStruck || e is HealthCaseOpened || e is DragonSheltered || e is DisasterClosed || e is CareCompleted) return true;
+            return false;
         }
 
         public void Handle(LifecycleAction action)
@@ -176,6 +203,7 @@ namespace Dravio.Platform
             {
                 State = Apply(s, AdvanceMode.Offline);
                 Notify();
+                FlushImmediate();
             }
         }
 
@@ -231,14 +259,15 @@ namespace Dravio.Platform
             GameState s = State;
             if (s == null || Status != SessionStatus.Ready || _swapping) return null;
             GameCommand cmd = build(_env.NewId());
-            DispatchResult r = CommandDispatcher.Dispatch(s, cmd, _env.Clock);
+            DispatchResult r = CommandDispatcher.Dispatch(s, cmd, _env.Clock, null, _env.DisasterRules);
             if (!r.Ok) return r.Error;
             State = r.State;
             if (r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
             Notify();
             // Giao dịch quan trọng: lưu ngay để kết quả đã roll, vàng đã trừ và thưởng đã nhận không thể làm lại bằng cách tắt app
             // (IMMEDIATE_SAVE của gameSession.ts cho buyTutorialPack/claimPack; U2.5 thêm gói thường, lai và nhận con).
-            if (IsImmediateSave(cmd)) SaveNow();
+            _saveAfterApply = false;
+            if (IsImmediateSave(cmd) || HasImmediateSaveEvent(r.Events)) SaveNow();
             return null;
         }
 
@@ -249,7 +278,10 @@ namespace Dravio.Platform
             // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
             cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand ||
             // U2.8: khởi hành (chốt seed + phần thưởng) và nhận thưởng thám hiểm.
-            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand;
+            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand ||
+            // U2.6: trú ẩn và mọi bước chăm sóc (mốc bắt đầu / kế hoạch / lượng giá / xuất viện là dữ liệu chốt).
+            cmd is MoveToShelterCommand || cmd is AssessCaseCommand || cmd is SetCarePlanCommand || cmd is StartCareCommand || cmd is ReviewCaseCommand ||
+            cmd is DischargeDragonCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;
 

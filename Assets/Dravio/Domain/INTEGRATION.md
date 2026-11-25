@@ -1,4 +1,4 @@
-# Dravio Domain — Hướng dẫn tích hợp Unity (tới U2.8)
+# Dravio Domain — Hướng dẫn tích hợp Unity (tới U2.6 / U2.8)
 
 Tầng Unity **không tự tính luật**. Có hai việc duy nhất:
 
@@ -116,4 +116,61 @@ Event cũ vẫn giữ nguyên, xem `Core/DomainEvents.cs`.
 - **Chỉ hai cạnh WorldGraph**: `origin_ocean_estuary` (cần bơi, cửa ngõ bờ hồ ↔ cửa sông) và `origin_sky_low_island` (cần bay, đồng cỏ ↔ đảo thấp). Không có đường Thủy Vực ↔ Thiên Giới trực tiếp.
 - **Trang trí chỉ thẩm mỹ**: không ảnh hưởng vàng, XP, chỉ số hay sức chứa.
 - **Không có quảng cáo**, không có phần thưởng quảng cáo.
-- **Offline**: không sinh thiên tai, không tử vong (chưa có hệ thiên tai, U2.6). Ấp trứng và thám hiểm vẫn hoàn tất offline.
+- **Offline**: không sinh thiên tai, không gây thương, không tử vong (U2.6). Ấp trứng, thám hiểm và chăm sóc vẫn hoàn tất offline.
+
+## 7. U2.6 — Sức khỏe, thiên tai, trú ẩn, chăm sóc
+
+Luật và phần chưa duyệt: [ADR 0202](../../../Docs/adr/0202-u2-6-health-disaster-rescue.md). **Thiên tai tự nhiên đang tắt ở bản chạy thật.** Muốn thử luồng thiên tai trong bản cân bằng, truyền bộ luật đề xuất vào phiên. Không có lệnh nào cho người chơi tự tạo thiên tai.
+
+```csharp
+var env = new SessionEnvironment { /* … */ DisasterRules = DisasterRules.ProposedForReview };  // null = Production (tắt)
+```
+
+### 7.1 Truy vấn (`Dravio.Domain.Queries.HealthQueries`)
+
+| Hàm | Trả về | Dùng cho |
+|---|---|---|
+| `Dragon(s, uid)` | `DragonHealthOverview`: `Vitals`, `OpenCaseId`, `BreedingShortfalls`, `ExpeditionShortfalls`, `HabitatScore/Tier`, `ExposedToWarning` | Hộ chiếu rồng, nút lai / thám hiểm, gợi ý "đưa vào nơi trú" |
+| `Cases(s)` | `CaseOverview[]`: phase, `Progress` (‰), `QueuePosition`, `Symptoms` (chỉ sau nhận định), `NextStep` | Danh sách ca ở trạm |
+| `CarePlans(s, caseId)` | `CarePlanOption[]`: `PlanId`, `Suitable`, `ExplanationKey` | Màn chọn kế hoạch, kể cả lựa chọn không phù hợp |
+| `Station(s)` | `Slots` (2), `Used`, `Queue` | Sức chứa trạm |
+| `DischargeEligibility(s, caseId, target)` | đúng mã lỗi `dischargeDragon` sẽ trả (null = được) | Tô xám đích xuất viện |
+| `Disasters(s, rules?)` | `NaturalDisastersEnabled`, `PendingDecisions`, `NextCheckInForegroundMs`, sự kiện mở từng zone (`Phase`, `ForecastRemainingMs`, `Sheltered`, `CaseIds`, `CooldownUntilMs`) | Bảng cảnh báo |
+
+`NextStep` của ca: `waitForStation` → `assessCase` → `setCarePlan|startCare` → `wait` → `reviewCase` → `dischargeDragon`.
+
+### 7.2 Lệnh (đều lưu ngay)
+
+| Lệnh | Điều kiện chính |
+|---|---|
+| `MoveToShelter(dragonUid)` | Zone của rồng có sự kiện ở Forecast / Preparation; rồng rảnh, chưa trú. Rồng ngừng sản xuất trong nơi trú |
+| `AssessCase(caseId)` | Ca chưa nhận định (ca đang chờ cũng nhận định được) |
+| `SetCarePlan(caseId, planId)` | Đã nhận định, chưa bắt đầu, kế hoạch đúng vị trí và phù hợp. Kế hoạch không phù hợp trả `care-plan-unsuitable` với `detail` = khóa giải thích; state không đổi |
+| `StartCare(caseId)` | Đã nhận định, ca đang ở trạm (không chờ), chưa bắt đầu. Có kế hoạch phù hợp: thời lượng ¾ |
+| `ReviewCase(caseId)` | Tiến trình 100 % |
+| `DischargeDragon(caseId, target)` | Đã xem lại; đích kiểm như `moveDragon` từ kho (`zone-full`, `habitat-locked`, …). Kho luôn được. Xuất viện nhận ca chờ tiếp theo vào trạm |
+
+### 7.3 Mã lỗi mới (`commandError.<code>`)
+
+`vitals-below-threshold` (thám hiểm; `detail` = `health>=80` / `mobility>=80` / `comfort>=60` / `vitals-missing`), `breed-vitals-below-threshold`, `unknown-case`, `case-already-assessed`, `case-not-assessed`, `case-queued`, `care-already-started`, `care-not-started`, `care-not-complete`, `case-already-reviewed`, `case-not-reviewed`, `unknown-care-plan`, `care-plan-wrong-site`, `care-plan-unsuitable`, `no-disaster-warning`. Rồng có ca mở: `breed-busy` khi lai, `dragon-busy` khi bán / thám hiểm, `dragon-unavailable` khi `moveDragon`.
+
+### 7.4 Domain event
+
+| Event | Gợi ý trình bày |
+|---|---|
+| `hazardForecast` (`EventId, ZoneId, Hazard, Severity, ForecastMs`) | Banner cảnh báo + đếm ngược 10 phút (chỉ trôi khi online) |
+| `disasterPhaseChanged`, `disasterStruck` (`Risks`, `CaseIds`), `disasterClosed` (`CooldownUntilMs`) | Hiệu ứng thiên tai; `Risks` để debug cân bằng |
+| `dragonSheltered` (`Auto` = tự đưa khi offline/Zen), `dragonLeftShelter` (`To`, `ProductionRestored`) | Rồng vào / ra nơi trú |
+| `healthCaseOpened` (`Queued`), `healthCaseAdmitted` | Rồng được đưa tới trạm hoặc hàng chờ |
+| `healthCaseAssessed` (`Symptoms`), `carePlanSet`, `careStarted` (`DurationMs`, `PlanBonus`), `casePhaseChanged`, `careCompleted`, `healthCaseReviewed`, `dragonDischarged` | Từng bước chăm sóc |
+| `vitalsChanged` | Cập nhật thanh chỉ số |
+
+### 7.5 Khóa i18n mới
+
+`carePlan.<planId>` và `carePlanWhy.<planId>` với `protect_wound_shelter`, `rest_protect_gradual`, `early_flight_training`, `clean_air_monitor`, `matched_pool_monitor`; `careSymptom.<id>` cho triệu chứng trong `HealthCatalog.Sites`; `injurySite.<site>` (`skin_scale`, `limb_wing`, `respiratory`, `fin_gill`); `carePhase.<phase>`; cùng các `commandError.*` ở 7.3.
+
+### 7.6 Luật cần biết khi làm 3D
+
+- Rồng ở trạm có `Location = care(caseId)`, rồng ở nơi trú có `Location = shelter(zoneId)`; cả hai `Activity = care` khi có ca. Rồng chỉ trú (không có ca) giữ `Activity = idle` nhưng không sản xuất.
+- Không có tử vong. Kế hoạch không phù hợp không làm rồng xấu đi.
+- Xuất viện không tự gán lại slot sản xuất (ADR 0202 D5).

@@ -33,7 +33,7 @@ namespace Dravio.Persistence.Schema
     /// Migration theo schemaVersion (src/persistence/migrations.ts; ADR 0006, 0007, 0009, 0013).
     /// v1 → v2 thêm discoveries (ghi bù khám phá cho sinh cảnh đã mở, ADR 0010); v2 → v4 thêm tutorial,
     /// pendingPack, unlockedAchievements, claimedAchievements; số 3 là bí danh tiền phát hành của v1 và được dành riêng.
-    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng).
+    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng); v7 → v8 (U2.6) thêm vitals cho mọi rồng, healthCases, disasters, hazard.
     /// </summary>
     public static class Migrations
     {
@@ -126,6 +126,32 @@ namespace Dravio.Persistence.Schema
                     foreach (JsonValue d in dragons)
                         fixedDragons.Add(d is JsonObject dob && dob.Get("activity") is JsonString a && a.Value == "expedition"
                             ? dob.ShallowCopy().Set("activity", JsonValue.From("idle")) : d);
+                    next.Set("dragons", fixedDragons);
+                }
+                return next;
+            }),
+            // U2.6 (chỉ bản Unity): thêm chỉ số sức khỏe và trạng thái thiên tai / chăm sóc rỗng. Mọi rồng (kể cả đã thả) nhận vitals nền
+            // (ADR 0202 D1 — giá trị ghi rõ, không suy diễn "khỏe" từ trường thiếu). Vị trí care / shelter và activity = "care" của save cũ
+            // (TS cho phép, golden TS có) được GIỮ NGUYÊN, không bịa ca chăm sóc cho chúng (ADR 0202 D8). Không đổi vàng, gene, phả hệ, vật liệu,
+            // thành tựu hay ngân sách sản xuất.
+            new MigrationStep(7, 8, state =>
+            {
+                foreach (string k in new[] { "healthCases", "disasters", "hazard" })
+                    if (state.ContainsKey(k)) throw new InvalidOperationException("v7 state already has " + k);
+                JsonObject next = state.ShallowCopy().Set("healthCases", new JsonArray()).Set("disasters", new JsonArray())
+                    .Set("hazard", new JsonObject().Set("foregroundMs", JsonValue.From(0L)).Set("checksDone", JsonValue.From(0L)).Set("cooldownUntilMs", new JsonObject()));
+                if (state.Get("dragons") is JsonArray dragons)
+                {
+                    var fixedDragons = new JsonArray();
+                    foreach (JsonValue d in dragons)
+                    {
+                        if (!(d is JsonObject dob)) { fixedDragons.Add(d); continue; }
+                        if (dob.ContainsKey("vitals")) throw new InvalidOperationException("v7 dragon already has vitals");
+                        int b = HealthCatalog.VitalBaseline;
+                        JsonObject nd = dob.ShallowCopy().Set("vitals", new JsonObject().Set("health", JsonValue.From(b)).Set("energy", JsonValue.From(b))
+                            .Set("comfort", JsonValue.From(b)).Set("mobility", JsonValue.From(b)).Set("hydration", JsonValue.From(b)));
+                        fixedDragons.Add(nd);
+                    }
                     next.Set("dragons", fixedDragons);
                 }
                 return next;

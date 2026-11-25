@@ -69,10 +69,13 @@ namespace Dravio.Domain
         public DragonActivity Activity { get; set; } = DragonActivity.Idle;
         public long BreedCooldownUntilMs { get; set; }
         public string RegistryRef { get; set; }
+        /// <summary>(vitals) Chỉ số sức khỏe 0–100 (U2.6, schema v8).</summary>
+        public Vitals Vitals { get; set; } = new Vitals();
 
         public DragonState Clone()
         {
             var c = (DragonState)MemberwiseClone();
+            c.Vitals = Vitals?.Clone();
             c.Genotype = Genotype?.Clone();
             c.ParentIds = ParentIds == null ? null : (string[])ParentIds.Clone();
             c.GrandparentIds = GrandparentIds == null ? null : new List<string>(GrandparentIds);

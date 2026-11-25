@@ -57,7 +57,7 @@ namespace Dravio.Persistence.Tests
             LoadOutcome r = mgr.Load();
             Assert.That((r.Kind, r.Save.MigratedFrom), Is.EqualTo((LoadKind.Loaded, (int?)6)), r.Kind.ToString());
             GameState m = r.Save.State;
-            Assert.That((m.SchemaVersion, m.Expedition, m.FindDragon("x").Activity, m.Player.Inventory["wood"]), Is.EqualTo((7, (ExpeditionJob)null, DragonActivity.Idle, 3L)));
+            Assert.That((m.SchemaVersion, m.Expedition, m.FindDragon("x").Activity, m.Player.Inventory["wood"]), Is.EqualTo((8, (ExpeditionJob)null, DragonActivity.Idle, 3L)));
             Assert.That(mgr.Save(m), Is.True);
             Assert.That(store.GetArchive("archive:schema-6"), Is.EqualTo(v6));
         }

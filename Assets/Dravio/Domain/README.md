@@ -199,7 +199,7 @@ Hướng dẫn tích hợp đầy đủ (chữ ký API, DTO, ví dụ, mã lỗi
 | `sky_cloud` (Sân mây Thiên Giới) | 1 Adult bay | 45 phút | chưa duyệt → tuyến khóa (`route-rewards-undefined`) |
 
   - Một slot chung. Tuyến chỉ mở khi thế giới của nó đã mở và có bảng thưởng được duyệt. Thành công 100 % (MVP).
-  - Ngưỡng sức khỏe (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) chưa kiểm được vì chưa có dữ liệu U2.6; `UncheckedConditions` báo rõ, không giả là đạt.
+  - Ngưỡng sức khỏe (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) được kiểm từ U2.6 (lỗi `vitals-below-threshold`, `detail` là điều kiện thiếu; ca mở → `dragon-busy`).
   - Seed và phần thưởng chốt lúc khởi hành: số lượng chọn đều trong 2–4, mỗi đơn vị chọn đều trong danh sách vật liệu của tuyến. Luồng RNG là `hashSeed("expedition", saveId, revision)`. Không phí.
   - Trong lúc đi, rồng không sinh vàng, không lai, không bán, không chuyển. Rồng giữ chỗ cũ.
   - Hoàn tất cả khi offline: rồng về idle đúng tại `finishAtMs`, quyết toán sản xuất được tách tại mốc này.
@@ -213,8 +213,25 @@ Hướng dẫn tích hợp đầy đủ (chữ ký API, DTO, ví dụ, mã lỗi
 2. Bảng thưởng `sky_cloud` và ID "bụi sao"; nguồn của `stone`.
 3. Công thức dùng vật liệu (chế tạo, phục hồi).
 4. Tỷ lệ thất bại thám hiểm (`SuccessPermille` có sẵn, đang tắt).
-5. Kiểm ngưỡng sức khỏe sau khi U2.6 được gộp.
+5. ~~Kiểm ngưỡng sức khỏe sau khi U2.6 được gộp.~~ Đã kiểm từ U2.6.
 6. Điểm nghiên cứu từ thám hiểm (hệ nghiên cứu chưa port); vận chuyển bằng phương tiện cứu hộ.
+
+## 5e. U2.6 — Sức khỏe, thiên tai, trú ẩn, chăm sóc
+
+Quyết định và phần còn thiếu: [ADR 0202](../../../Docs/adr/0202-u2-6-health-disaster-rescue.md) (đề xuất, chờ duyệt). Hướng dẫn tích hợp: [INTEGRATION.md mục 7](INTEGRATION.md). Toàn bộ là **implementation mới theo GDD**, không có parity TS.
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Chỉ số `Vitals` (health, energy, comfort, mobility, hydration; 0–100, gốc 100) | `Model/Health.cs`, `DragonState.Vitals` | bật |
+| Ngưỡng lai 80/80/60 + không ca mở (ADR 0003) | `Breeding/Hatchery.cs` (`HealthBlock`, chạy sau `BreedingRules.CheckBreed` để giữ parity) | bật |
+| Ngưỡng thám hiểm 80/80/60 + không ca mở (ADR 0201 mục 4) | `Expedition/Expeditions.cs` (`DragonBlock`), `UncheckedHealthConditions` nay rỗng | bật |
+| Trạm chăm sóc 2 chỗ, hàng chờ FIFO, nhận định → kế hoạch → bắt đầu → xem lại → xuất viện, 4 pha | `Health/HealthEngine.cs` (`CareCenter`) | bật |
+| Cảnh báo 10 phút, rủi ro theo resilience, ≤ 2 ca, trú ẩn, cooldown 24 h, an toàn offline/Zen | `Health/HealthEngine.cs` (`DisasterEngine`) | **tắt** ở `DisasterRules.Production` (D7) |
+| Truy vấn chỉ đọc | `Queries/HealthQueries.cs` | bật |
+
+**Tất định và online/offline:** mọi roll dùng `Rng.HashSeed` theo `saveId`/`eventId`/UID, không đọc RNG của state, nên lưu–nạp không bao giờ roll lại. `advanceTime` online tách quyết toán tại từng mốc kiểm hazard và mốc hết dự báo, nên một lần tiến 75 phút cho kết quả trùng 4 500 tick 1 s (vàng, ca, sự kiện, vị trí rồng). Đồng hồ hazard chỉ tích khi online ở World mode. Tiến trình chăm sóc chạy theo đồng hồ thật, giống nhau online, offline và qua mức chặn 24 h.
+
+**Validator v8:** chỉ số trong 0–100; ca duy nhất, đúng rồng, tối đa một ca mở mỗi rồng; kế hoạch hợp lệ và đã nhận định; ca đang chạy phải ở `care(caseId)`, ca chờ phải ở nơi trú; thời lượng khớp mức độ và kế hoạch; tiến trình không vượt đồng hồ; không quá 2 ca trong trạm và không để ca chờ khi trạm còn chỗ; sự kiện duy nhất mỗi zone, zone đã mở; không sản xuất khi đang có ca. Rồng ở nơi trú / trạm mà không có ca từ save cũ vẫn hợp lệ (D8).
 
 ## 6. Kiểm thử
 
@@ -260,10 +277,10 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 
 **Khác biệt so với `dispatch` của TS.** Từ U2.4 không còn khác biệt quan sát được trên 13 lệnh của bản b33ec7a: thành tựu và hướng dẫn chạy sau mỗi lệnh thành công như TS (trước U2.4, C# thiếu +100 G của `ACH_FIRST_ADULT`). `IPostCommandEvaluator` vẫn có để cắm thêm luật, chạy sau phần đánh giá có sẵn.
 
-**Chưa port (sau U2.8):**
-- Điều kiện sức khỏe khi lai (cần hệ chăm sóc, U2.6); lượt nghiên cứu biến thể định hướng (GDD tr. 22); `releaseDragon` (luồng cứu hộ); nội dung nhiệm vụ mở Thủy Vực/Thiên Giới (TBD); dùng vật liệu (chế tạo decor, phục hồi zone); tuyến thám hiểm P1 theo loài, di tích, cứu hộ hoang dã; mốc Codex 64/64 và thành tựu cứu hộ (P1).
+**Chưa port (sau U2.6):**
+- Lượt nghiên cứu biến thể định hướng (GDD tr. 22); `releaseDragon` (luồng cứu hộ); nội dung nhiệm vụ mở Thủy Vực/Thiên Giới (TBD); dùng vật liệu (chế tạo decor, phục hồi zone); tuyến thám hiểm P1 theo loài, di tích, cứu hộ hoang dã; mốc Codex 64/64 và thành tựu cứu hộ (P1).
 - Văn bản i18n `tutorial.step.*`, `tutorial.hint.*`, `achievement.*` (thuộc UI, chưa port vào Unity).
-- Chăm sóc, thiên tai, cứu hộ, vận chuyển cứu hộ giữa zone.
+- Luồng cứu hộ trong hướng dẫn (`acceptRescue`, `advanceRehab`, `releaseDragon`), vận chuyển cứu hộ giữa zone, hư hại môi trường vùng, công thức môi trường → comfort (ADR 0202 P6–P8).
 - Persistence và chính sách thời gian đã có ở U2.2 (`Assets/Dravio/Persistence`, `Assets/Dravio/Platform`).
 - Các trường dữ liệu của những phần này vẫn có trong `GameState` và được validator kiểm, để state tương thích schema v4.
 
@@ -274,6 +291,7 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 ## 8. Phạm vi đã kiểm thử
 
 - **Đã chạy:**
+  - U2.6: Domain 380 pass + 2 bỏ qua có chủ đích; Persistence 192/192; bộ đọc TS (`verify-csharp-saves.test.ts`) đọc đúng mọi save C# xuất ra, kể cả save v8.
   - U2.8: Domain 342 pass + 2 bỏ qua có chủ đích; Persistence 182/182. Cài thử 8 lỗi U2.8 (bỏ kiểm cửa ngõ, bỏ kiểm kiểu di chuyển, khóa tuyến, slot, nhận hai lần, tách quyết toán, khoảng 2–4, migration rồng mồ côi): đều bị bắt.
   - `dotnet test` với .NET SDK 8.0.134 trên Linux: Domain 330 pass + 2 bỏ qua có chủ đích (sinh báo cáo mô phỏng và đo thời gian, chỉ chạy khi đặt biến môi trường) sau U2.7; Persistence 179/179. Cài thử 12 lỗi U2.7: 11 bị bắt, 1 tương đương hành vi (Bách khoa quét cả rồng đã thả — rồng đó đã được ghi khi còn sở hữu).
   - U2.5: golden `ts-genetics-golden-b33ec7a.json` (Tools~/genetics-golden.test.ts) — 27 phân phối locus, 28 kiểu hình, 256 cặp loài (ứng viên, phân phối, phí), 28 thời gian ấp, 27 phân phối biến thể, 4 × 400 roll biến thể/pity, 8 × 300 roll gói, 6 × 200 roll lai, 100 genotype con, 23 ca checkBreed. Tái sinh trùng từng byte. Test phân phối nhiều seed qua đường lệnh: 4 gói × 8 000, biến thể 2 × 20 000 (luck 0 và 8), lai 12 000 (loài, 3 locus, biến thể b = 2), Mendel 27 tổ hợp × 6 000, pity trên 5 seed × 50 000. Dung sai 4,5σ, seed cố định nên không chập chờn. Hồi quy Tutorial/Achievement: mọi golden U2.1/U2.3/U2.4 vẫn pass nguyên trạng. Cài thử 13 lỗi (hệ số bố mẹ biến thể, pity lệch 1, chung ông bà, luật Legendary, thứ tự allele, cooldown, giữ chỗ trứng, pity gói, reset ngày, tách quyết toán, trần gõ, …): đều bị bắt.

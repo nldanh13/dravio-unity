@@ -8,14 +8,14 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v7 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8)), trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v8 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v7).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v8).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
@@ -23,6 +23,8 @@ namespace Dravio.Persistence.Schema
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
             // v5 (U2.5), v6 (U2.7), v7 (U2.8), chỉ có ở bản Unity
             "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
+            // v8 (U2.6), chỉ có ở bản Unity
+            "healthCases", "disasters", "hazard",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -30,7 +32,7 @@ namespace Dravio.Persistence.Schema
         {
             "uid", "speciesId", "nickname", "genotype", "mutation", "xpSec", "locked", "location", "hatchedAtMs", "personality",
             "bond", "bondDay", "bondDaily", "lastFeedXpAtMs", "lastPetAtMs", "parentIds", "grandparentIds", "generation",
-            "ancestry", "origin", "activity", "breedCooldownUntilMs",
+            "ancestry", "origin", "activity", "breedCooldownUntilMs", "vitals",
         });
 
         // ---------------- GameState → JSON ----------------
@@ -105,6 +107,7 @@ namespace Dravio.Persistence.Schema
                     .Set("mutation", S(Dravio.Domain.WireNames.ToWire(q.Mutation))).Set("queuedAtMs", N(q.QueuedAtMs)));
             o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
+            HealthToJson(s, o);
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
             GameStats st = p.Stats;
@@ -124,6 +127,125 @@ namespace Dravio.Persistence.Schema
                     .Set("maturedIds", Arr(r.MaturedIds)).Set("bonusClaimed", JsonValue.From(r.BonusClaimed)).Set("createdAtMs", N(r.CreatedAtMs)));
             }
             return o;
+        }
+
+        // ---------------- U2.6 (schema v8) ----------------
+
+        private static JsonObject VitalsToJson(Vitals v) =>
+            new JsonObject().Set("health", N(v.Health)).Set("energy", N(v.Energy)).Set("comfort", N(v.Comfort)).Set("mobility", N(v.Mobility)).Set("hydration", N(v.Hydration));
+
+        private static void HealthToJson(GameState s, JsonObject o)
+        {
+            var cases = new JsonArray();
+            foreach (HealthCase c in s.HealthCases)
+            {
+                var co = new JsonObject().Set("caseId", S(c.CaseId)).Set("dragonId", S(c.DragonId));
+                if (c.EventId != null) co.Set("eventId", S(c.EventId));
+                co.Set("cause", S(c.Cause.ToWire())).Set("site", S(c.Site.ToWire())).Set("severity", S(c.Severity.ToWire())).Set("symptoms", Arr(c.Symptoms))
+                    .Set("assessed", JsonValue.From(c.Assessed));
+                if (c.CarePlanId != null) co.Set("carePlanId", S(c.CarePlanId));
+                co.Set("createdAtMs", N(c.CreatedAtMs)).Set("startedAtMs", N(c.StartedAtMs)).Set("durationMs", N(c.DurationMs)).Set("finishAtMs", N(c.FinishAtMs))
+                    .Set("nextReviewAtMs", N(c.NextReviewAtMs)).Set("phase", S(c.Phase.ToWire())).Set("progress", N(c.Progress))
+                    .Set("reviewed", JsonValue.From(c.Reviewed)).Set("status", S(c.Status.ToWire()));
+                cases.Add(co);
+            }
+            o.Set("healthCases", cases);
+            var evs = new JsonArray();
+            foreach (DisasterState ev in s.Disasters)
+            {
+                var sh = new JsonArray();
+                foreach (ShelteredDragon x in ev.Sheltered)
+                    sh.Add(new JsonObject().Set("uid", S(x.Uid)).Set("habitatId", S(x.HabitatId)).Set("producing", JsonValue.From(x.Producing)).Set("auto", JsonValue.From(x.Auto)));
+                evs.Add(new JsonObject().Set("id", S(ev.Id)).Set("hazard", S(ev.Hazard.ToWire())).Set("zoneId", S(ev.ZoneId)).Set("severity", S(ev.Severity.ToWire()))
+                    .Set("phase", S(ev.Phase.ToWire())).Set("createdAtMs", N(ev.CreatedAtMs)).Set("forecastProgressMs", N(ev.ForecastProgressMs))
+                    .Set("struckAtMs", N(ev.StruckAtMs)).Set("caseIds", Arr(ev.CaseIds)).Set("sheltered", sh));
+            }
+            o.Set("disasters", evs);
+            var cd = new JsonObject();
+            foreach (var kv in s.Hazard.CooldownUntilMs) cd.Set(kv.Key, N(kv.Value));
+            o.Set("hazard", new JsonObject().Set("foregroundMs", N(s.Hazard.ForegroundMs)).Set("checksDone", N(s.Hazard.ChecksDone)).Set("cooldownUntilMs", cd));
+        }
+
+        private static Vitals VitalsFromJson(JsonValue v, string path, List<string> errors)
+        {
+            if (v == null) return null; // trước v8 (đã qua migration thì luôn có); validator v8 báo thiếu
+            var r = new Reader(new List<string>());
+            if (!(v is JsonObject o)) { errors.Add(path + ".vitals: out of range"); return null; }
+            var vit = new Vitals
+            {
+                Health = r.IntOr(o, "health", "x", -1), Energy = r.IntOr(o, "energy", "x", -1), Comfort = r.IntOr(o, "comfort", "x", -1),
+                Mobility = r.IntOr(o, "mobility", "x", -1), Hydration = r.IntOr(o, "hydration", "x", -1),
+            };
+            if (r.Errors.Count > 0) errors.Add(path + ".vitals: out of range");
+            return vit;
+        }
+
+        private static void HealthFromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            s.HealthCases = null;
+            if (o.Get("healthCases") is JsonArray ca)
+            {
+                var r = new Reader(new List<string>());
+                s.HealthCases = new List<HealthCase>();
+                foreach (JsonValue cv in ca)
+                {
+                    if (!(cv is JsonObject c)) { r.Errors.Add("x"); continue; }
+                    s.HealthCases.Add(new HealthCase
+                    {
+                        CaseId = r.Str(c, "caseId", "x"), DragonId = r.Str(c, "dragonId", "x"), EventId = r.OptStr(c, "eventId", "x"),
+                        Cause = r.Enum(c, "cause", "x", HazardId.Wildfire), Site = r.Enum(c, "site", "x", InjurySite.SkinScale), Severity = r.Enum(c, "severity", "x", CaseSeverity.Mild),
+                        Symptoms = r.StrList(c, "symptoms", "x"), Assessed = r.Bool(c, "assessed", "x"), CarePlanId = r.OptStr(c, "carePlanId", "x"),
+                        CreatedAtMs = r.LongOr(c, "createdAtMs", "x", -1), StartedAtMs = r.LongOr(c, "startedAtMs", "x", -1), DurationMs = r.LongOr(c, "durationMs", "x", -1),
+                        FinishAtMs = r.LongOr(c, "finishAtMs", "x", -1), NextReviewAtMs = r.LongOr(c, "nextReviewAtMs", "x", -1),
+                        Phase = r.Enum(c, "phase", "x", CasePhase.Stabilize), Progress = r.IntOr(c, "progress", "x", -1), Reviewed = r.Bool(c, "reviewed", "x"),
+                        Status = r.Enum(c, "status", "x", CaseStatus.Queued),
+                    });
+                }
+                if (r.Errors.Count > 0) errors.Add("healthCases: invalid");
+            }
+            else errors.Add("healthCases: invalid");
+
+            s.Disasters = null;
+            if (o.Get("disasters") is JsonArray da)
+            {
+                var r = new Reader(new List<string>());
+                s.Disasters = new List<DisasterState>();
+                foreach (JsonValue dv in da)
+                {
+                    if (!(dv is JsonObject d)) { r.Errors.Add("x"); continue; }
+                    var ev = new DisasterState
+                    {
+                        Id = r.Str(d, "id", "x"), Hazard = r.Enum(d, "hazard", "x", HazardId.Wildfire), ZoneId = r.Str(d, "zoneId", "x"),
+                        Severity = r.Enum(d, "severity", "x", CaseSeverity.Mild), Phase = r.Enum(d, "phase", "x", DisasterPhase.Forecast),
+                        CreatedAtMs = r.LongOr(d, "createdAtMs", "x", -1), ForecastProgressMs = r.LongOr(d, "forecastProgressMs", "x", -1),
+                        StruckAtMs = r.LongOr(d, "struckAtMs", "x", -1), CaseIds = r.StrList(d, "caseIds", "x"), Sheltered = new List<ShelteredDragon>(),
+                    };
+                    if (d.Get("sheltered") is JsonArray sa)
+                        foreach (JsonValue sv in sa)
+                        {
+                            if (!(sv is JsonObject so)) { r.Errors.Add("x"); continue; }
+                            ev.Sheltered.Add(new ShelteredDragon { Uid = r.Str(so, "uid", "x"), HabitatId = r.Str(so, "habitatId", "x"), Producing = r.Bool(so, "producing", "x"), Auto = r.Bool(so, "auto", "x") });
+                        }
+                    else r.Errors.Add("x");
+                    s.Disasters.Add(ev);
+                }
+                if (r.Errors.Count > 0) errors.Add("disasters: invalid");
+            }
+            else errors.Add("disasters: invalid");
+
+            s.Hazard = null;
+            if (o.Get("hazard") is JsonObject h && h.Get("cooldownUntilMs") is JsonObject cd)
+            {
+                var r = new Reader(new List<string>());
+                s.Hazard = new HazardState { ForegroundMs = r.LongOr(h, "foregroundMs", "x", -1), ChecksDone = r.LongOr(h, "checksDone", "x", -1) };
+                foreach (var kv in cd)
+                {
+                    if (Reader.AsSafeLong(kv.Value, out long v)) s.Hazard.CooldownUntilMs.Add(new KeyValuePair<string, long>(kv.Key, v));
+                    else r.Errors.Add("x");
+                }
+                if (r.Errors.Count > 0) errors.Add("hazard: invalid");
+            }
+            else errors.Add("hazard: invalid");
         }
 
         private static JsonObject GenotypeToJson(Genotype g)
@@ -160,6 +282,7 @@ namespace Dravio.Persistence.Schema
             if (d.GrandparentIds != null) o.Set("grandparentIds", Arr(d.GrandparentIds));
             o.Set("generation", N(d.Generation)).Set("ancestry", S(d.Ancestry.ToWire())).Set("origin", S(d.Origin.ToWire()))
                 .Set("activity", S(d.Activity.ToWire())).Set("breedCooldownUntilMs", N(d.BreedCooldownUntilMs));
+            if (d.Vitals != null) o.Set("vitals", VitalsToJson(d.Vitals));
             if (d.RegistryRef != null) o.Set("registryRef", S(d.RegistryRef));
             return o;
         }
@@ -439,6 +562,7 @@ namespace Dravio.Persistence.Schema
                 if (rr.Errors.Count > 0) errors.Add("rewardQueue: invalid");
             }
             else errors.Add("rewardQueue: invalid");
+            HealthFromJson(o, s, errors);
             return s;
         }
 
@@ -488,6 +612,7 @@ namespace Dravio.Persistence.Schema
             else if (!(parents is JsonNull)) errors.Add(path + ".parentIds: invalid");
             if (d.Get("grandparentIds") is JsonArray gp) dragon.GrandparentIds = r.AnyList(d, "grandparentIds");
             dragon.Location = LocationFromJson(d.Get("location"), path, errors);
+            dragon.Vitals = VitalsFromJson(d.Get("vitals"), path, errors);
             return dragon;
         }
 
