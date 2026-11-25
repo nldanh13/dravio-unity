@@ -56,7 +56,12 @@ namespace Dravio
             }
             origin=transform.position;
             animator.applyRootMotion=false;
-            if(gameObject.name=="Emberling - Integrated GLB") PrepareGlbPresentation();
+            if(gameObject.name=="Emberling - Integrated GLB")
+            {
+                // The imported GLB faces Unity +Z; legacy procedural rig faces -Z.
+                facingOffset=0f;
+                PrepareGlbPresentation();
+            }
             ready=true;
             if(feed!=null)feed.onClick.AddListener(Feed);
             if(pet!=null)pet.onClick.AddListener(Pet);
@@ -221,6 +226,17 @@ namespace Dravio
             dir.y=0;
             if(seeking && dir.sqrMagnitude<=.55f*.55f)
             {
+                // Turn the muzzle toward the food even when already in reach.
+                if(dir.sqrMagnitude>0.0001f)
+                {
+                    Quaternion foodHeading=Quaternion.LookRotation(dir.normalized,Vector3.up)*Quaternion.Euler(0,facingOffset,0);
+                    transform.rotation=Quaternion.RotateTowards(transform.rotation,foodHeading,turnSpeed*dt);
+                    if(Quaternion.Angle(transform.rotation,foodHeading)>12f)
+                    {
+                        if(current!=Activity.Idle)Enter(Activity.Idle,0);
+                        return;
+                    }
+                }
                 if(domain.TryConsume())Enter(Activity.Eat,2.2f);
                 else if(current!=Activity.Idle)Enter(Activity.Idle,0);
                 return;
