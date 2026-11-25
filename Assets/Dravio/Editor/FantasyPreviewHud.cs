@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using Dravio.Platform.Unity;
+using Dravio.Domain.Catalog;
 using Dravio.EnvironmentArt;
 using Dravio.EnvironmentArt.EditorTools;
 using Object = UnityEngine.Object;
@@ -92,7 +93,11 @@ namespace Dravio.Editor
             navSize.minHeight=40;navSize.preferredHeight=44;navSize.flexibleHeight=0;navSize.layoutPriority=10;
             tabLayout.childForceExpandHeight=false;
             var tabs=new List<Button>{Button(ui,tabsRoot,"Care","Chăm sóc",44),Button(ui,tabsRoot,"Biology","Sinh học",44),Button(ui,tabsRoot,"Dragons","Rồng",44)};
-            if(playable)tabs.Add(Button(ui,tabsRoot,"Guide","Hướng dẫn",44));
+            if(playable)
+            {
+                tabs.Add(Button(ui,tabsRoot,"Guide","Hướng dẫn",44));
+                tabs.Add(Button(ui,tabsRoot,"Eggs","Trứng",44));
+            }
             var host=RectNode("Page host",panel);
             var hostSize=host.gameObject.AddComponent<LayoutElement>();
             hostSize.minHeight=0;hostSize.preferredHeight=0;hostSize.flexibleHeight=1;hostSize.layoutPriority=10;
@@ -101,7 +106,9 @@ namespace Dravio.Editor
             var roster=Page(host,"Dragons");
 
             Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
-            RectTransform guide=null;
+            RectTransform guide=null,hatchery=null;
+            Text hatcheryStatus=null,parentsStatus=null,hatcheryFeedback=null;
+            Button standard=null,elemental=null,mystic=null,astral=null,packMeadow=null,packStorage=null,selectA=null,selectB=null,breed=null,tap=null,breedMeadow=null,breedStorage=null;
             Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
             if(integrated)
             {
@@ -155,6 +162,26 @@ namespace Dravio.Editor
                 store=Button(ui,guide,"Claim to storage","Nhận vào kho",46);
                 surveyPond=Button(ui,guide,"Survey pondbank","Khảo sát bờ hồ",46);
                 unlockPond=Button(ui,guide,"Unlock pondbank","Mở khóa bờ hồ",46);
+                hatchery=Page(host,"Eggs");
+                hatcheryStatus=Label(ui,hatchery,"Loading hatchery","Đang tải tổ ấp",16,Gold,TextAnchor.MiddleLeft,62,false);
+                hatcheryFeedback=Label(ui,hatchery,"—","—",14,Muted,TextAnchor.MiddleLeft,44,false);
+                Label(ui,hatchery,"Egg packs • paid in gold","Gói trứng • mua bằng vàng",17,Gold,TextAnchor.MiddleLeft,34);
+                standard=Button(ui,hatchery,"Starter · "+PackCatalog.Get("starter").PriceG+" G","Starter · "+PackCatalog.Get("starter").PriceG+" G",46);
+                elemental=Button(ui,hatchery,"Elemental · "+PackCatalog.Get("elemental").PriceG+" G","Elemental · "+PackCatalog.Get("elemental").PriceG+" G",46);
+                mystic=Button(ui,hatchery,"Mystic · "+PackCatalog.Get("mystic").PriceG+" G","Mystic · "+PackCatalog.Get("mystic").PriceG+" G",46);
+                astral=Button(ui,hatchery,"Astral · "+PackCatalog.Get("astral").PriceG+" G","Astral · "+PackCatalog.Get("astral").PriceG+" G",46);
+                packMeadow=Button(ui,hatchery,"Claim pack to meadow","Nhận gói vào đồng cỏ",46);
+                packStorage=Button(ui,hatchery,"Claim pack to storage","Nhận gói vào kho",46);
+                Label(ui,hatchery,"Breeding nest","Tổ ấp lai tạo",17,Gold,TextAnchor.MiddleLeft,34);
+                parentsStatus=Label(ui,hatchery,"Choose two adults","Chọn hai rồng trưởng thành",15,Paper,TextAnchor.MiddleLeft,94,false);
+                var parentRow=ActionRow(hatchery);
+                selectA=Button(ui,parentRow,"Select A","Chọn A",48);
+                selectB=Button(ui,parentRow,"Select B","Chọn B",48);
+                breed=Button(ui,hatchery,"Start breeding","Bắt đầu lai tạo",46);
+                tap=Button(ui,hatchery,"Tap egg","Chạm trứng",46);
+                breedMeadow=Button(ui,hatchery,"Claim nest to meadow","Nhận rồng lai vào đồng cỏ",46);
+                breedStorage=Button(ui,hatchery,"Claim nest to storage","Nhận rồng lai vào kho",46);
+                Label(ui,hatchery,"No ads. Health-based breeding checks await the health engine.","Không quảng cáo. Điều kiện sức khỏe khi lai sẽ có khi tích hợp hệ thống sức khỏe.",13,Muted,TextAnchor.MiddleLeft,64);
             }
             else Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
@@ -181,13 +208,30 @@ namespace Dravio.Editor
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(store.onClick,session.ClaimStorage);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyPond.onClick,session.SurveyPond);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockPond.onClick,session.UnlockPond);
+                    session.ConfigureHatchery(hatcheryStatus,parentsStatus,hatcheryFeedback);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(standard.onClick,session.BuyStandardStarter);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(elemental.onClick,session.BuyElemental);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(mystic.onClick,session.BuyMystic);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(astral.onClick,session.BuyAstral);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(packMeadow.onClick,session.ClaimMeadow);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(packStorage.onClick,session.ClaimStorage);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(selectA.onClick,session.SelectParentA);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(selectB.onClick,session.SelectParentB);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(breed.onClick,session.StartBreeding);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(tap.onClick,session.TapBreedingEgg);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(breedMeadow.onClick,session.ClaimBreedMeadow);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(breedStorage.onClick,session.ClaimBreedStorage);
                 }
             }
             var runtime=canvasGo.AddComponent<FantasyPreviewUI>();
             // persistent callbacks survive editor scene serialization.
             UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.Inspect);
             var pages=new List<GameObject>{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject};
-            if(playable)pages.Add(guide.parent.parent.gameObject);
+            if(playable)
+            {
+                pages.Add(guide.parent.parent.gameObject);
+                pages.Add(hatchery.parent.parent.gameObject);
+            }
             runtime.Configure(safe,panel,pages.ToArray(),
                 tabs.ToArray(),lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
         }
