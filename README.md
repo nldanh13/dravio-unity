@@ -74,3 +74,15 @@ Copy-Item "art-exports\EmberlingLiving.fbx" "Assets\Dravio\Art\Models\"
 Select EmberlingLiving.fbx (not the original static FBX) and choose **Dravio > Preview Selected Living Emberling FBX**. The editor configures Generic animation import, looping clip, an Animator Controller, reusable visual prefab and matte URP materials. Creates `EmberlingLivingPreview.unity` from AncientSanctuary, not from or over the accepted static FBX preview. Existing preview scenes are preserved. Press Play; verify at least two full idle loops, camera stability, root position, drag/arrows/R, no red errors, and visually acceptable skinning. Inspect Animator state and FBX Animation/Rig tabs if not moving. The editor import and export of U1.3a are not locally verified by the code author; preserve the old model while evaluating. Save and commit the new FBX, scene, prefab, materials, controller and meta files only after inspection. The .blend is an editable local source output; the generator is versioned.
 
 The procedural rig and matte material are interim art, not the final textured and professionally rigged Emberling. No biology or economy changes.
+
+## U1.3b — Wander preview
+
+Based on the locally verified U1.3a idle scene commit 311fd63. The accepted Idle FBX and scenes are preserved. This visual prototype uses a separate EmberlingWander FBX with one baked take containing Idle (frames 1–181) and Walk (182–217), split by the Unity editor. A provisional four-beat in-place gait uses the existing single-bone legs; it is not a production IK gait. The Animator switches between Idle and Walk, and a visual-only controller follows four bounded waypoints around the original spawn, pausing approximately two seconds at each. Space toggles inspection: movement stops, drag/arrows/R rotate the dragon, Space resumes. World camera stays fixed. No collision avoidance, full habitat navigation, sleep/eat/pet, game economy or persistence changes. Facing offset is an Inspector setting (default 180 degrees; adjust to 0 if the imported model walks backwards). Verify leg deformation, foot sliding, direction, pause/resume, transitions and Console in Unity before accepting.
+
+From the new repository root in PowerShell:
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe" --factory-startup --background --python-exit-code 1 --python scripts/art/build_emberling_living.py -- art-exports/EmberlingWander.fbx --walk-preview
+Copy-Item "art-exports\EmberlingWander.fbx" "Assets\Dravio\Art\Models\"
+```
+
+Select EmberlingWander.fbx and use **Dravio > Preview Selected Wandering Emberling FBX**. It creates a separate EmberlingWanderPreview.unity scene, prefab and two-state controller. Open existing preview instead of overwriting. Save and commit new assets only after local acceptance. Neither the new Blender export nor the Unity compilation/playback was executed in the authoring environment.
