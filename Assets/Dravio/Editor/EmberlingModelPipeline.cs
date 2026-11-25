@@ -6,6 +6,8 @@ using UnityEditor.Animations;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Dravio.EnvironmentArt;
+using Dravio.EnvironmentArt.EditorTools;
 using Object = UnityEngine.Object;
 
 namespace Dravio.Editor
@@ -25,35 +27,64 @@ namespace Dravio.Editor
         const string RefinedTarget = Root + "/Scenes/EmberlingRefinedPreview.unity";
         const string IntegratedTarget = Root + "/Scenes/OriginIntegratedPreview.unity";
         const string IntegratedGlbTarget = Root + "/Scenes/OriginIntegratedGLBPreview.unity";
+        const string PlayableTarget = Root + "/Scenes/OriginPlayable.unity";
+        const string PlayableEnvironment = Root + "/Environment/Scenes/OriginPlayable_Environment.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
-        [MenuItem("Dravio/Preview Selected Emberling FBX")]
+        [MenuItem("Dravio/Legacy Previews/Preview Selected Emberling FBX")]
         public static void Preview() => PreviewInternal(false);
 
-        [MenuItem("Dravio/Preview Selected Living Emberling FBX")]
+        [MenuItem("Dravio/Legacy Previews/Preview Selected Living Emberling FBX")]
         public static void PreviewLiving() => PreviewInternal(true);
 
-        [MenuItem("Dravio/Preview Selected Wandering Emberling FBX")]
+        [MenuItem("Dravio/Legacy Previews/Preview Selected Wandering Emberling FBX")]
         public static void PreviewWander() => PreviewInternal(true, true);
 
-        [MenuItem("Dravio/Preview Selected Care Emberling FBX")]
+        [MenuItem("Dravio/Legacy Previews/Preview Selected Care Emberling FBX")]
         public static void PreviewCare() => PreviewInternal(true, true, true);
 
-        [MenuItem("Dravio/Preview Selected Polished Emberling FBX")]
+        [MenuItem("Dravio/Legacy Previews/Preview Selected Polished Emberling FBX")]
         public static void PreviewPolished() => PreviewInternal(true, true, true, true);
 
-        [MenuItem("Dravio/Create or Open Fantasy Preview")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Fantasy Preview")]
         public static void PreviewFantasy() => PreviewInternal(true, true, true, true, true);
 
-        [MenuItem("Dravio/Create or Open Refined Preview")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Refined Preview")]
         public static void PreviewRefined() => PreviewInternal(true, true, true, true, true, true);
 
-        [MenuItem("Dravio/Create or Open Integrated Sanctuary")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Integrated Sanctuary")]
         public static void PreviewIntegrated() => OpenIntegrated(false);
 
-        [MenuItem("Dravio/Create or Open Integrated GLB Sanctuary")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Integrated GLB Sanctuary")]
         public static void PreviewIntegratedGLB() => OpenIntegrated(true);
+
+        [MenuItem("Dravio/Open Game", priority = 0)]
+        public static void OpenGame()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)return;
+            if(AssetDatabase.LoadAssetAtPath<SceneAsset>(PlayableTarget)!=null)
+            {
+                if(EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())EditorSceneManager.OpenScene(PlayableTarget);
+                return;
+            }
+            bool glb=AssetDatabase.LoadAssetAtPath<GameObject>(Root+"/Art/Models/EmberlingRefinedGLB.fbx")!=null;
+            if(!glb && AssetDatabase.LoadAssetAtPath<GameObject>(Root+"/Art/Models/EmberlingRefined.fbx")==null)
+            {
+                EditorUtility.DisplayDialog("Dravio","Import EmberlingRefinedGLB.fbx or EmberlingRefined.fbx first.","OK");
+                return;
+            }
+            if(!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())return;
+            if(!OriginSanctuaryEnvironmentBuilder.SetupMaterials() || !OriginSanctuaryEnvironmentBuilder.BuildPrefabs())return;
+            if(OriginSanctuaryEnvironmentBuilder.UpdateLocationData()==null)return;
+            OriginSanctuaryEnvironmentBuilder.BuildScene(false,PlayableEnvironment);
+            if(EditorSceneManager.GetActiveScene().path!=PlayableEnvironment)return;
+            if(LivingEnvironmentBuilder.UpdateLivingData()==null)return;
+            LivingEnvironmentBuilder.AddToOpenScene(false,PlayableEnvironment);
+            if(GameObject.Find(LivingEnvironmentBuilder.RootName)==null)
+            { Debug.LogError("Dravio: living environment generation failed.");return; }
+            PreviewInternal(true,true,true,true,true,true,true,glb,true);
+        }
 
         private static void OpenIntegrated(bool sourceGlb)
         {
@@ -73,10 +104,10 @@ namespace Dravio.Editor
             PreviewInternal(true, true, true, true, true, true, true, sourceGlb);
         }
 
-        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false, bool integrated = false, bool sourceGlb = false)
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false, bool refined = false, bool integrated = false, bool sourceGlb = false, bool playable = false)
         {
-            string source = integrated ? Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath : Source;
-            string target = sourceGlb ? IntegratedGlbTarget : integrated ? IntegratedTarget : refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
+            string source = playable ? PlayableEnvironment : integrated ? Dravio.EnvironmentArt.EditorTools.OriginSanctuaryEnvironmentBuilder.ScenePath : Source;
+            string target = playable ? PlayableTarget : sourceGlb ? IntegratedGlbTarget : integrated ? IntegratedTarget : refined ? RefinedTarget : fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (fantasy && AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
             {
@@ -239,16 +270,18 @@ namespace Dravio.Editor
             if (integrated)
             {
                 var marker = GameObject.Find("Clearing - Dragon Spot (marker)");
-                if (marker == null || turntable != null)
-                { Debug.LogError("Dravio: expected clean environment scene with clearing marker."); return; }
+                var locations = AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(OriginSanctuaryEnvironmentBuilder.LocationsAssetPath);
+                var spawn = locations?.SpawnPointsIn("origin_meadow").FirstOrDefault(p=>locations.IsWalkable(p.Position,"origin_meadow"));
+                if ((marker == null && spawn == null) || turntable != null)
+                { Debug.LogError("Dravio: expected clean environment scene with safe meadow spawn."); return; }
                 var dragon = new GameObject("Emberling - Integrated");
-                dragon.transform.position = marker.transform.position;
-                dragon.transform.rotation = Quaternion.Euler(0,180,0);
+                dragon.transform.position = spawn!=null?spawn.Position:marker.transform.position;
+                dragon.transform.rotation = spawn!=null?spawn.Rotation:Quaternion.Euler(0,180,0);
                 turntable = dragon.AddComponent<DragonTurntable>();
                 if(Camera.main != null)
                 {
                     var fit = Camera.main.GetComponent<Dravio.EnvironmentArt.SanctuaryCameraFit>();
-                    if(fit != null) fit.enabled = false; // fixed authored landscape framing
+                    if(fit != null) fit.enabled = playable; // playable camera adapts to the right rail
                 }
             }
             if (turntable == null || Camera.main == null)
@@ -268,7 +301,7 @@ namespace Dravio.Editor
             if (care)
             {
                 var animator = visual.GetComponentInChildren<Animator>(true);
-                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable, integrated);
+                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable, integrated, playable);
                 else CarePreviewHud.Build(root.gameObject, animator, turntable);
                 if (polish)
                 {
