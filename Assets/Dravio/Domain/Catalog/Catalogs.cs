@@ -8,10 +8,14 @@ namespace Dravio.Domain.Catalog
     public static class ContentInfo
     {
         /// <summary>
-        /// Dravio Save Schema hiện tại của TypeScript b33ec7a: 4 (v1 ADR 0007, v2 discoveries ADR 0009,
-        /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng, không dùng).
+        /// Dravio Save Schema của bản Unity: 7. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
+        /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
+        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 4;
+        public const int SchemaVersion = 7;
+
+        /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
+        public const int TsSchemaVersion = 4;
 
         /// <summary>Phiên bản catalog nội dung (G0 Decision Pack 1.0). Dùng làm seed founder ổn định.</summary>
         public const string ContentVersion = "g0-1.0";
@@ -187,8 +191,11 @@ namespace Dravio.Domain.Catalog
             }
         }
 
-        /// <summary>Lần thứ 200 liên tiếp không Prismatic bảo đảm Prismatic. Logic roll chưa port; dùng cho validation pityCount.</summary>
+        /// <summary>Lần thứ 200 liên tiếp không Prismatic bảo đảm Prismatic (GDD trang 15; Economy.Mutation.Roll).</summary>
         public const int PrismaticPity = 200;
+
+        /// <summary>Phần chia biến thể hiếm 11 : 3,5 : 0,5 trên 15 (MUTATION_SHARE).</summary>
+        public const double ShareCrystal = 11.0 / 15, ShareGolden = 3.5 / 15, SharePrismatic = 0.5 / 15;
 
         /// <summary>Hệ số vàng offline 75 % (dạng số thực, chỉ dùng trong offlineGoldMicro; engine dùng phân số 3/4).</summary>
         public const double OfflineGoldFactor = 0.75;
@@ -201,6 +208,260 @@ namespace Dravio.Domain.Catalog
             new UpgradeDef("mutationLuckLevel", 1500, 2.2, 8),
             new UpgradeDef("hatchSpeedLevel", 600, 1.9, 6),
         });
+    }
+
+    /// <summary>
+    /// Lai tạo và tổ ấp (GDD 3.1 trang 8; ADR 0003 #1, #2; src/data/breeding.ts). Trọng số con 60/30/9/1, phí theo độ hiếm cao nhất
+    /// của bố mẹ 80/350/1500/5000 G, ấp theo độ hiếm con 5/15/60/180 phút, cooldown bố mẹ 10 phút.
+    /// Ba hằng tap cuối là luật GDD trang 32 / ADR 0003 cho tapEgg — bản TS b33ec7a chưa có dữ liệu này.
+    /// </summary>
+    public static class BreedingCatalog
+    {
+        public static int OffspringWeight(Rarity r) => r == Rarity.Common ? 60 : r == Rarity.Rare ? 30 : r == Rarity.Epic ? 9 : 1;
+        public static long FeeG(Rarity r) => r == Rarity.Common ? 80 : r == Rarity.Rare ? 350 : r == Rarity.Epic ? 1500 : 5000;
+        public static int BaseHatchSec(Rarity r) => r == Rarity.Common ? 5 * 60 : r == Rarity.Rare ? 15 * 60 : r == Rarity.Epic ? 60 * 60 : 180 * 60;
+        public const long ParentCooldownMs = 10 * 60 * 1000;
+        /// <summary>Mỗi lần gõ tổ giảm 3 s (GDD trang 32).</summary>
+        public const long TapReduceMs = 3000;
+        /// <summary>Hai lần gõ cách nhau ít nhất 2 s.</summary>
+        public const long TapMinIntervalMs = 2000;
+        /// <summary>Tổng giảm do gõ ≤ 10 % thời lượng sau nâng cấp.</summary>
+        public const double TapMaxShare = 0.10;
+        /// <summary>Một tổ ấp trong P0.</summary>
+        public const int NestSlots = 1;
+    }
+
+    /// <summary>
+    /// Giới hạn kho (GDD 3.1 Phụ lục C: "Giới hạn kho đề xuất 500 rồng (v2), pending không mất khi đầy"). Bản TS b33ec7a chưa dùng.
+    /// Đây là con số GDD gọi là đề xuất; ghi trong danh sách quyết định cần xác nhận (README U2.5).
+    /// </summary>
+    public static class StorageCatalog
+    {
+        public const int MaxDragons = 500;
+    }
+
+    /// <summary>
+    /// Trang trí (GDD 3.1 Phụ lục E, giữ ID và giá v2). "Mỗi món một bản sao theo khu; bật/tắt miễn phí, không bán lại; 6 vị trí định sẵn P0;
+    /// chỉ đặt ở môi trường hợp lệ; hiệu ứng sinh cảnh là đề xuất, KHÔNG cộng vàng." TS b33ec7a không có catalog này — implementation mới.
+    /// GDD không ghi môi trường hợp lệ của từng món nên mọi zone đã mở đều nhận được (ghi trong danh sách quyết định còn thiếu).
+    /// </summary>
+    public sealed class DecorationDef
+    {
+        internal DecorationDef(string id, string nameVi, long priceG, string effectVi) { Id = id; NameVi = nameVi; PriceG = priceG; EffectVi = effectVi; Effects = DecorationEffects.None; }
+        public string Id { get; }
+        public string NameVi { get; }
+        public long PriceG { get; }
+        /// <summary>Hiệu ứng hình ảnh đề xuất (lớp trình bày); không có hiệu ứng kinh tế.</summary>
+        public string EffectVi { get; }
+        /// <summary>Hiệu ứng gameplay — MVP luôn 0 (ADR U2.8-0201). Engine chưa đọc; bật sau cần ADR + mô phỏng kinh tế.</summary>
+        public DecorationEffects Effects { get; }
+    }
+
+    /// <summary>Trường cấu hình hiệu ứng trang trí để mở rộng sau. Mọi giá trị MVP = 0: không vàng, XP, Health/Mobility/Comfort hay sức chứa.</summary>
+    public sealed class DecorationEffects
+    {
+        public static readonly DecorationEffects None = new DecorationEffects();
+        public int GoldPermille { get; }
+        public int XpPermille { get; }
+        public int Health { get; }
+        public int Mobility { get; }
+        public int Comfort { get; }
+        public int Capacity { get; }
+        public bool IsZero => GoldPermille == 0 && XpPermille == 0 && Health == 0 && Mobility == 0 && Comfort == 0 && Capacity == 0;
+    }
+
+    public static class DecorationCatalog
+    {
+        public static readonly IReadOnlyList<DecorationDef> All = Array.AsReadOnly(new[]
+        {
+            new DecorationDef("cherry_tree", "Cây Anh Đào", 350, "Cánh hoa, điểm nghỉ"),
+            new DecorationDef("crystal_pond", "Hồ Pha Lê", 1200, "Sóng nhẹ, tương tác nước"),
+            new DecorationDef("sky_lantern", "Đèn Lồng Bay", 2500, "Ánh sáng ấm"),
+            new DecorationDef("ancient_gate", "Cổng Đá Cổ", 6000, "Rune phát sáng"),
+            new DecorationDef("glow_mushroom", "Nấm Phát Sáng", 12000, "Đom đóm"),
+            new DecorationDef("star_observatory", "Đài Quan Sát Sao", 25000, "Vệt sao; công trình chức năng P1 riêng"),
+        });
+
+        public static bool TryGet(string id, out DecorationDef def)
+        {
+            foreach (DecorationDef d in All) if (d.Id == id) { def = d; return true; }
+            def = null;
+            return false;
+        }
+
+        /// <summary>Vị trí cố định mỗi khu P0 (= số món, mỗi món một bản sao/khu).</summary>
+        public const int SlotsPerZone = 6;
+    }
+
+    /// <summary>Điều kiện sinh học của một tuyến thám hiểm (GDD tr. 22 "1 Adult sống đất / bơi phù hợp / bay khỏe").</summary>
+    public enum ExpeditionRequirement { LandDweller, Swimmer, Flyer }
+
+    /// <summary>
+    /// Tuyến thám hiểm P0 (GDD 3.1 trang 22; ADR U2.8-0201 do chủ dự án duyệt). TS b33ec7a không có — implementation mới.
+    /// 15/30/45 phút, tổng 2–4 đơn vị vật liệu, không phí, tỷ lệ thành công MVP 100 % (trường SuccessPermille có sẵn để mở rộng, chưa kích hoạt).
+    /// ID tuyến ổn định, không phụ thuộc tên hiển thị. Tuyến chưa có bảng thưởng được duyệt (Materials rỗng) bị khóa.
+    /// </summary>
+    public sealed class ExpeditionRoute
+    {
+        internal ExpeditionRoute(string id, string nameVi, string zoneId, int minutes, ExpeditionRequirement requirement, string[] materials, int minQty, int maxQty)
+        {
+            Id = id; NameVi = nameVi; ZoneId = zoneId; DurationMs = minutes * 60_000L; Requirement = requirement; Materials = Array.AsReadOnly(materials); MinQty = minQty; MaxQty = maxQty;
+            SuccessPermille = 1000;
+        }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>Thế giới của tuyến; tuyến chỉ mở khi zone này đã mở (không vượt khóa thế giới).</summary>
+        public string ZoneId { get; }
+        public long DurationMs { get; }
+        public ExpeditionRequirement Requirement { get; }
+        /// <summary>Vật liệu có thể nhận (mỗi đơn vị chọn đều trong danh sách).</summary>
+        public IReadOnlyList<string> Materials { get; }
+        public int MinQty { get; }
+        public int MaxQty { get; }
+        /// <summary>Tỷ lệ thành công ‰. MVP = 1000 (ADR U2.8-0201): mọi chuyến đủ điều kiện đều thành công, không chết rồng, không mất vật phẩm.
+        /// Engine CHƯA đọc trường này; mở rộng thất bại sau cần ADR mới.</summary>
+        public int SuccessPermille { get; }
+        /// <summary>Có bảng thưởng đã duyệt chưa. false → tuyến bị khóa (route-rewards-undefined).</summary>
+        public bool RewardsDefined => Materials.Count > 0;
+    }
+
+    /// <summary>Vật liệu chuẩn (ADR U2.8-0201). Chỉ vật liệu có nguồn thu thập được quy định mới Active; chưa có công thức dùng.</summary>
+    public sealed class MaterialDef
+    {
+        internal MaterialDef(string id, string nameVi, bool active) { Id = id; NameVi = nameVi; Active = active; }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>Có nguồn thu thập đã quy định (tuyến thám hiểm). stone chưa có nguồn → chưa kích hoạt.</summary>
+        public bool Active { get; }
+    }
+
+    public static class ExpeditionCatalog
+    {
+        public static readonly IReadOnlyList<ExpeditionRoute> Routes = Array.AsReadOnly(new[]
+        {
+            new ExpeditionRoute("origin_forest", "Rừng Khởi Nguyên", "origin", 15, ExpeditionRequirement.LandDweller, new[] { "wood", "seed" }, 2, 4),
+            // GDD "ngọc/rêu biển" → crystal/coral (chủ dự án duyệt).
+            new ExpeditionRoute("ocean_reef", "Rạn Thủy Vực", "ocean", 30, ExpeditionRequirement.Swimmer, new[] { "crystal", "coral" }, 2, 4),
+            // GDD "bụi sao" không có ID chuẩn: bảng thưởng TBD → tuyến khóa (chủ dự án duyệt).
+            new ExpeditionRoute("sky_cloud", "Sân mây Thiên Giới", "sky", 45, ExpeditionRequirement.Flyer, new string[0], 2, 4),
+        });
+
+        public static readonly IReadOnlyList<MaterialDef> Materials = Array.AsReadOnly(new[]
+        {
+            new MaterialDef("wood", "Gỗ", true),
+            new MaterialDef("seed", "Hạt giống", true),
+            new MaterialDef("stone", "Đá", false),
+            new MaterialDef("crystal", "Pha lê", true),
+            new MaterialDef("coral", "San hô", true),
+        });
+
+        /// <summary>ID vật liệu chuẩn theo thứ tự catalog (cả vật liệu chưa kích hoạt).</summary>
+        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "stone", "crystal", "coral" });
+
+        /// <summary>"Một slot thám hiểm chung P0".</summary>
+        public const int Slots = 1;
+
+        public static bool TryGet(string id, out ExpeditionRoute route)
+        {
+            foreach (ExpeditionRoute r in Routes) if (r.Id == id) { route = r; return true; }
+            route = null;
+            return false;
+        }
+    }
+
+    /// <summary>Nhiệm vụ khám phá (ADR U2.8-0201). Nội dung/mục tiêu CHƯA xác định (TBD): engine chưa tự hoàn thành nhiệm vụ nào.</summary>
+    public sealed class QuestDef
+    {
+        internal QuestDef(string id, string nameVi, string objectiveTbd) { Id = id; NameVi = nameVi; Objective = objectiveTbd; }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>"TBD" khi chưa có thiết kế mục tiêu.</summary>
+        public string Objective { get; }
+        public bool ObjectiveDefined => Objective != "TBD";
+    }
+
+    /// <summary>Điều kiện mở một thế giới và trứng cố định trao một lần (ADR U2.8-0201). Không điều kiện cấp độ, không chi phí vàng.</summary>
+    public sealed class ZoneUnlockRule
+    {
+        internal ZoneUnlockRule(string zoneId, bool tutorial, bool originHabitats, string requiresZone, string quest, string rewardId, string eggSpecies)
+        {
+            ZoneId = zoneId; RequiresTutorialCompleted = tutorial; RequiresAllOriginHabitats = originHabitats; RequiresZone = requiresZone; RequiresQuest = quest;
+            RewardId = rewardId; EggSpeciesId = eggSpecies;
+        }
+        public string ZoneId { get; }
+        public bool RequiresTutorialCompleted { get; }
+        public bool RequiresAllOriginHabitats { get; }
+        public string RequiresZone { get; }
+        public string RequiresQuest { get; }
+        public string RewardId { get; }
+        public string EggSpeciesId { get; }
+        /// <summary>Trứng thưởng luôn Normal, không tính pity.</summary>
+        public MutationType EggMutation => MutationType.Normal;
+    }
+
+    public static class WorldUnlockCatalog
+    {
+        public static readonly IReadOnlyList<QuestDef> Quests = Array.AsReadOnly(new[]
+        {
+            new QuestDef("QUEST_AQUATIC_EXPLORATION", "Khám phá thủy sinh", "TBD"),
+            new QuestDef("QUEST_SKY_EXPLORATION", "Khám phá Thiên Giới", "TBD"),
+        });
+
+        public static readonly IReadOnlyList<ZoneUnlockRule> Rules = Array.AsReadOnly(new[]
+        {
+            new ZoneUnlockRule("ocean", tutorial: true, originHabitats: true, requiresZone: null, quest: "QUEST_AQUATIC_EXPLORATION", rewardId: "ZONE_EGG_OCEAN", eggSpecies: "droplet"),
+            new ZoneUnlockRule("sky", tutorial: false, originHabitats: false, requiresZone: "ocean", quest: "QUEST_SKY_EXPLORATION", rewardId: "ZONE_EGG_SKY", eggSpecies: "zephyr"),
+        });
+
+        public static ZoneUnlockRule RuleFor(string zoneId)
+        {
+            foreach (ZoneUnlockRule r in Rules) if (r.ZoneId == zoneId) return r;
+            return null;
+        }
+
+        public static bool IsQuestId(string id) { foreach (QuestDef q in Quests) if (q.Id == id) return true; return false; }
+        public static bool IsRewardId(string id) { foreach (ZoneUnlockRule r in Rules) if (r.RewardId == id) return true; return false; }
+    }
+
+    /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>
+    public sealed class PackDef
+    {
+        internal PackDef(string id, long priceG, int common, int rare, int epic, int legendary)
+        {
+            Id = id; PriceG = priceG; OddsCommon = common; OddsRare = rare; OddsEpic = epic; OddsLegendary = legendary;
+        }
+        public string Id { get; }
+        public long PriceG { get; }
+        public int OddsCommon { get; }
+        public int OddsRare { get; }
+        public int OddsEpic { get; }
+        public int OddsLegendary { get; }
+    }
+
+    public static class PackCatalog
+    {
+        public static readonly IReadOnlyList<PackDef> All = Array.AsReadOnly(new[]
+        {
+            new PackDef("starter", 100, 90, 10, 0, 0),
+            new PackDef("elemental", 900, 48, 45, 7, 0),
+            new PackDef("mystic", 6000, 15, 50, 32, 3),
+            new PackDef("astral", 30000, 0, 28, 55, 17),
+        });
+
+        public static PackDef Get(string id)
+        {
+            if (TryGet(id, out PackDef p)) return p;
+            throw new DomainInvariantException("Unknown pack id: " + id);
+        }
+
+        public static bool TryGet(string id, out PackDef pack)
+        {
+            foreach (PackDef p in All) if (p.Id == id) { pack = p; return true; }
+            pack = null;
+            return false;
+        }
+
+        public static int Odds(PackDef p, Rarity r) => r == Rarity.Common ? p.OddsCommon : r == Rarity.Rare ? p.OddsRare : r == Rarity.Epic ? p.OddsEpic : p.OddsLegendary;
     }
 
     /// <summary>Quy tắc mở microhabitat Khởi Nguyên (src/data/habitatUnlocks.ts; ADR 0009).</summary>
@@ -238,7 +499,39 @@ namespace Dravio.Domain.Catalog
             "ACH_LEGENDARY", "ACH_GOLD_10K", "ACH_GOLD_250K", "ACH_DECOR_ALL", "ACH_CODEX_16", "ACH_CODEX_MASTER",
         });
 
+        /// <summary>Thưởng (G) của 12 thành tựu v2 (GDD Phụ lục F; ACHIEVEMENT_REWARD_G), theo thứ tự AchievementIds.</summary>
+        public static long AchievementRewardG(string id)
+        {
+            switch (id)
+            {
+                case "ACH_FIRST_HATCH": return 50;
+                case "ACH_FIRST_ADULT": return 100;
+                case "ACH_FIRST_BREED": return 150;
+                case "ACH_MUTATION_CRYSTAL": return 100;
+                case "ACH_MUTATION_GOLDEN": return 300;
+                case "ACH_MUTATION_PRISMATIC": return 1000;
+                case "ACH_LEGENDARY": return 2000;
+                case "ACH_GOLD_10K": return 300;
+                case "ACH_GOLD_250K": return 2500;
+                case "ACH_DECOR_ALL": return 1000;
+                case "ACH_CODEX_16": return 2000;
+                case "ACH_CODEX_MASTER": return 3000;
+                default: throw new DomainInvariantException("Unknown achievement id: " + id);
+            }
+        }
+
+        /// <summary>TUT_01 "quan sát Emberling": thời gian tối thiểu kể từ khi bắt đầu hướng dẫn (đề xuất ADR 0013).</summary>
+        public const long TutorialObserveMs = 15_000;
+
+        /// <summary>Gói Starter hướng dẫn (GDD trang 4, 15; S01): gói starter, Sproutling (`sprout`), Normal, không tính pity.</summary>
+        public const string TutorialPackId = "starter";
+        public const string TutorialPackSpeciesId = "sprout";
+        public static readonly MutationType TutorialPackMutation = MutationType.Normal;
+
         public static bool IsDiscoveryId(string id) => Contains(DiscoveryIds, id);
+        /// <summary>ACH_CODEX_MASTER: "≥ 32/64 biến thể gốc" (GDD trang 22 và Phụ lục F).</summary>
+        public const int CodexMasterCells = 32;
+
         public static bool IsAchievementId(string id) => Contains(AchievementIds, id);
 
         public static HabitatUnlockRule UnlockRuleFor(string habitatId)

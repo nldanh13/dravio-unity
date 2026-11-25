@@ -70,13 +70,17 @@ jobs:
           cp "Assets/Dravio/Tests/Domain/Tools~/golden.test.ts" ts/tests/unit/zz-golden.test.ts
           cp "Assets/Dravio/Tests/Persistence/Tools~/persistence-golden.test.ts" ts/tests/unit/zz-persistence-golden.test.ts
           cp "Assets/Dravio/Tests/Domain/Tools~/world-golden.test.ts" ts/tests/unit/zz-world-golden.test.ts
+          cp "Assets/Dravio/Tests/Domain/Tools~/progress-golden.test.ts" ts/tests/unit/zz-progress-golden.test.ts
+          cp "Assets/Dravio/Tests/Domain/Tools~/genetics-golden.test.ts" ts/tests/unit/zz-genetics-golden.test.ts
           (cd ts && GOLDEN_OUT="$GITHUB_WORKSPACE/Assets/Dravio/Tests/Domain/Golden/ts-golden-b33ec7a.json" npx vitest run tests/unit/zz-golden.test.ts)
           (cd ts && GOLDEN_OUT="$GITHUB_WORKSPACE/Assets/Dravio/Tests/Domain/Golden/ts-world-golden-b33ec7a.json" npx vitest run tests/unit/zz-world-golden.test.ts)
+          (cd ts && GOLDEN_OUT="$GITHUB_WORKSPACE/Assets/Dravio/Tests/Domain/Golden/ts-progress-golden-b33ec7a.json" npx vitest run tests/unit/zz-progress-golden.test.ts)
+          (cd ts && GOLDEN_OUT="$GITHUB_WORKSPACE/Assets/Dravio/Tests/Domain/Golden/ts-genetics-golden-b33ec7a.json" npx vitest run tests/unit/zz-genetics-golden.test.ts)
           (cd ts && GOLDEN_OUT="$GITHUB_WORKSPACE/Assets/Dravio/Tests/Persistence/Golden/ts-persistence-golden-b33ec7a.json" npx vitest run tests/unit/zz-persistence-golden.test.ts)
           git diff --exit-code -- Assets/Dravio/Tests/Domain/Golden Assets/Dravio/Tests/Persistence/Golden
       - name: TypeScript reads saves written by C#
         run: |
           export DRAVIO_EXPORT_DIR="$RUNNER_TEMP/csharp-saves"
-          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests"
+          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests|FullyQualifiedName~ProgressSaveTests|FullyQualifiedName~BreedingSaveTests|FullyQualifiedName~SanctuarySaveTests|FullyQualifiedName~ExpeditionSaveTests"
           cp "Assets/Dravio/Tests/Persistence/Tools~/verify-csharp-saves.test.ts" ts/tests/unit/zz-verify-csharp-saves.test.ts
           (cd ts && npx vitest run tests/unit/zz-verify-csharp-saves.test.ts)

@@ -8,19 +8,21 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v4, trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v7 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState của schema v4 (STATE_KEYS trong saveFile.ts).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v7).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
+            // v5 (U2.5), v6 (U2.7), v7 (U2.8), chỉ có ở bản Unity
+            "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -77,6 +79,31 @@ namespace Dravio.Persistence.Schema
                 .Set("profilesViewed", Arr(t.ProfilesViewed)).Set("starterPackUsed", JsonValue.From(t.StarterPackUsed)));
             o.Set("pendingPack", s.PendingPack == null ? JsonValue.Null : PendingPackToJson(s.PendingPack));
             o.Set("unlockedAchievements", Arr(s.UnlockedAchievements));
+            o.Set("breedingNest", s.BreedingNest == null ? JsonValue.Null : NestToJson(s.BreedingNest));
+            var codex = new JsonObject();
+            foreach (CodexEntry e in s.Codex)
+            {
+                var muts = new JsonArray(); foreach (MutationType m in e.DiscoveredMutations) muts.Add(S(m.ToWire()));
+                var stages = new JsonArray(); foreach (GrowthStage gst in e.ObservedStages) stages.Add(S(gst.ToWire()));
+                codex.Set(e.SpeciesId, new JsonObject().Set("discoveredMutations", muts).Set("totalHatched", N(e.TotalHatched)).Set("observedStages", stages));
+            }
+            o.Set("codex", codex);
+            if (s.Expedition == null) o.Set("expedition", JsonValue.Null);
+            else
+            {
+                ExpeditionJob j = s.Expedition;
+                var rewards = new JsonObject();
+                foreach (var kv in j.Rewards) rewards.Set(kv.Key, N(kv.Value));
+                o.Set("expedition", new JsonObject().Set("id", S(j.Id)).Set("routeId", S(j.RouteId)).Set("dragonUid", S(j.DragonUid))
+                    .Set("startedAtMs", N(j.StartedAtMs)).Set("finishAtMs", N(j.FinishAtMs)).Set("rewards", rewards).Set("status", S(j.Status.ToWire())));
+            }
+            o.Set("completedQuests", Arr(s.CompletedQuests));
+            o.Set("grantedRewards", Arr(s.GrantedRewards));
+            var queue = new JsonArray();
+            foreach (QueuedEgg q in s.RewardQueue)
+                queue.Add(new JsonObject().Set("rewardId", S(q.RewardId)).Set("speciesId", S(q.SpeciesId))
+                    .Set("mutation", S(Dravio.Domain.WireNames.ToWire(q.Mutation))).Set("queuedAtMs", N(q.QueuedAtMs)));
+            o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
@@ -109,6 +136,11 @@ namespace Dravio.Persistence.Schema
         private static JsonObject PendingPackToJson(PendingPack p) =>
             new JsonObject().Set("id", S(p.Id)).Set("packId", S(p.PackId)).Set("speciesId", S(p.SpeciesId)).Set("genotype", GenotypeToJson(p.Genotype))
                 .Set("mutation", S(p.Mutation.ToWire())).Set("createdAtMs", N(p.CreatedAtMs)).Set("tutorial", JsonValue.From(p.Tutorial));
+
+        private static JsonObject NestToJson(BreedingEgg e) =>
+            new JsonObject().Set("id", S(e.Id)).Set("parentIds", Arr(e.ParentIds)).Set("speciesId", S(e.SpeciesId)).Set("genotype", GenotypeToJson(e.Genotype))
+                .Set("mutation", S(e.Mutation.ToWire())).Set("createdAtMs", N(e.CreatedAtMs)).Set("finishAtMs", N(e.FinishAtMs)).Set("durationMs", N(e.DurationMs))
+                .Set("tapReducedMs", N(e.TapReducedMs)).Set("lastTapAtMs", N(e.LastTapAtMs)).Set("status", S(e.Status.ToWire()));
 
         public static JsonObject DragonToJson(DragonState d)
         {
@@ -327,6 +359,86 @@ namespace Dravio.Persistence.Schema
 
             s.UnlockedAchievements = r.StrList(o, "unlockedAchievements", "unlockedAchievements: invalid");
             s.ClaimedAchievements = r.StrList(o, "claimedAchievements", "claimedAchievements: invalid");
+
+            JsonValue nv = o.Get("breedingNest");
+            if (nv is JsonObject no)
+            {
+                var nr = new Reader(new List<string>());
+                List<string> parents = no.Get("parentIds") is JsonArray ? nr.StrList(no, "parentIds", "x") : null;
+                s.BreedingNest = new BreedingEgg
+                {
+                    Id = nr.Str(no, "id", "x"), ParentIds = parents?.ToArray(), SpeciesId = nr.Str(no, "speciesId", "x"),
+                    Genotype = GenotypeFromJson(no.Get("genotype"), nr), Mutation = nr.Enum(no, "mutation", "x", MutationType.Normal),
+                    CreatedAtMs = nr.LongOr(no, "createdAtMs", "x", -1), FinishAtMs = nr.LongOr(no, "finishAtMs", "x", -1),
+                    DurationMs = nr.LongOr(no, "durationMs", "x", -1), TapReducedMs = nr.LongOr(no, "tapReducedMs", "x", -1),
+                    LastTapAtMs = nr.LongOr(no, "lastTapAtMs", "x", -1),
+                    Status = nr.Enum(no, "status", "x", EggStatus.Incubating),
+                };
+                if (parents == null) nr.Errors.Add("parentIds");
+                if (nr.Errors.Count > 0) errors.Add("breedingNest: invalid");
+            }
+            else if (!(nv is JsonNull)) errors.Add("breedingNest: invalid");
+
+            if (o.Get("codex") is JsonObject co)
+            {
+                var cr = new Reader(new List<string>());
+                s.Codex = new List<CodexEntry>();
+                foreach (var kv in co)
+                {
+                    if (!(kv.Value is JsonObject eo)) { cr.Errors.Add("x"); continue; }
+                    var e = new CodexEntry { SpeciesId = kv.Key, TotalHatched = cr.LongOr(eo, "totalHatched", "x", -1) };
+                    foreach (string m in cr.StrList(eo, "discoveredMutations", "x") ?? new List<string>())
+                        if (WireNames.TryParse(m, out MutationType mt)) e.DiscoveredMutations.Add(mt); else cr.Errors.Add("x");
+                    foreach (string stw in cr.StrList(eo, "observedStages", "x") ?? new List<string>())
+                        if (WireNames.TryParse(stw, out GrowthStage gs)) e.ObservedStages.Add(gs); else cr.Errors.Add("x");
+                    s.Codex.Add(e);
+                }
+                if (cr.Errors.Count > 0) errors.Add("codex: invalid");
+            }
+            else { s.Codex = null; errors.Add("codex: invalid"); }
+
+            JsonValue ev = o.Get("expedition");
+            if (ev is JsonObject eo2)
+            {
+                var er = new Reader(new List<string>());
+                var job = new ExpeditionJob
+                {
+                    Id = er.Str(eo2, "id", "x"), RouteId = er.Str(eo2, "routeId", "x"), DragonUid = er.Str(eo2, "dragonUid", "x"),
+                    StartedAtMs = er.LongOr(eo2, "startedAtMs", "x", -1), FinishAtMs = er.LongOr(eo2, "finishAtMs", "x", -1),
+                    Status = er.Enum(eo2, "status", "x", ExpeditionStatus.InProgress),
+                };
+                if (eo2.Get("rewards") is JsonObject ro2)
+                    foreach (var kv in ro2)
+                    {
+                        if (kv.Value is JsonNumber n && GameStateJson.Reader.AsSafeLong(n, out long v) && v > 0 && v <= int.MaxValue) job.Rewards.Add(new KeyValuePair<string, int>(kv.Key, (int)v));
+                        else er.Errors.Add("x");
+                    }
+                else er.Errors.Add("x");
+                s.Expedition = job;
+                if (er.Errors.Count > 0) errors.Add("expedition: invalid");
+            }
+            else if (!(ev is JsonNull)) errors.Add("expedition: invalid");
+
+            var qr = new Reader(new List<string>());
+            s.CompletedQuests = qr.StrList(o, "completedQuests", "x") ?? new List<string>();
+            s.GrantedRewards = qr.StrList(o, "grantedRewards", "x") ?? new List<string>();
+            if (qr.Errors.Count > 0) errors.Add("worldUnlock: invalid");
+            s.RewardQueue = new List<QueuedEgg>();
+            if (o.Get("rewardQueue") is JsonArray rq)
+            {
+                var rr = new Reader(new List<string>());
+                foreach (JsonValue qv in rq)
+                {
+                    if (!(qv is JsonObject qo)) { rr.Errors.Add("x"); continue; }
+                    s.RewardQueue.Add(new QueuedEgg
+                    {
+                        RewardId = rr.Str(qo, "rewardId", "x"), SpeciesId = rr.Str(qo, "speciesId", "x"),
+                        Mutation = rr.Enum(qo, "mutation", "x", MutationType.Normal), QueuedAtMs = rr.LongOr(qo, "queuedAtMs", "x", -1),
+                    });
+                }
+                if (rr.Errors.Count > 0) errors.Add("rewardQueue: invalid");
+            }
+            else errors.Add("rewardQueue: invalid");
             return s;
         }
 

@@ -230,13 +230,26 @@ namespace Dravio.Platform
         {
             GameState s = State;
             if (s == null || Status != SessionStatus.Ready || _swapping) return null;
-            DispatchResult r = CommandDispatcher.Dispatch(s, build(_env.NewId()), _env.Clock);
+            GameCommand cmd = build(_env.NewId());
+            DispatchResult r = CommandDispatcher.Dispatch(s, cmd, _env.Clock);
             if (!r.Ok) return r.Error;
             State = r.State;
             if (r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
             Notify();
+            // Giao dịch quan trọng: lưu ngay để kết quả đã roll, vàng đã trừ và thưởng đã nhận không thể làm lại bằng cách tắt app
+            // (IMMEDIATE_SAVE của gameSession.ts cho buyTutorialPack/claimPack; U2.5 thêm gói thường, lai và nhận con).
+            if (IsImmediateSave(cmd)) SaveNow();
             return null;
         }
+
+        /// <summary>Lệnh trừ tài nguyên, tạo UID hoặc roll kết quả → lưu ngay sau khi thành công.</summary>
+        public static bool IsImmediateSave(GameCommand cmd) =>
+            cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand || cmd is BuyPackCommand ||
+            cmd is StartBreedCommand || cmd is ClaimBreedCommand ||
+            // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
+            cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand ||
+            // U2.8: khởi hành (chốt seed + phần thưởng) và nhận thưởng thám hiểm.
+            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;
 

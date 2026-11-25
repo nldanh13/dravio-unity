@@ -56,11 +56,73 @@ namespace Dravio.Persistence.Tests.Support
 
         public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
 
+        /// <summary>
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 của C# (breedingNest, codex, expedition).
+        /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
+        /// </summary>
+        public static JsonObject AsUnity(JsonObject tsV4State)
+        {
+            MigrateResult m = Migrations.Migrate(4, tsV4State);
+            if (!m.Ok) throw new InvalidOperationException(string.Join("; ", m.Details));
+            return m.State;
+        }
+
+        /// <summary>
+        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition và trạng thái mở thế giới (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
+        /// schemaVersion = 4. Trang trí đã mua vẫn nằm trong zones.decorationIds — TS chấp nhận chuỗi bất kỳ ở đó.
+        /// </summary>
+        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue" };
+
+        public static JsonObject AsV4(JsonObject unityState)
+        {
+            if (!(unityState.Get("breedingNest") is JsonNull)) throw new InvalidOperationException("breedingNest not empty: no v4 projection");
+            var o = new JsonObject();
+            if (!(unityState.Get("expedition") is JsonNull)) throw new InvalidOperationException("expedition in progress: no v4 projection");
+            if (unityState.Get("rewardQueue") is JsonArray rq && rq.Count > 0) throw new InvalidOperationException("reward egg queued: no v4 projection");
+            foreach (var kv in unityState) if (!UnityOnlyKeys.Contains(kv.Key)) o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            return o;
+        }
+
+        /// <summary>
+        /// Xuất một save C# cho bộ đọc TS (CI: Tools~/verify-csharp-saves.test.ts). name.unity.json là file schema Unity thật (v6) — TS phải từ chối
+        /// "newer-version" (chỉ đọc, không ghi đè). Khi tổ trống còn có name.save.json = ảnh v4 + name.canonical.txt mà TS phải đọc trùng state.
+        /// </summary>
+        public static void Export(string dir, string name, string v5Text)
+        {
+            if (dir == null) return;
+            var utf8 = new System.Text.UTF8Encoding(false);
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, name + ".unity.json"), v5Text, utf8);
+            var state = (JsonObject)((JsonObject)JsonParser.Parse(v5Text)).Get("state");
+            if (!(state.Get("breedingNest") is JsonNull) || !(state.Get("expedition") is JsonNull) || ((JsonArray)state.Get("rewardQueue")).Count > 0) return;
+            File.WriteAllText(Path.Combine(dir, name + ".save.json"), AsV4Text(v5Text), utf8);
+            File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), SaveSchema.CanonicalJson(AsV4(state)), utf8);
+        }
+
+        /// <summary>Envelope v4 của TS dựng lại từ save C# v5 (tổ trống): so được từng byte với serializeSave của TS.</summary>
+        public static string AsV4Text(string v5Text)
+        {
+            var env = (JsonObject)JsonParser.Parse(v5Text);
+            JsonObject state = AsV4((JsonObject)env.Get("state"));
+            var o = new JsonObject();
+            foreach (var kv in env)
+            {
+                if (kv.Key == "schemaVersion") o.Set(kv.Key, JsonValue.From(4));
+                else if (kv.Key == "state") o.Set(kv.Key, state);
+                else if (kv.Key == "checksum") o.Set(kv.Key, JsonValue.From(SaveSchema.ChecksumOf(state)));
+                else o.Set(kv.Key, kv.Value);
+            }
+            return JsonWriter.Stringify(o);
+        }
+
         /// <summary>Envelope ở schemaVersion bất kỳ với checksum hợp lệ (như envelopeAt của persistence.test.ts).</summary>
         public static string EnvelopeAt(int version, GameState state = null)
         {
             JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
             JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 7) foreach (string k in new[] { "expedition", "completedQuests", "grantedRewards", "rewardQueue" }) s.Remove(k);
+            if (version < 6) s.Remove("codex");
+            if (version < 5) s.Remove("breedingNest");
             if (version < 4) foreach (string k in new[] { "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements" }) s.Remove(k);
             if (version == 1 || version == 3) s.Remove("discoveries");
             s.Set("schemaVersion", JsonValue.From(version));

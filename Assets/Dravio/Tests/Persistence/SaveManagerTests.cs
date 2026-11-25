@@ -18,20 +18,20 @@ namespace Dravio.Persistence.Tests
         // ---- migration framework ----
 
         [Test]
-        public void Schema_v4_is_current_and_steps_are_1_to_2_and_2_to_4()
+        public void Schema_v7_is_current_and_steps_are_1_2_4_5_6_7()
         {
-            Assert.That(SaveSchema.CurrentVersion, Is.EqualTo(4));
-            Assert.That(PFix.Fresh().SchemaVersion, Is.EqualTo(4));
-            Assert.That(Migrations.Steps.Select(s => s.From + "->" + s.To), Is.EqualTo(new[] { "1->2", "2->4" }));
+            Assert.That(SaveSchema.CurrentVersion, Is.EqualTo(7));
+            Assert.That(PFix.Fresh().SchemaVersion, Is.EqualTo(7));
+            Assert.That(Migrations.Steps.Select(s => s.From + "->" + s.To), Is.EqualTo(new[] { "1->2", "2->4", "4->5", "5->6", "6->7" }));
             Assert.That(Migrations.PreReleaseSchemaAliases[3], Is.EqualTo(1));
         }
 
         [Test]
         public void Current_version_passes_through_unchanged()
         {
-            var s = new JsonObject().Set("schemaVersion", JsonValue.From(4L));
-            MigrateResult r = Migrations.Migrate(4, s);
-            Assert.That((r.Ok, r.FromVersion, r.PreRelease), Is.EqualTo((true, 4, false)));
+            var s = new JsonObject().Set("schemaVersion", JsonValue.From(7L));
+            MigrateResult r = Migrations.Migrate(7, s);
+            Assert.That((r.Ok, r.FromVersion, r.PreRelease), Is.EqualTo((true, 7, false)));
             Assert.That(r.State, Is.SameAs(s));
         }
 
@@ -163,7 +163,7 @@ namespace Dravio.Persistence.Tests
         public void Save_from_a_newer_version_blocks_writes_even_forced_and_is_never_overwritten()
         {
             var (_, store) = PFix.Manager();
-            string newer = PFix.EnvelopeAt(5);
+            string newer = PFix.EnvelopeAt(8);
             store.Slots[SaveSlot.Main] = newer;
             var mgr = new SaveManager(store, () => PFix.T0);
             Assert.That(mgr.Load().Kind, Is.EqualTo(LoadKind.NewerVersion));
@@ -198,7 +198,7 @@ namespace Dravio.Persistence.Tests
             for (int i = 0; i < 3; i++) { s = PFix.Advanced(s, 1000); mgr.Save(s); }
             Assert.That(store.GetArchive("archive:schema-3"), Is.EqualTo(original));
             ParseResult main = SaveFile.Parse(store.Get(SaveSlot.Main));
-            Assert.That((main.Save.State.SchemaVersion, main.Save.MigratedFrom), Is.EqualTo((4, (int?)null)));
+            Assert.That((main.Save.State.SchemaVersion, main.Save.MigratedFrom), Is.EqualTo((7, (int?)null)));
         }
 
         [Test]

@@ -122,10 +122,12 @@ namespace Dravio.Domain.Tests
             var (s, _) = Game();
             GameState d = Discover(s, "DISC_AQUATIC_HABITAT");
             Assert.That(Zones.RecordDiscovery(d.DeepClone(), "DISC_AQUATIC_HABITAT", new List<DomainEvent>()), Is.EqualTo(DomainErrorCode.AlreadyThere));
-            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: chỉ 10 lệnh công khai.
-            var commandTypes = typeof(GameCommand).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(GameCommand)) && !t.IsAbstract).Select(t => t.Name).OrderBy(x => x).ToArray();
-            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "ConsumeFoodCommand", "FeedCommand", "MoveDragonCommand", "PetCommand", "RenameDragonCommand",
-                "SetProductionSlotCommand", "SurveyHabitatCommand", "UnlockHabitatCommand", "ViewBiologyProfileCommand" }));
+            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: 13 lệnh công khai của bản TS + 4 lệnh mới của U2.5 + 6 lệnh của U2.7 + 3 lệnh của U2.8.
+            var commandTypes = typeof(GameCommand).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(GameCommand)) && !t.IsAbstract).Select(t => t.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "BulkSellCommand", "BuyDecorationCommand", "BuyPackCommand", "BuyTutorialPackCommand", "BuyUpgradeCommand",
+                "ClaimBreedCommand", "ClaimExpeditionCommand", "ClaimPackCommand", "ConsumeFoodCommand", "FeedCommand", "LockDragonCommand", "MoveDragonCommand", "PetCommand", "RenameDragonCommand",
+                "SellDragonCommand", "SetProductionSlotCommand", "SetTutorialStatusCommand", "StartBreedCommand", "StartExpeditionCommand", "SurveyHabitatCommand", "TapEggCommand",
+                "ToggleDecorationCommand", "UnlockHabitatCommand", "UnlockZoneCommand", "ViewBiologyProfileCommand" }));
         }
 
         [Test]
@@ -321,7 +323,7 @@ namespace Dravio.Domain.Tests
             clock.Advance(50_000);
             DispatchResult off = Ok(s, Prod(First(s), false), clock);
             Assert.That(off.State.Player.Gold.Micro - s.Player.Gold.Micro, Is.EqualTo(500_000));
-            Assert.That(off.Events.Select(e => e.Type), Is.EqualTo(new[] { "timeAdvanced", "productionChanged" }));
+            Assert.That(off.Events.Select(e => e.Type), Is.EqualTo(new[] { "timeAdvanced", "productionChanged", "tutorialStepCompleted" }), "50 s with Emberling in the meadow also completes TUT_01");
             clock.Advance(50_000);
             Assert.That(Ok(off.State, Online(), clock).State.Player.Gold, Is.EqualTo(off.State.Player.Gold));
         }
