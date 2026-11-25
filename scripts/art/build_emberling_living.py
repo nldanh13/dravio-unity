@@ -9,8 +9,11 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 out = Path(args[0] if args else "art-exports/EmberlingLiving.fbx").resolve()
-walk_preview = "--walk-preview" in args[1:]
-if walk_preview and out.stem != "EmberlingWander":
+care_preview = "--care-preview" in args[1:]
+walk_preview = "--walk-preview" in args[1:] or care_preview
+if care_preview and out.stem != "EmberlingCare":
+    raise ValueError("Care preview requires a separate EmberlingCare.fbx output")
+if walk_preview and not care_preview and out.stem != "EmberlingWander":
     raise ValueError("Walk preview requires a separate EmberlingWander.fbx output")
 out.parent.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
@@ -251,8 +254,44 @@ if walk_preview:
         for label in ("L","R"):pose["Eye_"+label].scale=(1,1,1)
         for name,prop in [("Chest","scale"),("Head","rotation_euler"),("Tail1","rotation_euler"),("Tail2","rotation_euler"),("Flame","scale"),("Eye_L","scale"),("Eye_R","scale")]:
             pose[name].keyframe_insert(data_path=prop,frame=frame,group=name)
+if care_preview:
+    # Additional disjoint baked clips (30 fps).
+    # Eat 218..278 (2s), Doze 279..399 (4s), Happy 400..445 (1.5s).
+    # Single-bone legs remain standing. Doze is not a full lying-down pose.
+    scene.frame_end=445
+    for frame in range(218,446):
+        for bone in pose:
+            bone.rotation_euler=(0,0,0)
+            bone.scale=(1,1,1)
+        if frame<=278:
+            t=(frame-218)/60
+            envelope=math.sin(math.pi*t)**2
+            # Head dips and bobs; no articulated jaw on this prototype.
+            pose["Head"].rotation_euler=(-.34*envelope+.035*envelope*math.sin(2*math.pi*5*t),0,0)
+            pose["Chest"].rotation_euler=(-.08*envelope,0,0)
+            pose["Tail2"].rotation_euler=(0,0,.11*math.sin(2*math.pi*t))
+        elif frame<=399:
+            t=(frame-279)/120
+            breath=math.sin(4*math.pi*t)
+            pose["Head"].rotation_euler=(-.19+.015*breath,0,0)
+            pose["Chest"].scale=(1+.013*breath,1+.008*breath,1+.013*breath)
+            pose["Tail1"].rotation_euler=(.08,0,.025*math.sin(2*math.pi*t))
+            for label in ("L","R"):pose["Eye_"+label].scale=(1,.10,1)
+        else:
+            t=(frame-400)/45
+            envelope=math.sin(math.pi*t)**2
+            pose["Head"].rotation_euler=(.12*envelope,0,.08*envelope*math.sin(4*math.pi*t))
+            pose["Tail1"].rotation_euler=(0,0,.20*envelope*math.sin(6*math.pi*t))
+            pose["Tail2"].rotation_euler=(0,0,.25*envelope*math.sin(6*math.pi*t-.4))
+            pose["Flame"].scale=(1+.10*envelope,1+.06*envelope,1+.10*envelope)
+            for label in ("L","R"):pose["Eye_"+label].scale=(1,1-.45*envelope,1)
+        # Key every deform channel to prevent curves bleeding across clip boundaries.
+        for bone in pose:
+            if bone.name=="Root":continue
+            for prop in ("rotation_euler","scale"):
+                bone.keyframe_insert(data_path=prop,frame=frame,group=bone.name)
 action=arm.animation_data.action
-action.name="Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
+action.name="Emberling_Care" if care_preview else "Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
 scene.frame_set(1)
 bpy.ops.object.select_all(action='DESELECT')
 arm.select_set(True)
