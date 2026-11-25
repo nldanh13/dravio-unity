@@ -72,7 +72,7 @@ namespace Dravio.Domain.Tests.Support
                 var eo = Obj();
                 eo["id"] = e.Id; eo["parentIds"] = Arr(e.ParentIds); eo["speciesId"] = e.SpeciesId; eo["genotype"] = Genotype(e.Genotype); eo["mutation"] = e.Mutation.ToWire();
                 eo["createdAtMs"] = N(e.CreatedAtMs); eo["finishAtMs"] = N(e.FinishAtMs); eo["durationMs"] = N(e.DurationMs); eo["tapReducedMs"] = N(e.TapReducedMs);
-                eo["lastTapAtMs"] = N(e.LastTapAtMs); eo["boostUsed"] = e.BoostUsed; eo["status"] = e.Status.ToWire();
+                eo["lastTapAtMs"] = N(e.LastTapAtMs); eo["status"] = e.Status.ToWire();
                 o["breedingNest"] = eo; // v5; vắng mặt khi tổ trống để so được với golden v4 của TS
             }
             o["unlockedAchievements"] = Arr(s.UnlockedAchievements);

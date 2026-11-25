@@ -10,7 +10,7 @@ using Dravio.Domain.World;
 namespace Dravio.Domain.Breeding
 {
     /// <summary>
-    /// Gói trứng thường, gói Starter miễn phí hằng ngày và tổ ấp (U2.5). IMPLEMENTATION MỚI theo GDD 3.1 (trang 8, 15, 29, 32,
+    /// Gói trứng thường và tổ ấp (U2.5). IMPLEMENTATION MỚI theo GDD 3.1 (trang 8, 15, 32,
     /// Phụ lục C) và ADR 0003 — TS b33ec7a chỉ có các hàm thuần (rollPackSpecies, rollMutation, checkBreed, rollBreed…), chưa có lệnh,
     /// nên phần này KHÔNG có parity với TS. Các hàm thuần dùng ở đây thì có parity (golden ts-genetics).
     ///
@@ -55,30 +55,6 @@ namespace Dravio.Domain.Breeding
             s.Player.Gold = s.Player.Gold - price;
             PendingPack egg = RollPack(s, pack, "buyPack", nowMs);
             events.Add(new PackBought(pack.Id, egg.SpeciesId, price.Micro, false));
-            return null;
-        }
-
-        public static DomainErrorCode? CheckFreeStarter(GameState s, long nowMs)
-        {
-            if (s.PendingPack != null) return DomainErrorCode.PackPending;
-            if (!HasRoomForNewEgg(s)) return DomainErrorCode.StorageFull;
-            if (FreeStarterClaimedToday(s, nowMs) >= StorageCatalog.DailyFreeStarterPacks) return DomainErrorCode.DailyLimit;
-            return null;
-        }
-
-        /// <summary>Số gói miễn phí đã nhận trong ngày UTC của nowMs (bộ đếm stats tự về 0 khi sang ngày).</summary>
-        public static int FreeStarterClaimedToday(GameState s, long nowMs) =>
-            s.Player.Stats.LastDailyResetDate == JsCompat.UtcDay(nowMs) ? (int)s.Player.Stats.DailyFreePacksClaimed : 0;
-
-        public static DomainErrorCode? ApplyFreeStarter(GameState s, long nowMs, List<DomainEvent> events)
-        {
-            DomainErrorCode? err = CheckFreeStarter(s, nowMs);
-            if (err != null) return err;
-            int claimed = FreeStarterClaimedToday(s, nowMs);
-            s.Player.Stats.LastDailyResetDate = JsCompat.UtcDay(nowMs);
-            s.Player.Stats.DailyFreePacksClaimed = claimed + 1;
-            PendingPack egg = RollPack(s, PackCatalog.Get(ProgressCatalog.TutorialPackId), "freeStarter", nowMs);
-            events.Add(new PackBought(egg.PackId, egg.SpeciesId, 0, false));
             return null;
         }
 
@@ -166,7 +142,7 @@ namespace Dravio.Domain.Breeding
             s.BreedingNest = new BreedingEgg
             {
                 Id = eggUid, ParentIds = new[] { a.Uid, b.Uid }, SpeciesId = outcome.SpeciesId, Genotype = outcome.Genotype, Mutation = m.Mutation,
-                CreatedAtMs = nowMs, FinishAtMs = nowMs + durationMs, DurationMs = durationMs, TapReducedMs = 0, LastTapAtMs = 0, BoostUsed = false,
+                CreatedAtMs = nowMs, FinishAtMs = nowMs + durationMs, DurationMs = durationMs, TapReducedMs = 0, LastTapAtMs = 0,
                 Status = EggStatus.Incubating,
             };
             events.Add(new BreedStarted(eggUid, a.Uid, b.Uid, fee.Micro, s.BreedingNest.FinishAtMs));

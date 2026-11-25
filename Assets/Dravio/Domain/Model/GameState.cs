@@ -73,7 +73,7 @@ namespace Dravio.Domain
         }
     }
 
-    /// <summary>Trứng đã roll và lưu, chờ nhận (schema v4). Lệnh buyTutorialPack (U2.4), buyPack / claimFreeStarterPack (U2.5) tạo; claimPack nhận.</summary>
+    /// <summary>Trứng đã roll và lưu, chờ nhận (schema v4). Lệnh buyTutorialPack (U2.4), buyPack (U2.5) tạo; claimPack nhận.</summary>
     public sealed class PendingPack
     {
         public string Id { get; set; }
@@ -111,8 +111,6 @@ namespace Dravio.Domain
         public long TapReducedMs { get; set; }
         /// <summary>0 = chưa gõ lần nào.</summary>
         public long LastTapAtMs { get; set; }
-        /// <summary>Đã dùng giảm 25 % bằng quảng cáo (mobile). U2.5 chưa có lệnh boost nên luôn false.</summary>
-        public bool BoostUsed { get; set; }
         public EggStatus Status { get; set; }
 
         public BreedingEgg Clone()

@@ -79,7 +79,6 @@ namespace Dravio.Domain.Core
                 case ClaimPackCommand c: return SettleThen(s, nowMs, events, () => StarterPack.CheckClaim(s, c.Target, nowMs), () => StarterPack.ApplyClaim(s, c.Target, nowMs, events));
                 // ---- U2.5 (implementation mới, GDD/ADR 0003): mọi giao dịch kiểm trước, quyết toán online tới now, rồi áp dụng ----
                 case BuyPackCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckBuyPack(s, c.PackId), () => Hatchery.ApplyBuyPack(s, c.PackId, nowMs, events));
-                case ClaimFreeStarterPackCommand _: return SettleThen(s, nowMs, events, () => Hatchery.CheckFreeStarter(s, nowMs), () => Hatchery.ApplyFreeStarter(s, nowMs, events));
                 case StartBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckStartBreed(s, c.ParentA, c.ParentB, nowMs), () => Hatchery.ApplyStartBreed(s, c.ParentA, c.ParentB, nowMs, events));
                 case TapEggCommand _: return SettleThen(s, nowMs, events, () => Hatchery.CheckTap(s, nowMs), () => Hatchery.ApplyTap(s, nowMs, events));
                 case ClaimBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckClaimBreed(s, c.Target, nowMs), () => Hatchery.ApplyClaimBreed(s, c.Target, nowMs, events));

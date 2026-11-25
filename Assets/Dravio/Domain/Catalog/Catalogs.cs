@@ -238,8 +238,6 @@ namespace Dravio.Domain.Catalog
     public static class StorageCatalog
     {
         public const int MaxDragons = 500;
-        /// <summary>"Starter miễn phí tối đa 3/ngày" (GDD trang 29, quảng cáo mobile baseline v2), đếm theo ngày UTC.</summary>
-        public const int DailyFreeStarterPacks = 3;
     }
 
     /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>

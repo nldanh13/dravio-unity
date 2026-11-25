@@ -143,8 +143,6 @@ namespace Dravio.Persistence.Tests.Support
         public long Monotonic;
         public ISaveStore Store;
         public IWriterLock Lock;
-        /// <summary>Xác thực quảng cáo có thưởng giả lập cho test (null = nền tảng không có quảng cáo).</summary>
-        public Func<bool> RewardedAds;
         private int _ids;
 
         public SessionRig(ISaveStore store, long wallNow, IWriterLock writerLock = null)
@@ -156,7 +154,7 @@ namespace Dravio.Persistence.Tests.Support
         {
             var s = new GameSession(new SessionEnvironment
             {
-                Clock = Clock, Store = Store, WriterLock = Lock, Scheduler = Scheduler, StartVisible = visible, RewardedAdVerified = RewardedAds,
+                Clock = Clock, Store = Store, WriterLock = Lock, Scheduler = Scheduler, StartVisible = visible,
                 NewId = () => "id-" + (++_ids).ToString("D6", System.Globalization.CultureInfo.InvariantCulture),
             });
             Scheduler.Pump(Monotonic);

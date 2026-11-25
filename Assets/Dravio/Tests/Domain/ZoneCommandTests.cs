@@ -122,9 +122,9 @@ namespace Dravio.Domain.Tests
             var (s, _) = Game();
             GameState d = Discover(s, "DISC_AQUATIC_HABITAT");
             Assert.That(Zones.RecordDiscovery(d.DeepClone(), "DISC_AQUATIC_HABITAT", new List<DomainEvent>()), Is.EqualTo(DomainErrorCode.AlreadyThere));
-            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: 13 lệnh công khai của bản TS + 5 lệnh mới của U2.5.
+            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: 13 lệnh công khai của bản TS + 4 lệnh mới của U2.5.
             var commandTypes = typeof(GameCommand).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(GameCommand)) && !t.IsAbstract).Select(t => t.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
-            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "BuyPackCommand", "BuyTutorialPackCommand", "ClaimBreedCommand", "ClaimFreeStarterPackCommand", "ClaimPackCommand",
+            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "BuyPackCommand", "BuyTutorialPackCommand", "ClaimBreedCommand", "ClaimPackCommand",
                 "ConsumeFoodCommand", "FeedCommand", "MoveDragonCommand", "PetCommand", "RenameDragonCommand", "SetProductionSlotCommand", "SetTutorialStatusCommand",
                 "StartBreedCommand", "SurveyHabitatCommand", "TapEggCommand", "UnlockHabitatCommand", "ViewBiologyProfileCommand" }));
         }

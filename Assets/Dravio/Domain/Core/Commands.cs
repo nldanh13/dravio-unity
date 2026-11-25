@@ -170,17 +170,6 @@ namespace Dravio.Domain.Core
         internal override bool IsWellFormed() => IsId(PackId);
     }
 
-    /// <summary>
-    /// Gói Starter miễn phí, tối đa 3/ngày UTC (GDD trang 29: thưởng quảng cáo mobile). Domain chỉ giữ hạn mức; lớp Platform
-    /// chỉ được gửi lệnh này sau khi quảng cáo có thưởng đã được store/backend xác thực (GameSession từ chối nếu không có bộ xác thực).
-    /// </summary>
-    public sealed class ClaimFreeStarterPackCommand : GameCommand
-    {
-        public ClaimFreeStarterPackCommand(string requestId) : base(requestId) { }
-        public override string Type => "claimFreeStarterPack";
-        internal override bool IsWellFormed() => true;
-    }
-
     /// <summary>Bắt đầu lai hai rồng (startBreed, GDD Phụ lục C.3).</summary>
     public sealed class StartBreedCommand : GameCommand
     {

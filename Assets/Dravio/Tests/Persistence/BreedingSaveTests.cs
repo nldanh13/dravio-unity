@@ -15,7 +15,7 @@ namespace Dravio.Persistence.Tests
 {
     /// <summary>
     /// U2.5 × Save Schema v5 (implementation mới, chỉ ở bản Unity): tổ ấp qua vòng lưu–nạp, migration v4 → v5, lưu ngay sau giao dịch,
-    /// chống mất vàng / nhân bản rồng / nhận thưởng hai lần qua khởi động lại, và cổng xác thực quảng cáo cho gói miễn phí.
+    /// chống mất vàng / nhân bản rồng / nhận thưởng hai lần qua khởi động lại.
     /// </summary>
     public sealed class BreedingSaveTests
     {
@@ -113,13 +113,13 @@ namespace Dravio.Persistence.Tests
             Assert.That(SaveFile.Parse(SaveSchema.Serialize(freed, t)).Code, Is.EqualTo(SaveErrorCode.InvalidState));
         }
 
-        private static (SessionRig rig, MemorySaveStore store) RigWith(GameState s, Func<bool> ads = null)
+        private static (SessionRig rig, MemorySaveStore store) RigWith(GameState s)
         {
             var store = new MemorySaveStore();
             var mgr = new SaveManager(store, () => s.Clock.LastProcessedAtMs);
             mgr.Load();
             mgr.Save(s);
-            return (new SessionRig(store, s.Clock.LastProcessedAtMs) { RewardedAds = ads }, store);
+            return (new SessionRig(store, s.Clock.LastProcessedAtMs) , store);
         }
 
         [Test]
@@ -151,28 +151,6 @@ namespace Dravio.Persistence.Tests
             Assert.That(c.Send(id => new ClaimBreedCommand(id, MoveTarget.Storage)).Code, Is.EqualTo(DomainErrorCode.NoEgg));
             Assert.That(c.State.Player.Stats.TotalBred, Is.EqualTo(1));
             c.Dispose();
-        }
-
-        [Test]
-        public void Free_starter_needs_a_verified_rewarded_ad_and_is_saved_immediately()
-        {
-            var (rig, store) = RigWith(RichPair());
-            GameSession noAds = rig.NewSession();
-            DomainError e = noAds.Send(id => new ClaimFreeStarterPackCommand(id));
-            Assert.That((e.Code, e.Detail), Is.EqualTo((DomainErrorCode.InvalidCommand, "rewarded-ad-not-verified")));
-            Assert.That(noAds.State.PendingPack, Is.Null);
-            noAds.Dispose();
-
-            int verified = 1;
-            var (rig2, store2) = RigWith(RichPair(), () => verified-- > 0);
-            GameSession s = rig2.NewSession();
-            int w = store2.Writes;
-            Assert.That(s.Send(id => new ClaimFreeStarterPackCommand(id)), Is.Null);
-            Assert.That((store2.Writes, Reload(store2).PendingPack?.PackId), Is.EqualTo((w + 1, "starter")));
-            Assert.That(s.Send(id => new ClaimPackCommand(id, MoveTarget.Storage)), Is.Null);
-            Assert.That(s.Send(id => new ClaimFreeStarterPackCommand(id)).Detail, Is.EqualTo("rewarded-ad-not-verified"), "một lượt xem = một gói");
-            Assert.That(Reload(store2).Player.Stats.DailyFreePacksClaimed, Is.EqualTo(1));
-            s.Dispose();
         }
 
         [Test]

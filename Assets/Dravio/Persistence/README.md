@@ -25,7 +25,7 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 Envelope có các trường `{ format: "dravio-save", schemaVersion: 5, contentVersion, savedAtMs, revision, checksum, state }`.
 
-**U2.5 — Schema v5 chỉ có ở bản Unity.** TS b33ec7a dừng ở v4. Bản Unity thêm đúng một khóa `breedingNest`: `null`, hoặc `BreedingEgg` theo GDD Phụ lục C.2 (`id, parentIds, speciesId, genotype, mutation, createdAtMs, finishAtMs, durationMs, tapReducedMs, lastTapAtMs, boostUsed, status`).
+**U2.5 — Schema v5 chỉ có ở bản Unity.** TS b33ec7a dừng ở v4. Bản Unity thêm đúng một khóa `breedingNest`: `null`, hoặc `BreedingEgg` theo GDD Phụ lục C.2 (`id, parentIds, speciesId, genotype, mutation, createdAtMs, finishAtMs, durationMs, tapReducedMs, lastTapAtMs, status`).
 - **Migration 4 → 5**: thêm `breedingNest = null`. Rồng nào mang `activity = "breeding"` mà không có tổ (state v4 không thể tạo ra trứng) được trả về `idle`. Ngoài ra không đổi vàng, rồng, gene, phả hệ hay thành tựu.
 - **Lưu trữ bản gốc**: save v4 do TS ghi được giữ nguyên văn trong `archive:schema-4` trước lần ghi v5 đầu tiên.
 - **Mã lỗi**: save v4 hỏng nội dung vẫn báo `invalid-state` như TS, không thành `migration-failed`, vì bước 4 → 5 không biến đổi dữ liệu.
@@ -137,7 +137,7 @@ Nội dung bộ test:
 - **Đồng hồ và phiên:** đồng hồ lùi giữa hai phiên, nhảy giờ tới rồi lùi, offline 24 h qua nhiều lần khởi động, crash trước khi lưu quyết toán offline, Hide/Show dồn dập, chuỗi vòng đời ngẫu nhiên (5 seed × 300 bước, kiểm vàng ≤ tốc độ × thời gian thực), phiên thứ hai chỉ đọc, xung đột ghi, save bản mới hơn, bắt đầu lại.
 - **Tương thích chéo:** 18 save do C# ghi được `parseSaveText` của TS đọc với state trùng (`CrossRuntimeExportTests` + `Tools~/verify-csharp-saves.test.ts`).
 - **U2.4 (`ProgressSaveTests`):** `tutorial` / `pendingPack` / thành tựu qua vòng lưu–nạp Schema v4 không đổi một byte canonical; `GameSession` lưu ngay sau `buyTutorialPack` và `claimPack` (không đợi autosave 30 s; lệnh bị từ chối không ghi); 3 lần khởi động lại không cấp lại thưởng và không mua được gói lần hai; save v2 thật sau migration không được cấp gì, lần dispatch đầu ghi nhận `TUT_01`, `TUT_02` và `ACH_FIRST_ADULT` (+100 G) đúng một lần, giống TS. 3 save C# giữa/sau hướng dẫn được xuất cho TS đọc (tổng cộng hơn 20 save chéo).
-- **U2.5 (`BreedingSaveTests`):** tổ đang ấp qua vòng lưu–nạp v5; migration v4 → v5 (giữ mọi trường, lưu `archive:schema-4` nguyên văn, giải phóng rồng "breeding" mồ côi); tổ bị sửa tay bị từ chối khi nạp; `GameSession` lưu ngay sau `buyPack` / `startBreed` / `claimBreed` / `claimFreeStarterPack`; tắt app ngay sau giao dịch rồi mở lại: không roll lại, không trừ vàng hai lần, nhận con đúng một lần; gói miễn phí bị chặn khi không có xác thực quảng cáo, một lượt xem = một gói; mua thất bại không ghi và không đổi vàng.
+- **U2.5 (`BreedingSaveTests`):** tổ đang ấp qua vòng lưu–nạp v5; migration v4 → v5 (giữ mọi trường, lưu `archive:schema-4` nguyên văn, giải phóng rồng "breeding" mồ côi); tổ bị sửa tay bị từ chối khi nạp; `GameSession` lưu ngay sau `buyPack` / `startBreed` / `claimBreed`; tắt app ngay sau giao dịch rồi mở lại: không roll lại, không trừ vàng hai lần, nhận con đúng một lần; mua thất bại không ghi và không đổi vàng.
 
 Chưa chạy:
 - Unity Editor 6000.6.10f1: chưa biên dịch thật, chưa chạy Test Runner. `DravioSessionHost` chỉ được biên dịch với UnityEngine giả.

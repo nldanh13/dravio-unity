@@ -5,7 +5,7 @@ namespace Dravio.Domain.Core
 {
     /// <summary>
     /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS (khóa i18n
-    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 19 mã mới của U2.5 (gói thường, gói miễn phí, tổ ấp, từ chối lai). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
+    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
     /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile; U2.4 thêm gói Starter và hướng dẫn.
     /// </summary>
     public enum DomainErrorCode
@@ -44,7 +44,6 @@ namespace Dravio.Domain.Core
         // ---- U2.5: implementation mới (không có ở TS b33ec7a, không thuộc 30 mã có parity) ----
         [WireName("unknown-pack")] UnknownPack,
         [WireName("storage-full")] StorageFull,
-        [WireName("daily-limit")] DailyLimit,
         [WireName("nest-busy")] NestBusy,
         [WireName("no-egg")] NoEgg,
         [WireName("egg-not-ready")] EggNotReady,

@@ -22,12 +22,6 @@ namespace Dravio.Platform
         public Func<string> NewId { get; set; } = () => Guid.NewGuid().ToString();
         /// <summary>Trạng thái hiển thị lúc khởi động (Unity: Application.isFocused / không paused).</summary>
         public bool StartVisible { get; set; } = true;
-        /// <summary>
-        /// Xác thực quảng cáo có thưởng cho gói Starter miễn phí (GDD trang 29: entitlement do store/backend xác thực, không tin save;
-        /// mock chỉ ở DEV). null = nền tảng chưa có quảng cáo → lệnh claimFreeStarterPack bị từ chối ở phiên, không tới Domain.
-        /// Trả true chỉ khi phần thưởng của lượt xem đã được xác thực và chưa dùng.
-        /// </summary>
-        public Func<bool> RewardedAdVerified { get; set; }
     }
 
     /// <summary>
@@ -237,22 +231,20 @@ namespace Dravio.Platform
             GameState s = State;
             if (s == null || Status != SessionStatus.Ready || _swapping) return null;
             GameCommand cmd = build(_env.NewId());
-            if (cmd is ClaimFreeStarterPackCommand && (_env.RewardedAdVerified == null || !_env.RewardedAdVerified()))
-                return new DomainError(DomainErrorCode.InvalidCommand, "rewarded-ad-not-verified");
             DispatchResult r = CommandDispatcher.Dispatch(s, cmd, _env.Clock);
             if (!r.Ok) return r.Error;
             State = r.State;
             if (r.Events.Count > 0) DomainEvents?.Invoke(r.Events);
             Notify();
             // Giao dịch quan trọng: lưu ngay để kết quả đã roll, vàng đã trừ và thưởng đã nhận không thể làm lại bằng cách tắt app
-            // (IMMEDIATE_SAVE của gameSession.ts cho buyTutorialPack/claimPack; U2.5 thêm gói thường, gói miễn phí, lai và nhận con).
+            // (IMMEDIATE_SAVE của gameSession.ts cho buyTutorialPack/claimPack; U2.5 thêm gói thường, lai và nhận con).
             if (IsImmediateSave(cmd)) SaveNow();
             return null;
         }
 
         /// <summary>Lệnh trừ tài nguyên, tạo UID hoặc roll kết quả → lưu ngay sau khi thành công.</summary>
         public static bool IsImmediateSave(GameCommand cmd) =>
-            cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand || cmd is BuyPackCommand || cmd is ClaimFreeStarterPackCommand ||
+            cmd is BuyTutorialPackCommand || cmd is ClaimPackCommand || cmd is BuyPackCommand ||
             cmd is StartBreedCommand || cmd is ClaimBreedCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;

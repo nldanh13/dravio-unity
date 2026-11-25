@@ -12,7 +12,7 @@ using static Dravio.Domain.Tests.Support.Fixtures;
 namespace Dravio.Domain.Tests
 {
     /// <summary>
-    /// U2.5 — lệnh buyPack / claimFreeStarterPack / startBreed / tapEgg / claimBreed. IMPLEMENTATION MỚI theo GDD 3.1 + ADR 0003:
+    /// U2.5 — lệnh buyPack / startBreed / tapEgg / claimBreed. IMPLEMENTATION MỚI theo GDD 3.1 + ADR 0003:
     /// TS b33ec7a không có các lệnh này nên test ở đây kiểm luật tài liệu, không phải parity (parity của hàm thuần ở GeneticsGoldenParityTests).
     /// </summary>
     public sealed class HatcheryTests
@@ -80,7 +80,6 @@ namespace Dravio.Domain.Tests
             Fail(s, Buy("legend-chest"), clock, DomainErrorCode.UnknownPack);
             GameState pending = Ok(s, Buy("elemental"), clock).State;
             Fail(pending, Buy("elemental"), clock, DomainErrorCode.PackPending);
-            Fail(pending, new ClaimFreeStarterPackCommand(Rid()), clock, DomainErrorCode.PackPending);
             GameState full = Fill(s, StorageCatalog.MaxDragons);
             Fail(full, Buy("elemental"), clock, DomainErrorCode.StorageFull);
             Assert.That(Ok(Fill(s, StorageCatalog.MaxDragons - 1), Buy("elemental"), clock).State.PendingPack, Is.Not.Null, "499 + 1 trứng = 500 vẫn được");
@@ -128,31 +127,6 @@ namespace Dravio.Domain.Tests
             DispatchResult c2 = Ok(again, new ClaimPackCommand(Rid(), MoveTarget.Storage), clock);
             Assert.That(c2.Events.OfType<AchievementUnlocked>(), Is.Empty, "thưởng lần đầu ấp trứng chỉ một lần");
             Assert.That(c2.State.Player.Stats.TotalHatched, Is.EqualTo(2));
-        }
-
-        // ---------------- claimFreeStarterPack ----------------
-
-        [Test]
-        public void Free_starter_is_limited_to_3_per_UTC_day_costs_nothing_and_resets_next_day()
-        {
-            var (s, clock) = Rich(0);
-            for (int i = 0; i < StorageCatalog.DailyFreeStarterPacks; i++)
-            {
-                DispatchResult r = Ok(s, new ClaimFreeStarterPackCommand(Rid()), clock);
-                Assert.That(r.State.PendingPack.PackId, Is.EqualTo("starter"));
-                Assert.That(r.Events.OfType<PackBought>().Single().PriceGoldMicro, Is.EqualTo(0));
-                Assert.That(Gold(r.State), Is.EqualTo(r.State.Player.TotalGoldEarned.Micro + r.Events.OfType<AchievementUnlocked>().Sum(e => e.RewardGoldMicro) + Gold(s) - s.Player.TotalGoldEarned.Micro));
-                s = Ok(r.State, new ClaimPackCommand(Rid(), MoveTarget.Storage), clock).State;
-                clock.Advance(1000);
-            }
-            Assert.That(s.Player.Stats.DailyFreePacksClaimed, Is.EqualTo(3));
-            Fail(s, new ClaimFreeStarterPackCommand(Rid()), clock, DomainErrorCode.DailyLimit);
-            long midnight = (T0 / 86_400_000 + 1) * 86_400_000;
-            clock.Set(midnight - 1);
-            Fail(s, new ClaimFreeStarterPackCommand(Rid()), clock, DomainErrorCode.DailyLimit);
-            clock.Set(midnight);
-            GameState next = Ok(s, new ClaimFreeStarterPackCommand(Rid()), clock).State;
-            Assert.That((next.Player.Stats.DailyFreePacksClaimed, next.Player.Stats.LastDailyResetDate), Is.EqualTo((1L, JsCompat.UtcDay(midnight))));
         }
 
         // ---------------- startBreed ----------------

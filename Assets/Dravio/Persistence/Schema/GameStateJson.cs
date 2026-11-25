@@ -116,7 +116,7 @@ namespace Dravio.Persistence.Schema
         private static JsonObject NestToJson(BreedingEgg e) =>
             new JsonObject().Set("id", S(e.Id)).Set("parentIds", Arr(e.ParentIds)).Set("speciesId", S(e.SpeciesId)).Set("genotype", GenotypeToJson(e.Genotype))
                 .Set("mutation", S(e.Mutation.ToWire())).Set("createdAtMs", N(e.CreatedAtMs)).Set("finishAtMs", N(e.FinishAtMs)).Set("durationMs", N(e.DurationMs))
-                .Set("tapReducedMs", N(e.TapReducedMs)).Set("lastTapAtMs", N(e.LastTapAtMs)).Set("boostUsed", JsonValue.From(e.BoostUsed)).Set("status", S(e.Status.ToWire()));
+                .Set("tapReducedMs", N(e.TapReducedMs)).Set("lastTapAtMs", N(e.LastTapAtMs)).Set("status", S(e.Status.ToWire()));
 
         public static JsonObject DragonToJson(DragonState d)
         {
@@ -347,7 +347,7 @@ namespace Dravio.Persistence.Schema
                     Genotype = GenotypeFromJson(no.Get("genotype"), nr), Mutation = nr.Enum(no, "mutation", "x", MutationType.Normal),
                     CreatedAtMs = nr.LongOr(no, "createdAtMs", "x", -1), FinishAtMs = nr.LongOr(no, "finishAtMs", "x", -1),
                     DurationMs = nr.LongOr(no, "durationMs", "x", -1), TapReducedMs = nr.LongOr(no, "tapReducedMs", "x", -1),
-                    LastTapAtMs = nr.LongOr(no, "lastTapAtMs", "x", -1), BoostUsed = nr.Bool(no, "boostUsed", "x"),
+                    LastTapAtMs = nr.LongOr(no, "lastTapAtMs", "x", -1),
                     Status = nr.Enum(no, "status", "x", EggStatus.Incubating),
                 };
                 if (parents == null) nr.Errors.Add("parentIds");
