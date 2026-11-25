@@ -21,6 +21,7 @@ namespace Dravio.Editor
         const string WanderTarget = Root + "/Scenes/EmberlingWanderPreview.unity";
         const string CareTarget = Root + "/Scenes/EmberlingCarePreview.unity";
         const string PolishTarget = Root + "/Scenes/EmberlingPolishedPreview.unity";
+        const string FantasyTarget = Root + "/Scenes/EmberlingFantasyPreview.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 
@@ -39,17 +40,26 @@ namespace Dravio.Editor
         [MenuItem("Dravio/Preview Selected Polished Emberling FBX")]
         public static void PreviewPolished() => PreviewInternal(true, true, true, true);
 
-        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false)
+        [MenuItem("Dravio/Create or Open Fantasy Preview")]
+        public static void PreviewFantasy() => PreviewInternal(true, true, true, true, true);
+
+        private static void PreviewInternal(bool living, bool wander = false, bool care = false, bool polish = false, bool fantasy = false)
         {
-            string target = polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
+            string target = fantasy ? FantasyTarget : polish ? PolishTarget : care ? CareTarget : wander ? WanderTarget : living ? LivingTarget : StaticTarget;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (fantasy && AssetDatabase.LoadAssetAtPath<SceneAsset>(target) != null)
+            {
+                if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                    EditorSceneManager.OpenScene(target);
+                return;
+            }
+            string assetPath = fantasy ? Root + "/Art/Models/EmberlingPolished.fbx" : AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(assetPath) ||
                 !assetPath.StartsWith("Assets/", StringComparison.Ordinal) ||
                 !assetPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase) ||
                 AssetImporter.GetAtPath(assetPath) is not ModelImporter)
             {
-                EditorUtility.DisplayDialog("Dravio", "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
+                EditorUtility.DisplayDialog("Dravio", fantasy ? "Export EmberlingPolished.fbx using scripts/art/Export-EmberlingPreview.ps1 -Mode Polished first." : "Select the imported Emberling Baby Normal FBX in the Project window.", "OK");
                 return;
             }
             if (living)
@@ -190,7 +200,8 @@ namespace Dravio.Editor
             if (care)
             {
                 var animator = visual.GetComponentInChildren<Animator>(true);
-                CarePreviewHud.Build(root.gameObject, animator, turntable);
+                if (fantasy) FantasyPreviewHud.Build(root.gameObject, animator, turntable);
+                else CarePreviewHud.Build(root.gameObject, animator, turntable);
                 if (polish)
                 {
                     try { EmberlingPolishBuilder.Apply(root.gameObject, visual, Camera.main); }
