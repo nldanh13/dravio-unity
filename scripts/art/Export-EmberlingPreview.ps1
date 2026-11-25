@@ -1,6 +1,6 @@
 param(
     [string]$Blender = "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe",
-    [ValidateSet("Wander","Care","Polished")][string]$Mode = "Polished"
+    [ValidateSet("Wander","Care","Polished")][string]$Mode = "Care"
 )
 $ErrorActionPreference = "Stop"
 Push-Location (Join-Path $PSScriptRoot "../..")
