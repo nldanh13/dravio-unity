@@ -11,6 +11,7 @@ using Dravio.Domain.Progression;
 using Dravio.Domain.Queries;
 using Dravio.Domain.Economy;
 using Dravio.Domain.Sanctuary;
+using Dravio.Domain.Health;
 using Dravio.Platform;
 using Dravio.Platform.Unity;
 using Dravio.EnvironmentArt;
@@ -35,6 +36,9 @@ namespace Dravio
         [SerializeField] private Button unlockOceanButton,unlockSkyButton,claimExpeditionButton;
         [SerializeField] private Text[] upgradeStatus;
         [SerializeField] private Button[] upgradeButtons;
+        [SerializeField] private Text healthStatus,careCaseStatus,carePlanStatus;
+        [SerializeField] private Button healthNext,healthShelter,healthAssess,healthNextPlan,healthApplyPlan,healthStart,healthReview,healthDischarge;
+        private string healthUid,healthCaseId,healthPlanId;
         private string parentA, parentB;
         private GameSession Session=>host!=null?host.Session:null;
         private bool persistentMode=>host!=null;
@@ -69,6 +73,14 @@ namespace Dravio
             managementSummary=summary;managementWorld=world;managementCodex=codex;managementMaterials=materials;
             managementExpedition=expedition;managementFeedback=feedback;unlockOceanButton=ocean;unlockSkyButton=sky;
             claimExpeditionButton=claim;upgradeStatus=upgrades;upgradeButtons=purchases;
+        }
+
+        public void ConfigureHealth(Text status,Text caseStatus,Text planStatus,Button next,Button shelter,Button assess,
+            Button nextPlan,Button applyPlan,Button start,Button review,Button discharge)
+        {
+            healthStatus=status;careCaseStatus=caseStatus;carePlanStatus=planStatus;
+            healthNext=next;healthShelter=shelter;healthAssess=assess;healthNextPlan=nextPlan;
+            healthApplyPlan=applyPlan;healthStart=start;healthReview=review;healthDischarge=discharge;
         }
 
         private void Awake()
@@ -354,6 +366,109 @@ namespace Dravio
             return id;
         }
 
+        private DragonState[] HealthDragons()=>state==null?Array.Empty<DragonState>():
+            state.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).ToArray();
+
+        public void SelectNextHealthDragon()
+        {
+            var dragons=HealthDragons();
+            if(dragons.Length==0)return;
+            int index=Array.FindIndex(dragons,d=>d.Uid==healthUid);
+            healthUid=dragons[(index+1)%dragons.Length].Uid;
+            RefreshHealth();
+        }
+        public void SelectNextHealthPlan()
+        {
+            if(state==null || healthCaseId==null)return;
+            var plans=HealthQueries.CarePlans(state,healthCaseId);
+            if(plans.Count==0)return;
+            int index=plans.FindIndex(p=>p.PlanId==healthPlanId);
+            healthPlanId=plans[(index+1)%plans.Count].PlanId;
+            RefreshHealth();
+        }
+        public void ShelterHealthDragon()
+        {
+            if(persistentMode && healthUid!=null)GuideCommand(id=>new MoveToShelterCommand(id,healthUid),"Dragon sheltered.","Đã đưa rồng vào nơi trú.");
+        }
+        public void AssessHealthCase()
+        {
+            if(persistentMode && healthCaseId!=null)GuideCommand(id=>new AssessCaseCommand(id,healthCaseId),"Case assessed.","Đã nhận định ca.");
+        }
+        public void ApplyHealthPlan()
+        {
+            if(persistentMode && healthCaseId!=null && healthPlanId!=null)
+                GuideCommand(id=>new SetCarePlanCommand(id,healthCaseId,healthPlanId),"Plan selected.","Đã chọn kế hoạch.");
+        }
+        public void StartHealthCare()
+        {
+            if(persistentMode && healthCaseId!=null)GuideCommand(id=>new StartCareCommand(id,healthCaseId),"Care started.","Đã bắt đầu chăm sóc.");
+        }
+        public void ReviewHealthCase()
+        {
+            if(persistentMode && healthCaseId!=null)GuideCommand(id=>new ReviewCaseCommand(id,healthCaseId),"Recovery reviewed.","Đã lượng giá phục hồi.");
+        }
+        public void DischargeHealthCase()
+        {
+            if(persistentMode && healthCaseId!=null)GuideCommand(id=>new DischargeDragonCommand(id,healthCaseId,MoveTarget.Storage),"Discharged to storage.","Đã xuất viện về kho.");
+        }
+
+        private void RefreshHealth()
+        {
+            if(healthStatus==null)return;
+            bool ready=persistentMode && CanSend;
+            healthNext.interactable=healthShelter.interactable=healthAssess.interactable=healthNextPlan.interactable=
+                healthApplyPlan.interactable=healthStart.interactable=healthReview.interactable=healthDischarge.interactable=false;
+            if(state==null)return;
+            var dragons=HealthDragons();
+            if(!dragons.Any(d=>d.Uid==healthUid))healthUid=dragons.FirstOrDefault()?.Uid;
+            var selected=dragons.FirstOrDefault(d=>d.Uid==healthUid);
+            var station=HealthQueries.Station(state);
+            var disasters=HealthQueries.Disasters(state);
+            string stationText=(vi?"Trạm: ":"Station: ")+station.Used+"/"+station.Slots+
+                (vi?" · Chờ: ":" · Queue: ")+station.Queue.Count;
+            string warning=disasters.NaturalDisastersEnabled?(vi?"Thiên tai tự nhiên bật":"Natural disasters enabled"):
+                (vi?"Thiên tai tự nhiên tắt · chờ ADR 0202":"Natural disasters disabled · ADR 0202 pending");
+            if(selected==null)
+            {
+                healthStatus.text=stationText+"\n"+warning;
+                careCaseStatus.text=vi?"Không có rồng.":"No dragons.";
+                carePlanStatus.text="—";healthCaseId=healthPlanId=null;return;
+            }
+            healthNext.interactable=dragons.Length>1;
+            var info=HealthQueries.Dragon(state,selected.Uid);
+            var v=info.Vitals;
+            healthStatus.text=ParentLabel(selected.Uid)+"\n"+stationText+"\n"+warning+
+                (v==null?"\n—":(vi?"\nSức khỏe ":"\nHealth ")+v.Health+"/100 · "+(vi?"Vận động ":"Mobility ")+v.Mobility+"/100"+
+                (vi?"\nTiện nghi ":"\nComfort ")+v.Comfort+"/100 · "+(vi?"Năng lượng ":"Energy ")+v.Energy+"/100"+
+                (vi?"\nĐủ nước ":"\nHydration ")+v.Hydration+"/100")+
+                (info.ExposedToWarning?(vi?"\nCó cảnh báo · nên trú ẩn":"\nWarning · shelter advised"):"");
+            healthShelter.interactable=ready && DisasterEngine.CheckMoveToShelter(state,selected)==null;
+            var c=HealthQueries.Cases(state).FirstOrDefault(x=>x.DragonUid==healthUid);
+            if(c==null)
+            {
+                healthCaseId=healthPlanId=null;
+                careCaseStatus.text=vi?"Không có ca chăm sóc mở.":"No open care case.";
+                carePlanStatus.text="—";return;
+            }
+            if(healthCaseId!=c.CaseId){healthCaseId=c.CaseId;healthPlanId=c.CarePlanId;}
+            careCaseStatus.text=c.Site+" · "+c.Severity+"\n"+c.Status+" · "+c.Phase+
+                " · "+(c.Progress/10.0).ToString("0.0",CultureInfo.InvariantCulture)+"%"+
+                (c.QueuePosition>0?"\n"+(vi?"Vị trí chờ: ":"Queue position: ")+c.QueuePosition:"")+
+                (c.Symptoms.Count>0?"\n"+string.Join(", ",c.Symptoms):"")+
+                "\n"+(vi?"Bước tiếp: ":"Next: ")+c.NextStep;
+            healthAssess.interactable=ready && CareCenter.CheckAssess(state,c.CaseId)==null;
+            healthStart.interactable=ready && CareCenter.CheckStart(state,c.CaseId)==null;
+            healthReview.interactable=ready && CareCenter.CheckReview(state,c.CaseId)==null;
+            healthDischarge.interactable=ready && HealthQueries.DischargeEligibility(state,c.CaseId,MoveTarget.Storage)==null;
+            var plans=HealthQueries.CarePlans(state,c.CaseId);
+            if(!plans.Any(p=>p.PlanId==healthPlanId))healthPlanId=plans.FirstOrDefault()?.PlanId;
+            var plan=plans.FirstOrDefault(p=>p.PlanId==healthPlanId);
+            carePlanStatus.text=plan==null?"—":plan.PlanId+"\n"+(plan.Suitable?(vi?"Phù hợp":"Suitable"):(vi?"Không phù hợp":"Unsuitable"))+
+                "\n"+plan.ExplanationKey+"\n"+(vi?"Đã chọn: ":"Applied: ")+(c.CarePlanId??"—");
+            healthNextPlan.interactable=plans.Count>1 && c.Assessed && c.NextStep=="setCarePlan|startCare";
+            healthApplyPlan.interactable=ready && plan!=null && CareCenter.CheckSetPlan(state,c.CaseId,plan.PlanId,out _)==null;
+        }
+
         private void RefreshManagement()
         {
             if(managementSummary==null)return; // Older generated scenes do not have this page.
@@ -481,6 +596,7 @@ namespace Dravio
             if(hatcheryNotice!=null)hatcheryNotice.text=vi?messageVi:messageEn;
             if(managementFeedback!=null)managementFeedback.text=vi?messageVi:messageEn;
             RefreshManagement();
+            RefreshHealth();
             if(saveStatus!=null && Session!=null)
             {
                 saveStatus.text=Session.Status!=SessionStatus.Ready?(vi?"Phiên: ":"Session: ")+Session.Status:

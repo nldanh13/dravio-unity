@@ -115,6 +115,8 @@ namespace Dravio.Editor
 
             Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
             RectTransform guide=null,hatchery=null,management=null;
+            Text healthStatus=null,careCaseStatus=null,carePlanStatus=null;
+            Button healthNext=null,healthShelter=null,healthAssess=null,healthNextPlan=null,healthApplyPlan=null,healthStart=null,healthReview=null,healthDischarge=null;
             Text managementSummary=null,managementWorld=null,managementCodex=null,managementMaterials=null,managementExpedition=null,managementFeedback=null;
             var upgradeStatus=new List<Text>();
             var upgradeButtons=new List<Button>();
@@ -193,12 +195,24 @@ namespace Dravio.Editor
                 tap=Button(ui,hatchery,"Tap egg","Chạm trứng",46);
                 breedMeadow=Button(ui,hatchery,"Claim nest to meadow","Nhận rồng lai vào đồng cỏ",46);
                 breedStorage=Button(ui,hatchery,"Claim nest to storage","Nhận rồng lai vào kho",46);
-                Label(ui,hatchery,"No ads. Health-based breeding checks await the health engine.","Không quảng cáo. Điều kiện sức khỏe khi lai sẽ có khi tích hợp hệ thống sức khỏe.",13,Muted,TextAnchor.MiddleLeft,64);
+                Label(ui,hatchery,"No ads. Breeding eligibility includes health checks.","Không quảng cáo. Điều kiện lai bao gồm kiểm tra sức khỏe.",13,Muted,TextAnchor.MiddleLeft,64);
 
                 management=Page(host,"Management");
                 Label(ui,management,"Sanctuary overview","Tổng quan khu bảo tồn",18,Gold,TextAnchor.MiddleLeft,36);
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
+                Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
+                healthStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,180,false);
+                healthNext=Button(ui,management,"Next dragon","Rồng tiếp theo",46);
+                healthShelter=Button(ui,management,"Move to shelter","Đưa vào nơi trú",46);
+                careCaseStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,155,false);
+                healthAssess=Button(ui,management,"Assess case","Nhận định ca",46);
+                carePlanStatus=Label(ui,management,"—","—",14,Paper,TextAnchor.UpperLeft,100,false);
+                healthNextPlan=Button(ui,management,"Next care plan","Kế hoạch tiếp theo",46);
+                healthApplyPlan=Button(ui,management,"Apply care plan","Chọn kế hoạch",46);
+                healthStart=Button(ui,management,"Start care","Bắt đầu chăm sóc",46);
+                healthReview=Button(ui,management,"Review recovery","Lượng giá phục hồi",46);
+                healthDischarge=Button(ui,management,"Discharge to storage","Xuất viện về kho",46);
                 Label(ui,management,"World progress","Tiến độ thế giới",18,Gold,TextAnchor.MiddleLeft,36);
                 managementWorld=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,240,false);
                 unlockOcean=Button(ui,management,"Unlock Ocean","Mở Thủy Vực",46);
@@ -266,6 +280,18 @@ namespace Dravio.Editor
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(claimExpedition.onClick,session.ClaimExpeditionReward);
                     for(int i=0;i<upgradeButtons.Count;i++)
                         UnityEditor.Events.UnityEventTools.AddStringPersistentListener(upgradeButtons[i].onClick,session.BuySanctuaryUpgrade,EconomyTables.Upgrades[i].Id);
+                    session.ConfigureHealth(healthStatus,careCaseStatus,carePlanStatus,healthNext,healthShelter,healthAssess,
+                        healthNextPlan,healthApplyPlan,healthStart,healthReview,healthDischarge);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthNext.onClick,session.SelectNextHealthDragon);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthShelter.onClick,session.ShelterHealthDragon);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthAssess.onClick,session.AssessHealthCase);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthNextPlan.onClick,session.SelectNextHealthPlan);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthApplyPlan.onClick,session.ApplyHealthPlan);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthStart.onClick,session.StartHealthCare);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthReview.onClick,session.ReviewHealthCase);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(healthDischarge.onClick,session.DischargeHealthCase);
+                    foreach(var button in new[]{healthNext,healthShelter,healthAssess,healthNextPlan,healthApplyPlan,healthStart,healthReview,healthDischarge})
+                        button.interactable=false;
                     unlockOcean.interactable=unlockSky.interactable=claimExpedition.interactable=false;
                     foreach(var button in upgradeButtons)button.interactable=false;
                 }
