@@ -25,3 +25,7 @@
 /art-exports/
 .vscode/
 *.blend1
+
+# Python caches from scripts/
+__pycache__/
+*.pyc
