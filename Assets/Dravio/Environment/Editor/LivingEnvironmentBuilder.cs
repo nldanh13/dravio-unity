@@ -62,13 +62,13 @@ namespace Dravio.EnvironmentArt.EditorTools
         }
 
         // ----------------------------------------------------------------- scene
-        public static void AddToOpenScene(bool dialog)
+        public static void AddToOpenScene(bool dialog, string targetPath = OriginSanctuaryEnvironmentBuilder.ScenePath)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             var scene = EditorSceneManager.GetActiveScene();
-            if (scene.path != OriginSanctuaryEnvironmentBuilder.ScenePath)
+            if (scene.path != targetPath)
             {
-                string msg = "Open " + OriginSanctuaryEnvironmentBuilder.ScenePath + " first (menu 3). " +
+                string msg = "Open " + targetPath + " first. " +
                              "The living environment is only added to the Origin Sanctuary environment scene.";
                 Debug.LogWarning("Dravio Environment: " + msg);
                 if (dialog) EditorUtility.DisplayDialog("Dravio Environment", msg, "OK");
