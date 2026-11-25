@@ -30,7 +30,7 @@ namespace Dravio.Editor
             public readonly List<FantasyPreviewUI.Copy> copy=new();
         }
 
-        public static void Build(GameObject dragon,Animator animator,DragonTurntable turntable)
+        public static void Build(GameObject dragon,Animator animator,DragonTurntable turntable,bool integrated=false)
         {
             var asset=AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Dravio/Data/species-biology.json");
             if(asset==null)throw new InvalidOperationException("Canonical biology JSON missing.");
@@ -63,6 +63,12 @@ namespace Dravio.Editor
             bar.childControlWidth=true;bar.childControlHeight=true;bar.childForceExpandHeight=true;bar.childForceExpandWidth=false;
             var brand=Label(ui,header,"DRAVIO","DRAVIO",23,Gold,TextAnchor.MiddleLeft,38);
             brand.GetComponent<LayoutElement>().flexibleWidth=1;
+            Text gold=null;
+            if(integrated)
+            {
+                gold=Label(ui,header,"— G","— G",20,Gold,TextAnchor.MiddleCenter,38,false);
+                gold.GetComponent<LayoutElement>().preferredWidth=128;
+            }
             var lang=Button(ui,header,"Tiếng Việt","English",38,108);
             var hide=Button(ui,header,"Hide","Ẩn",38,70);
             var panel=Surface("Sanctuary drawer",safe,Wood);
@@ -72,7 +78,7 @@ namespace Dravio.Editor
             vertical.childControlHeight=true;vertical.childControlWidth=true;
             vertical.childForceExpandHeight=false;vertical.childForceExpandWidth=true;
 
-            Label(ui,panel,"Emberling • Baby / Normal","Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
+            Label(ui,panel,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
             var status=Label(ui,panel,"Resting","Đang nghỉ",16,Paper,TextAnchor.MiddleLeft,30,false);
             var tabsRoot=RectNode("Navigation",panel);
             var tabLayout=tabsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -86,6 +92,12 @@ namespace Dravio.Editor
             var info=Page(host,"Biology");
             var roster=Page(host,"Dragons");
 
+            Text progress=null,notice=null;
+            if(integrated)
+            {
+                progress=Label(ui,care,"—","—",15,Paper,TextAnchor.MiddleLeft,48,false);
+                notice=Label(ui,care,"Session only","Chỉ trong phiên chơi",14,Muted,TextAnchor.MiddleLeft,52,false);
+            }
             var row1=ActionRow(care);
             var feed=Button(ui,row1,"Feed","Cho ăn",56);
             var pet=Button(ui,row1,"Pet","Vuốt ve",56);
@@ -94,7 +106,8 @@ namespace Dravio.Editor
             var inspect=Button(ui,row2,"Inspect","Quan sát",56);
             var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",52);
             Label(ui,care,"Drag to rotate in inspection. F / P / N / Space / R on keyboard.","Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,52);
-            Label(ui,care,"Visual actions only. No food or bond changes yet.","Chỉ thử hoạt ảnh. Chưa trừ thức ăn hay thay đổi gắn kết.",14,Muted,TextAnchor.MiddleLeft,54);
+            if(integrated)Label(ui,care,"Session-only game data; no save or offline reward. Sleep and inspection are visual.","Dữ liệu trong phiên; chưa lưu hay thưởng offline. Ngủ và quan sát chỉ là hoạt ảnh.",14,Muted,TextAnchor.MiddleLeft,70);
+            else Label(ui,care,"Visual actions only. No food or bond changes yet.","Chỉ thử hoạt ảnh. Chưa trừ thức ăn hay thay đổi gắn kết.",14,Muted,TextAnchor.MiddleLeft,54);
 
             Label(ui,info,"Species reference","Hồ sơ loài",18,Gold,TextAnchor.MiddleLeft,36);
             Fact(ui,info,"Group","Nhóm",biology.group,biology.group);
@@ -109,17 +122,43 @@ namespace Dravio.Editor
             Label(ui,info,"Reference data, not live health or comfort.","Dữ liệu loài, không phải chỉ số sức khỏe hay tiện nghi hiện tại.",13,Muted,TextAnchor.MiddleLeft,56);
 
             Label(ui,roster,"Preview residents","Rồng trong bản thử",18,Gold,TextAnchor.MiddleLeft,36);
-            Label(ui,roster,"Emberling • Baby / Normal","Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
+            Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
             var rosterInspect=Button(ui,roster,"Inspect Emberling","Quan sát Emberling",46);
-            Label(ui,roster,"Only the current preview dragon is available. The full roster awaits Core Domain integration.","Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
+            Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
             var controller=dragon.AddComponent<DragonCarePreview>();
             controller.Configure(animator,turntable,status,feed,pet,sleep,inspect,resume);
+            if(integrated)
+            {
+                var session=dragon.AddComponent<SanctuaryDomainPreview>();
+                session.Configure(gold,progress,notice,CreateFruit());
+                controller.ConfigureDomain(session);
+            }
             var runtime=canvasGo.AddComponent<FantasyPreviewUI>();
             // persistent callbacks survive editor scene serialization.
             UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.Inspect);
             runtime.Configure(safe,panel,new[]{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject},
                 tabs,lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
+        }
+
+        static GameObject CreateFruit()
+        {
+            var fruit=GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            fruit.name="Session fruit marker";
+            Object.DestroyImmediate(fruit.GetComponent<Collider>());
+            fruit.transform.localScale=new Vector3(.25f,.24f,.25f);
+            var shader=Shader.Find("Universal Render Pipeline/Lit");
+            if(shader==null)throw new InvalidOperationException("URP Lit missing for fruit.");
+            var mat=new Material(shader){name="Preview fruit"};
+            mat.SetColor("_BaseColor",new Color(.86f,.19f,.08f));
+            mat.SetFloat("_Smoothness",.2f);
+            const string folder="Assets/Dravio/Art/Imported/Materials";
+            System.IO.Directory.CreateDirectory(folder);
+            AssetDatabase.Refresh();
+            AssetDatabase.CreateAsset(mat,AssetDatabase.GenerateUniqueAssetPath(folder+"/SessionFruit.mat"));
+            fruit.GetComponent<Renderer>().sharedMaterial=mat;
+            fruit.SetActive(false);
+            return fruit;
         }
 
         static RectTransform ActionRow(Transform parent)
