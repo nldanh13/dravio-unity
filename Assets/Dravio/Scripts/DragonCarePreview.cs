@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
+using Dravio.EnvironmentArt;
 using System.Collections.Generic;
 
 namespace Dravio
@@ -30,6 +31,10 @@ namespace Dravio
         private bool ready;
         private bool vietnamese;
         private Camera inspectionCamera;
+        private SanctuaryCameraFit cameraFit;
+        private bool restoreFit, inspectingCamera;
+        private Vector3 wanderTarget;
+        private bool hasWanderTarget;
         private Vector3 normalCameraPosition;
         private float normalCameraSize;
         private readonly List<Material> previewMaterials = new();
@@ -62,6 +67,7 @@ namespace Dravio
                 facingOffset=0f;
                 PrepareGlbPresentation();
             }
+            else if(domain!=null && domain.IsPersistentPreview)PrepareInspectionCamera();
             ready=true;
             if(feed!=null)feed.onClick.AddListener(Feed);
             if(pet!=null)pet.onClick.AddListener(Pet);
@@ -84,7 +90,7 @@ namespace Dravio
 
         // Presentation-only: preserve the authored 0.90m mesh and all textured
         // materials. For UV-less meshes, display existing vertex RGB if available.
-        private void PrepareGlbPresentation()
+        private void PrepareInspectionCamera()
         {
             var camera=Camera.main;
             if(camera!=null && camera.orthographic)
@@ -92,7 +98,13 @@ namespace Dravio
                 inspectionCamera=camera;
                 normalCameraPosition=camera.transform.position;
                 normalCameraSize=camera.orthographicSize;
+                cameraFit=camera.GetComponent<SanctuaryCameraFit>();
             }
+        }
+
+        private void PrepareGlbPresentation()
+        {
+            PrepareInspectionCamera();
             var shader=Shader.Find("Dravio/Environment/Painterly Lit");
             foreach(var renderer in GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
@@ -134,12 +146,25 @@ namespace Dravio
         {
             if(inspectionCamera==null)return;
             var t=inspectionCamera.transform;
+            if(IsInspecting && !inspectingCamera)
+            {
+                normalCameraPosition=t.position;
+                normalCameraSize=inspectionCamera.orthographicSize;
+                restoreFit=cameraFit!=null && cameraFit.enabled;
+                if(restoreFit)cameraFit.enabled=false;
+                inspectingCamera=true;
+            }
+            if(!IsInspecting && !inspectingCamera)return; // normal framing belongs to camera fit
+            if(!IsInspecting && restoreFit)
+            {
+                RestoreInspectionCamera();
+                return;
+            }
             float targetSize=normalCameraSize;
             Vector3 targetPosition=normalCameraPosition;
             if(IsInspecting)
             {
-                // No camera orbit or physical scaling. Keep the dragon left of the HUD.
-                targetSize=Mathf.Min(normalCameraSize,2f);
+                targetSize=Mathf.Min(normalCameraSize,1.5f);
                 Vector3 subject=transform.position+Vector3.up*.45f;
                 float depth=Vector3.Dot(subject-normalCameraPosition,t.forward);
                 targetPosition=subject-t.forward*depth+t.right*(.30f*targetSize*inspectionCamera.aspect);
@@ -147,13 +172,18 @@ namespace Dravio
             float blend=1f-Mathf.Exp(-8f*Time.unscaledDeltaTime);
             t.position=Vector3.Lerp(t.position,targetPosition,blend);
             inspectionCamera.orthographicSize=Mathf.Lerp(inspectionCamera.orthographicSize,targetSize,blend);
+            if(!IsInspecting && Vector3.Distance(t.position,targetPosition)<.01f && Mathf.Abs(inspectionCamera.orthographicSize-targetSize)<.01f)
+                RestoreInspectionCamera();
         }
 
         private void RestoreInspectionCamera()
         {
-            if(inspectionCamera==null)return;
+            if(inspectionCamera==null || !inspectingCamera)return;
             inspectionCamera.transform.position=normalCameraPosition;
             inspectionCamera.orthographicSize=normalCameraSize;
+            if(restoreFit && cameraFit!=null)cameraFit.enabled=true;
+            restoreFit=false;
+            inspectingCamera=false;
         }
 
         public void Feed() {
@@ -219,9 +249,31 @@ namespace Dravio
                 remaining-=dt;
                 return;
             }
-            Vector2 wp=Waypoints[next];
-            Vector3 target=seeking?domain.FoodPosition:origin+new Vector3(wp.x,0,wp.y);
+            Vector3 target;
+            bool safeNavigation=domain!=null && domain.Locations!=null;
+            if(seeking){target=domain.FoodPosition;hasWanderTarget=false;}
+            else if(safeNavigation)
+            {
+                if(!hasWanderTarget)
+                {
+                    if(!domain.TryWanderTarget(next,out wanderTarget)){Enter(Activity.Idle,1f);return;}
+                    hasWanderTarget=true;
+                }
+                target=wanderTarget;
+            }
+            else
+            {
+                Vector2 wp=Waypoints[next%Waypoints.Length];
+                target=origin+new Vector3(wp.x,0,wp.y);
+            }
             target.y=origin.y;
+            if(safeNavigation && !domain.SegmentWalkable(transform.position,target))
+            {
+                hasWanderTarget=false;
+                next=(next+1)%100000;
+                Enter(Activity.Idle,1f);
+                return;
+            }
             Vector3 dir=target-transform.position;
             dir.y=0;
             if(seeking && dir.sqrMagnitude<=.55f*.55f)
@@ -243,7 +295,8 @@ namespace Dravio
             }
             if(dir.sqrMagnitude<.0036f)
             {
-                next=(next+1)%Waypoints.Length;
+                next=(next+1)%100000;
+                hasWanderTarget=false;
                 Enter(Activity.Idle,2.2f);
                 return;
             }
@@ -255,7 +308,9 @@ namespace Dravio
                 return;
             }
             if(current!=Activity.Walk)Enter(Activity.Walk,0);
-            transform.position=Vector3.MoveTowards(transform.position,target,speed*dt);
+            Vector3 step=Vector3.MoveTowards(transform.position,target,speed*dt);
+            if(!safeNavigation || domain.SegmentWalkable(transform.position,step))transform.position=step;
+            else {hasWanderTarget=false;Enter(Activity.Idle,1f);}
         }
     }
 }
