@@ -1,0 +1,364 @@
+{
+ "generator": "scripts/art/environment/build_origin_sanctuary.py",
+ "blender": "5.3.0",
+ "assets": {
+  "SM_ENV_Gate_Ancient": {
+   "triangles": 1164,
+   "vertices": 648,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    6.05,
+    2.4,
+    6.54
+   ],
+   "uv_errors": 0,
+   "budget": 2600
+  },
+  "SM_ENV_Column_Intact": {
+   "triangles": 244,
+   "vertices": 136,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.12,
+    1.14,
+    3.54
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Column_Broken": {
+   "triangles": 136,
+   "vertices": 76,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.63,
+    1.28,
+    2.21
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Column_Fallen": {
+   "triangles": 152,
+   "vertices": 84,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    4.36,
+    1.35,
+    0.87
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Wall_Ruin_A": {
+   "triangles": 160,
+   "vertices": 92,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    4.28,
+    1.46,
+    2.85
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Wall_Ruin_B": {
+   "triangles": 88,
+   "vertices": 50,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    3.57,
+    2.15,
+    2.02
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Statue_Dragon": {
+   "triangles": 2696,
+   "vertices": 1400,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.78,
+    1.76,
+    3.25
+   ],
+   "uv_errors": 0,
+   "budget": 3500
+  },
+  "SM_ENV_Tree_Ancient": {
+   "triangles": 2216,
+   "vertices": 1192,
+   "materials": [
+    "ENV_Props",
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    6.93,
+    4.19,
+    8.06
+   ],
+   "uv_errors": 0,
+   "budget": 3600
+  },
+  "SM_ENV_Root_Cluster": {
+   "triangles": 988,
+   "vertices": 504,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    3.25,
+    4.06,
+    0.55
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Vine_Hanging": {
+   "triangles": 310,
+   "vertices": 172,
+   "materials": [
+    "ENV_Props",
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.93,
+    0.6,
+    2.31
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Rock_Mossy_A": {
+   "triangles": 320,
+   "vertices": 162,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.58,
+    1.95,
+    0.9
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Rock_Mossy_B": {
+   "triangles": 160,
+   "vertices": 84,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.04,
+    1.25,
+    0.7
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Rock_Mossy_C": {
+   "triangles": 240,
+   "vertices": 126,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    0.78,
+    0.84,
+    0.35
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Grass_Tuft_A": {
+   "triangles": 6,
+   "vertices": 12,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.62,
+    0.57,
+    0.55
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Grass_Tuft_B": {
+   "triangles": 6,
+   "vertices": 12,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.62,
+    0.61,
+    0.55
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Flower_Patch_Pink": {
+   "triangles": 6,
+   "vertices": 12,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.53,
+    0.6,
+    0.62
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Flower_Patch_Blue": {
+   "triangles": 6,
+   "vertices": 12,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.53,
+    0.6,
+    0.62
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Flower_Patch_Gold": {
+   "triangles": 6,
+   "vertices": 12,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    0.53,
+    0.6,
+    0.62
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Fern": {
+   "triangles": 12,
+   "vertices": 24,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    1.26,
+    1.32,
+    0.72
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Mushroom_Cluster_Red": {
+   "triangles": 456,
+   "vertices": 264,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    0.57,
+    0.51,
+    0.43
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Mushroom_Cluster_Glow": {
+   "triangles": 456,
+   "vertices": 264,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    0.57,
+    0.51,
+    0.43
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Pond_Small": {
+   "triangles": 427,
+   "vertices": 308,
+   "materials": [
+    "ENV_Props",
+    "ENV_Foliage",
+    "ENV_Water"
+   ],
+   "size_m": [
+    4.54,
+    3.28,
+    0.72
+   ],
+   "uv_errors": 0,
+   "budget": 2000
+  },
+  "SM_ENV_Runestone_A": {
+   "triangles": 96,
+   "vertices": 52,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    0.95,
+    0.6,
+    1.7
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Runestone_B": {
+   "triangles": 156,
+   "vertices": 84,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.3,
+    0.62,
+    1.47
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Ground_Sanctuary": {
+   "triangles": 2176,
+   "vertices": 1155,
+   "materials": [
+    "ENV_Ground"
+   ],
+   "size_m": [
+    34.0,
+    46.0,
+    0.25
+   ],
+   "uv_errors": 0,
+   "budget": 2600
+  }
+ },
+ "layout": {
+  "placements": 164,
+  "scene_triangles": 24013
+ }
+}
