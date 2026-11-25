@@ -9,6 +9,9 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 out = Path(args[0] if args else "art-exports/EmberlingLiving.fbx").resolve()
+walk_preview = "--walk-preview" in args[1:]
+if walk_preview and out.stem != "EmberlingWander":
+    raise ValueError("Walk preview requires a separate EmberlingWander.fbx output")
 out.parent.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -220,8 +223,36 @@ for frame in range(1,182):
     for name,prop in [("Chest","scale"),("Head","rotation_euler"),("Tail1","rotation_euler"),("Tail2","rotation_euler"),("Flame","scale"),("Eye_L","scale"),("Eye_R","scale")]:
         pose[name].keyframe_insert(data_path=prop,frame=frame,group=name)
 
+if walk_preview:
+    # Bake one take with disjoint ranges: Idle 1..181, Walk 182..217.
+    # Unity splits the ranges explicitly; the existing idle export is unchanged.
+    # A four-beat walk with small leg swings, no root motion, provisional weights.
+    scene.frame_end=217
+    names=("Fore_L","Hind_R","Fore_R","Hind_L")
+    offsets=(0.,.25,.5,.75)
+    for frame in range(1,218):
+        if frame<=181:
+            for name in names:
+                pose[name].rotation_euler=(0,0,0)
+                pose[name].keyframe_insert(data_path="rotation_euler",frame=frame,group=name)
+            continue
+        t=(frame-182)/35
+        cycle=2*math.pi*t
+        for name,offset in zip(names,offsets):
+            phase=2*math.pi*(t+offset)
+            # Local X pitch; low amplitude to limit hip deformation.
+            pose[name].rotation_euler=(.24*math.sin(phase),0,0)
+            pose[name].keyframe_insert(data_path="rotation_euler",frame=frame,group=name)
+        pose["Chest"].scale=(1+.009*math.sin(cycle*2),1,1)
+        pose["Head"].rotation_euler=(.035*math.cos(cycle*2),0,.025*math.sin(cycle))
+        pose["Tail1"].rotation_euler=(0,0,.13*math.sin(cycle))
+        pose["Tail2"].rotation_euler=(.03*math.sin(cycle),0,.15*math.sin(cycle-.55))
+        pose["Flame"].scale=(1+.035*math.sin(cycle*2),1,1+.035*math.sin(cycle*2))
+        for label in ("L","R"):pose["Eye_"+label].scale=(1,1,1)
+        for name,prop in [("Chest","scale"),("Head","rotation_euler"),("Tail1","rotation_euler"),("Tail2","rotation_euler"),("Flame","scale"),("Eye_L","scale"),("Eye_R","scale")]:
+            pose[name].keyframe_insert(data_path=prop,frame=frame,group=name)
 action=arm.animation_data.action
-action.name="Emberling_Idle"
+action.name="Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
 scene.frame_set(1)
 bpy.ops.object.select_all(action='DESELECT')
 arm.select_set(True)
