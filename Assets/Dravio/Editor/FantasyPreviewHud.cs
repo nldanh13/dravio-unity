@@ -40,7 +40,11 @@ namespace Dravio.Editor
                 throw new InvalidOperationException("Emberling biology incomplete.");
             // On this new scene only, replace the old visual placeholder HUD.
             foreach(var old in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
-                if(old.renderMode!=RenderMode.WorldSpace)old.enabled=false;
+                if(old.renderMode!=RenderMode.WorldSpace)
+                {
+                    old.enabled=false;
+                    foreach(var raycaster in old.GetComponents<GraphicRaycaster>())raycaster.enabled=false;
+                }
             var canvasGo=new GameObject("Dravio Fantasy HUD",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
             var canvas=canvasGo.GetComponent<Canvas>();
             canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.sortingOrder=20;
@@ -68,7 +72,7 @@ namespace Dravio.Editor
             vertical.childControlHeight=true;vertical.childControlWidth=true;
             vertical.childForceExpandHeight=false;vertical.childForceExpandWidth=true;
 
-            var identity=Label(ui,panel,"Emberling • Baby / Normal","Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
+            Label(ui,panel,"Emberling • Baby / Normal","Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
             var status=Label(ui,panel,"Resting","Đang nghỉ",16,Paper,TextAnchor.MiddleLeft,30,false);
             var tabsRoot=RectNode("Navigation",panel);
             var tabLayout=tabsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -112,7 +116,7 @@ namespace Dravio.Editor
             controller.Configure(animator,turntable,status,feed,pet,sleep,inspect,resume);
             var runtime=canvasGo.AddComponent<FantasyPreviewUI>();
             // persistent callbacks survive editor scene serialization.
-            UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.ToggleInspect);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.Inspect);
             runtime.Configure(safe,panel,new[]{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject},
                 tabs,lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
         }
