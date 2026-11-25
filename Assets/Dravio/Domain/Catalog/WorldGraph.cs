@@ -25,7 +25,7 @@ namespace Dravio.Domain.Catalog
     /// Bản đồ thế giới dạng graph (GDD 3.1 trang 5; ADR 0010; src/data/worldGraph.ts). node = zone, edge = đường đi.
     /// Khởi Nguyên là trung tâm: Thủy Vực nối qua cửa sông (cần bơi), Thiên Giới qua đảo thấp có chỗ đậu (cần bay).
     /// GDD chưa nêu cạnh Thủy Vực ↔ Thiên Giới nên không có cạnh trực tiếp.
-    /// Giống bản TS b33ec7a, CanTravel CHƯA được nối vào moveDragon: ở G1 Ocean/Sky còn khóa (ADR 0010 mục 4).
+    /// Bản TS b33ec7a chưa nối CanTravel vào moveDragon (ADR 0010 mục 4: "nối khi mở realm"). U2.8 nối qua World.Travel (cạnh + cửa ngõ đã mở).
     /// </summary>
     public static class WorldGraph
     {
