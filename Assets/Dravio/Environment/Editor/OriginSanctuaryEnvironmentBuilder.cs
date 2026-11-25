@@ -52,6 +52,8 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (!BuildPrefabs()) return;
             if (UpdateLocationData() == null) return;
             BuildScene(false);
+            // U1-ENV.3: day/night, particles, ambience and interaction points.
+            if (LivingEnvironmentBuilder.UpdateLivingData() != null) LivingEnvironmentBuilder.AddToOpenScene(false);
         }
 
         [MenuItem("Dravio/Environment/1. Setup Materials and Import Remaps", priority = 111)]
@@ -401,6 +403,8 @@ namespace Dravio.EnvironmentArt.EditorTools
             fit.baseOrthographicSize = c.orthographicSize;
             fit.rightPanelScreenHeights = c.rightPanelScreenHeights;
             fit.leftMarginScreenHeights = c.leftMarginScreenHeights;
+            fit.topMarginScreenHeights = c.topMarginScreenHeights;
+            fit.bottomMarginScreenHeights = c.bottomMarginScreenHeights;
             fit.minAspect = c.minAspect > 0f ? c.minAspect : 16f / 9f;
         }
 
@@ -529,7 +533,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             }
         }
 
-        static GameObject Marker(Transform parent, string id, SanctuaryMarker.Kind kind, string habitat, string other)
+        internal static GameObject Marker(Transform parent, string id, SanctuaryMarker.Kind kind, string habitat, string other)
         {
             var go = new GameObject(id);
             go.transform.SetParent(parent, false);
@@ -624,7 +628,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return m;
         }
 
-        static void EnsureFolder(string path)
+        internal static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
             string parent = Path.GetDirectoryName(path)?.Replace('\\', '/');

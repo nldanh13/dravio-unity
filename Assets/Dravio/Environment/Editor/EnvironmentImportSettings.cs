@@ -5,15 +5,16 @@ namespace Dravio.EnvironmentArt.EditorTools
 {
     /// <summary>
     /// Mobile import rules for the generated Origin Sanctuary kit. Scoped strictly to
-    /// Assets/Dravio/Environment/Models and /Textures so the Emberling FBX, its
+    /// Assets/Dravio/Environment/Models, /Textures and /Audio so the Emberling FBX, its
     /// Animator and every other asset keep their own importer settings.
     /// </summary>
     public sealed class EnvironmentImportSettings : AssetPostprocessor
     {
         public const string ModelsFolder = "Assets/Dravio/Environment/Models/";
         public const string TexturesFolder = "Assets/Dravio/Environment/Textures/";
+        public const string AudioFolder = "Assets/Dravio/Environment/Audio/";
 
-        public override uint GetVersion() => 4;
+        public override uint GetVersion() => 5;
 
         void OnPreprocessModel()
         {
@@ -50,6 +51,11 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (!assetPath.StartsWith(TexturesFolder, System.StringComparison.Ordinal)) return;
             var ti = (TextureImporter)assetImporter;
             string file = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            if (file.StartsWith("T_ENV_FX_", System.StringComparison.Ordinal))
+            {
+                ConfigureFx(ti);
+                return;
+            }
             bool foliage = file.Contains("Foliage");
             bool tiling = file.Contains("Ground") || file.Contains("Water");
             int max = 512;
@@ -81,6 +87,47 @@ namespace Dravio.EnvironmentArt.EditorTools
                 ps.compressionQuality = 50;
                 ti.SetPlatformTextureSettings(ps);
             }
+        }
+
+        // U1-ENV.3 particle sprites: tiny white alpha masks.
+        static void ConfigureFx(TextureImporter ti)
+        {
+            ti.textureType = TextureImporterType.Default;
+            ti.sRGBTexture = true;
+            ti.alphaSource = TextureImporterAlphaSource.FromInput;
+            ti.alphaIsTransparency = true;
+            ti.mipmapEnabled = true;
+            ti.wrapMode = TextureWrapMode.Clamp;
+            ti.filterMode = FilterMode.Bilinear;
+            ti.isReadable = false;
+            ti.maxTextureSize = 64;
+            ti.textureCompression = TextureImporterCompression.Compressed;
+            foreach (string platform in new[] { "Android", "iPhone" })
+            {
+                var ps = ti.GetPlatformTextureSettings(platform);
+                ps.overridden = true;
+                ps.maxTextureSize = 64;
+                ps.format = TextureImporterFormat.ASTC_4x4;
+                ti.SetPlatformTextureSettings(ps);
+            }
+        }
+
+        // U1-ENV.3 ambience: mono, Vorbis loops kept compressed in memory, ADPCM one-shots.
+        void OnPreprocessAudio()
+        {
+            if (!assetPath.StartsWith(AudioFolder, System.StringComparison.Ordinal)) return;
+            var ai = (AudioImporter)assetImporter;
+            bool loop = System.IO.Path.GetFileNameWithoutExtension(assetPath).StartsWith("AMB_", System.StringComparison.Ordinal);
+            ai.forceToMono = true;
+            ai.loadInBackground = loop;
+            var s = ai.defaultSampleSettings;
+            s.loadType = loop ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
+            s.compressionFormat = loop ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.ADPCM;
+            s.quality = loop ? 0.45f : 1f;
+            s.sampleRateSetting = AudioSampleRateSetting.OverrideSampleRate;
+            s.sampleRateOverride = 22050;
+            s.preloadAudioData = true;
+            ai.defaultSampleSettings = s;
         }
     }
 }

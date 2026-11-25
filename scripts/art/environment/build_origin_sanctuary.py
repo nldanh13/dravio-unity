@@ -12,8 +12,9 @@ Blender 5.3 (also runs with the `bpy` 5.3 Python module). From the repo root:
 
   --out      working folder: FBX, .blend source, textures, manifest, preview
   --unity    optional: also copy FBX/textures/layout into the Unity folder
-             (Models/, Textures/, Data/). Never touches other Unity folders.
-  --preview  render a Cycles preview of the assembled layout (slow on CPU)
+             (Models/, Textures/, Data/, Audio/). Never touches other Unity folders.
+  --preview  render Cycles previews of the assembled layout: day at 16:9 and 20:9,
+             plus dusk and night at 16:9 (U1-ENV.3 living environment)
   --only     comma separated asset names to rebuild (default: all)
 
 Conventions (see README in Assets/Dravio/Environment):
@@ -41,6 +42,9 @@ sys.path.insert(0, str(HERE))
 import atlas  # noqa: E402
 import layout as layout_mod  # noqa: E402
 import painterly_textures  # noqa: E402
+import living  # noqa: E402
+import fx_textures  # noqa: E402
+import ambience_audio  # noqa: E402
 
 # ----------------------------------------------------------------------- args
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -1186,6 +1190,55 @@ def render_preview(objects, layout, path):
         scn.render.filepath = str(out)
         bpy.ops.render.render(write_still=True)
         outputs.append(out)
+
+    # U1-ENV.3: the same camera at dusk and at night, lit from Data/OriginSanctuaryLiving.json.
+    h = 720
+    scn.render.resolution_x, scn.render.resolution_y = int(round(h * 16 / 9)), h
+    cd.ortho_scale = 2 * layout_mod.ORTHO_SIZE * 16 / 9
+    props = MATERIALS.get("ENV_Props")
+    bsdf = props.node_tree.nodes.get("Principled BSDF") if props else None
+    flies = bpy.data.collections.new("PreviewFireflies")
+    scn.collection.children.link(flies)
+    fly_mat = bpy.data.materials.new("Firefly")
+    fly_mat.use_nodes = True
+    fb = fly_mat.node_tree.nodes.get("Principled BSDF")
+    fb.inputs["Base Color"].default_value = (0.9, 1.0, 0.4, 1)
+    fb.inputs["Emission Color"].default_value = (0.9, 1.0, 0.4, 1)
+    fb.inputs["Emission Strength"].default_value = 14.0
+    fly_mesh = bpy.data.meshes.new("FireflyMesh")
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=1, radius=0.045)
+    bm.to_mesh(fly_mesh)
+    bm.free()
+    fly_mesh.materials.append(fly_mat)
+    rng = random.Random(911)
+    for label, hour, exposure in (("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
+        st = living.evaluate(hour)
+        f = living.light_forward(st["lightElevation"], st["lightAzimuth"])
+        sun.rotation_euler = Vector((-f[0], -f[2], f[1])).to_track_quat('-Z', 'Y').to_euler()
+        sun_d.color = st["lightColor"]
+        sun_d.energy = 3.2 * st["lightIntensity"] / 1.35
+        bg.inputs["Color"].default_value = tuple(st["ambientEquator"]) + (1,)
+        bg.inputs["Strength"].default_value = 0.9 if exposure == 0.0 else 0.7
+        scn.view_settings.exposure = exposure  # night reads darker on screen, as in Unity
+        if bsdf is not None:
+            bsdf.inputs["Emission Strength"].default_value = 2.5 * (1 + 1.6 * st["nightGlow"])
+        for o in list(flies.objects):
+            bpy.data.objects.remove(o)
+        for vol_id, count in (("fireflies", 36), ("fireflies_pond", 14)):
+            v = living.PARTICLES[vol_id]
+            for _ in range(int(round(count * st["fireflies"]))):
+                ux = v["center"][0] + (rng.random() - 0.5) * v["size"][0]
+                uy = v["center"][1] + (rng.random() - 0.5) * v["size"][1]
+                uz = v["center"][2] + (rng.random() - 0.5) * v["size"][2]
+                fo = bpy.data.objects.new("Firefly", fly_mesh)
+                fo.location = (-ux, -uz, uy)
+                flies.objects.link(fo)
+        out = Path(str(path).replace(".png", f"_{label}_16x9.png"))
+        scn.render.filepath = str(out)
+        bpy.ops.render.render(write_still=True)
+        outputs.append(out)
+    scn.view_settings.exposure = 0.0
     return outputs
 
 
@@ -1196,6 +1249,11 @@ def main():
     painterly_textures.generate_all(str(tex_dir))
     layout = layout_mod.write(str(OUT / "OriginSanctuaryLayout.json"), str(OUT / "OriginSanctuaryLocations.json"))
     layout_mod.write_colliders(str(OUT / "OriginSanctuaryColliders.json"))
+    # U1-ENV.3 living environment: data, particle sprites and synthesised ambience.
+    living.write(str(OUT / "OriginSanctuaryLiving.json"))
+    fx_textures.generate_all(str(tex_dir))
+    audio_dir = OUT / "Audio"
+    ambience_audio.generate_all(str(audio_dir))
 
     # Empty scene (never run inside an artist's unsaved file).
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -1244,14 +1302,17 @@ def main():
 
     if UNITY:
         dst = Path(UNITY).resolve()
-        for sub in ("Models", "Textures", "Data"):
+        for sub in ("Models", "Textures", "Data", "Audio"):
             (dst / sub).mkdir(parents=True, exist_ok=True)
         for p in fbx_dir.glob("*.fbx"):
             shutil.copy2(p, dst / "Models" / p.name)
         for p in tex_dir.glob("*.png"):
             shutil.copy2(p, dst / "Textures" / p.name)
-        for name in ("OriginSanctuaryLayout.json", "OriginSanctuaryLocations.json", "OriginSanctuaryColliders.json"):
+        for name in ("OriginSanctuaryLayout.json", "OriginSanctuaryLocations.json", "OriginSanctuaryColliders.json",
+                     "OriginSanctuaryLiving.json"):
             shutil.copy2(OUT / name, dst / "Data" / name)
+        for p in audio_dir.glob("*.wav"):
+            shutil.copy2(p, dst / "Audio" / p.name)
         shutil.copy2(OUT / "manifest.json", dst / "Data" / "OriginSanctuaryManifest.json")
         print("[env] copied into", dst)
 

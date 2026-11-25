@@ -11,9 +11,11 @@ This kit is separate from gameplay. It does not touch Emberling, its Animator, t
 | `Models/` | 25 FBX files (`SM_ENV_*`), 1 m = 1 unit, pivot at base centre, front faces the camera (-Z) |
 | `Textures/` | Painterly atlas 1024², emission 512², foliage cards 512² (alpha), ground 512² (tiling), water 256² (tiling) |
 | `Shaders/` | `Dravio/Environment/Painterly Lit` and `Painterly Water` (URP 17, mobile) |
-| `Scripts/SanctuaryCameraFit.cs` | Keeps the fixed orthographic camera readable on portrait phones (visual only) |
+| `Scripts/SanctuaryCameraFit.cs` | Landscape framing of the fixed orthographic camera, with the real Fantasy UI width and the Safe Area (visual only) |
+| `Scripts/Living/` | U1-ENV.3 living environment: time of day, wind, water ripples, particles, ambience, interaction points |
+| `Audio/` | U1-ENV.3 ambience: 6 seamless loops and 6 one-shots, synthesised by `scripts/art/environment/ambience_audio.py` |
 | `Editor/` | Import rules (this folder only) and the **Dravio > Environment** menu |
-| `Data/` | `OriginSanctuaryLayout.json` (scene layout), `OriginSanctuaryManifest.json` (triangles, materials, budgets) |
+| `Data/` | `OriginSanctuaryLayout.json` (scene layout), `OriginSanctuaryLocations.json`, `OriginSanctuaryColliders.json`, `OriginSanctuaryLiving.json` (U1-ENV.3), `OriginSanctuaryManifest.json` (triangles, materials, budgets) |
 | `Materials/`, `Prefabs/`, `Scenes/` | Generated in Unity by the menu (commit them after checking) |
 
 ### Modular assets
@@ -92,9 +94,57 @@ To check framing without Unity, `scripts/art/environment/preview_overlay.py` dra
 
 The project's Player orientation is not changed by these tools. Set **Player > Resolution and Presentation > Default Orientation** to Landscape Left yourself (it is a project setting outside Environment).
 
+## Living environment (U1-ENV.3)
+
+Everything here is cosmetic. There is no weather, disaster or any other system that changes gameplay, and nothing is saved. The U1-ENV.2 layout, colliders, location data and IDs are unchanged (the tests check their exact file hashes).
+
+**Data.** `Data/OriginSanctuaryLiving.json` (from `scripts/art/environment/living.py`) becomes `Data/OriginSanctuaryLiving.asset` (`SanctuaryLivingData`) through **Dravio > Environment > 6. Update Living Environment Data**. It holds the day phases, 14 time-of-day keyframes, 15 interaction points, particle volumes and ambience emitters.
+
+**Scene.** **7. Add or Update Living Environment in Scene** adds one root, *Origin Sanctuary - Living Environment*, to `Scenes/OriginSanctuary_Environment.unity` only. Re-running it replaces just that root. *Build Everything* now includes steps 6 and 7. To preview, scrub `hour` on **Environment Time Of Day** in edit mode.
+
+| Part | What it does |
+| --- | --- |
+| `EnvironmentTimeOfDay` | Dawn 5:00 to 7:00, day to 17:30, dusk to 19:30, night until 5:00. It drives the one directional light (sun by day, moon by night), the trilight ambient (written straight into the ambient probe), fog and the camera background, and sets `_DravioLiving` (night glow on runes and glow caps, a lower ambient floor at night). The clock can be **Simulated** (24 real minutes per day by default), **DeviceClock** or **External** (the game calls `SetHour`). 13:00 is exactly the U1-ENV.2 lighting. |
+| `EnvironmentWind` | A calm base that follows the time of day, plus soft Perlin gusts. It sets `_DravioWind`, so foliage sways harder and leans downwind and the pond pattern drifts. Gusts also drive the dust motes and the wind loop. |
+| `EnvironmentWater` | Up to 4 expanding ripple rings computed in the water shader (`AddRipple`, `AddSplash`). There are no extra meshes or render textures. |
+| `EnvironmentAmbientParticles` | Fireflies (meadow and pond, dusk and night), light dust motes (day and golden hour) and small pond rings, plus two burst systems for interaction feedback. High tier caps: 36 + 14 fireflies, 48 dust motes, 8 rings. |
+| `EnvironmentAudio` | Six loops (day birds, night crickets, wind, pond water, night frogs, warm-rock insects) mixed by the time of day. The pond and warm-rock loops fade with distance from a focus point (`SetFocus`, for example the active dragon) and pan with screen position. One-shots use a 2 to 4 voice pool. Route `output` to the game's ambience mixer group. |
+| `EnvironmentInteractions` | Gives out interaction points (`FindNearest`, `TryReserve`, `Release`, `ReleaseAll`) and plays the cosmetic response on `NotifyUsed`: a ripple, splash, petals, rune sparkles, heat motes, a dust puff or fireflies, plus a sound. Occupants are plain ints, so it does not depend on the character code. |
+| `LivingEnvironment` | One entry point (`LivingEnvironment.Active`) that holds all of the parts above. |
+| `EnvironmentQuality` | Low, Medium or High, detected from memory and core count, and settable by the game. It scales particle counts (0.35 / 0.65 / 1), update rate (4 to 10 Hz), one-shot voices, and turns moon shadows off on Low. |
+
+**Interaction points** (each with an approach position, facing, target, preferred phases, animation hint, feedback and sound):
+
+- Pondbank: 2 drink, 1 splash (swimmers only, target in the swim area), 1 watch-the-glow-mushrooms.
+- Meadow: 2 inspect rune, 2 sniff flowers, 1 stargaze (night), 1 rest.
+- Warm rocks: 3 bask, 1 dig, 1 inspect statue.
+
+Every approach point is walkable ground in its habitat, at least 0.8 m from the spawn points, outside the transition triggers, and inside the free screen area for all six device cases in the tests.
+
+**Camera API for the Fantasy UI and the Safe Area.** `SanctuaryCameraFit` now takes real numbers:
+
+- `SetFantasyUiOccluderPixels(px)` takes how many pixels the panel covers from the right edge. `SetFantasyUiPanel(rectTransform, uiCamera)` tracks a panel every frame. The easiest route is to add **`SanctuaryUiInsetSource`** to the panel; this needs no UI code.
+- It reads `Screen.safeArea` (notch, rounded corners, home bar). `SetSafeAreaOverride` exists for tests.
+- `FreeViewport` and `FreeViewportChanged` tell other systems which part of the screen is free. `ComputeFraming` is the pure function behind it, mirrored in `scripts/art/environment/framing.py`.
+
+The size only ever grows (it never zooms in), just enough to keep the 16:9 design width and height free, and the free area is re-centred. With no report and no insets the pose is exactly the U1-ENV.2 one.
+
+**Audio licence.** Every clip is synthesised from noise and oscillators by `scripts/art/environment/ambience_audio.py`. No recordings, samples or third-party sounds are used. Clips are 22.05 kHz mono WAV; on import, loops become Vorbis compressed in memory and one-shots become ADPCM.
+
+**Checks.**
+
+- **8. Validate Living Environment** checks interaction ids, habitats and walkability, and that splash targets are in the swim area. It also checks framing for the design, notch-left, notch-both-plus-home-bar and wide-UI cases at the three aspects, that all audio clips exist, and that 13:00 matches U1-ENV.2.
+- Python: `python -m unittest scripts/art/environment/test_living_environment.py` (numpy and Pillow).
+
+Previews: `scripts/art/environment/preview/OriginSanctuary_preview_dusk_16x9.png` and `_night_16x9.png` are Blender renders lit from the same keyframes, with fireflies.
+
 ## Known limits
 
 - These are the first production-direction assets, generated rather than hand-sculpted. An artist pass (hand-painted details, extra variants, LODs if the camera ever zooms) is still welcome.
 - Colliders are simple boxes for the large props only. There is no NavMesh; walkability is answered by `SanctuaryLocationData.IsWalkable`.
 - The Painterly shader has no Meta pass, so it is meant for realtime lighting. Lightmap baking is not supported yet.
 - The scene is not added to Build Settings automatically.
+- U1-ENV.3 runtime code, shader changes, particles and audio import have not been compiled or run in Unity from this environment. See the PR for the list of local checks.
+- The painterly shader only uses the main light, so there are no extra point lights at night. Glowing props brighten through the night glow instead.
+- The ambient probe is built from the trilight colours in code. The exact brightness should be checked by eye in Unity, and `ambientScale` exists for tuning.
+- The ambience is procedural. It sets the mood, but a sound designer may want to replace or layer it later. The ids and the mixer routing stay the same.
