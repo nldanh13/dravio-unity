@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Dravio.Domain;
 using Dravio.Domain.Biology;
+using Dravio.Domain.Breeding;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.World;
@@ -26,6 +27,8 @@ namespace Dravio
         [SerializeField] private DravioSessionHost host;
         [SerializeField] private SanctuaryLocationData locations;
         [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus, guideNotice;
+        [SerializeField] private Text hatcheryStatus, parentsStatus, hatcheryNotice;
+        private string parentA, parentB;
         private GameSession Session=>host!=null?host.Session:null;
         private bool persistentMode=>host!=null;
         public string HabitatId=>state?.FindDragon(uid)?.Location?.HabitatId ?? "origin_meadow";
@@ -41,13 +44,17 @@ namespace Dravio
         private string messageEn="",messageVi="";
         public bool HasFood => state!=null && foodId!=null && state.Food.Drops.Any(d=>d.Id==foodId);
         public Vector3 FoodPosition => fruit!=null?fruit.transform.position:spawn;
-        public bool CanInteract => state!=null && state.FindDragon(uid)!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
+        private bool CanSend => state!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
+        public bool CanInteract => CanSend && state.FindDragon(uid)!=null;
 
         public void Configure(Text goldLabel,Text progressLabel,Text noticeLabel,GameObject fruitVisual)
         {gold=goldLabel;progress=progressLabel;notice=noticeLabel;fruit=fruitVisual;}
 
         public void ConfigurePersistent(DravioSessionHost sessionHost,SanctuaryLocationData locationData,Text saved,Text tutorial,Text roster,Text guideFeedback)
         {host=sessionHost;locations=locationData;saveStatus=saved;tutorialStatus=tutorial;rosterStatus=roster;guideNotice=guideFeedback;}
+
+        public void ConfigureHatchery(Text status,Text parents,Text feedback)
+        {hatcheryStatus=status;parentsStatus=parents;hatcheryNotice=feedback;}
 
         private void Awake()
         {
@@ -158,7 +165,7 @@ namespace Dravio
 
         private IReadOnlyList<DomainEvent> Send(Func<string,GameCommand> build)
         {
-            if(!CanInteract)return null;
+            if(!CanSend)return null;
             if(!persistentMode){var r=Dispatch(build(Id()));return r.Ok?r.Events:null;}
             IReadOnlyList<DomainEvent> received=Array.Empty<DomainEvent>();
             void Capture(IReadOnlyList<DomainEvent> events){received=events;}
@@ -223,6 +230,81 @@ namespace Dravio
         public void BuyStarter(){GuideCommand(id=>new BuyTutorialPackCommand(id),"Starter purchased.","Đã mua Starter.");}
         public void ClaimMeadow(){GuideCommand(id=>new ClaimPackCommand(id,MoveTarget.Zone("origin","origin_meadow")),"Egg claimed to meadow.","Đã nhận rồng vào đồng cỏ.");}
         public void ClaimStorage(){GuideCommand(id=>new ClaimPackCommand(id,MoveTarget.Storage),"Egg claimed to storage.","Đã nhận rồng vào kho.");}
+        // Hatchery uses the same session, no second clock, random roll or currency.
+        public void BuyStandardStarter()=>BuyPack("starter");
+        public void BuyElemental()=>BuyPack("elemental");
+        public void BuyMystic()=>BuyPack("mystic");
+        public void BuyAstral()=>BuyPack("astral");
+        private void BuyPack(string packId)
+        {
+            if(!persistentMode)return;
+            GuideCommand(id=>new BuyPackCommand(id,packId),"Pack purchased; claim the egg.","Đã mua gói; hãy nhận trứng.");
+        }
+
+        private DragonState[] AdultCandidates()=>state==null?Array.Empty<DragonState>():
+            state.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released && Lifecycle.StageOf(d)==GrowthStage.Adult).ToArray();
+
+        private string NextParent(string previous,string other)
+        {
+            var choices=AdultCandidates().Where(d=>d.Uid!=other).ToArray();
+            if(choices.Length==0)return null;
+            int index=Array.FindIndex(choices,d=>d.Uid==previous);
+            return choices[(index+1)%choices.Length].Uid;
+        }
+        public void SelectParentA(){parentA=NextParent(parentA,parentB);RefreshHatchery();}
+        public void SelectParentB(){parentB=NextParent(parentB,parentA);RefreshHatchery();}
+        public void StartBreeding()
+        {
+            if(!persistentMode || !CanSend || parentA==null || parentB==null)return;
+            GuideCommand(id=>new StartBreedCommand(id,parentA,parentB),"Incubation started.","Đã bắt đầu ấp trứng.");
+        }
+        public void TapBreedingEgg()
+        {
+            if(persistentMode)GuideCommand(id=>new TapEggCommand(id),"Egg tapped.","Đã chạm trứng.");
+        }
+        public void ClaimBreedMeadow()
+        {
+            if(persistentMode)GuideCommand(id=>new ClaimBreedCommand(id,MoveTarget.Zone("origin","origin_meadow")),"Hatched into meadow.","Đã nhận rồng lai vào đồng cỏ.");
+        }
+        public void ClaimBreedStorage()
+        {
+            if(persistentMode)GuideCommand(id=>new ClaimBreedCommand(id,MoveTarget.Storage),"Hatched into storage.","Đã nhận rồng lai vào kho.");
+        }
+        private string ParentLabel(string id)
+        {
+            var d=state?.FindDragon(id);
+            if(d==null)return vi?"Chưa chọn":"Not selected";
+            return (string.IsNullOrEmpty(d.Nickname)?d.SpeciesId:d.Nickname)+" #"+d.Uid.Substring(0,Math.Min(6,d.Uid.Length));
+        }
+        private void RefreshHatchery()
+        {
+            if(hatcheryStatus==null || state==null)return;
+            var egg=state.BreedingNest;
+            string pending=state.PendingPack==null?(vi?"Chưa có gói chờ":"No pending pack"):
+                (vi?"Gói chờ nhận: ":"Pending pack: ")+state.PendingPack.PackId;
+            string nest=vi?"Tổ ấp trống":"Nest empty";
+            if(egg!=null)
+            {
+                long left=Math.Max(0,egg.FinishAtMs-state.Clock.LastProcessedAtMs);
+                nest=egg.Status==EggStatus.Ready?(vi?"Trứng đã sẵn sàng nhận":"Egg ready to claim"):
+                    (vi?"Đang ấp: ":"Incubating: ")+TimeSpan.FromMilliseconds(left).ToString(@"hh\:mm\:ss");
+            }
+            hatcheryStatus.text=pending+"\n"+nest;
+            if(parentsStatus==null)return;
+            var adults=AdultCandidates();
+            if(!adults.Any(d=>d.Uid==parentA))parentA=null;
+            if(!adults.Any(d=>d.Uid==parentB))parentB=null;
+            string details="A: "+ParentLabel(parentA)+"\nB: "+ParentLabel(parentB);
+            if(parentA!=null && parentB!=null)
+            {
+                var preview=Hatchery.Preview(state,parentA,parentB,state.Clock.LastProcessedAtMs,out var error);
+                if(error!=null || preview==null)details+="\n"+(vi?"Chưa thể lai: ":"Cannot breed: ")+error;
+                else details+="\n"+(vi?"Phí: ":"Fee: ")+preview.FeeG.ToString(CultureInfo.InvariantCulture)+" G";
+            }
+            else details+="\n"+(vi?"Chọn hai rồng trưởng thành.":"Select two adult dragons.");
+            parentsStatus.text=details;
+        }
+
         public void SaveGame(){if(Session!=null && Session.Status==SessionStatus.Ready)Session.SaveNow();}
 
         public bool RequestFood()
@@ -282,11 +364,12 @@ namespace Dravio
             }
         }
 
-        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;if(guideNotice!=null)guideNotice.text=vi?vn:en;}
+        private void SetMessage(string en,string vn){messageEn=en;messageVi=vn;if(notice!=null)notice.text=vi?vn:en;if(guideNotice!=null)guideNotice.text=vi?vn:en;if(hatcheryNotice!=null)hatcheryNotice.text=vi?vn:en;}
         private void Refresh()
         {
             if(notice!=null)notice.text=vi?messageVi:messageEn;
             if(guideNotice!=null)guideNotice.text=vi?messageVi:messageEn;
+            if(hatcheryNotice!=null)hatcheryNotice.text=vi?messageVi:messageEn;
             if(saveStatus!=null && Session!=null)
             {
                 saveStatus.text=Session.Status!=SessionStatus.Ready?(vi?"Phiên: ":"Session: ")+Session.Status:
@@ -295,6 +378,7 @@ namespace Dravio
                     Session.LastSavedAtMs.HasValue?(vi?"Đã lưu ":"Saved ")+DateTimeOffset.FromUnixTimeMilliseconds(Session.LastSavedAtMs.Value).ToLocalTime().ToString("HH:mm:ss"):(vi?"Chờ lưu":"Not saved yet");
             }
             if(state==null)return;
+            RefreshHatchery();
             if(gold!=null)gold.text=GoldText(state.Player.Gold.Micro)+" G";
             if(tutorialStatus!=null)
             {
