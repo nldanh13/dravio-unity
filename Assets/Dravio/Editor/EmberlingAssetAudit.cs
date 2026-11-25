@@ -29,6 +29,13 @@ namespace Dravio.Editor
             else Debug.LogError(report);
         }
 
+        [MenuItem("Dravio/Validate Refined GLB FBX")]
+        static void ValidateGlbMenu()
+        {
+            if(Validate("Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx",out var report)) Debug.Log(report);
+            else Debug.LogError(report);
+        }
+
         internal static bool Validate(string path,out string report)
         {
             var errors=new List<string>();
@@ -43,6 +50,9 @@ namespace Dravio.Editor
                 errors.Add("No valid Generic Avatar.");
             var names=new HashSet<string>(model.GetComponentsInChildren<Transform>(true).Select(t=>t.name));
             foreach(var name in Bones)if(!names.Contains(name))errors.Add("Missing bone: "+name);
+            if(System.IO.Path.GetFileNameWithoutExtension(path)=="EmberlingRefinedGLB")
+                foreach(var name in new[]{"Spine","Neck","Wing_L","Wing_R","TailVFX_Anchor"})
+                    if(!names.Contains(name))errors.Add("Missing GLB rig bone: "+name);
             var clips=assets.OfType<AnimationClip>().Where(c=>!c.name.StartsWith("__preview__",StringComparison.Ordinal)).ToArray();
             foreach(var expected in Clips)
             {
