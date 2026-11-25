@@ -1,6 +1,6 @@
 # scripts/art/character — U1-CHAR character asset tools
 
-Full process, budgets and naming: `Assets/Dravio/Character/README.md` (Vietnamese).
+Full process, budgets and naming: `Assets/Dravio/Character/README.md`; batch import, archetypes and the living-dragon runtime: `Assets/Dravio/Character/LIVING_DRAGONS.md` (Vietnamese).
 
 | Script | Needs | Purpose |
 |---|---|---|
@@ -12,6 +12,11 @@ Full process, budgets and naming: `Assets/Dravio/Character/README.md` (Vietnames
 | `render_preview.py` | Blender | QA contact sheets (bake comparison, LODs at an animation frame) |
 | `make_test_assets.py` | Blender | Procedural, licence-clean TEST models (never shipped) |
 | `run_selftest.py`, `selftest_checks.py` | Blender | End-to-end run + cross-checks on the TEST models |
+| `build_archetypes.py` | Python only | Rig/animation archetype + clip set per species from canonical locomotion/silhouette (`--check`) |
+| `rig_archetype.py` | Blender | Archetype skeleton (quadruped / winged / serpentine / aquatic), proxy skinning, placeholder clips, deformation check |
+| `build_prop.py` | Blender | Static environment prop: pivot, LODs (prop profiles), simple collider, size metadata; never rigged |
+| `batch_import.py` | Blender | Batch: filename -> species/stage or prop category, SHA-256 cache, full chain, Unity staging + `import-manifest.json`, report |
+| `make_sample_library.py` | Blender | Procedural "generator-like" SAMPLE GLBs for the batch test (never shipped) |
 | `tests/` | Python only | `python -m unittest discover -s scripts/art/character/tests` |
 
 All Blender scripts accept arguments after `--` and also run with the `bpy` module

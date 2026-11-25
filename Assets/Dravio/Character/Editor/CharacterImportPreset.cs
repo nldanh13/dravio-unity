@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Dravio.Character.Editor
 {
     /// <summary>
-    /// First-import defaults for character assets placed under Assets/Dravio/Character/Models and
-    /// Assets/Dravio/Character/Textures only. Applied once (importSettingsMissing), so any later manual
+    /// First-import defaults for character assets placed under Assets/Dravio/Character/Models,
+    /// Assets/Dravio/Character/Textures and Assets/Dravio/Character/Imported only. Applied once (importSettingsMissing), so any later manual
     /// change in the Inspector is kept. Files elsewhere in the project are never touched.
     /// Texture role comes from the pipeline's file suffixes: _BaseColor, _Normal, _MetallicSmoothness.
     /// </summary>
@@ -14,10 +14,15 @@ namespace Dravio.Character.Editor
     {
         internal const string ModelFolder = "Assets/Dravio/Character/Models/";
         internal const string TextureFolder = "Assets/Dravio/Character/Textures/";
+        /// <summary>Batch pipeline output (scripts/art/character/batch_import.py --unity-out). Dragons/ = characters,
+        /// Environment/ = static props (no animation, no avatar).</summary>
+        internal const string ImportedFolder = "Assets/Dravio/Character/Imported/";
+        internal const string ImportedEnvironmentFolder = ImportedFolder + "Environment/";
 
         private void OnPreprocessModel()
         {
-            if (!assetPath.StartsWith(ModelFolder, StringComparison.Ordinal) || !assetImporter.importSettingsMissing) return;
+            bool imported = assetPath.StartsWith(ImportedFolder, StringComparison.Ordinal);
+            if (!(imported || assetPath.StartsWith(ModelFolder, StringComparison.Ordinal)) || !assetImporter.importSettingsMissing) return;
             var mi = (ModelImporter)assetImporter;
             mi.importCameras = false;
             mi.importLights = false;
@@ -32,12 +37,20 @@ namespace Dravio.Character.Editor
             mi.animationType = ModelImporterAnimationType.Generic;
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             mi.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+            if (assetPath.StartsWith(ImportedEnvironmentFolder, StringComparison.Ordinal))
+            {
+                mi.animationType = ModelImporterAnimationType.None; // static props are never rigged
+                mi.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
+                mi.importAnimation = false;
+                mi.addCollider = false; // the prefab builder adds the simple collider from metadata
+            }
             Debug.Log("Dravio character import defaults applied (first import only): " + assetPath);
         }
 
         private void OnPreprocessTexture()
         {
-            if (!assetPath.StartsWith(TextureFolder, StringComparison.Ordinal) || !assetImporter.importSettingsMissing) return;
+            bool ours = assetPath.StartsWith(TextureFolder, StringComparison.Ordinal) || assetPath.StartsWith(ImportedFolder, StringComparison.Ordinal);
+            if (!ours || !assetImporter.importSettingsMissing) return;
             var budgets = CharacterBudgets.Load();
             var ti = (TextureImporter)assetImporter;
             string name = System.IO.Path.GetFileNameWithoutExtension(assetPath);
