@@ -40,7 +40,7 @@ from mathutils.bvhtree import BVHTree  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[3]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
-QA_VERSION = 1
+QA_VERSION = 2  # 2 = U1-CHAR.6: authored transition checks (Sleep -> Wake -> Idle); limits unchanged
 NO_GROUND = {'Swim', 'Fly', 'Glide'}
 SAMPLES = 8
 
@@ -440,6 +440,21 @@ def main():
                 warn(clip, 'loop', 'loop does not close', [round(deg, 3), round(rel, 5)],
                      [lim['maxLoopPoseErrorDeg'], lim['maxLoopPoseErrorRel']])
         clips[clip] = rep
+    # authored transitions (U1-CHAR.6): a clip that starts or ends in another clip's pose must match it exactly,
+    # same limits as a loop seam (Sleep -> Wake -> Idle has no jump)
+    transitions = []
+    rc = rig['clips']
+    for a_clip, a_frame, b_clip, b_frame in (('Sleep', 'start', 'Wake', 'start'), ('Wake', 'end', 'Idle', 'start')):
+        if a_clip in rc and b_clip in rc:
+            scene.frame_set(rc[a_clip][a_frame])
+            pa = pose_snapshot(arm)
+            scene.frame_set(rc[b_clip][b_frame])
+            pb = pose_snapshot(arm)
+            deg, rel = pose_difference(pa, pb, h)
+            transitions.append({'from': f'{a_clip}.{a_frame}', 'to': f'{b_clip}.{b_frame}', 'poseErrorDeg': round(deg, 3), 'poseErrorRel': round(rel, 5)})
+            if deg > lim['maxLoopPoseErrorDeg'] or rel > lim['maxLoopPoseErrorRel']:
+                warn(b_clip, 'transition', f'{a_clip}.{a_frame} -> {b_clip}.{b_frame} poses differ', [round(deg, 3), round(rel, 5)],
+                     [lim['maxLoopPoseErrorDeg'], lim['maxLoopPoseErrorRel']])
     scene.frame_set(1)
     images = None
     if a.images:
@@ -451,7 +466,7 @@ def main():
     report = {
         'qaVersion': QA_VERSION, 'name': name, 'species': rig.get('species'), 'archetype': rig.get('archetype'),
         'rigVersion': rig.get('rigVersion'), 'limits': lim, 'weights': weights, 'bones': bones_rep,
-        'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'images': images,
+        'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'transitions': transitions, 'images': images,
         'warnings': warnings, 'status': 'PASS' if not warnings else 'PASS_WITH_WARNINGS',
         'note': 'Automated geometric checks. They do not replace an animator review of the motion.',
     }

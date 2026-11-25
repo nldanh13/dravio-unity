@@ -14,6 +14,12 @@ Rules (each result cites the canonical field it comes from):
               walker      <- otherwise; limb count unstated, so no leg template until it is supplied
   clips       Idle, Eat, Sleep, Happy for every species (existing care interactions);
               Walk + Run <- "walk"; Swim <- "swim"; Fly <- "fly"; Burrow <- "burrow"
+              behaviour clips (U1-CHAR.6), appended after the locomotion clips so older frame ranges stay put:
+                Rest, Wake, LookAround, Curious <- every species (built from its own Sleep/Idle pose and its
+                  head/neck; Environment interaction hints rest / look / look_up / inspect / sniff)
+                Drink, Stretch, Bask <- "walk" (a standing, legged body: drink at the pond bank, play-bow
+                  stretch, lie on the warm rocks; hints drink / bask). Which dragon actually basks or drinks
+                  is the Sanctuary's decision, not the clip set's.
   limbCount   from the silhouette text only ("bốn chân"); otherwise null and the rig step requires an
               explicit artist/GDD value in asset-overrides.json - never guessed.
   features    silhouette keywords copied verbatim as attachment/VFX hints (no geometry is invented).
@@ -30,6 +36,8 @@ OUT_MD = REPO / 'Assets/Dravio/Character/DRAGON_ARCHETYPES.md'
 
 BASE_CLIPS = ['Idle', 'Eat', 'Sleep', 'Happy']
 LOCO_CLIPS = {'walk': ['Walk', 'Run'], 'swim': ['Swim'], 'fly': ['Fly'], 'burrow': ['Burrow']}
+BEHAVIOUR_CLIPS = ['Rest', 'Wake', 'LookAround', 'Curious']
+GROUND_BEHAVIOUR_CLIPS = {'walk': ['Drink', 'Stretch', 'Bask']}
 # Silhouette keyword -> feature tag. Only words that literally appear in a silhouette are used.
 FEATURE_WORDS = [
     ('đuôi lửa', 'flame_tail'), ('sừng', 'horns'), ('mào', 'crest'), ('mai', 'shell'),
@@ -77,6 +85,9 @@ def classify(s):
     clips = list(BASE_CLIPS)
     for l in loc:
         clips += LOCO_CLIPS.get(l, [])
+    clips += BEHAVIOUR_CLIPS
+    for l in loc:
+        clips += GROUND_BEHAVIOUR_CLIPS.get(l, [])
     feats = [{'tag': tag, 'word': w} for w, tag in FEATURE_WORDS if has_word(sil, w)]
     needs = []
     walks = 'walk' in loc
@@ -99,7 +110,8 @@ def build():
     return {
         'version': 1, 'generatedBy': 'scripts/art/character/build_archetypes.py',
         'source': 'Assets/Dravio/Character/Data/species-character-spec.json',
-        'clipNames': ['Idle', 'Walk', 'Run', 'Eat', 'Sleep', 'Happy', 'Swim', 'Fly', 'Burrow'],
+        'clipNames': ['Idle', 'Walk', 'Run', 'Eat', 'Sleep', 'Happy', 'Swim', 'Fly', 'Burrow',
+                      'Rest', 'Wake', 'LookAround', 'Curious', 'Drink', 'Stretch', 'Bask'],
         'templates': TEMPLATES,
         'species': species,
     }

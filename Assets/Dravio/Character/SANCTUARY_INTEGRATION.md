@@ -84,3 +84,16 @@ Phần **ánh xạ từ Domain** (ví dụ `DragonActivity.Care` hiện thế n�
 - Không có dependency vào Domain, Persistence, Fantasy HUD hay Scene Open Game. Assembly `Dravio.Character.Runtime` không tham chiếu các assembly đó.
 - Genotype chỉ đổi hình khi `PhenotypeProfile` có luật. Mặc định không có luật nào.
 - Mô hình thiếu stage: catalog lấy đúng stage, nếu không có thì `Unstaged`, rồi đến stage gần nhất. Mỗi lần thay thế đều phát sự kiện `Warning`, không âm thầm đổi.
+
+## 6. Behaviour intent, tính cách, tương tác (U1-CHAR.6)
+
+Các trường mới của `SanctuaryDragonFrame` đều tuỳ chọn: `intent`, `personality`, `turnRateDegPerSec`, `hasLookTarget` và `lookTarget`. Để mặc định thì mọi thứ ở trên giữ nguyên.
+
+Khi có `intent`, mỗi rồng có một `DragonBehaviorPlanner` chọn clip mà loài đó có. Planner lo:
+- Sleep → Wake → đích;
+- biến thể Idle theo tính cách;
+- phản hồi `sync.React(uid, Petted | Called | Fed)`;
+- head look-at.
+
+Gọi `sync.Sync(frames, deltaSeconds)` để timer chạy đúng. Hợp đồng đầy đủ: [CHARACTER_BEHAVIOR_API.md](CHARACTER_BEHAVIOR_API.md). Bảng clip và ánh xạ: [ANIMATION_CATALOG.md](ANIMATION_CATALOG.md).
+

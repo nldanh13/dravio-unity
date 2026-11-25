@@ -48,6 +48,8 @@ jobs:
         run: dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj"
       - name: Character runtime bookkeeping tests (outside Unity)
         run: dotnet test "Assets/Dravio/Character/Tests/DotNet~/Dravio.Character.Tests.csproj"
+      - name: Character MonoBehaviour type-check against UnityEngine stubs (not a Unity compile)
+        run: dotnet build "Assets/Dravio/Character/Tests/DotNet~/TypeCheck/Dravio.Character.TypeCheck.csproj"
       - name: SIGKILL test of the file save store
         if: runner.os == 'Linux'
         run: bash "Assets/Dravio/Tests/Persistence/Tools~/KillTest/kill-test.sh" 30

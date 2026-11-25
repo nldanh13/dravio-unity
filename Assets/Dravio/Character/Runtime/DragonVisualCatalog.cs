@@ -18,6 +18,9 @@ namespace Dravio.Character
         /// <summary>In-place ground speed (m/s) a clip was authored for (rig.json clips.*.groundSpeed).</summary>
         [Serializable]
         public sealed class ClipSpeed { public string clip; public float groundSpeed; }
+        /// <summary>Length in seconds of a clip (rig.json frame range / fps). U1-CHAR.6: used for every one-shot.</summary>
+        [Serializable]
+        public sealed class ClipLength { public string clip; public float seconds; }
 
         [Serializable]
         public sealed class Entry
@@ -37,6 +40,9 @@ namespace Dravio.Character
             public float locomotionReferenceSpeed;
             /// <summary>Per-clip authored ground speed (Walk and Run differ).</summary>
             public ClipSpeed[] clipSpeeds = Array.Empty<ClipSpeed>();
+            /// <summary>U1-CHAR.6: seconds of every clip (filled by the importer). Older entries have none and fall back
+            /// to eatSeconds / happySeconds.</summary>
+            public ClipLength[] clipLengths = Array.Empty<ClipLength>();
             /// <summary>anim_qa.py result: PASS / PASS_WITH_WARNINGS, and one line per warning ("Sleep: deformation ...").</summary>
             public string animQaStatus;
             public string[] animQaWarnings = Array.Empty<string>();
@@ -98,9 +104,16 @@ namespace Dravio.Character
             return list;
         }
 
-        public float InteractionSeconds(Entry e, DragonInteraction i)
+        public float InteractionSeconds(Entry e, DragonInteraction i) { return ClipSecondsOf(e, i); }
+
+        /// <summary>Seconds of a one-shot clip: clipLengths first, then the U1-CHAR.4 eatSeconds / happySeconds; 0 if unknown.</summary>
+        public static float ClipSecondsOf(Entry e, DragonInteraction i)
         {
-            if (e == null) return 0f;
+            if (e == null || i == DragonInteraction.None) return 0f;
+            string name = i.ToString();
+            if (e.clipLengths != null)
+                for (int k = 0; k < e.clipLengths.Length; k++)
+                    if (e.clipLengths[k] != null && e.clipLengths[k].clip == name && e.clipLengths[k].seconds > 0f) return e.clipLengths[k].seconds;
             return i == DragonInteraction.Eat ? e.eatSeconds : i == DragonInteraction.Happy ? e.happySeconds : 0f;
         }
     }
