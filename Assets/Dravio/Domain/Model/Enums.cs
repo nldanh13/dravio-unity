@@ -87,6 +87,9 @@ namespace Dravio.Domain
     /// <summary>Trạng thái trứng trong tổ (BreedingEgg.status).</summary>
     public enum EggStatus { Incubating, Ready }
 
+    /// <summary>Trạng thái chuyến thám hiểm.</summary>
+    public enum ExpeditionStatus { [WireName("in-progress")] InProgress, Ready }
+
     // ---- src/engine/core/commands.ts ----
 
     /// <summary>Chế độ quyết toán thời gian: online 100 %, offline 75 % và receipt.</summary>

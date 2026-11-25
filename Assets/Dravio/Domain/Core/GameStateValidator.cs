@@ -356,11 +356,42 @@ namespace Dravio.Domain.Core
                     }
             }
 
+            // U2.8 (schema v7): thám hiểm. Rồng đang đi phải tồn tại, chưa thả, activity = expedition; ngoài job không rồng nào ở trạng thái đó.
+            if (s.SchemaVersion >= 7)
+            {
+                ExpeditionJob j = s.Expedition;
+                string traveller = null;
+                if (j != null)
+                {
+                    bool knownRoute = ExpeditionCatalog.TryGet(j.RouteId, out ExpeditionRoute route);
+                    bool rewardsOk = j.Rewards != null && j.Rewards.TrueForAll(kv => IndexOf(ExpeditionCatalog.MaterialIds, kv.Key) >= 0 && kv.Value > 0);
+                    int total = 0; if (j.Rewards != null) foreach (var kv in j.Rewards) total += kv.Value;
+                    if (j.Id == null || j.Id.Length == 0 || j.Id.Length > 64 || !knownRoute || !WireNames.IsDefined(j.Status) || j.StartedAtMs < 0 || !rewardsOk ||
+                        j.FinishAtMs != j.StartedAtMs + route.DurationMs || total < route.MinQty || total > route.MaxQty)
+                        errors.Add("expedition: invalid");
+                    else if (j.Status == ExpeditionStatus.InProgress)
+                    {
+                        DragonState d = s.FindDragon(j.DragonUid);
+                        if (d == null || d.Location.Kind == LocationKind.Released || d.Activity != DragonActivity.Expedition) errors.Add("expedition: dragon " + j.DragonUid + " not travelling");
+                        else traveller = d.Uid;
+                    }
+                }
+                if (s.Dragons != null)
+                    foreach (DragonState d in s.Dragons)
+                        if (d != null && d.Activity == DragonActivity.Expedition && d.Uid != traveller) errors.Add("dragons." + d.Uid + ".activity: expedition without job");
+            }
+
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
             List<string> claimed = s.ClaimedAchievements;
             if (!UniqueStrings(claimed, ProgressCatalog.IsAchievementId)) errors.Add("claimedAchievements: invalid");
             else if (unlocked != null && !claimed.TrueForAll(unlocked.Contains)) errors.Add("claimedAchievements: not unlocked");
+        }
+
+        private static int IndexOf(IReadOnlyList<string> xs, string v)
+        {
+            for (int i = 0; i < xs.Count; i++) if (xs[i] == v) return i;
+            return -1;
         }
 
         private static bool StrictlyIncreasing<T>(List<T> xs) where T : struct, Enum

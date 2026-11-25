@@ -261,6 +261,24 @@ namespace Dravio.Domain.Core
         internal override bool IsWellFormed() => IsId(ZoneId) && IsId(DecorationId);
     }
 
+    // ---- U2.8: thám hiểm (implementation mới, GDD tr. 22; Phụ lục C.3 startExpedition / claimExpedition) ----
+
+    public sealed class StartExpeditionCommand : GameCommand
+    {
+        public StartExpeditionCommand(string requestId, string routeId, string dragonUid) : base(requestId) { RouteId = routeId; DragonUid = dragonUid; }
+        public string RouteId { get; }
+        public string DragonUid { get; }
+        public override string Type => "startExpedition";
+        internal override bool IsWellFormed() => IsId(RouteId) && IsId(DragonUid);
+    }
+
+    public sealed class ClaimExpeditionCommand : GameCommand
+    {
+        public ClaimExpeditionCommand(string requestId) : base(requestId) { }
+        public override string Type => "claimExpedition";
+        internal override bool IsWellFormed() => true;
+    }
+
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
     public sealed class DispatchResult
     {

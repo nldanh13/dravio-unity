@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Dravio.Domain.Core
 {
     /// <summary>
@@ -283,5 +285,42 @@ namespace Dravio.Domain.Core
         public override string Type => "codexDiscovered";
         public string SpeciesId { get; }
         public MutationType Mutation { get; }
+    }
+
+    // ---- U2.8: thế giới và thám hiểm (implementation mới) ----
+
+    public sealed class ZoneUnlocked : DomainEvent
+    {
+        public ZoneUnlocked(string zoneId) { ZoneId = zoneId; }
+        public override string Type => "zoneUnlocked";
+        public string ZoneId { get; }
+    }
+
+    public sealed class ExpeditionStarted : DomainEvent
+    {
+        public ExpeditionStarted(string expeditionId, string routeId, string dragonUid, long finishAtMs) { ExpeditionId = expeditionId; RouteId = routeId; DragonUid = dragonUid; FinishAtMs = finishAtMs; }
+        public override string Type => "expeditionStarted";
+        public string ExpeditionId { get; }
+        public string RouteId { get; }
+        public string DragonUid { get; }
+        public long FinishAtMs { get; }
+    }
+
+    /// <summary>Chuyến đi xong (kể cả offline): rồng về idle đúng tại finishAtMs; thưởng chờ nhận.</summary>
+    public sealed class ExpeditionReady : DomainEvent
+    {
+        public ExpeditionReady(string expeditionId, long atMs) { ExpeditionId = expeditionId; AtMs = atMs; }
+        public override string Type => "expeditionReady";
+        public string ExpeditionId { get; }
+        public long AtMs { get; }
+    }
+
+    public sealed class ExpeditionClaimed : DomainEvent
+    {
+        public ExpeditionClaimed(string expeditionId, IReadOnlyList<KeyValuePair<string, int>> rewards) { ExpeditionId = expeditionId; Rewards = rewards; }
+        public override string Type => "expeditionClaimed";
+        public string ExpeditionId { get; }
+        /// <summary>Vật liệu → số lượng đã cộng vào inventory.</summary>
+        public IReadOnlyList<KeyValuePair<string, int>> Rewards { get; }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Dravio.Domain.Biology;
 using Dravio.Domain.Breeding;
+using Dravio.Domain.Expedition;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Progression;
 using Dravio.Domain.Sanctuary;
@@ -89,6 +90,9 @@ namespace Dravio.Domain.Core
                 case LockDragonCommand c: return ToError(SanctuaryRules.ApplyLock(s, c.DragonUid, c.Locked, events));
                 case BuyUpgradeCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckUpgrade(s, c.UpgradeId), () => SanctuaryRules.ApplyUpgrade(s, c.UpgradeId, events));
                 case BuyDecorationCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckBuyDecoration(s, c.ZoneId, c.DecorationId), () => SanctuaryRules.ApplyBuyDecoration(s, c.ZoneId, c.DecorationId, events));
+                // ---- U2.8 (implementation mới): thám hiểm — kiểm, quyết toán online (rồng ngừng sản xuất đúng lúc đi), rồi áp dụng ----
+                case StartExpeditionCommand c: return SettleThen(s, nowMs, events, () => Expeditions.CheckStart(s, c.RouteId, c.DragonUid, out _), () => Expeditions.ApplyStart(s, c.RouteId, c.DragonUid, nowMs, events));
+                case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () => Expeditions.ApplyClaim(s, nowMs, events));
                 case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
                 default:
                     // Không có kiểu lệnh tự khai báo hoàn thành/khám phá (recordDiscovery, completeTutorial, grantHabitatUnlock…).
@@ -147,14 +151,18 @@ namespace Dravio.Domain.Core
             // U2.5: tổ ấp xong trong khoảng này thì bố mẹ (đang "breeding", không sản xuất) được giải phóng đúng tại finishAtMs:
             // phần trước mốc không sản xuất, phần sau mốc sản xuất theo vị trí. Thời gian mô phỏng có thể bị chặn 24 h nên mốc
             // được kẹp vào [0, elapsedMs].
+            // U2.8: thám hiểm xong trong khoảng này cũng giải phóng rồng đúng tại finishAtMs (cùng cách tách đôi). Một rồng chỉ ở một job.
             long? nestDoneAt = Hatchery.CompletesBy(s, next.LastProcessedAtMs);
-            long preMs = nestDoneAt.HasValue ? Math.Max(0, Math.Min(elapsedMs, nestDoneAt.Value - fromMs)) : 0;
+            long? expDoneAt = Expeditions.CompletesBy(s, next.LastProcessedAtMs);
+            long Pre(long? at) => at.HasValue ? Math.Max(0, Math.Min(elapsedMs, at.Value - fromMs)) : 0;
             var releasedParents = new List<DragonState>();
             foreach (DragonState d in s.Dragons)
             {
                 if (d.Location.Kind == LocationKind.Released || elapsedMs == 0) continue;
-                bool split = nestDoneAt.HasValue && Hatchery.IsNestParent(s, d);
-                long firstMs = split ? preMs : elapsedMs;
+                bool nestSplit = nestDoneAt.HasValue && Hatchery.IsNestParent(s, d);
+                bool expSplit = expDoneAt.HasValue && Expeditions.IsTraveller(s, d);
+                bool split = nestSplit || expSplit;
+                long firstMs = nestSplit ? Pre(nestDoneAt) : expSplit ? Pre(expDoneAt) : elapsedMs;
                 GrowthResult r = Lifecycle.AdvanceDragon(d, firstMs, Placement.IsProducing(s, d), mode, remainder);
                 remainder = r.Remainder;
                 gold = checked(gold + r.GoldMicro);
@@ -176,14 +184,17 @@ namespace Dravio.Domain.Core
                     if (c.To == GrowthStage.Adult) matured.Add(d.Uid);
                 }
             }
-            // Trả activity để Complete tự giải phóng và ghi cooldown một chỗ duy nhất.
-            foreach (DragonState d in releasedParents) d.Activity = DragonActivity.Breeding;
+            // Trả activity để Complete tự giải phóng (và ghi cooldown) ở một chỗ duy nhất.
+            foreach (DragonState d in releasedParents) d.Activity = Expeditions.IsTraveller(s, d) ? DragonActivity.Expedition : DragonActivity.Breeding;
             s.Player.Gold = s.Player.Gold + MicroGold.FromMicro(gold);
             s.Player.GoldRemainder = remainder;
             s.Player.TotalGoldEarned = s.Player.TotalGoldEarned + MicroGold.FromMicro(gold);
             s.Clock = next;
             events.Add(new TimeAdvanced(fromMs, next.LastProcessedAtMs, elapsedMs, mode, gold));
             events.AddRange(local);
+            // Event hoàn tất theo thứ tự thời gian (tổ trước khi cùng mốc).
+            if (nestDoneAt.HasValue && (!expDoneAt.HasValue || nestDoneAt.Value <= expDoneAt.Value)) { Hatchery.Complete(s, nestDoneAt.Value, events); nestDoneAt = null; }
+            if (expDoneAt.HasValue) Expeditions.Complete(s, expDoneAt.Value, events);
             if (nestDoneAt.HasValue) Hatchery.Complete(s, nestDoneAt.Value, events);
             if (mode == AdvanceMode.Offline && elapsedMs > CareRules.OfflineReceiptMinMs)
             {

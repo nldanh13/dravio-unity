@@ -57,7 +57,7 @@ namespace Dravio.Persistence.Tests.Support
         public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
 
         /// <summary>
-        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 của C# (thêm breedingNest = null, codex).
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 của C# (breedingNest, codex, expedition).
         /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
         /// </summary>
         public static JsonObject AsUnity(JsonObject tsV4State)
@@ -75,7 +75,8 @@ namespace Dravio.Persistence.Tests.Support
         {
             if (!(unityState.Get("breedingNest") is JsonNull)) throw new InvalidOperationException("breedingNest not empty: no v4 projection");
             var o = new JsonObject();
-            foreach (var kv in unityState) if (kv.Key != "breedingNest" && kv.Key != "codex") o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            if (!(unityState.Get("expedition") is JsonNull)) throw new InvalidOperationException("expedition in progress: no v4 projection");
+            foreach (var kv in unityState) if (kv.Key != "breedingNest" && kv.Key != "codex" && kv.Key != "expedition") o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
             return o;
         }
 
@@ -90,7 +91,7 @@ namespace Dravio.Persistence.Tests.Support
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, name + ".unity.json"), v5Text, utf8);
             var state = (JsonObject)((JsonObject)JsonParser.Parse(v5Text)).Get("state");
-            if (!(state.Get("breedingNest") is JsonNull)) return;
+            if (!(state.Get("breedingNest") is JsonNull) || !(state.Get("expedition") is JsonNull)) return;
             File.WriteAllText(Path.Combine(dir, name + ".save.json"), AsV4Text(v5Text), utf8);
             File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), SaveSchema.CanonicalJson(AsV4(state)), utf8);
         }
@@ -116,6 +117,7 @@ namespace Dravio.Persistence.Tests.Support
         {
             JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
             JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 7) s.Remove("expedition");
             if (version < 6) s.Remove("codex");
             if (version < 5) s.Remove("breedingNest");
             if (version < 4) foreach (string k in new[] { "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements" }) s.Remove(k);

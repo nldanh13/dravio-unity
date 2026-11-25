@@ -8,11 +8,11 @@ namespace Dravio.Domain.Catalog
     public static class ContentInfo
     {
         /// <summary>
-        /// Dravio Save Schema của bản Unity: 6. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
+        /// Dravio Save Schema của bản Unity: 7. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
         /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
-        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
+        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 6;
+        public const int SchemaVersion = 7;
 
         /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
         public const int TsSchemaVersion = 4;
@@ -276,6 +276,55 @@ namespace Dravio.Domain.Catalog
 
         /// <summary>Vị trí cố định mỗi khu P0 (= số món, mỗi món một bản sao/khu).</summary>
         public const int SlotsPerZone = 6;
+    }
+
+    /// <summary>Điều kiện sinh học của một tuyến thám hiểm (GDD tr. 22 "1 Adult sống đất / bơi phù hợp / bay khỏe").</summary>
+    public enum ExpeditionRequirement { LandDweller, Swimmer, Flyer }
+
+    /// <summary>
+    /// Tuyến thám hiểm P0 (GDD 3.1 trang 22, bảng "Thời gian / thưởng đề xuất"). TS b33ec7a không có — implementation mới.
+    /// Giá trị là "đề xuất" của GDD, dùng nguyên văn: 15/30/45 phút, 2–4 vật liệu, không phí (GDD: "trừ phí nếu có" — không có phí nào được nêu).
+    /// ID tuyến và ID vật liệu là quy ước của bản Unity (GDD chỉ có tên tiếng Việt) — ghi trong danh sách quyết định.
+    /// </summary>
+    public sealed class ExpeditionRoute
+    {
+        internal ExpeditionRoute(string id, string nameVi, string zoneId, int minutes, ExpeditionRequirement requirement, string[] materials, int minQty, int maxQty)
+        {
+            Id = id; NameVi = nameVi; ZoneId = zoneId; DurationMs = minutes * 60_000L; Requirement = requirement; Materials = Array.AsReadOnly(materials); MinQty = minQty; MaxQty = maxQty;
+        }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>Thế giới của tuyến; tuyến chỉ mở khi zone này đã mở (không vượt khóa thế giới).</summary>
+        public string ZoneId { get; }
+        public long DurationMs { get; }
+        public ExpeditionRequirement Requirement { get; }
+        /// <summary>Vật liệu có thể nhận (mỗi đơn vị chọn đều trong danh sách).</summary>
+        public IReadOnlyList<string> Materials { get; }
+        public int MinQty { get; }
+        public int MaxQty { get; }
+    }
+
+    public static class ExpeditionCatalog
+    {
+        public static readonly IReadOnlyList<ExpeditionRoute> Routes = Array.AsReadOnly(new[]
+        {
+            new ExpeditionRoute("origin_forest", "Rừng Khởi Nguyên", "origin", 15, ExpeditionRequirement.LandDweller, new[] { "wood", "seed" }, 2, 4),
+            new ExpeditionRoute("ocean_reef", "Rạn Thủy Vực", "ocean", 30, ExpeditionRequirement.Swimmer, new[] { "gem", "sea_moss" }, 2, 4),
+            new ExpeditionRoute("sky_cloud", "Sân mây Thiên Giới", "sky", 45, ExpeditionRequirement.Flyer, new[] { "stardust" }, 2, 4),
+        });
+
+        /// <summary>Vật liệu P0 (GDD tr. 21: gỗ, hạt giống, ngọc, rêu biển, bụi sao). Chỉ lưu trong inventory; chưa có công thức dùng (chế tạo P0 chưa quy định).</summary>
+        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "gem", "sea_moss", "stardust" });
+
+        /// <summary>"Một slot thám hiểm chung P0".</summary>
+        public const int Slots = 1;
+
+        public static bool TryGet(string id, out ExpeditionRoute route)
+        {
+            foreach (ExpeditionRoute r in Routes) if (r.Id == id) { route = r; return true; }
+            route = null;
+            return false;
+        }
     }
 
     /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>
