@@ -419,14 +419,14 @@ namespace Dravio.EnvironmentArt.EditorTools
             fit.minAspect = c.minAspect > 0f ? c.minAspect : 16f / 9f;
         }
 
-        public static void BuildScene(bool overwrite)
+        public static void BuildScene(bool overwrite, string targetPath = ScenePath)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
-            if (!overwrite && AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
+            if (!overwrite && AssetDatabase.LoadAssetAtPath<SceneAsset>(targetPath) != null)
             {
-                EditorSceneManager.OpenScene(ScenePath);
-                Debug.Log("Dravio Environment: opened existing " + ScenePath + " (use 'Rebuild ... (overwrite)' to regenerate).");
+                EditorSceneManager.OpenScene(targetPath);
+                Debug.Log("Dravio Environment: opened existing " + targetPath + " (use 'Rebuild ... (overwrite)' to regenerate).");
                 return;
             }
             var layout = LoadLayout();
@@ -501,14 +501,14 @@ namespace Dravio.EnvironmentArt.EditorTools
             foreach (var m in missing)
                 Debug.LogWarning("Dravio Environment: prefab not found for " + m + " (run '2. Build Prefabs').");
             EditorSceneManager.MarkSceneDirty(scene);
-            if (!EditorSceneManager.SaveScene(scene, ScenePath))
+            if (!EditorSceneManager.SaveScene(scene, targetPath))
             {
-                Debug.LogError("Dravio Environment: could not save " + ScenePath);
+                Debug.LogError("Dravio Environment: could not save " + targetPath);
                 return;
             }
             AssetDatabase.SaveAssets();
             Selection.activeGameObject = envRoot.gameObject;
-            Debug.Log($"Dravio Environment: {placed} placements -> {ScenePath}. Existing test scenes untouched.");
+            Debug.Log($"Dravio Environment: {placed} placements -> {targetPath}. Existing test scenes untouched.");
             ReportBudget(false);
         }
 
