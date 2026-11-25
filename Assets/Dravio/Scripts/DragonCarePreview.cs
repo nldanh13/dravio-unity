@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Dravio
 {
-    // Presentation-only: these actions do NOT spend food, gold or change bond/health.
+    // Standalone previews stay visual-only; the integrated scene uses the optional domain adapter.
     public sealed class DragonCarePreview : MonoBehaviour
     {
         private enum Activity { Idle, Walk, Eat, Doze, Happy, Inspect }
@@ -27,8 +27,10 @@ namespace Dravio
         private string activeClip;
         private bool ready;
         private bool vietnamese;
+        [SerializeField] private SanctuaryDomainPreview domain;
+        public void ConfigureDomain(SanctuaryDomainPreview session) { domain=session; }
         public bool IsInspecting => current == Activity.Inspect;
-        public void SetVietnamese(bool value) { vietnamese=value; RefreshStatus(); }
+        public void SetVietnamese(bool value) { vietnamese=value; if(domain!=null)domain.SetVietnamese(value); RefreshStatus(); }
 
         public void Configure(Animator a, DragonTurntable t, Text label,
             Button feedButton, Button petButton, Button sleepButton, Button inspectButton, Button resumeButton)
@@ -66,8 +68,12 @@ namespace Dravio
             if(resume!=null)resume.onClick.RemoveListener(Resume);
         }
 
-        public void Feed() { if(ready && isActiveAndEnabled) Enter(Activity.Eat,2.2f); }
-        public void Pet() { if(ready && isActiveAndEnabled) Enter(Activity.Happy,1.7f); }
+        public void Feed() {
+            if(!ready || !isActiveAndEnabled)return;
+            if(domain==null)Enter(Activity.Eat,2.2f);
+            else if(domain.RequestFood())Enter(Activity.Idle,0);
+        }
+        public void Pet() { if(ready && isActiveAndEnabled && (domain==null || domain.TryPet())) Enter(Activity.Happy,1.7f); }
         public void ToggleDoze() { if(ready && isActiveAndEnabled) { if(current==Activity.Doze) Resume(); else Enter(Activity.Doze,0); } }
         public void ToggleInspect() { if(ready && isActiveAndEnabled) { if(current==Activity.Inspect) Resume(); else Enter(Activity.Inspect,0); } }
         public void Inspect() { if(ready && isActiveAndEnabled && !IsInspecting) Enter(Activity.Inspect,0); }
@@ -92,16 +98,17 @@ namespace Dravio
         {
             if(status==null)return;
             status.text=vietnamese ? current switch {
-                Activity.Idle=>"Đang nghỉ",Activity.Walk=>"Đang khám phá",Activity.Eat=>"Đang ăn (thử nghiệm)",
+                Activity.Idle=>"Đang nghỉ",Activity.Walk=>"Đang khám phá",Activity.Eat=>domain!=null?"Đang ăn":"Đang ăn (thử nghiệm)",
                 Activity.Doze=>"Đang ngủ gật",Activity.Happy=>"Vui vẻ",_=>"Đang quan sát"
             } : current switch {
-                Activity.Idle=>"Resting",Activity.Walk=>"Exploring",Activity.Eat=>"Eating (preview)",
+                Activity.Idle=>"Resting",Activity.Walk=>"Exploring",Activity.Eat=>domain!=null?"Eating":"Eating (preview)",
                 Activity.Doze=>"Dozing (preview)",Activity.Happy=>"Happy (preview)",_=>"Inspecting"
             };
         }
 
         private void Update()
         {
+            if(domain!=null && !domain.CanInteract)return;
             var keys=Keyboard.current;
             if(keys!=null)
             {
@@ -118,15 +125,23 @@ namespace Dravio
                 if(remaining<=0)Enter(Activity.Idle,1f);
                 return;
             }
-            if(current==Activity.Idle && remaining>0)
+            bool seeking=domain!=null && domain.HasFood;
+            if(!seeking && current==Activity.Idle && remaining>0)
             {
                 remaining-=dt;
                 return;
             }
             Vector2 wp=Waypoints[next];
-            Vector3 target=origin+new Vector3(wp.x,0,wp.y);
+            Vector3 target=seeking?domain.FoodPosition:origin+new Vector3(wp.x,0,wp.y);
+            target.y=origin.y;
             Vector3 dir=target-transform.position;
             dir.y=0;
+            if(seeking && dir.sqrMagnitude<=.55f*.55f)
+            {
+                if(domain.TryConsume())Enter(Activity.Eat,2.2f);
+                else if(current!=Activity.Idle)Enter(Activity.Idle,0);
+                return;
+            }
             if(dir.sqrMagnitude<.0036f)
             {
                 next=(next+1)%Waypoints.Length;
