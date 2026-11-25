@@ -29,7 +29,9 @@ namespace Dravio.Domain.Tests
         public void Genetics_golden_targets_the_reference_commit()
         {
             Assert.That(G["source"], Is.EqualTo("nldanh13/dravio@" + ContentInfo.ReferenceCommit));
-            Assert.That(SpeciesCatalog.All.Select(s => (object)new Dictionary<string, object> { ["id"] = s.Id, ["packEligible"] = s.PackEligible }).ToList(), Is.EqualTo(A(G["species"])).Using<object, object>((x, y) => MiniJson.Diff(y, x) == null));
+            var actual = SpeciesCatalog.All.Select(s => (object)new Dictionary<string, object> { ["id"] = s.Id, ["packEligible"] = s.PackEligible }).ToList();
+            var diff = MiniJson.Diff(A(G["species"]), actual);
+            Assert.That(diff, Is.Null, "Species catalog differs from genetics golden: " + diff);
         }
 
         [Test]
