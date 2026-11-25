@@ -34,6 +34,14 @@ namespace Dravio
 
         private void Start()
         {
+            if(Application.isMobilePlatform)
+            {
+                Screen.autorotateToPortrait=false;
+                Screen.autorotateToPortraitUpsideDown=false;
+                Screen.autorotateToLandscapeLeft=true;
+                Screen.autorotateToLandscapeRight=true;
+                Screen.orientation=ScreenOrientation.AutoRotation;
+            }
             for(int i=0;i<tabs.Length;i++)
             {
                 int index=i;
@@ -59,19 +67,24 @@ namespace Dravio
             safeRoot.anchorMin=new Vector2(safe.xMin/w,safe.yMin/h);
             safeRoot.anchorMax=new Vector2(safe.xMax/w,safe.yMax/h);
             safeRoot.offsetMin=Vector2.zero;safeRoot.offsetMax=Vector2.zero;
-            // Landscape: right rail. Portrait: lower drawer; scroll long content.
-            bool portrait=safe.width<safe.height;
+            // Both desktop and phone use the same landscape rail.
+            // Scale against a shorter reference height on mobile for touch comfort.
+            // A narrow Editor window retains the rail; it is not a portrait mobile mode.
+            bool compact=Application.isMobilePlatform || h<600;
             var scaler=GetComponent<CanvasScaler>();
             if(scaler!=null)
             {
-                scaler.referenceResolution=portrait?new Vector2(420,800):new Vector2(1280,720);
-                scaler.screenMatchMode=portrait?CanvasScaler.ScreenMatchMode.MatchWidthOrHeight:CanvasScaler.ScreenMatchMode.Expand;
-                scaler.matchWidthOrHeight=0;
+                scaler.referenceResolution=compact?new Vector2(960,540):new Vector2(1280,720);
+                scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                scaler.matchWidthOrHeight=1;
             }
-            panel.anchorMin=portrait?new Vector2(0,0):new Vector2(1,0);
-            panel.anchorMax=portrait?new Vector2(1,.48f):new Vector2(1,1);
-            panel.offsetMin=portrait?new Vector2(12,12):new Vector2(-326,12);
-            panel.offsetMax=portrait?new Vector2(-12,-12):new Vector2(-12,-72);
+            float scale= h/(compact?540f:720f);
+            float safeWidth=safe.width/Mathf.Max(.01f,scale);
+            float railWidth=Mathf.Min(compact?Mathf.Clamp(safeWidth*.36f,280f,380f):326f,safeWidth*.48f);
+            panel.anchorMin=new Vector2(1,0);
+            panel.anchorMax=new Vector2(1,1);
+            panel.offsetMin=new Vector2(-railWidth,12);
+            panel.offsetMax=new Vector2(-12,-72);
         }
 
         private void Select(int index)
