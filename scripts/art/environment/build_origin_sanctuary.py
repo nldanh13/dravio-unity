@@ -12,8 +12,9 @@ Blender 5.3 (also runs with the `bpy` 5.3 Python module). From the repo root:
 
   --out      working folder: FBX, .blend source, textures, manifest, preview
   --unity    optional: also copy FBX/textures/layout into the Unity folder
-             (Models/, Textures/, Data/). Never touches other Unity folders.
-  --preview  render a Cycles preview of the assembled layout (slow on CPU)
+             (Models/, Textures/, Data/, Audio/). Never touches other Unity folders.
+  --preview  render Cycles previews of the assembled layout: day at 16:9 and 20:9,
+             plus dusk and night at 16:9 (U1-ENV.3 living environment)
   --only     comma separated asset names to rebuild (default: all)
 
 Conventions (see README in Assets/Dravio/Environment):
@@ -41,6 +42,9 @@ sys.path.insert(0, str(HERE))
 import atlas  # noqa: E402
 import layout as layout_mod  # noqa: E402
 import painterly_textures  # noqa: E402
+import living  # noqa: E402
+import fx_textures  # noqa: E402
+import ambience_audio  # noqa: E402
 
 # ----------------------------------------------------------------------- args
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -612,9 +616,10 @@ def build_mushrooms(k, glow):
         k.zone_faces_where(faces, lambda f: f.normal.z < -0.2, "mushroom_stem")
 
 
-def build_pond(k):
+def build_pond(k, rx=1.75, ry=1.2, rim=15, lilies=((0.5, 0.2, 0.22), (-0.6, -0.25, 0.18), (0.1, -0.45, 0.15)),
+               reeds=4):
     r = k.rng
-    rx, ry = 1.75, 1.2
+    k.water_radii = (rx, ry)
     # Earth basin (seen through the transparent water).
     n0 = len(k.bm.faces)
     bmesh.ops.create_circle(k.bm, cap_ends=True, segments=20, radius=1.0,
@@ -634,23 +639,123 @@ def build_pond(k):
         k.bm.faces.new((inner[i], outer[i], outer[j], inner[j]))
     k._finish(k._new_faces(n0), "WATER", True)
     # Rim stones.
-    rim = []
-    for i in range(15):
-        a = i * 2 * math.pi / 15 + r.uniform(-.1, .1)
-        s = r.uniform(0.24, 0.42)
-        rim += k.blob((math.cos(a) * rx * 1.08, math.sin(a) * ry * 1.08, 0.02),
-                      (s * 1.2, s, s * 0.6), "stone_cool", subdiv=1, rough=0.3, flat_bottom=-0.5,
-                      smooth=False, rot_z=a)
-    k.moss_tops(rim, 0.55, density=0.8)
-    # Lily pads.
-    for x, y, s in ((0.5, 0.2, 0.22), (-0.6, -0.25, 0.18), (0.1, -0.45, 0.15)):
+    rim_faces = []
+    for i in range(rim):
+        a = i * 2 * math.pi / rim + r.uniform(-.1, .1)
+        sz = r.uniform(0.24, 0.42)
+        rim_faces += k.blob((math.cos(a) * rx * 1.08, math.sin(a) * ry * 1.08, 0.02),
+                            (sz * 1.2, sz, sz * 0.6), "stone_cool", subdiv=1, rough=0.3, flat_bottom=-0.5,
+                            smooth=False, rot_z=a)
+    k.moss_tops(rim_faces, 0.55, density=0.8)
+    for x, y, sz in lilies:
         n0 = len(k.bm.faces)
-        bmesh.ops.create_circle(k.bm, cap_ends=True, segments=9, radius=s,
+        bmesh.ops.create_circle(k.bm, cap_ends=True, segments=9, radius=sz,
                                 matrix=Matrix.Translation((x, y, 0.06)))
         k._finish(k._new_faces(n0), "lily", False)
-    for i in range(4):
+    for i in range(reeds):
         a = r.uniform(0, 2 * math.pi)
         k.cross_cards((math.cos(a) * rx * 1.1, math.sin(a) * ry * 1.1, 0), 0.5, 0.6, "F_grass_b", count=2)
+
+
+def build_pond_bank(k):
+    """Larger pond for origin_pondbank (radii match layout.POND_RADII, Unity x/z)."""
+    rx, rz = layout_mod.POND_RADII
+    build_pond(k, rx=rx, ry=rz, rim=11,
+               lilies=((0.7, 0.3, 0.25), (-0.8, -0.35, 0.2), (0.2, -0.6, 0.17), (-0.3, 0.55, 0.15)), reeds=0)
+
+
+def build_stepping_stones(k):
+    faces = []
+    for i, (x, y) in enumerate(((0, 0), (0.55, 0.35), (1.15, 0.5), (-0.6, -0.3))):
+        faces += k.cone((x, y, -0.04), 0.3 + 0.04 * (i % 2), 0.27, 0.16, "stone_cool", seg=8,
+                        rot=(0, 0, k.rng.uniform(0, 3)), smooth=False)
+    k.moss_tops(faces, 0.6, density=0.5)
+
+
+def build_tree_b(k):
+    """Leaning, slimmer variant with a layered three-crown canopy."""
+    r = k.rng
+    chains = [
+        [((0, 0, -0.2), 0.7), ((0.25, 0.05, 1.2), 0.5), ((0.55, 0.0, 2.4), 0.4), ((0.6, -0.1, 3.2), 0.36)],
+        [((0.6, -0.1, 3.2), 0.34), ((1.5, 0.0, 3.9), 0.22)],
+        [((0.6, -0.1, 3.2), 0.34), ((-0.4, -0.2, 4.1), 0.22)],
+    ]
+    for a in (0.9, 2.6, 4.3):
+        chains.append([((0, 0, 0.4), 0.45), ((math.cos(a) * 1.1, math.sin(a) * 1.1, -0.1), 0.12)])
+    me = skin_mesh(chains, subdiv=1, decimate=0.5)
+    trunk = k.append_mesh(me, "bark", smooth=True)
+    bpy.data.meshes.remove(me)
+    k.moss_tops(trunk, 0.6, from_zones={"bark"})
+    crowns = [((1.6, 0.0, 4.3), (1.4, 1.2, 1.0)), ((-0.5, -0.2, 4.6), (1.5, 1.3, 1.1)),
+              ((0.6, -0.1, 5.4), (1.6, 1.4, 1.1))]
+    for c, rad in crowns:
+        k.blob(c, rad, "leaf_canopy", subdiv=3, rough=0.25, freq=1.8)
+        for _ in range(4):
+            a = r.uniform(0, 2 * math.pi)
+            p = Vector(c) + Vector((math.cos(a) * rad[0] * 0.85, math.sin(a) * rad[1] * 0.85,
+                                    -rad[2] * r.uniform(0.2, 0.5)))
+            k.card(p, 1.0, 0.9, "F_leaf_cluster", yaw=a + math.pi / 2, tilt=r.uniform(.3, .8),
+                   pivot_bottom=False)
+
+
+def build_rock_warm_flat(k):
+    """Sun-warmed basking slab with a flat top (perch surface ~0.44 m)."""
+    faces = k.blob((0, 0, 0.12), (1.05, 0.75, 0.4), "stone_warm", subdiv=3, rough=0.18, freq=0.9,
+                   flat_bottom=-0.3)
+    for v in {v for f in faces for v in f.verts}:
+        v.co.z = min(v.co.z, 0.44 + 0.02 * math.sin(v.co.x * 5))
+    for i in range(3):
+        a = k.rng.uniform(0, 6.28)
+        faces += k.blob((math.cos(a) * 1.15, math.sin(a) * 0.85, 0.05), (0.2, 0.17, 0.12), "stone_warm",
+                        subdiv=1, rough=0.3, flat_bottom=-0.4, smooth=False)
+    k.moss_tops(faces, 0.9, density=0.15)
+
+
+def build_rock_warm_stack(k):
+    faces = k.blob((0, 0, 0.3), (0.85, 0.7, 0.42), "stone_warm", subdiv=2, rough=0.2, flat_bottom=-0.6)
+    faces += k.blob((0.1, -0.05, 0.85), (0.6, 0.5, 0.3), "stone_warm", subdiv=2, rough=0.22, rot_z=0.6)
+    for v in {v for f in faces for v in f.verts}:
+        if v.co.z > 1.05:
+            v.co.z = 1.05 + (v.co.z - 1.05) * 0.3
+    faces += k.blob((-0.7, 0.35, 0.12), (0.3, 0.25, 0.2), "stone_cool", subdiv=1, rough=0.3,
+                    flat_bottom=-0.5, smooth=False)
+    k.moss_tops(faces, 0.85, density=0.2)
+
+
+def build_shrub(k):
+    for c, rad in (((0, 0, 0.45), (0.7, 0.6, 0.5)), ((0.45, 0.2, 0.35), (0.45, 0.4, 0.38)),
+                   ((-0.4, -0.15, 0.32), (0.45, 0.4, 0.34))):
+        k.blob(c, rad, "leaf_canopy", subdiv=2, rough=0.25, freq=2.0, flat_bottom=-0.4)
+    for i in range(6):
+        a = i * math.pi / 3 + k.rng.uniform(-.2, .2)
+        k.card((math.cos(a) * 0.5, math.sin(a) * 0.45, 0), 0.8, 0.8, "F_shrub_leaf", yaw=a + math.pi / 2,
+               tilt=0.35)
+
+
+# Card recipes for baked ground cover: cell -> (cards, width, height, tilt)
+COVER_CARDS = {
+    "grass_a": (3, 0.6, 0.55, 0.12), "grass_b": (3, 0.6, 0.55, 0.12), "meadow_tall": (2, 0.5, 0.85, 0.1),
+    "flower_pink": (2, 0.5, 0.62, 0.1), "flower_blue": (2, 0.5, 0.62, 0.1), "flower_gold": (2, 0.5, 0.62, 0.1),
+    "flower_lilac": (2, 0.5, 0.62, 0.1), "clover": (2, 0.5, 0.32, 0.5), "reed": (2, 0.45, 1.1, 0.05),
+    "cattail": (2, 0.42, 1.25, 0.05), "dry_grass": (3, 0.6, 0.5, 0.15), "twig_dry": (2, 0.5, 0.6, 0.1),
+    "shrub_leaf": (3, 0.9, 0.9, 0.2),
+}
+
+
+def build_cover(k, chunk):
+    """Bake a habitat's grass/flower scatter into ONE mesh (one renderer, one draw)."""
+    pts = layout_mod.scatter_cover(layout_mod.build_layout()["placements"])[chunk]
+    for cell, x, z, yaw, sc in pts:
+        bx, by = -x, -z
+        a = -math.radians(yaw)
+        if cell == "fern":
+            for i in range(4):
+                b = a + i * math.pi / 2
+                k.card((bx + math.cos(b) * 0.06, by + math.sin(b) * 0.06, 0), 0.38 * sc, 0.85 * sc, "F_fern",
+                       yaw=b - math.pi / 2, tilt=0.85)
+            continue
+        n, w, h, tilt = COVER_CARDS[cell]
+        k.cross_cards((bx, by, 0), w * sc, h * sc, "F_" + cell, count=n, yaw=a, tilt=tilt)
 
 
 def runestone_glyph_front(k, faces):
@@ -688,18 +793,20 @@ def build_runestone_b(k):
 
 
 def build_ground(k):
-    """Ground sheet in Blender space covering the camera frame. Vertex A = path mask."""
-    ux0, ux1, uz0, uz1 = -17.0, 17.0, -12.0, 34.0
-    nx, nz = 32, 34
+    """Ground sheet in Blender space covering every landscape aspect. Flat (y = 0) inside
+    layout.FLAT_RECT so gameplay positions need no height lookup. Vertex A = path mask."""
+    ux0, ux1, uz0, uz1 = -16.0, 20.0, -11.0, 28.0
+    nx, nz = 36, 30
+    fx0, fz0, fx1, fz1 = layout_mod.FLAT_RECT
     grid = {}
     for i in range(nx + 1):
         for j in range(nz + 1):
             ux = ux0 + (ux1 - ux0) * i / nx
             uz = uz0 + (uz1 - uz0) * j / nz
-            h = noise.noise(Vector((ux * 0.12, uz * 0.12, 3.1))) * 0.18
-            dist = math.hypot(ux, uz)
-            h *= min(1.0, max(0.0, (dist - 3.0) / 4.0))  # flat clearing
-            grid[i, j] = k.bm.verts.new((-ux, -uz, h - 0.02))
+            h = noise.noise(Vector((ux * 0.12, uz * 0.12, 3.1))) * 0.22
+            out = max(fx0 - ux, ux - fx1, fz0 - uz, uz - fz1, 0.0)
+            h *= min(1.0, out / 2.5)
+            grid[i, j] = k.bm.verts.new((-ux, -uz, h))
     n0 = len(k.bm.faces)
     for i in range(nx):
         for j in range(nz):
@@ -734,14 +841,44 @@ ASSETS = {
     "SM_ENV_Runestone_A": build_runestone_a,
     "SM_ENV_Runestone_B": build_runestone_b,
     "SM_ENV_Ground_Sanctuary": build_ground,
+    # U1-ENV.2 variants and habitat pieces.
+    "SM_ENV_Tree_Ancient_B": build_tree_b,
+    "SM_ENV_Rock_Warm_Flat": build_rock_warm_flat,
+    "SM_ENV_Rock_Warm_Stack": build_rock_warm_stack,
+    "SM_ENV_Shrub_Round": build_shrub,
+    "SM_ENV_Pond_Bank": build_pond_bank,
+    "SM_ENV_Stepping_Stones": build_stepping_stones,
+    "SM_ENV_Cover_Origin_Meadow": lambda k: build_cover(k, "origin_meadow"),
+    "SM_ENV_Cover_Origin_Pondbank": lambda k: build_cover(k, "origin_pondbank"),
+    "SM_ENV_Cover_Origin_Warm_Rocks": lambda k: build_cover(k, "origin_warm_rocks"),
+    "SM_ENV_Cover_Edges": lambda k: build_cover(k, "edges"),
 }
+
+# Vertex-colour tint multiplied into the painted AO (warm, sun-baked stone).
+TINT = {"SM_ENV_Rock_Warm_Flat": (1.0, 0.84, 0.68), "SM_ENV_Rock_Warm_Stack": (1.0, 0.86, 0.7)}
 
 # Triangle budgets (mobile). The build fails loudly if an asset exceeds its budget.
 BUDGET = {
     "SM_ENV_Gate_Ancient": 2600, "SM_ENV_Statue_Dragon": 3500, "SM_ENV_Tree_Ancient": 3600,
-    "SM_ENV_Ground_Sanctuary": 2600, "SM_ENV_Pond_Small": 2000,
+    "SM_ENV_Ground_Sanctuary": 2600, "SM_ENV_Pond_Small": 2000, "SM_ENV_Pond_Bank": 2000,
+    "SM_ENV_Tree_Ancient_B": 3000, "SM_ENV_Cover_Origin_Meadow": 3000, "SM_ENV_Cover_Origin_Pondbank": 3000,
+    "SM_ENV_Cover_Origin_Warm_Rocks": 3000, "SM_ENV_Cover_Edges": 3000,
 }
 DEFAULT_BUDGET = 1500
+
+
+def _ground_shade():
+    """(x, z, radius) soft shade under every collider footprint (Unity space)."""
+    out = []
+    for o in layout_mod.obstacle_polygons(layout_mod.build_layout()["placements"]):
+        xs = [p[0] for p in o["polygon"]]
+        zs = [p[1] for p in o["polygon"]]
+        cx, cz = sum(xs) / len(xs), sum(zs) / len(zs)
+        out.append((cx, cz, max(math.hypot(x - cx, z - cz) for x, z in o["polygon"]) * 0.8))
+    return out
+
+
+GROUND_SHADE = _ground_shade()
 
 
 # ================================================================ UV + COLOUR
@@ -850,11 +987,12 @@ def to_object(k):
                 edge = noise.noise(Vector((ux * 0.9, uz * 0.9, 1.7))) * 0.25
                 path = 1.0 - min(1.0, max(0.0, (d - layout_mod.PATH_WIDTH * 0.5 + edge) / 0.45))
                 cl = math.hypot(ux - layout_mod.CLEARING[0], uz - layout_mod.CLEARING[1])
-                path = max(path, 0.35 * (1 - min(1.0, max(0.0, (cl - 1.6) / 1.2))))
+                path = max(path, 0.35 * (1 - min(1.0, max(0.0, (cl - 1.2) / 1.2))))
                 shade = 1.0
-                for bx, bz, br in layout_mod.blockers()[1:]:
+                for bx, bz, br in GROUND_SHADE:
                     dd = math.hypot(ux - bx, uz - bz)
-                    shade = min(shade, 0.72 + 0.28 * min(1.0, max(0.0, (dd - br * 0.6) / (br * 0.9))))
+                    if dd < br * 1.6:
+                        shade = min(shade, 0.72 + 0.28 * min(1.0, max(0.0, (dd - br * 0.6) / (br * 0.9))))
                 rgb = (shade, shade, shade * 0.97)
                 a = path
             elif zone.startswith("F_"):
@@ -862,14 +1000,16 @@ def to_object(k):
                 rgb = (g, g, g)
                 a = (1 - t) if is_vine else min(1.0, max(0.0, (co.z - zmin) / 0.6)) ** 1.4
             elif zone == "WATER":
-                rad = math.hypot(co.x / 1.75, co.y / 1.2)
+                wr = getattr(k, "water_radii", (1.75, 1.2))
+                rad = math.hypot(co.x / wr[0], co.y / wr[1])
                 rgb = (1, 1, 1)
                 a = min(1.0, max(0.0, (1.0 - rad) / 0.38))
             else:
                 ao = 0.58 + 0.42 * min(1.0, (co.z - zmin + 0.05) / min(0.9, height * 0.6))
                 if zone in ("leaf_canopy",):
                     ao = 0.68 + 0.32 * t
-                rgb = (ao, ao, ao * 0.98)
+                tint = TINT.get(k.name, (1.0, 1.0, 1.0))
+                rgb = (ao * tint[0], ao * tint[1], ao * 0.98 * tint[2])
                 a = 0.18 if zone == "leaf_canopy" else (0.7 * (1 - t) if is_vine else 0.0)
             data[li * 4:li * 4 + 4] = (*rgb, a)
     col.data.foreach_set("color", data)
@@ -1009,18 +1149,15 @@ def render_preview(objects, layout, path):
         inst.rotation_euler = (0, 0, -math.radians(pl["yaw"]))
         inst.scale = (pl["scale"],) * 3
         coll.objects.link(inst)
-    cam_cfg = layout["camera"]
     cd = bpy.data.cameras.new("Cam")
     cd.type = 'ORTHO'
-    w, h = 1280, 720
-    cd.ortho_scale = 2 * cam_cfg["orthographicSize"] * (w / h)
-    cam = bpy.data.objects.new("Cam", cd)
-    px, py, pz = cam_cfg["position"]
-    tx, ty, tz = cam_cfg["lookAt"]
-    cam.location = (-px, -pz, py)
-    direction = Vector((-tx, -tz, ty)) - cam.location
-    cam.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
     cd.clip_end = 200
+    cam = bpy.data.objects.new("Cam", cd)
+    # Same fixed landscape camera as Unity, including the right-hand UI offset.
+    px, py, pz = layout_mod.camera_position()
+    cam.location = (-px, -pz, py)
+    p = math.radians(layout_mod.PITCH_DEG)
+    cam.rotation_euler = Vector((0.0, -math.cos(p), -math.sin(p))).to_track_quat('-Z', 'Y').to_euler()
     scn.collection.objects.link(cam)
     scn.camera = cam
     sun_d = bpy.data.lights.new("Sun", 'SUN')
@@ -1041,11 +1178,68 @@ def render_preview(objects, layout, path):
     scn.cycles.samples = 24
     scn.cycles.use_denoising = True
     scn.cycles.max_bounces = 3
-    scn.render.resolution_x, scn.render.resolution_y = w, h
     scn.render.film_transparent = False
     scn.view_settings.view_transform = 'Standard'
-    scn.render.filepath = str(path)
-    bpy.ops.render.render(write_still=True)
+    outputs = []
+    for label, aspect in (("16x9", 16 / 9), ("20x9", 20 / 9)):
+        h = 720
+        w = int(round(h * aspect))
+        scn.render.resolution_x, scn.render.resolution_y = w, h
+        cd.ortho_scale = 2 * layout_mod.ORTHO_SIZE * aspect
+        out = Path(str(path).replace(".png", f"_{label}.png"))
+        scn.render.filepath = str(out)
+        bpy.ops.render.render(write_still=True)
+        outputs.append(out)
+
+    # U1-ENV.3: the same camera at dusk and at night, lit from Data/OriginSanctuaryLiving.json.
+    h = 720
+    scn.render.resolution_x, scn.render.resolution_y = int(round(h * 16 / 9)), h
+    cd.ortho_scale = 2 * layout_mod.ORTHO_SIZE * 16 / 9
+    props = MATERIALS.get("ENV_Props")
+    bsdf = props.node_tree.nodes.get("Principled BSDF") if props else None
+    flies = bpy.data.collections.new("PreviewFireflies")
+    scn.collection.children.link(flies)
+    fly_mat = bpy.data.materials.new("Firefly")
+    fly_mat.use_nodes = True
+    fb = fly_mat.node_tree.nodes.get("Principled BSDF")
+    fb.inputs["Base Color"].default_value = (0.9, 1.0, 0.4, 1)
+    fb.inputs["Emission Color"].default_value = (0.9, 1.0, 0.4, 1)
+    fb.inputs["Emission Strength"].default_value = 14.0
+    fly_mesh = bpy.data.meshes.new("FireflyMesh")
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=1, radius=0.045)
+    bm.to_mesh(fly_mesh)
+    bm.free()
+    fly_mesh.materials.append(fly_mat)
+    rng = random.Random(911)
+    for label, hour, exposure in (("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
+        st = living.evaluate(hour)
+        f = living.light_forward(st["lightElevation"], st["lightAzimuth"])
+        sun.rotation_euler = Vector((-f[0], -f[2], f[1])).to_track_quat('-Z', 'Y').to_euler()
+        sun_d.color = st["lightColor"]
+        sun_d.energy = 3.2 * st["lightIntensity"] / 1.35
+        bg.inputs["Color"].default_value = tuple(st["ambientEquator"]) + (1,)
+        bg.inputs["Strength"].default_value = 0.9 if exposure == 0.0 else 0.7
+        scn.view_settings.exposure = exposure  # night reads darker on screen, as in Unity
+        if bsdf is not None:
+            bsdf.inputs["Emission Strength"].default_value = 2.5 * (1 + 1.6 * st["nightGlow"])
+        for o in list(flies.objects):
+            bpy.data.objects.remove(o)
+        for vol_id, count in (("fireflies", 36), ("fireflies_pond", 14)):
+            v = living.PARTICLES[vol_id]
+            for _ in range(int(round(count * st["fireflies"]))):
+                ux = v["center"][0] + (rng.random() - 0.5) * v["size"][0]
+                uy = v["center"][1] + (rng.random() - 0.5) * v["size"][1]
+                uz = v["center"][2] + (rng.random() - 0.5) * v["size"][2]
+                fo = bpy.data.objects.new("Firefly", fly_mesh)
+                fo.location = (-ux, -uz, uy)
+                flies.objects.link(fo)
+        out = Path(str(path).replace(".png", f"_{label}_16x9.png"))
+        scn.render.filepath = str(out)
+        bpy.ops.render.render(write_still=True)
+        outputs.append(out)
+    scn.view_settings.exposure = 0.0
+    return outputs
 
 
 # ==================================================================== MAIN
@@ -1053,7 +1247,13 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     tex_dir = OUT / "Textures"
     painterly_textures.generate_all(str(tex_dir))
-    layout = layout_mod.write(str(OUT / "OriginSanctuaryLayout.json"))
+    layout = layout_mod.write(str(OUT / "OriginSanctuaryLayout.json"), str(OUT / "OriginSanctuaryLocations.json"))
+    layout_mod.write_colliders(str(OUT / "OriginSanctuaryColliders.json"))
+    # U1-ENV.3 living environment: data, particle sprites and synthesised ambience.
+    living.write(str(OUT / "OriginSanctuaryLiving.json"))
+    fx_textures.generate_all(str(tex_dir))
+    audio_dir = OUT / "Audio"
+    ambience_audio.generate_all(str(audio_dir))
 
     # Empty scene (never run inside an artist's unsaved file).
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -1102,13 +1302,17 @@ def main():
 
     if UNITY:
         dst = Path(UNITY).resolve()
-        for sub in ("Models", "Textures", "Data"):
+        for sub in ("Models", "Textures", "Data", "Audio"):
             (dst / sub).mkdir(parents=True, exist_ok=True)
         for p in fbx_dir.glob("*.fbx"):
             shutil.copy2(p, dst / "Models" / p.name)
         for p in tex_dir.glob("*.png"):
             shutil.copy2(p, dst / "Textures" / p.name)
-        shutil.copy2(OUT / "OriginSanctuaryLayout.json", dst / "Data" / "OriginSanctuaryLayout.json")
+        for name in ("OriginSanctuaryLayout.json", "OriginSanctuaryLocations.json", "OriginSanctuaryColliders.json",
+                     "OriginSanctuaryLiving.json"):
+            shutil.copy2(OUT / name, dst / "Data" / name)
+        for p in audio_dir.glob("*.wav"):
+            shutil.copy2(p, dst / "Audio" / p.name)
         shutil.copy2(OUT / "manifest.json", dst / "Data" / "OriginSanctuaryManifest.json")
         print("[env] copied into", dst)
 
@@ -1119,4 +1323,5 @@ def main():
     print("[env] done ->", OUT)
 
 
-main()
+if __name__ == "__main__":  # importable by build_zone_kits.py (U1-ENV.4)
+    main()
