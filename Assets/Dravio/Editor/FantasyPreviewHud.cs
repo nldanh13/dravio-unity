@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using Dravio.Platform.Unity;
+using Dravio.EnvironmentArt;
+using Dravio.EnvironmentArt.EditorTools;
 using Object = UnityEngine.Object;
 
 namespace Dravio.Editor
@@ -30,7 +33,7 @@ namespace Dravio.Editor
             public readonly List<FantasyPreviewUI.Copy> copy=new();
         }
 
-        public static void Build(GameObject dragon,Animator animator,DragonTurntable turntable,bool integrated=false)
+        public static void Build(GameObject dragon,Animator animator,DragonTurntable turntable,bool integrated=false,bool playable=false)
         {
             var asset=AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Dravio/Data/species-biology.json");
             if(asset==null)throw new InvalidOperationException("Canonical biology JSON missing.");
@@ -77,6 +80,7 @@ namespace Dravio.Editor
             vertical.padding=new RectOffset(10,10,10,10);vertical.spacing=8;
             vertical.childControlHeight=true;vertical.childControlWidth=true;
             vertical.childForceExpandHeight=false;vertical.childForceExpandWidth=true;
+            if(playable)panel.gameObject.AddComponent<SanctuaryUiInsetSource>();
 
             Label(ui,panel,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",20,Gold,TextAnchor.MiddleLeft,40);
             var status=Label(ui,panel,"Resting","Đang nghỉ",16,Paper,TextAnchor.MiddleLeft,30,false);
@@ -84,15 +88,21 @@ namespace Dravio.Editor
             var tabLayout=tabsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
             tabLayout.spacing=5;tabLayout.childControlWidth=true;tabLayout.childControlHeight=true;
             tabLayout.childForceExpandWidth=true;tabLayout.childForceExpandHeight=true;
-            tabsRoot.gameObject.AddComponent<LayoutElement>().preferredHeight=44;
-            var tabs=new[]{Button(ui,tabsRoot,"Care","Chăm sóc",44),Button(ui,tabsRoot,"Biology","Sinh học",44),Button(ui,tabsRoot,"Dragons","Rồng",44)};
+            var navSize=tabsRoot.gameObject.AddComponent<LayoutElement>();
+            navSize.minHeight=40;navSize.preferredHeight=44;navSize.flexibleHeight=0;navSize.layoutPriority=10;
+            tabLayout.childForceExpandHeight=false;
+            var tabs=new List<Button>{Button(ui,tabsRoot,"Care","Chăm sóc",44),Button(ui,tabsRoot,"Biology","Sinh học",44),Button(ui,tabsRoot,"Dragons","Rồng",44)};
+            if(playable)tabs.Add(Button(ui,tabsRoot,"Guide","Hướng dẫn",44));
             var host=RectNode("Page host",panel);
-            host.gameObject.AddComponent<LayoutElement>().flexibleHeight=1;
+            var hostSize=host.gameObject.AddComponent<LayoutElement>();
+            hostSize.minHeight=0;hostSize.preferredHeight=0;hostSize.flexibleHeight=1;hostSize.layoutPriority=10;
             var care=Page(host,"Care");
             var info=Page(host,"Biology");
             var roster=Page(host,"Dragons");
 
-            Text progress=null,notice=null;
+            Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null;
+            RectTransform guide=null;
+            Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
             if(integrated)
             {
                 progress=Label(ui,care,"—","—",15,Paper,TextAnchor.MiddleLeft,48,false);
@@ -106,10 +116,16 @@ namespace Dravio.Editor
             var inspect=Button(ui,row2,"Inspect","Quan sát",56);
             var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",52);
             Label(ui,care,"Drag to rotate in inspection. F / P / N / Space / R on keyboard.","Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,52);
-            if(integrated)Label(ui,care,"Session-only game data; no save or offline reward. Sleep and inspection are visual.","Dữ liệu trong phiên; chưa lưu hay thưởng offline. Ngủ và quan sát chỉ là hoạt ảnh.",14,Muted,TextAnchor.MiddleLeft,70);
+            if(playable)
+            {
+                saveStatus=Label(ui,care,"Loading save","Đang mở lưu trữ",14,Paper,TextAnchor.MiddleLeft,32,false);
+                saveButton=Button(ui,care,"Save now","Lưu ngay",44);
+            }
+            else if(integrated)Label(ui,care,"Session-only game data; no save or offline reward. Sleep and inspection are visual.","Dữ liệu trong phiên; chưa lưu hay thưởng offline. Ngủ và quan sát chỉ là hoạt ảnh.",14,Muted,TextAnchor.MiddleLeft,70);
             else Label(ui,care,"Visual actions only. No food or bond changes yet.","Chỉ thử hoạt ảnh. Chưa trừ thức ăn hay thay đổi gắn kết.",14,Muted,TextAnchor.MiddleLeft,54);
 
             Label(ui,info,"Species reference","Hồ sơ loài",18,Gold,TextAnchor.MiddleLeft,36);
+            if(playable)bioRecord=Button(ui,info,"Record profile observation","Ghi nhận đã xem sinh học",44);
             Fact(ui,info,"Group","Nhóm",biology.group,biology.group);
             Fact(ui,info,"Respiration","Hô hấp",biology.respiration,Translate(biology.respiration));
             Fact(ui,info,"Locomotion","Di chuyển",Join(biology.locomotion,false),Join(biology.locomotion,true));
@@ -124,7 +140,22 @@ namespace Dravio.Editor
             Label(ui,roster,"Preview residents","Rồng trong bản thử",18,Gold,TextAnchor.MiddleLeft,36);
             Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
             var rosterInspect=Button(ui,roster,"Inspect Emberling","Quan sát Emberling",46);
-            Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
+            if(playable)
+            {
+                rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
+                Label(ui,roster,"Other species appear in this roster; only Emberling has a visual model in this build.","Các loài khác hiển thị trong danh sách; bản này chỉ có mô hình Emberling.",14,Muted,TextAnchor.MiddleLeft,70);
+                guide=Page(host,"Guide");
+                tutorialStatus=Label(ui,guide,"Loading tutorial","Đang tải hướng dẫn",16,Gold,TextAnchor.MiddleLeft,54,false);
+                Label(ui,guide,"Observe, feed and record biology first. Survey and unlock habitats, then buy and claim the Starter Pack.","Quan sát, cho ăn và ghi nhận sinh học trước. Khảo sát, mở khóa sinh cảnh rồi mua và nhận gói Starter.",14,Paper,TextAnchor.MiddleLeft,88);
+                surveyRocks=Button(ui,guide,"Survey warm rocks","Khảo sát bãi đá ấm",46);
+                unlockRocks=Button(ui,guide,"Unlock warm rocks","Mở khóa bãi đá ấm",46);
+                buy=Button(ui,guide,"Buy Starter Pack · 100 G","Mua Starter · 100 G",46);
+                claim=Button(ui,guide,"Claim to meadow","Nhận vào đồng cỏ",46);
+                store=Button(ui,guide,"Claim to storage","Nhận vào kho",46);
+                surveyPond=Button(ui,guide,"Survey pondbank","Khảo sát bờ hồ",46);
+                unlockPond=Button(ui,guide,"Unlock pondbank","Mở khóa bờ hồ",46);
+            }
+            else Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
             var controller=dragon.AddComponent<DragonCarePreview>();
             controller.Configure(animator,turntable,status,feed,pet,sleep,inspect,resume);
@@ -133,12 +164,31 @@ namespace Dravio.Editor
                 var session=dragon.AddComponent<SanctuaryDomainPreview>();
                 session.Configure(gold,progress,notice,CreateFruit());
                 controller.ConfigureDomain(session);
+                if(playable)
+                {
+                    var hostGo=new GameObject("Dravio Session Host");
+                    var persistence=hostGo.AddComponent<DravioSessionHost>();
+                    var locationData=AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(OriginSanctuaryEnvironmentBuilder.LocationsAssetPath);
+                    if(locationData==null)throw new InvalidOperationException("Playable location data missing.");
+                    session.ConfigurePersistent(persistence,locationData,saveStatus,tutorialStatus,rosterStatus);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyRocks.onClick,session.SurveyRocks);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockRocks.onClick,session.UnlockRocks);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(buy.onClick,session.BuyStarter);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(claim.onClick,session.ClaimMeadow);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(store.onClick,session.ClaimStorage);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyPond.onClick,session.SurveyPond);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockPond.onClick,session.UnlockPond);
+                }
             }
             var runtime=canvasGo.AddComponent<FantasyPreviewUI>();
             // persistent callbacks survive editor scene serialization.
             UnityEditor.Events.UnityEventTools.AddPersistentListener(rosterInspect.onClick,controller.Inspect);
-            runtime.Configure(safe,panel,new[]{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject},
-                tabs,lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
+            var pages=new List<GameObject>{care.parent.parent.gameObject,info.parent.parent.gameObject,roster.parent.parent.gameObject};
+            if(playable)pages.Add(guide.parent.parent.gameObject);
+            runtime.Configure(safe,panel,pages.ToArray(),
+                tabs.ToArray(),lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
         }
 
         static GameObject CreateFruit()
