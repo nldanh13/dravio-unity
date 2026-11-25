@@ -263,6 +263,8 @@ namespace Dravio.Domain.Progression
         {
             // U2.7: Bách khoa trước, để thành tựu đọc được khám phá của chính lệnh vừa chạy.
             Codex.Observe(working, events);
+            // U2.8: trứng thưởng chờ (kho đầy / đang có trứng chờ) được giao khi có chỗ — không bao giờ mất.
+            World.Rewards.TryDeliver(working, working.Clock.LastProcessedAtMs, events);
             Achievements.Evaluate(working, events);
             Tutorial.Evaluate(working, events);
         }

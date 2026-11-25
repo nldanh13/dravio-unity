@@ -10,8 +10,9 @@ namespace Dravio.Domain.Expedition
     /// <summary>
     /// Thám hiểm P0 (U2.8 — IMPLEMENTATION MỚI theo GDD 3.1 trang 22; TS b33ec7a không có). Luật lấy từ GDD:
     /// một slot chung; chuyến đi chốt thời gian, seed và bảng thưởng khi bắt đầu; rồng đi thám hiểm không sinh vàng, không lai, không bán/chuyển;
-    /// hoàn tất offline; nhận thưởng một lần; không tự khởi hành tiếp. GDD không có tỷ lệ thất bại nên mọi chuyến đều thành công
-    /// (ghi trong danh sách quyết định). Điều kiện sức khỏe ("bay khỏe") chưa kiểm được vì chưa có dữ liệu sức khỏe (U2.6).
+    /// hoàn tất offline; nhận thưởng một lần; không tự khởi hành tiếp. MVP thành công 100 % (ADR U2.8-0201). Ngưỡng sức khỏe ADR
+    /// (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) CHƯA kiểm được vì chưa có dữ liệu sức khỏe U2.6 — không giả lập
+    /// "khỏe"; API trả các điều kiện chưa hỗ trợ trong <see cref="UncheckedHealthConditions"/>.
     /// RNG: luồng riêng hashSeed("expedition", saveId, revision) — tất định theo state, độc lập RNG hình ảnh.
     /// </summary>
     public static class Expeditions
@@ -45,11 +46,15 @@ namespace Dravio.Domain.Expedition
         /// <summary>Tuyến bị khóa khi thế giới của nó chưa mở (không vượt khóa thế giới hiện hành).</summary>
         public static bool RouteOpen(GameState s, ExpeditionRoute route) => s.FindZone(route.ZoneId)?.Unlocked == true;
 
+        /// <summary>Điều kiện sức khỏe ADR U2.8-0201 chưa được hỗ trợ (chưa có dữ liệu U2.6). Rỗng khi tích hợp xong.</summary>
+        public static readonly IReadOnlyList<string> UncheckedHealthConditions = Array.AsReadOnly(new[] { "health>=80", "mobility>=80", "comfort>=60", "no-open-care-case" });
+
         public static DomainErrorCode? CheckStart(GameState s, string routeId, string uid, out string detail)
         {
             detail = null;
             if (!ExpeditionCatalog.TryGet(routeId, out ExpeditionRoute route)) return DomainErrorCode.UnknownRoute;
             if (!RouteOpen(s, route)) return DomainErrorCode.RouteLocked;
+            if (!route.RewardsDefined) return DomainErrorCode.RouteRewardsUndefined;
             if (s.Expedition != null) return DomainErrorCode.ExpeditionBusy;
             DragonState d = s.FindDragon(uid);
             if (d == null) return DomainErrorCode.UnknownDragon;

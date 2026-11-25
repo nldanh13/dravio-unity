@@ -33,7 +33,7 @@ namespace Dravio.Persistence.Schema
     /// Migration theo schemaVersion (src/persistence/migrations.ts; ADR 0006, 0007, 0009, 0013).
     /// v1 → v2 thêm discoveries (ghi bù khám phá cho sinh cảnh đã mở, ADR 0010); v2 → v4 thêm tutorial,
     /// pendingPack, unlockedAchievements, claimedAchievements; số 3 là bí danh tiền phát hành của v1 và được dành riêng.
-    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition.
+    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng).
     /// </summary>
     public static class Migrations
     {
@@ -113,12 +113,13 @@ namespace Dravio.Persistence.Schema
                 }
                 return state.ShallowCopy().Set("codex", codex);
             }),
-            // U2.8 (chỉ bản Unity): thêm slot thám hiểm trống. Bản trước chưa có lệnh thám hiểm nên rồng mang activity = "expedition" không có
+            // U2.8 (chỉ bản Unity): thêm slot thám hiểm trống và trạng thái mở thế giới rỗng (ADR 0201: chưa nhiệm vụ nào hoàn thành, chưa trao trứng). Bản trước chưa có lệnh thám hiểm nên rồng mang activity = "expedition" không có
             // chuyến nào — trả về "idle" để không bị khóa vĩnh viễn. Không đổi trường nào khác (vật liệu trong inventory giữ nguyên).
             new MigrationStep(6, 7, state =>
             {
                 if (state.ContainsKey("expedition")) throw new InvalidOperationException("v6 state already has expedition");
-                JsonObject next = state.ShallowCopy().Set("expedition", JsonValue.Null);
+                JsonObject next = state.ShallowCopy().Set("expedition", JsonValue.Null)
+                    .Set("completedQuests", new JsonArray()).Set("grantedRewards", new JsonArray()).Set("rewardQueue", new JsonArray());
                 if (state.Get("dragons") is JsonArray dragons)
                 {
                     var fixedDragons = new JsonArray();

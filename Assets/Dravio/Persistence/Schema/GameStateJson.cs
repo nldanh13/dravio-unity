@@ -15,14 +15,14 @@ namespace Dravio.Persistence.Schema
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + breedingNest (schema v5).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v7).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
             // v5 (U2.5), v6 (U2.7), v7 (U2.8), chỉ có ở bản Unity
-            "breedingNest", "codex", "expedition",
+            "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -97,6 +97,13 @@ namespace Dravio.Persistence.Schema
                 o.Set("expedition", new JsonObject().Set("id", S(j.Id)).Set("routeId", S(j.RouteId)).Set("dragonUid", S(j.DragonUid))
                     .Set("startedAtMs", N(j.StartedAtMs)).Set("finishAtMs", N(j.FinishAtMs)).Set("rewards", rewards).Set("status", S(j.Status.ToWire())));
             }
+            o.Set("completedQuests", Arr(s.CompletedQuests));
+            o.Set("grantedRewards", Arr(s.GrantedRewards));
+            var queue = new JsonArray();
+            foreach (QueuedEgg q in s.RewardQueue)
+                queue.Add(new JsonObject().Set("rewardId", S(q.RewardId)).Set("speciesId", S(q.SpeciesId))
+                    .Set("mutation", S(Dravio.Domain.WireNames.ToWire(q.Mutation))).Set("queuedAtMs", N(q.QueuedAtMs)));
+            o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
@@ -411,6 +418,27 @@ namespace Dravio.Persistence.Schema
                 if (er.Errors.Count > 0) errors.Add("expedition: invalid");
             }
             else if (!(ev is JsonNull)) errors.Add("expedition: invalid");
+
+            var qr = new Reader(new List<string>());
+            s.CompletedQuests = qr.StrList(o, "completedQuests", "x") ?? new List<string>();
+            s.GrantedRewards = qr.StrList(o, "grantedRewards", "x") ?? new List<string>();
+            if (qr.Errors.Count > 0) errors.Add("worldUnlock: invalid");
+            s.RewardQueue = new List<QueuedEgg>();
+            if (o.Get("rewardQueue") is JsonArray rq)
+            {
+                var rr = new Reader(new List<string>());
+                foreach (JsonValue qv in rq)
+                {
+                    if (!(qv is JsonObject qo)) { rr.Errors.Add("x"); continue; }
+                    s.RewardQueue.Add(new QueuedEgg
+                    {
+                        RewardId = rr.Str(qo, "rewardId", "x"), SpeciesId = rr.Str(qo, "speciesId", "x"),
+                        Mutation = rr.Enum(qo, "mutation", "x", MutationType.Normal), QueuedAtMs = rr.LongOr(qo, "queuedAtMs", "x", -1),
+                    });
+                }
+                if (rr.Errors.Count > 0) errors.Add("rewardQueue: invalid");
+            }
+            else errors.Add("rewardQueue: invalid");
             return s;
         }
 

@@ -272,6 +272,15 @@ namespace Dravio.Domain.Core
         internal override bool IsWellFormed() => IsId(RouteId) && IsId(DragonUid);
     }
 
+    /// <summary>Mở một thế giới khi đủ điều kiện (ADR U2.8-0201); trao trứng cố định một lần (vào pendingPack hoặc hàng chờ).</summary>
+    public sealed class UnlockZoneCommand : GameCommand
+    {
+        public UnlockZoneCommand(string requestId, string zoneId) : base(requestId) { ZoneId = zoneId; }
+        public string ZoneId { get; }
+        public override string Type => "unlockZone";
+        internal override bool IsWellFormed() => IsId(ZoneId);
+    }
+
     public sealed class ClaimExpeditionCommand : GameCommand
     {
         public ClaimExpeditionCommand(string requestId) : base(requestId) { }

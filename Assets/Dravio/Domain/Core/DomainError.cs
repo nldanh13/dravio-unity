@@ -5,7 +5,7 @@ namespace Dravio.Domain.Core
 {
     /// <summary>
     /// Mã lỗi có kiểu của command bus (src/engine/core/errors.ts). Giữ đủ 30 mã của bản TS (khóa i18n
-    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai) 10 mã của U2.7 (kho, nâng cấp, trang trí) và 7 mã của U2.8 (đường đi, thám hiểm). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
+    /// <c>commandError.&lt;code&gt;</c> không đổi), cộng 18 mã mới của U2.5 (gói thường, tổ ấp, từ chối lai) 10 mã của U2.7 (kho, nâng cấp, trang trí) và 9 mã của U2.8 (đường đi, thám hiểm, mở thế giới). U2.1 phát các mã của feed/consumeFood/pet/rename/advanceTime;
     /// U2.3 thêm moveDragon/setProductionSlot/unlockHabitat/surveyHabitat/viewBiologyProfile; U2.4 thêm gói Starter và hướng dẫn.
     /// </summary>
     public enum DomainErrorCode
@@ -80,6 +80,8 @@ namespace Dravio.Domain.Core
         [WireName("dragon-unsuited")] DragonUnsuited,
         [WireName("no-expedition")] NoExpedition,
         [WireName("expedition-not-ready")] ExpeditionNotReady,
+        [WireName("route-rewards-undefined")] RouteRewardsUndefined,
+        [WireName("unknown-zone")] UnknownZone,
     }
 
     /// <summary>Lỗi nghiệp vụ trả về từ dispatch. Không phải exception: lệnh bị từ chối là luồng bình thường.</summary>

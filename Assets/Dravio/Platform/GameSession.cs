@@ -249,7 +249,7 @@ namespace Dravio.Platform
             // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
             cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand ||
             // U2.8: khởi hành (chốt seed + phần thưởng) và nhận thưởng thám hiểm.
-            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand;
+            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand;
 
         public string ExportText() => _manager != null && State != null ? _manager.ExportText(State) : null;
 

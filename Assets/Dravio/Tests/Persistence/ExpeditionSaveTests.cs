@@ -127,5 +127,75 @@ namespace Dravio.Persistence.Tests
             Assert.That(c.Send(id => new ClaimExpeditionCommand(id)).Code, Is.EqualTo(DomainErrorCode.NoExpedition));
             c.Dispose();
         }
+
+        /// <summary>ADR 0201: đủ điều kiện mở Thủy Vực (hướng dẫn xong, 3 sinh cảnh Khởi Nguyên, nhiệm vụ thủy sinh) và kho đầy.</summary>
+        private static GameState OceanReadyFullStorage()
+        {
+            GameState s = Base();
+            foreach (string d in ProgressCatalog.DiscoveryIds) Zones.RecordDiscovery(s, d, new List<DomainEvent>());
+            foreach (string h in new[] { "origin_warm_rocks", "origin_pondbank" }) Zones.ApplyUnlock(s, h, new List<DomainEvent>());
+            s.Tutorial.Status = TutorialStatus.Completed;
+            s.Tutorial.Completed = ProgressCatalog.TutorialStepIds.ToList();
+            WorldExpansion.ApplyQuestComplete(s, "QUEST_AQUATIC_EXPLORATION", null);
+            for (int i = 0; s.Dragons.Count < StorageCatalog.MaxDragons; i++) s.Dragons.Add(Adult("f" + i, "zephyr"));
+            return s;
+        }
+
+        [Test]
+        public void Queued_world_reward_egg_survives_save_reload_and_offline_and_is_delivered_exactly_once()
+        {
+            var (rig, store) = RigWith(OceanReadyFullStorage());
+            GameSession a = rig.NewSession();
+            int w = store.Writes;
+            Assert.That(a.Send(id => new UnlockZoneCommand(id, "ocean")), Is.Null);
+            Assert.That(store.Writes, Is.EqualTo(w + 1), "mở thế giới lưu ngay");
+            Assert.That((a.State.PendingPack, a.State.RewardQueue.Count), Is.EqualTo(((PendingPack)null, 1)), "kho đầy: trứng vào hàng chờ");
+            a.Dispose();
+
+            rig.Frozen(8 * 3_600_000L); // offline lâu: không sinh thêm trứng
+            GameSession b = rig.NewSession();
+            Assert.That((b.State.RewardQueue.Count, b.State.GrantedRewards.Single(), b.State.PendingPack), Is.EqualTo((1, "ZONE_EGG_OCEAN", (PendingPack)null)));
+            Assert.That(b.Send(id => new UnlockZoneCommand(id, "ocean")).Code, Is.EqualTo(DomainErrorCode.AlreadyThere));
+            Assert.That(b.Send(id => new SellDragonCommand(id, "f0")), Is.Null);
+            Assert.That((b.State.PendingPack.PackId, b.State.RewardQueue.Count), Is.EqualTo(("ZONE_EGG_OCEAN", 0)), "có chỗ → giao");
+            b.Dispose();
+
+            GameSession c = rig.NewSession();
+            Assert.That(c.State.PendingPack.PackId, Is.EqualTo("ZONE_EGG_OCEAN"));
+            Assert.That(c.Send(id => new ClaimPackCommand(id, MoveTarget.Storage)), Is.Null);
+            int droplets = c.State.Dragons.Count(d => d.SpeciesId == "droplet");
+            c.Dispose();
+            GameSession d2 = rig.NewSession();
+            Assert.That((d2.State.Dragons.Count(d => d.SpeciesId == "droplet"), d2.State.PendingPack, d2.State.RewardQueue.Count), Is.EqualTo((droplets, (PendingPack)null, 0)), "không cấp lại sau khi nạp");
+            Assert.That(droplets, Is.EqualTo(1));
+            d2.Dispose();
+        }
+
+        [Test]
+        public void World_unlock_state_round_trips_migrates_empty_and_tampering_is_rejected()
+        {
+            GameState s = OceanReadyFullStorage();
+            long t = s.Clock.LastProcessedAtMs + 1000;
+            GameState q = Do(s, new UnlockZoneCommand(PFix.Rid(), "ocean"), t);
+            string text = SaveSchema.Serialize(q, t);
+            ParseResult back = SaveFile.Parse(text);
+            Assert.That(back.Ok, Is.True, back.ToString());
+            Assert.That(PFix.Canonical(back.Save.State), Is.EqualTo(PFix.Canonical(SaveSchema.ToPersistedState(q))));
+            Assert.That(back.Save.State.RewardQueue.Single().SpeciesId, Is.EqualTo("droplet"));
+
+            GameState dupGrant = q.DeepClone(); dupGrant.GrantedRewards.Add("ZONE_EGG_OCEAN");
+            GameState ghost = q.DeepClone(); ghost.GrantedRewards.Clear();
+            GameState noZone = q.DeepClone(); noZone.FindZone("ocean").Unlocked = false;
+            GameState fakeQuest = q.DeepClone(); fakeQuest.CompletedQuests.Add("QUEST_NOPE");
+            GameState twice = q.DeepClone(); twice.RewardQueue.Add(twice.RewardQueue[0].Clone());
+            foreach (var (bad, why) in new[] { (dupGrant, "trao trùng"), (ghost, "hàng chờ chưa được trao"), (noZone, "thưởng của vùng chưa mở"), (fakeQuest, "nhiệm vụ lạ"), (twice, "trứng nhân đôi") })
+                Assert.That(SaveFile.Parse(SaveSchema.Serialize(bad, t)).Code, Is.EqualTo(SaveErrorCode.InvalidState), why);
+
+            GameState v6 = Base(); v6.SchemaVersion = 6;
+            MigrateResult m = Migrations.Migrate(6, (Dravio.Persistence.Json.JsonObject)((Dravio.Persistence.Json.JsonObject)Dravio.Persistence.Json.JsonParser.Parse(PFix.EnvelopeAt(6, v6))).Get("state"));
+            Assert.That(m.Ok, Is.True);
+            foreach (string k in new[] { "completedQuests", "grantedRewards", "rewardQueue" })
+                Assert.That(((Dravio.Persistence.Json.JsonArray)m.State.Get(k)).Count, Is.EqualTo(0), k);
+        }
     }
 }

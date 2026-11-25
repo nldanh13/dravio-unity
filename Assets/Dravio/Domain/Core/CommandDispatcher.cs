@@ -92,6 +92,8 @@ namespace Dravio.Domain.Core
                 case BuyDecorationCommand c: return SettleThen(s, nowMs, events, () => SanctuaryRules.CheckBuyDecoration(s, c.ZoneId, c.DecorationId), () => SanctuaryRules.ApplyBuyDecoration(s, c.ZoneId, c.DecorationId, events));
                 // ---- U2.8 (implementation mới): thám hiểm — kiểm, quyết toán online (rồng ngừng sản xuất đúng lúc đi), rồi áp dụng ----
                 case StartExpeditionCommand c: return SettleThen(s, nowMs, events, () => Expeditions.CheckStart(s, c.RouteId, c.DragonUid, out _), () => Expeditions.ApplyStart(s, c.RouteId, c.DragonUid, nowMs, events));
+                // Mở thế giới không đổi vị trí rồng nên không cần quyết toán thời gian.
+                case UnlockZoneCommand c: return ToError(WorldExpansion.ApplyZoneUnlockCommand(s, c.ZoneId, nowMs, events));
                 case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () => Expeditions.ApplyClaim(s, nowMs, events));
                 case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
                 default:

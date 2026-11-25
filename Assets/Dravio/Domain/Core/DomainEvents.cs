@@ -323,4 +323,29 @@ namespace Dravio.Domain.Core
         /// <summary>Vật liệu → số lượng đã cộng vào inventory.</summary>
         public IReadOnlyList<KeyValuePair<string, int>> Rewards { get; }
     }
+
+    public sealed class QuestCompleted : DomainEvent
+    {
+        public QuestCompleted(string questId) { QuestId = questId; }
+        public override string Type => "questCompleted";
+        public string QuestId { get; }
+    }
+
+    /// <summary>Trứng thưởng cố định đã cấp. Delivered = true nếu đã vào pendingPack ngay; false nếu đang chờ (kho đầy hoặc có trứng chờ nhận).</summary>
+    public sealed class RewardEggGranted : DomainEvent
+    {
+        public RewardEggGranted(string rewardId, string speciesId, bool delivered) { RewardId = rewardId; SpeciesId = speciesId; Delivered = delivered; }
+        public override string Type => "rewardEggGranted";
+        public string RewardId { get; }
+        public string SpeciesId { get; }
+        public bool Delivered { get; }
+    }
+
+    public sealed class RewardEggDelivered : DomainEvent
+    {
+        public RewardEggDelivered(string rewardId, string packId) { RewardId = rewardId; PackId = packId; }
+        public override string Type => "rewardEggDelivered";
+        public string RewardId { get; }
+        public string PackId { get; }
+    }
 }

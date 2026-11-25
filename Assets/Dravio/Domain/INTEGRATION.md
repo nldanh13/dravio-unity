@@ -26,8 +26,10 @@ session.Start();
 | `Habitat(GameState s, string habitatId)` | `HabitatOverview` | Môi trường (nhiệt, ẩm, mặn, sâu, cao, chỗ đậu), luật mở, rồng trong sinh cảnh, số đang sản xuất |
 | `TravelOptions(GameState s, string uid)` | `List<TravelOption>` | Mọi microhabitat kèm suitability, chỗ trống, lý do chặn, đường đi |
 | `TravelEligibility(GameState s, string uid, MoveTarget target)` | `DomainErrorCode?` | Đúng mã lỗi `moveDragon` sẽ trả |
-| `ExpeditionOptions(GameState s)` | `List<ExpeditionOption>` | 3 tuyến: thời lượng, điều kiện, vật liệu, khóa/slot bận, ứng viên kèm lý do |
+| `ExpeditionOptions(GameState s)` | `List<ExpeditionOption>` | 3 tuyến: thời lượng, điều kiện, vật liệu, khóa/chưa có thưởng/slot bận, ứng viên kèm lý do và `UncheckedConditions` |
 | `ExpeditionEligibility(s, routeId, uid, out string detail)` | `DomainErrorCode?` | Đúng mã lỗi `startExpedition` sẽ trả; `detail` = `not-adult` / `requires-land` / `requires-swim` / `requires-fly` |
+| `ZoneUnlocks(GameState s)` | `List<ZoneUnlockInfo>` | Thủy Vực/Thiên Giới: đã mở chưa, điều kiện còn thiếu, trứng thưởng đã trao/đang chờ |
+| `Materials(GameState s)` | `List<MaterialStock>` | 5 vật liệu chuẩn: số lượng, đã kích hoạt chưa |
 | `Discovery(GameState s)` | `DiscoveryProgress` | Khám phá, luật mở sinh cảnh, hồ sơ sinh học đã xem, Bách khoa (loài/ô), thế giới đã mở, thành tựu |
 | `Summary(GameState s)` | `EcosystemSummary` | Đếm rồng: sống, đang ở sinh cảnh, sản xuất, kho, care, shelter, lai, thám hiểm, đã thả; ngân sách; kho; G/s; chỗ theo zone |
 | `DragonsInZone(s, zoneId)` / `DragonsWithStatus(s, status)` | `List<DragonSnapshot>` | Danh sách cho 3D/UI |
@@ -72,20 +74,23 @@ session.Send(id => new StartExpeditionCommand(id, "origin_forest", uid));
 | `BuyPack`, `StartBreed`, `TapEgg`, `ClaimBreed` | Mới (U2.5) | mua / lai / nhận |
 | `SellDragon`, `BulkSell`, `LockDragon`, `BuyUpgrade`, `BuyDecoration`, `ToggleDecoration` | Mới (U2.7) | trừ `ToggleDecoration` |
 | `StartExpedition(routeId, dragonUid)`, `ClaimExpedition()` | Mới (U2.8) | cả hai |
+| `UnlockZone(zoneId)` | Mới (U2.8, ADR 0201) | có |
 
-**Không có lệnh mở thế giới** (Thủy Vực/Thiên Giới). Luật mở GDD gọi là "qua nhiệm vụ" chưa được định nghĩa. Hàm engine `WorldExpansion.ApplyZoneUnlock(state, zoneId, events)` dành cho hệ nhiệm vụ tương lai, không dành cho UI.
+**Mở thế giới**: gọi `UnlockZone` khi `Ecosystem.ZoneUnlocks(s)` báo không còn điều kiện thiếu. Lỗi `unlock-requirement-missing` có `detail` là danh sách mã thiếu (`tutorial-completed`, `origin-habitats`, `zone:<id>`, `quest:<id>`). Nội dung nhiệm vụ là TBD, nên hiện chưa có gì trong game hoàn thành chúng.
 
 ## 4. Mã lỗi U2.8 (`DomainErrorCode`, wire `commandError.<code>`)
 
 | Mã | Khi nào |
 |---|---|
-| `no-route` | Không có đường WorldGraph tới zone đích: thiếu kiểu di chuyển (bơi/bay), hoặc cạnh/cửa ngõ chưa mở. Rồng trong kho xuất phát từ Khởi Nguyên |
+| `no-route` | Không có đường WorldGraph tới zone đích: thiếu kiểu di chuyển (bơi/bay), hoặc cạnh/cửa ngõ chưa mở. Kho là vùng trung lập: rời kho cần một cạnh đang mở đi vào thế giới đích mà rồng đi được |
 | `unknown-route` | ID tuyến thám hiểm không có trong catalog |
 | `route-locked` | Thế giới của tuyến chưa mở |
 | `expedition-busy` | Slot thám hiểm P0 (1) đang dùng hoặc thưởng chưa nhận |
 | `dragon-unsuited` | Rồng chưa Adult hoặc không hợp điều kiện tuyến (xem `detail`) |
 | `no-expedition` | Không có chuyến nào để nhận |
 | `expedition-not-ready` | Chuyến đi chưa xong |
+| `route-rewards-undefined` | Tuyến chưa có bảng thưởng được duyệt (`sky_cloud`) |
+| `unknown-zone` | `unlockZone` với zone lạ hoặc `origin` |
 
 Mã dùng lại: `dragon-busy` (đang lai/thám hiểm/care/shelter), `dragon-unavailable` (đã thả, hoặc `moveDragon` khi bận), `zone-locked`, `habitat-locked`, `habitat-unsuitable`, `zone-full`, `already-there`.
 
@@ -98,6 +103,9 @@ Mã dùng lại: `dragon-busy` (đang lai/thám hiểm/care/shelter), `dragon-un
 | `expeditionReady` | `ExpeditionId, AtMs` | Rồng quay về; có thể đến trong lần quyết toán offline |
 | `expeditionClaimed` | `ExpeditionId, Rewards (vật liệu → số)` | Hoạt ảnh nhận vật liệu |
 | `dragonMoved` | `DragonUid, From, To` | Di chuyển, kể cả giữa thế giới |
+| `questCompleted` | `QuestId` | Chỉ phát từ hàm engine (nhiệm vụ TBD) |
+| `rewardEggGranted` | `RewardId, SpeciesId, Delivered` | `Delivered = false`: trứng đang chờ vì kho đầy/đang có trứng |
+| `rewardEggDelivered` | `RewardId, PackId` | Trứng thưởng thành trứng chờ nhận; nhận bằng `ClaimPack` |
 
 Event cũ vẫn giữ nguyên, xem `Core/DomainEvents.cs`.
 
@@ -106,5 +114,6 @@ Event cũ vẫn giữ nguyên, xem `Core/DomainEvents.cs`.
 - **Sinh vàng**: rồng chỉ sinh vàng khi ở microhabitat hợp lệ, nằm trong ngân sách và đang rảnh. Đang lai hoặc thám hiểm thì không sinh vàng. Mốc chuyển trạng thái được quyết toán chính xác trong Domain; UI không cần tự tính.
 - **Rồng đi thám hiểm** vẫn giữ `Location` cũ, vẫn chiếm chỗ trong khu, `Activity = Expedition`. 3D nên ẩn mô hình hoặc hiện "đang đi" theo `DragonStatus.Expedition`.
 - **Chỉ hai cạnh WorldGraph**: `origin_ocean_estuary` (cần bơi, cửa ngõ bờ hồ ↔ cửa sông) và `origin_sky_low_island` (cần bay, đồng cỏ ↔ đảo thấp). Không có đường Thủy Vực ↔ Thiên Giới trực tiếp.
+- **Trang trí chỉ thẩm mỹ**: không ảnh hưởng vàng, XP, chỉ số hay sức chứa.
 - **Không có quảng cáo**, không có phần thưởng quảng cáo.
 - **Offline**: không sinh thiên tai, không tử vong (chưa có hệ thiên tai, U2.6). Ấp trứng và thám hiểm vẫn hoàn tất offline.

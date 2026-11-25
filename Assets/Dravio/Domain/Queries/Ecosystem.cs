@@ -87,6 +87,8 @@ namespace Dravio.Domain.Queries
         public string DragonUid { get; internal set; }
         public DomainErrorCode? Blocked { get; internal set; }
         public string Detail { get; internal set; }
+        /// <summary>Điều kiện sức khỏe ADR chưa kiểm được (chưa có dữ liệu U2.6) — UI nên hiện "chưa hỗ trợ", không phải "đạt".</summary>
+        public IReadOnlyList<string> UncheckedConditions { get; internal set; }
     }
 
     public sealed class ExpeditionOption
@@ -116,6 +118,29 @@ namespace Dravio.Domain.Queries
         public IReadOnlyList<CodexEntry> Codex { get; internal set; }
         public IReadOnlyList<string> ZonesUnlocked { get; internal set; }
         public IReadOnlyList<string> AchievementsUnlocked { get; internal set; }
+    }
+
+    public sealed class ZoneUnlockInfo
+    {
+        public string ZoneId { get; internal set; }
+        public bool Unlocked { get; internal set; }
+        /// <summary>Điều kiện còn thiếu: tutorial-completed, origin-habitats, zone:&lt;id&gt;, quest:&lt;id&gt;. Rỗng khi mở được.</summary>
+        public IReadOnlyList<string> Missing { get; internal set; }
+        /// <summary>null = gửi unlockZone được ngay.</summary>
+        public DomainErrorCode? Blocked { get; internal set; }
+        public string RewardId { get; internal set; }
+        public string RewardSpeciesId { get; internal set; }
+        public bool RewardGranted { get; internal set; }
+        /// <summary>Trứng đã cấp nhưng còn trong hàng chờ (kho đầy / đang có trứng chờ nhận).</summary>
+        public bool RewardQueued { get; internal set; }
+    }
+
+    public sealed class MaterialStock
+    {
+        public string MaterialId { get; internal set; }
+        public string NameVi { get; internal set; }
+        public bool Active { get; internal set; }
+        public long Quantity { get; internal set; }
     }
 
     public sealed class EcosystemSummary
@@ -261,9 +286,10 @@ namespace Dravio.Domain.Queries
                 {
                     if (d.Location.Kind == LocationKind.Released) continue;
                     DomainErrorCode? b = Expeditions.DragonBlock(s, r, d, out string detail);
-                    cands.Add(new ExpeditionCandidate { DragonUid = d.Uid, Blocked = b, Detail = detail });
+                    cands.Add(new ExpeditionCandidate { DragonUid = d.Uid, Blocked = b, Detail = detail, UncheckedConditions = Expeditions.UncheckedHealthConditions });
                 }
-                DomainErrorCode? routeBlock = !Expeditions.RouteOpen(s, r) ? DomainErrorCode.RouteLocked : s.Expedition != null ? DomainErrorCode.ExpeditionBusy : (DomainErrorCode?)null;
+                DomainErrorCode? routeBlock = !Expeditions.RouteOpen(s, r) ? DomainErrorCode.RouteLocked : !r.RewardsDefined ? DomainErrorCode.RouteRewardsUndefined
+                    : s.Expedition != null ? DomainErrorCode.ExpeditionBusy : (DomainErrorCode?)null;
                 list.Add(new ExpeditionOption
                 {
                     RouteId = r.Id, NameVi = r.NameVi, ZoneId = r.ZoneId, DurationMs = r.DurationMs, Requirement = r.Requirement, Materials = r.Materials,
@@ -275,6 +301,32 @@ namespace Dravio.Domain.Queries
 
         /// <summary>Đúng mã lỗi startExpedition sẽ trả (null = hợp lệ); <paramref name="detail"/> giải thích DragonUnsuited.</summary>
         public static DomainErrorCode? ExpeditionEligibility(GameState s, string routeId, string uid, out string detail) => Expeditions.CheckStart(s, routeId, uid, out detail);
+
+        /// <summary>Trạng thái mở Thủy Vực / Thiên Giới và trứng thưởng (ADR U2.8-0201).</summary>
+        public static List<ZoneUnlockInfo> ZoneUnlocks(GameState s)
+        {
+            var list = new List<ZoneUnlockInfo>();
+            foreach (ZoneUnlockRule r in WorldUnlockCatalog.Rules)
+            {
+                ZoneState z = s.FindZone(r.ZoneId);
+                list.Add(new ZoneUnlockInfo
+                {
+                    ZoneId = r.ZoneId, Unlocked = z?.Unlocked == true, Missing = WorldExpansion.MissingRequirements(s, r.ZoneId),
+                    Blocked = WorldExpansion.CheckZoneUnlock(s, r.ZoneId, out _), RewardId = r.RewardId, RewardSpeciesId = r.EggSpeciesId,
+                    RewardGranted = s.GrantedRewards.Contains(r.RewardId), RewardQueued = s.RewardQueue.Exists(q => q.RewardId == r.RewardId),
+                });
+            }
+            return list;
+        }
+
+        /// <summary>Kho vật liệu theo catalog chuẩn (gồm vật liệu chưa kích hoạt, số lượng 0).</summary>
+        public static List<MaterialStock> Materials(GameState s)
+        {
+            var list = new List<MaterialStock>();
+            foreach (MaterialDef m in ExpeditionCatalog.Materials)
+                list.Add(new MaterialStock { MaterialId = m.Id, NameVi = m.NameVi, Active = m.Active, Quantity = s.Player.Inventory.TryGetValue(m.Id, out long q) ? q : 0 });
+            return list;
+        }
 
         public static DiscoveryProgress Discovery(GameState s)
         {

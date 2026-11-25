@@ -379,6 +379,25 @@ namespace Dravio.Domain.Core
                 if (s.Dragons != null)
                     foreach (DragonState d in s.Dragons)
                         if (d != null && d.Activity == DragonActivity.Expedition && d.Uid != traveller) errors.Add("dragons." + d.Uid + ".activity: expedition without job");
+
+                // Mở thế giới (ADR U2.8-0201): nhiệm vụ và thưởng là ID catalog, không trùng; trứng chờ phải là thưởng đã cấp, mỗi thưởng một lần.
+                if (s.CompletedQuests == null || !UniqueStrings(s.CompletedQuests, WorldUnlockCatalog.IsQuestId)) errors.Add("completedQuests: invalid");
+                if (s.GrantedRewards == null || !UniqueStrings(s.GrantedRewards, WorldUnlockCatalog.IsRewardId)) errors.Add("grantedRewards: invalid");
+                else
+                {
+                    foreach (string rid in s.GrantedRewards)
+                        foreach (ZoneUnlockRule r in WorldUnlockCatalog.Rules)
+                            if (r.RewardId == rid && s.FindZone(r.ZoneId)?.Unlocked != true) errors.Add("grantedRewards: " + rid + " without unlocked zone");
+                    if (s.RewardQueue == null) errors.Add("rewardQueue: invalid");
+                    else
+                    {
+                        var seen = new HashSet<string>(StringComparer.Ordinal);
+                        foreach (QueuedEgg q in s.RewardQueue)
+                            if (q == null || !s.GrantedRewards.Contains(q.RewardId) || !seen.Add(q.RewardId) || !SpeciesCatalog.TryGet(q.SpeciesId, out _) ||
+                                !WireNames.IsDefined(q.Mutation) || q.QueuedAtMs < 0 || (s.PendingPack != null && s.PendingPack.PackId == q.RewardId))
+                                errors.Add("rewardQueue: invalid entry");
+                    }
+                }
             }
 
             List<string> unlocked = s.UnlockedAchievements;

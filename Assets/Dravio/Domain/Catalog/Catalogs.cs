@@ -247,12 +247,27 @@ namespace Dravio.Domain.Catalog
     /// </summary>
     public sealed class DecorationDef
     {
-        internal DecorationDef(string id, string nameVi, long priceG, string effectVi) { Id = id; NameVi = nameVi; PriceG = priceG; EffectVi = effectVi; }
+        internal DecorationDef(string id, string nameVi, long priceG, string effectVi) { Id = id; NameVi = nameVi; PriceG = priceG; EffectVi = effectVi; Effects = DecorationEffects.None; }
         public string Id { get; }
         public string NameVi { get; }
         public long PriceG { get; }
         /// <summary>Hiệu ứng hình ảnh đề xuất (lớp trình bày); không có hiệu ứng kinh tế.</summary>
         public string EffectVi { get; }
+        /// <summary>Hiệu ứng gameplay — MVP luôn 0 (ADR U2.8-0201). Engine chưa đọc; bật sau cần ADR + mô phỏng kinh tế.</summary>
+        public DecorationEffects Effects { get; }
+    }
+
+    /// <summary>Trường cấu hình hiệu ứng trang trí để mở rộng sau. Mọi giá trị MVP = 0: không vàng, XP, Health/Mobility/Comfort hay sức chứa.</summary>
+    public sealed class DecorationEffects
+    {
+        public static readonly DecorationEffects None = new DecorationEffects();
+        public int GoldPermille { get; }
+        public int XpPermille { get; }
+        public int Health { get; }
+        public int Mobility { get; }
+        public int Comfort { get; }
+        public int Capacity { get; }
+        public bool IsZero => GoldPermille == 0 && XpPermille == 0 && Health == 0 && Mobility == 0 && Comfort == 0 && Capacity == 0;
     }
 
     public static class DecorationCatalog
@@ -282,15 +297,16 @@ namespace Dravio.Domain.Catalog
     public enum ExpeditionRequirement { LandDweller, Swimmer, Flyer }
 
     /// <summary>
-    /// Tuyến thám hiểm P0 (GDD 3.1 trang 22, bảng "Thời gian / thưởng đề xuất"). TS b33ec7a không có — implementation mới.
-    /// Giá trị là "đề xuất" của GDD, dùng nguyên văn: 15/30/45 phút, 2–4 vật liệu, không phí (GDD: "trừ phí nếu có" — không có phí nào được nêu).
-    /// ID tuyến và ID vật liệu là quy ước của bản Unity (GDD chỉ có tên tiếng Việt) — ghi trong danh sách quyết định.
+    /// Tuyến thám hiểm P0 (GDD 3.1 trang 22; ADR U2.8-0201 do chủ dự án duyệt). TS b33ec7a không có — implementation mới.
+    /// 15/30/45 phút, tổng 2–4 đơn vị vật liệu, không phí, tỷ lệ thành công MVP 100 % (trường SuccessPermille có sẵn để mở rộng, chưa kích hoạt).
+    /// ID tuyến ổn định, không phụ thuộc tên hiển thị. Tuyến chưa có bảng thưởng được duyệt (Materials rỗng) bị khóa.
     /// </summary>
     public sealed class ExpeditionRoute
     {
         internal ExpeditionRoute(string id, string nameVi, string zoneId, int minutes, ExpeditionRequirement requirement, string[] materials, int minQty, int maxQty)
         {
             Id = id; NameVi = nameVi; ZoneId = zoneId; DurationMs = minutes * 60_000L; Requirement = requirement; Materials = Array.AsReadOnly(materials); MinQty = minQty; MaxQty = maxQty;
+            SuccessPermille = 1000;
         }
         public string Id { get; }
         public string NameVi { get; }
@@ -302,6 +318,21 @@ namespace Dravio.Domain.Catalog
         public IReadOnlyList<string> Materials { get; }
         public int MinQty { get; }
         public int MaxQty { get; }
+        /// <summary>Tỷ lệ thành công ‰. MVP = 1000 (ADR U2.8-0201): mọi chuyến đủ điều kiện đều thành công, không chết rồng, không mất vật phẩm.
+        /// Engine CHƯA đọc trường này; mở rộng thất bại sau cần ADR mới.</summary>
+        public int SuccessPermille { get; }
+        /// <summary>Có bảng thưởng đã duyệt chưa. false → tuyến bị khóa (route-rewards-undefined).</summary>
+        public bool RewardsDefined => Materials.Count > 0;
+    }
+
+    /// <summary>Vật liệu chuẩn (ADR U2.8-0201). Chỉ vật liệu có nguồn thu thập được quy định mới Active; chưa có công thức dùng.</summary>
+    public sealed class MaterialDef
+    {
+        internal MaterialDef(string id, string nameVi, bool active) { Id = id; NameVi = nameVi; Active = active; }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>Có nguồn thu thập đã quy định (tuyến thám hiểm). stone chưa có nguồn → chưa kích hoạt.</summary>
+        public bool Active { get; }
     }
 
     public static class ExpeditionCatalog
@@ -309,12 +340,23 @@ namespace Dravio.Domain.Catalog
         public static readonly IReadOnlyList<ExpeditionRoute> Routes = Array.AsReadOnly(new[]
         {
             new ExpeditionRoute("origin_forest", "Rừng Khởi Nguyên", "origin", 15, ExpeditionRequirement.LandDweller, new[] { "wood", "seed" }, 2, 4),
-            new ExpeditionRoute("ocean_reef", "Rạn Thủy Vực", "ocean", 30, ExpeditionRequirement.Swimmer, new[] { "gem", "sea_moss" }, 2, 4),
-            new ExpeditionRoute("sky_cloud", "Sân mây Thiên Giới", "sky", 45, ExpeditionRequirement.Flyer, new[] { "stardust" }, 2, 4),
+            // GDD "ngọc/rêu biển" → crystal/coral (chủ dự án duyệt).
+            new ExpeditionRoute("ocean_reef", "Rạn Thủy Vực", "ocean", 30, ExpeditionRequirement.Swimmer, new[] { "crystal", "coral" }, 2, 4),
+            // GDD "bụi sao" không có ID chuẩn: bảng thưởng TBD → tuyến khóa (chủ dự án duyệt).
+            new ExpeditionRoute("sky_cloud", "Sân mây Thiên Giới", "sky", 45, ExpeditionRequirement.Flyer, new string[0], 2, 4),
         });
 
-        /// <summary>Vật liệu P0 (GDD tr. 21: gỗ, hạt giống, ngọc, rêu biển, bụi sao). Chỉ lưu trong inventory; chưa có công thức dùng (chế tạo P0 chưa quy định).</summary>
-        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "gem", "sea_moss", "stardust" });
+        public static readonly IReadOnlyList<MaterialDef> Materials = Array.AsReadOnly(new[]
+        {
+            new MaterialDef("wood", "Gỗ", true),
+            new MaterialDef("seed", "Hạt giống", true),
+            new MaterialDef("stone", "Đá", false),
+            new MaterialDef("crystal", "Pha lê", true),
+            new MaterialDef("coral", "San hô", true),
+        });
+
+        /// <summary>ID vật liệu chuẩn theo thứ tự catalog (cả vật liệu chưa kích hoạt).</summary>
+        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "stone", "crystal", "coral" });
 
         /// <summary>"Một slot thám hiểm chung P0".</summary>
         public const int Slots = 1;
@@ -325,6 +367,60 @@ namespace Dravio.Domain.Catalog
             route = null;
             return false;
         }
+    }
+
+    /// <summary>Nhiệm vụ khám phá (ADR U2.8-0201). Nội dung/mục tiêu CHƯA xác định (TBD): engine chưa tự hoàn thành nhiệm vụ nào.</summary>
+    public sealed class QuestDef
+    {
+        internal QuestDef(string id, string nameVi, string objectiveTbd) { Id = id; NameVi = nameVi; Objective = objectiveTbd; }
+        public string Id { get; }
+        public string NameVi { get; }
+        /// <summary>"TBD" khi chưa có thiết kế mục tiêu.</summary>
+        public string Objective { get; }
+        public bool ObjectiveDefined => Objective != "TBD";
+    }
+
+    /// <summary>Điều kiện mở một thế giới và trứng cố định trao một lần (ADR U2.8-0201). Không điều kiện cấp độ, không chi phí vàng.</summary>
+    public sealed class ZoneUnlockRule
+    {
+        internal ZoneUnlockRule(string zoneId, bool tutorial, bool originHabitats, string requiresZone, string quest, string rewardId, string eggSpecies)
+        {
+            ZoneId = zoneId; RequiresTutorialCompleted = tutorial; RequiresAllOriginHabitats = originHabitats; RequiresZone = requiresZone; RequiresQuest = quest;
+            RewardId = rewardId; EggSpeciesId = eggSpecies;
+        }
+        public string ZoneId { get; }
+        public bool RequiresTutorialCompleted { get; }
+        public bool RequiresAllOriginHabitats { get; }
+        public string RequiresZone { get; }
+        public string RequiresQuest { get; }
+        public string RewardId { get; }
+        public string EggSpeciesId { get; }
+        /// <summary>Trứng thưởng luôn Normal, không tính pity.</summary>
+        public MutationType EggMutation => MutationType.Normal;
+    }
+
+    public static class WorldUnlockCatalog
+    {
+        public static readonly IReadOnlyList<QuestDef> Quests = Array.AsReadOnly(new[]
+        {
+            new QuestDef("QUEST_AQUATIC_EXPLORATION", "Khám phá thủy sinh", "TBD"),
+            new QuestDef("QUEST_SKY_EXPLORATION", "Khám phá Thiên Giới", "TBD"),
+        });
+
+        public static readonly IReadOnlyList<ZoneUnlockRule> Rules = Array.AsReadOnly(new[]
+        {
+            new ZoneUnlockRule("ocean", tutorial: true, originHabitats: true, requiresZone: null, quest: "QUEST_AQUATIC_EXPLORATION", rewardId: "ZONE_EGG_OCEAN", eggSpecies: "droplet"),
+            new ZoneUnlockRule("sky", tutorial: false, originHabitats: false, requiresZone: "ocean", quest: "QUEST_SKY_EXPLORATION", rewardId: "ZONE_EGG_SKY", eggSpecies: "zephyr"),
+        });
+
+        public static ZoneUnlockRule RuleFor(string zoneId)
+        {
+            foreach (ZoneUnlockRule r in Rules) if (r.ZoneId == zoneId) return r;
+            return null;
+        }
+
+        public static bool IsQuestId(string id) { foreach (QuestDef q in Quests) if (q.Id == id) return true; return false; }
+        public static bool IsRewardId(string id) { foreach (ZoneUnlockRule r in Rules) if (r.RewardId == id) return true; return false; }
     }
 
     /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm (GDD 3.1 trang 15).</summary>

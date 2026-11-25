@@ -21,7 +21,7 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 `DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
 
-## 2. Save Schema v7 (v4 của TS + `breedingNest` + `codex` + `expedition`)
+## 2. Save Schema v7 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới)
 
 Envelope có các trường `{ format: "dravio-save", schemaVersion: 7, contentVersion, savedAtMs, revision, checksum, state }`.
 
@@ -53,9 +53,9 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 7, contentV
 - **Validator v6**: Bách khoa phải đúng loài, đúng thứ tự, không trùng. Trang trí: không trùng, và món đang bật phải là món đã sở hữu.
 - **Tương thích chéo với TS**: ảnh chiếu v4 bỏ `breedingNest` và `codex`. Trang trí, khóa và cấp nâng cấp là các trường có sẵn ở v4 nên TS vẫn đọc trùng state. File `.unity.json` (v6 thật) bị TS từ chối với `newer-version`.
 - **Lưu ngay**: sau `sellDragon`, `bulkSell`, `buyUpgrade`, `buyDecoration`, `lockDragon`.
-**U2.8 — Schema v7** thêm `expedition`: `null`, hoặc `{ id, routeId, dragonUid, startedAtMs, finishAtMs, rewards: { vậtLiệu: số }, status: "in-progress" | "ready" }`.
+**U2.8 — Schema v7** thêm `completedQuests` (mảng ID nhiệm vụ), `grantedRewards` (mảng ID thưởng mở thế giới, mỗi cái một lần), `rewardQueue` (mảng `{ rewardId, speciesId, mutation, queuedAtMs }`: trứng thưởng chờ có chỗ; ADR 0201) và `expedition`: `null`, hoặc `{ id, routeId, dragonUid, startedAtMs, finishAtMs, rewards: { vậtLiệu: số }, status: "in-progress" | "ready" }`.
 - **Migration 6 → 7**: thêm `expedition = null`. Rồng mang `activity = "expedition"` mà không có chuyến (chỉ có thể do sửa tay) được trả về `idle`. Vật liệu trong `inventory` giữ nguyên. Bản gốc nằm trong `archive:schema-6`.
-- **Validator v7**: tuyến phải có trong catalog; `finishAtMs = startedAtMs + thời lượng`; thưởng tổng 2–4 và đúng vật liệu; rồng đang đi phải có `activity = expedition`; không rồng "expedition" nào thiếu chuyến. Sửa tay để rút ngắn chuyến hoặc tăng thưởng đều bị từ chối khi nạp.
+- **Validator v7**: tuyến phải có trong catalog; `finishAtMs = startedAtMs + thời lượng`; thưởng tổng 2–4 và đúng vật liệu; rồng đang đi phải có `activity = expedition`; không rồng "expedition" nào thiếu chuyến. Sửa tay để rút ngắn chuyến hoặc tăng thưởng đều bị từ chối khi nạp. Nhiệm vụ/thưởng phải là ID catalog, không trùng; thưởng chỉ hợp lệ khi vùng của nó đã mở; hàng chờ chỉ chứa thưởng đã trao, không trùng, và không trùng trứng đang chờ nhận. Migration v6 → v7 đặt cả ba mảng là rỗng.
 - **Ảnh chiếu v4 cho TS**: bỏ `expedition` khi slot trống; thế giới đã mở và vật liệu vẫn hợp lệ với TS.
 - **Lưu ngay** sau `startExpedition` (seed + thưởng đã chốt) và `claimExpedition`.
 - Migration: 1 → 2 → 4 → 5 → 6 → 7. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.

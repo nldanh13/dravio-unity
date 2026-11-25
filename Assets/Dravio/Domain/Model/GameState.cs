@@ -166,6 +166,16 @@ namespace Dravio.Domain
         }
     }
 
+    /// <summary>Trứng thưởng cố định đang chờ được giao vào pendingPack (khi kho đầy hoặc đang có trứng chờ nhận). Schema v7.</summary>
+    public sealed class QueuedEgg
+    {
+        public string RewardId { get; set; }
+        public string SpeciesId { get; set; }
+        public MutationType Mutation { get; set; }
+        public long QueuedAtMs { get; set; }
+        public QueuedEgg Clone() => (QueuedEgg)MemberwiseClone();
+    }
+
     /// <summary>Tiến trình hướng dẫn (schema v4, ADR 0013). U2.1 chỉ giữ và kiểm tra dữ liệu, chưa port evaluateTutorial.</summary>
     public sealed class TutorialState
     {
@@ -219,6 +229,12 @@ namespace Dravio.Domain
         public List<CodexEntry> Codex { get; set; } = new List<CodexEntry>();
         /// <summary>(expedition) Slot thám hiểm P0; null = trống. Schema v7.</summary>
         public ExpeditionJob Expedition { get; set; }
+        /// <summary>(completedQuests) Nhiệm vụ đã hoàn thành, thứ tự catalog. Schema v7.</summary>
+        public List<string> CompletedQuests { get; set; } = new List<string>();
+        /// <summary>(grantedRewards) Phần thưởng một lần đã cấp (vd ZONE_EGG_OCEAN) — chống nhận lại. Schema v7.</summary>
+        public List<string> GrantedRewards { get; set; } = new List<string>();
+        /// <summary>(rewardQueue) Trứng thưởng đã cấp nhưng chưa vào pendingPack. Schema v7.</summary>
+        public List<QueuedEgg> RewardQueue { get; set; } = new List<QueuedEgg>();
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
 
@@ -238,6 +254,9 @@ namespace Dravio.Domain
             c.PendingPack = PendingPack?.Clone();
             c.BreedingNest = BreedingNest?.Clone();
             c.Expedition = Expedition?.Clone();
+            c.CompletedQuests = CompletedQuests == null ? null : new List<string>(CompletedQuests);
+            c.GrantedRewards = GrantedRewards == null ? null : new List<string>(GrantedRewards);
+            if (RewardQueue != null) { c.RewardQueue = new List<QueuedEgg>(RewardQueue.Count); foreach (var q in RewardQueue) c.RewardQueue.Add(q?.Clone()); }
             if (Codex != null) { c.Codex = new List<CodexEntry>(Codex.Count); foreach (var e in Codex) c.Codex.Add(e?.Clone()); }
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);

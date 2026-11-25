@@ -161,9 +161,10 @@ namespace Dravio.Domain.Tests
         {
             Assert.That(new DomainError(DomainErrorCode.PetCooldown).MessageKey, Is.EqualTo("commandError.pet-cooldown"));
             var all = System.Enum.GetValues(typeof(DomainErrorCode)).Cast<DomainErrorCode>().Select(c => c.ToWire()).ToArray();
-            // 30 mã đầu giữ nguyên thứ tự và chuỗi của CommandErrorCode (TS b33ec7a); 18 mã sau của U2.5, 10 mã của U2.7 và 7 mã của U2.8 là implementation mới.
-            Assert.That(all.Length, Is.EqualTo(65));
-            Assert.That(all.Skip(58), Is.EqualTo(new[] { "no-route", "unknown-route", "route-locked", "expedition-busy", "dragon-unsuited", "no-expedition", "expedition-not-ready" }));
+            // 30 mã đầu giữ nguyên thứ tự và chuỗi của CommandErrorCode (TS b33ec7a); 18 mã sau của U2.5, 10 mã của U2.7 và 9 mã của U2.8 là implementation mới.
+            Assert.That(all.Length, Is.EqualTo(67));
+            Assert.That(all.Skip(58), Is.EqualTo(new[] { "no-route", "unknown-route", "route-locked", "expedition-busy", "dragon-unsuited", "no-expedition", "expedition-not-ready",
+                "route-rewards-undefined", "unknown-zone" }));
             Assert.That(all.Take(30).Last(), Is.EqualTo("not-enough-gold"));
             Assert.That(all, Does.Contain("name-invalid-chars").And.Contain("not-enough-gold").And.Contain("invalid-command"));
             Assert.That(all.Skip(48).Take(10), Is.EqualTo(new[] { "dragon-locked", "dragon-busy", "last-dragon", "nothing-to-sell", "quote-changed", "unknown-upgrade", "upgrade-maxed",
