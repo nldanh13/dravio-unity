@@ -1,6 +1,10 @@
 {
   "version": 1,
   "_note": "Animation/rig settings per archetype and species. Motion values are animation choices (timing, amplitude), not biology; biology (locomotion, wings, limb count) still comes from canonical data or asset-overrides.json. heightM is only set where the project already fixes a size.",
+  "fileNameAliases": {
+    "_note": "Filename token -> canonical species id, for names used in requests/files that differ from the id. sproutling: name used for sprout in the U1-CHAR.4 request.",
+    "sproutling": "sprout"
+  },
   "archetypes": {
     "quadruped": {
       "tailBones": 3,
