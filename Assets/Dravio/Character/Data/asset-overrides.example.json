@@ -1,0 +1,54 @@
+{
+  "_comment": "Inputs the canonical data does not define. Fill only with art director / GDD decisions; null = unknown (the pipeline then skips rigging for walkers and keeps generator units for props).",
+  "species": {
+    "droplet": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "zephyr": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "steamdrake": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "magma": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "sparkwing": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "mossback": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "blossom": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "solaris": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "aurorawing": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "celestia": {
+      "limbCount": null,
+      "yawOffset": null
+    },
+    "gaia": {
+      "limbCount": null,
+      "yawOffset": null
+    }
+  },
+  "props": {
+    "<propId, e.g. treasure_chest>": {
+      "height": null
+    }
+  }
+}

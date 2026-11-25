@@ -51,6 +51,11 @@ def pct(n, d):
 
 def check_inspect(rep, budgets, r):
     meshes = rep.get('meshes', [])
+    # Prop collision meshes (<Name>_Collider) are not rendered: no LOD budget, UV or material checks.
+    colliders = [m for m in meshes if m['object'].endswith('_Collider')]
+    meshes = [m for m in meshes if not m['object'].endswith('_Collider')]
+    for c in colliders:
+        r.ok('COLLIDER_MESH', f"{c['object']}: {c['triangles']} tris (collision only)", mesh=c['object'])
     if not meshes:
         r.error('NO_MESH', 'No mesh objects in file')
         return
@@ -201,10 +206,13 @@ def main(argv=None):
     ap.add_argument('--lods', type=Path)
     ap.add_argument('--prepare', type=Path)
     ap.add_argument('--budgets', type=Path, default=DEFAULT_BUDGETS)
+    ap.add_argument('--lod-profile', default='lods', help="'lods' (characters) or a propProfiles key, e.g. prop_small")
     ap.add_argument('--out', type=Path)
     a = ap.parse_args(argv)
     try:
         budgets = json.loads(a.budgets.read_text(encoding='utf-8'))
+        if a.lod_profile != 'lods':
+            budgets['lods'] = budgets['propProfiles'][a.lod_profile]
         inspect = json.loads(a.inspect.read_text(encoding='utf-8'))
     except (OSError, ValueError) as e:
         print('Bad input:', e, file=sys.stderr)

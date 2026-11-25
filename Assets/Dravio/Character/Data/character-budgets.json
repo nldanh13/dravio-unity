@@ -2,13 +2,226 @@
   "version": 1,
   "note": "Shared by scripts/art/character (Python) and Assets/Dravio/Character/Editor (Unity). Landscape mobile target. Triangle counts are per character, all LOD meshes of that level summed. screenRelativeTransitionHeight is Unity LOD semantics: below it the next LOD is used; below the last one the character is culled.",
   "lods": [
-    { "level": 0, "minTriangles": 15000, "maxTriangles": 25000, "targetTriangles": 24000, "screenRelativeTransitionHeight": 0.45, "maxP95DeviationRel": 0.004, "maxDeformedP95DeviationRel": 0.006 },
-    { "level": 1, "minTriangles": 8000,  "maxTriangles": 12000, "targetTriangles": 10000, "screenRelativeTransitionHeight": 0.20, "maxP95DeviationRel": 0.010, "maxDeformedP95DeviationRel": 0.014 },
-    { "level": 2, "minTriangles": 3000,  "maxTriangles": 5000,  "targetTriangles": 4000,  "screenRelativeTransitionHeight": 0.02, "maxP95DeviationRel": 0.025, "maxDeformedP95DeviationRel": 0.030 }
+    {
+      "level": 0,
+      "minTriangles": 15000,
+      "maxTriangles": 25000,
+      "targetTriangles": 24000,
+      "screenRelativeTransitionHeight": 0.45,
+      "maxP95DeviationRel": 0.004,
+      "maxDeformedP95DeviationRel": 0.006
+    },
+    {
+      "level": 1,
+      "minTriangles": 8000,
+      "maxTriangles": 12000,
+      "targetTriangles": 10000,
+      "screenRelativeTransitionHeight": 0.2,
+      "maxP95DeviationRel": 0.01,
+      "maxDeformedP95DeviationRel": 0.014
+    },
+    {
+      "level": 2,
+      "minTriangles": 3000,
+      "maxTriangles": 5000,
+      "targetTriangles": 4000,
+      "screenRelativeTransitionHeight": 0.02,
+      "maxP95DeviationRel": 0.025,
+      "maxDeformedP95DeviationRel": 0.03
+    }
   ],
-  "skin": { "maxInfluences": 4, "maxBones": 75 },
-  "materials": { "maxSlotsPerLodWarn": 2, "maxSlotsPerLodError": 4 },
-  "textures": { "maxSize": 2048, "recommendedSize": 1024, "requirePowerOfTwo": true },
-  "uv": { "maxFlippedFacePct": 1.0, "maxZeroAreaFacePct": 0.5, "maxOutsideUnitPct": 0.0 },
-  "bake": { "maxP95ColorErrorSrgb8": 4.0, "minWithin2Pct": 90.0 }
+  "skin": {
+    "maxInfluences": 4,
+    "maxBones": 75
+  },
+  "materials": {
+    "maxSlotsPerLodWarn": 2,
+    "maxSlotsPerLodError": 4
+  },
+  "textures": {
+    "maxSize": 2048,
+    "recommendedSize": 1024,
+    "requirePowerOfTwo": true
+  },
+  "uv": {
+    "maxFlippedFacePct": 1.0,
+    "maxZeroAreaFacePct": 0.5,
+    "maxOutsideUnitPct": 0.0
+  },
+  "bake": {
+    "maxP95ColorErrorSrgb8": 4.0,
+    "minWithin2Pct": 90.0
+  },
+  "propProfiles": {
+    "_note": "Static environment props. Default budgets chosen for landscape mobile; no GDD numbers exist yet - adjust here, both Python and Unity read this file.",
+    "prop_small": [
+      {
+        "level": 0,
+        "minTriangles": 800,
+        "maxTriangles": 3000,
+        "targetTriangles": 2500,
+        "screenRelativeTransitionHeight": 0.25,
+        "maxP95DeviationRel": 0.006,
+        "maxDeformedP95DeviationRel": 1
+      },
+      {
+        "level": 1,
+        "minTriangles": 300,
+        "maxTriangles": 1200,
+        "targetTriangles": 900,
+        "screenRelativeTransitionHeight": 0.08,
+        "maxP95DeviationRel": 0.015,
+        "maxDeformedP95DeviationRel": 1
+      },
+      {
+        "level": 2,
+        "minTriangles": 80,
+        "maxTriangles": 400,
+        "targetTriangles": 300,
+        "screenRelativeTransitionHeight": 0.015,
+        "maxP95DeviationRel": 0.035,
+        "maxDeformedP95DeviationRel": 1
+      }
+    ],
+    "prop_large": [
+      {
+        "level": 0,
+        "minTriangles": 4000,
+        "maxTriangles": 12000,
+        "targetTriangles": 10000,
+        "screenRelativeTransitionHeight": 0.35,
+        "maxP95DeviationRel": 0.005,
+        "maxDeformedP95DeviationRel": 1
+      },
+      {
+        "level": 1,
+        "minTriangles": 1500,
+        "maxTriangles": 5000,
+        "targetTriangles": 4000,
+        "screenRelativeTransitionHeight": 0.12,
+        "maxP95DeviationRel": 0.012,
+        "maxDeformedP95DeviationRel": 1
+      },
+      {
+        "level": 2,
+        "minTriangles": 400,
+        "maxTriangles": 1500,
+        "targetTriangles": 1200,
+        "screenRelativeTransitionHeight": 0.02,
+        "maxP95DeviationRel": 0.03,
+        "maxDeformedP95DeviationRel": 1
+      }
+    ]
+  },
+  "propCategories": {
+    "_note": "Filename keyword -> category. profile = budget profile; collider = box | convex | mesh (static non-convex). Order matters: first match wins.",
+    "categories": [
+      {
+        "category": "dragon_statue",
+        "keywords": [
+          "statue",
+          "tuong"
+        ],
+        "profile": "prop_large",
+        "collider": "convex"
+      },
+      {
+        "category": "arch",
+        "keywords": [
+          "arch",
+          "gate",
+          "cong",
+          "vom"
+        ],
+        "profile": "prop_large",
+        "collider": "mesh"
+      },
+      {
+        "category": "floating_island",
+        "keywords": [
+          "island",
+          "dao"
+        ],
+        "profile": "prop_large",
+        "collider": "mesh"
+      },
+      {
+        "category": "fountain",
+        "keywords": [
+          "fountain"
+        ],
+        "profile": "prop_large",
+        "collider": "convex"
+      },
+      {
+        "category": "tree",
+        "keywords": [
+          "tree",
+          "cay"
+        ],
+        "profile": "prop_large",
+        "collider": "mesh"
+      },
+      {
+        "category": "coral",
+        "keywords": [
+          "coral"
+        ],
+        "profile": "prop_small",
+        "collider": "convex"
+      },
+      {
+        "category": "crystal",
+        "keywords": [
+          "crystal"
+        ],
+        "profile": "prop_small",
+        "collider": "convex"
+      },
+      {
+        "category": "rock",
+        "keywords": [
+          "rock",
+          "stone",
+          "boulder"
+        ],
+        "profile": "prop_small",
+        "collider": "convex"
+      },
+      {
+        "category": "flower",
+        "keywords": [
+          "flower",
+          "hoa"
+        ],
+        "profile": "prop_small",
+        "collider": "box"
+      },
+      {
+        "category": "chest",
+        "keywords": [
+          "chest"
+        ],
+        "profile": "prop_small",
+        "collider": "box"
+      },
+      {
+        "category": "nest",
+        "keywords": [
+          "nest"
+        ],
+        "profile": "prop_small",
+        "collider": "convex"
+      },
+      {
+        "category": "fruit_basket",
+        "keywords": [
+          "basket",
+          "fruit"
+        ],
+        "profile": "prop_small",
+        "collider": "box"
+      }
+    ]
+  }
 }
