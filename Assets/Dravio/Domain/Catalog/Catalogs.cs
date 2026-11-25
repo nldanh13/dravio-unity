@@ -203,6 +203,38 @@ namespace Dravio.Domain.Catalog
         });
     }
 
+    /// <summary>Gói trứng (src/data/economy.ts PACKS): giá G và tỷ lệ % theo độ hiếm. U2.4 chỉ dùng giá gói starter; roll gói chưa port.</summary>
+    public sealed class PackDef
+    {
+        internal PackDef(string id, long priceG, int common, int rare, int epic, int legendary)
+        {
+            Id = id; PriceG = priceG; OddsCommon = common; OddsRare = rare; OddsEpic = epic; OddsLegendary = legendary;
+        }
+        public string Id { get; }
+        public long PriceG { get; }
+        public int OddsCommon { get; }
+        public int OddsRare { get; }
+        public int OddsEpic { get; }
+        public int OddsLegendary { get; }
+    }
+
+    public static class PackCatalog
+    {
+        public static readonly IReadOnlyList<PackDef> All = Array.AsReadOnly(new[]
+        {
+            new PackDef("starter", 100, 90, 10, 0, 0),
+            new PackDef("elemental", 900, 48, 45, 7, 0),
+            new PackDef("mystic", 6000, 15, 50, 32, 3),
+            new PackDef("astral", 30000, 0, 28, 55, 17),
+        });
+
+        public static PackDef Get(string id)
+        {
+            foreach (PackDef p in All) if (p.Id == id) return p;
+            throw new DomainInvariantException("Unknown pack id: " + id);
+        }
+    }
+
     /// <summary>Quy tắc mở microhabitat Khởi Nguyên (src/data/habitatUnlocks.ts; ADR 0009).</summary>
     public sealed class HabitatUnlockRule
     {
@@ -237,6 +269,35 @@ namespace Dravio.Domain.Catalog
             "ACH_FIRST_HATCH", "ACH_FIRST_ADULT", "ACH_FIRST_BREED", "ACH_MUTATION_CRYSTAL", "ACH_MUTATION_GOLDEN", "ACH_MUTATION_PRISMATIC",
             "ACH_LEGENDARY", "ACH_GOLD_10K", "ACH_GOLD_250K", "ACH_DECOR_ALL", "ACH_CODEX_16", "ACH_CODEX_MASTER",
         });
+
+        /// <summary>Thưởng (G) của 12 thành tựu v2 (GDD Phụ lục F; ACHIEVEMENT_REWARD_G), theo thứ tự AchievementIds.</summary>
+        public static long AchievementRewardG(string id)
+        {
+            switch (id)
+            {
+                case "ACH_FIRST_HATCH": return 50;
+                case "ACH_FIRST_ADULT": return 100;
+                case "ACH_FIRST_BREED": return 150;
+                case "ACH_MUTATION_CRYSTAL": return 100;
+                case "ACH_MUTATION_GOLDEN": return 300;
+                case "ACH_MUTATION_PRISMATIC": return 1000;
+                case "ACH_LEGENDARY": return 2000;
+                case "ACH_GOLD_10K": return 300;
+                case "ACH_GOLD_250K": return 2500;
+                case "ACH_DECOR_ALL": return 1000;
+                case "ACH_CODEX_16": return 2000;
+                case "ACH_CODEX_MASTER": return 3000;
+                default: throw new DomainInvariantException("Unknown achievement id: " + id);
+            }
+        }
+
+        /// <summary>TUT_01 "quan sát Emberling": thời gian tối thiểu kể từ khi bắt đầu hướng dẫn (đề xuất ADR 0013).</summary>
+        public const long TutorialObserveMs = 15_000;
+
+        /// <summary>Gói Starter hướng dẫn (GDD trang 4, 15; S01): gói starter, Sproutling (`sprout`), Normal, không tính pity.</summary>
+        public const string TutorialPackId = "starter";
+        public const string TutorialPackSpeciesId = "sprout";
+        public static readonly MutationType TutorialPackMutation = MutationType.Normal;
 
         public static bool IsDiscoveryId(string id) => Contains(DiscoveryIds, id);
         public static bool IsAchievementId(string id) => Contains(AchievementIds, id);

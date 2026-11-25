@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using Dravio.Domain.Biology;
 using Dravio.Domain.Catalog;
+using Dravio.Domain.Progression;
 using Dravio.Domain.Text;
 using Dravio.Domain.World;
 
 namespace Dravio.Domain.Core
 {
     /// <summary>
-    /// Bước đánh giá chạy sau mỗi lệnh thành công, trên state làm việc (bản TS: evaluateAchievements rồi evaluateTutorial).
-    /// U2.1 chưa port hai bước đó (thuộc U4) nên mặc định không có evaluator nào; xem README "Khác biệt có chủ đích".
+    /// Bước đánh giá chạy sau mỗi lệnh thành công, trên state làm việc. Dispatch luôn chạy evaluator có sẵn
+    /// (thành tựu rồi hướng dẫn, như evaluateAchievements → evaluateTutorial của TS, U2.4); evaluator truyền thêm chạy sau đó.
     /// </summary>
     public interface IPostCommandEvaluator
     {
@@ -41,6 +42,8 @@ namespace Dravio.Domain.Core
             DomainError error = Handle(working, command, nowMs, events);
             if (error != null) return DispatchResult.Failure(state, error);
 
+            // Sau mỗi lệnh thành công: thành tựu rồi hướng dẫn, đều đọc state (không đọc thao tác UI).
+            BuiltInProgressEvaluator.Instance.Evaluate(working, events);
             if (postEvaluators != null)
                 foreach (IPostCommandEvaluator e in postEvaluators) e.Evaluate(working, events);
 
@@ -62,10 +65,46 @@ namespace Dravio.Domain.Core
                 case ConsumeFoodCommand c: return ConsumeFood(s, c, nowMs, events);
                 case PetCommand c: return Pet(s, c, nowMs, events);
                 case RenameDragonCommand c: return Rename(s, c, events);
+                case MoveDragonCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => Zones.CheckMove(s, d, c.Target), d => Zones.ApplyMove(s, d, c.Target, events));
+                case SetProductionSlotCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => Zones.CheckProduction(s, d, c.Enabled), d => Zones.ApplyProduction(s, d, c.Enabled, events));
+                // Mở chỗ không đổi vị trí rồng nào nên không cần quyết toán thời gian; vàng giữ nguyên.
+                case UnlockHabitatCommand c: return ToError(Zones.ApplyUnlock(s, c.HabitatId, events));
+                case SurveyHabitatCommand c: return ToError(Survey.Apply(s, c.HabitatId, events));
+                case ViewBiologyProfileCommand c: return ToError(BiologyProfile.Apply(s, c.SpeciesId, events));
+                case SetTutorialStatusCommand c: return ToError(Tutorial.SetStatus(s, c.Status, nowMs, events));
+                // Mua: kiểm trước, quyết toán thời gian để số dư và XP nhất quán tại thời điểm mua, rồi trừ vàng.
+                case BuyTutorialPackCommand _: return SettleThen(s, nowMs, events, () => StarterPack.CheckBuy(s), () => StarterPack.ApplyBuy(s, nowMs, events));
+                // Nhận: rồng mới có thể vào sinh cảnh; quyết toán trước để vàng cũ tính theo đội hình cũ.
+                case ClaimPackCommand c: return SettleThen(s, nowMs, events, () => StarterPack.CheckClaim(s, c.Target, nowMs), () => StarterPack.ApplyClaim(s, c.Target, nowMs, events));
                 default:
-                    // Lệnh chưa port ở U2.1 (moveDragon, setProductionSlot, unlockHabitat, ...).
+                    // Không có kiểu lệnh tự khai báo hoàn thành/khám phá (recordDiscovery, completeTutorial, grantHabitatUnlock…).
                     return new DomainError(DomainErrorCode.InvalidCommand, "unsupported command type " + cmd.Type);
             }
+        }
+
+        private static DomainError ToError(DomainErrorCode? code) => code.HasValue ? new DomainError(code.Value) : null;
+
+        /// <summary>
+        /// moveDragon / setProductionSlot (ADR 0008 mục 6): kiểm trên state hiện tại trước để lệnh bị từ chối không đổi gì;
+        /// rồi quyết toán thời gian online tới lúc đổi chỗ để vàng trước đó tính theo vị trí/ngân sách cũ; rồi mới đổi.
+        /// </summary>
+        private static DomainError MoveOrProduction(GameState s, string uid, long nowMs, List<DomainEvent> events,
+            Func<DragonState, DomainErrorCode?> check, Func<DragonState, DomainErrorCode?> apply)
+        {
+            DragonState dragon = s.FindDragon(uid);
+            if (dragon == null) return new DomainError(DomainErrorCode.UnknownDragon);
+            DomainError pre = ToError(check(dragon));
+            if (pre != null) return pre;
+            SettleTime(s, nowMs, AdvanceMode.Online, events);
+            return ToError(apply(dragon));
+        }
+
+        private static DomainError SettleThen(GameState s, long nowMs, List<DomainEvent> events, Func<DomainErrorCode?> check, Func<DomainErrorCode?> apply)
+        {
+            DomainError pre = ToError(check());
+            if (pre != null) return pre;
+            SettleTime(s, nowMs, AdvanceMode.Online, events);
+            return ToError(apply());
         }
 
         /// <summary>Xóa thức ăn đã hết hạn tại thời điểm nowMs.</summary>

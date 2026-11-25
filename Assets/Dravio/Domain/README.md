@@ -1,4 +1,4 @@
-# Dravio Core Domain (C#) — U2.1
+# Dravio Core Domain (C#) — U2.1 → U2.4
 
 Đây là bản port lõi domain của Dravio từ TypeScript sang C# thuần. Nguồn đối chiếu là **nldanh13/dravio @ `b33ec7a3dc98b4a74857fe92d143475028fc0d96`**, gồm GDD 3.1, ADR 0003/0004/0010/0013, `src/types`, `src/data`, `src/engine` và `tests/unit`. Luật, ID, thông số cân bằng và công thức kinh tế được giữ nguyên. Phần nào khác bản TS thì có ghi rõ ở mục 7.
 
@@ -12,7 +12,8 @@ Code nằm trong assembly `Dravio.Domain` (`Dravio.Domain.asmdef`). Assembly nà
 | `Catalog/` | `Dravio.Domain.Catalog` | 16 loài (`SpeciesCatalog`), sinh học G0 (`G0BiologyData`, sinh tự động), 7 microhabitat, locus P0, hằng số chăm sóc, bảng kinh tế, ID tiến trình | `src/data/*.ts` |
 | `Economy/` | `Dravio.Domain` / `.Economy` | `MicroGold`, `EconomyRates` | `src/data/economy.ts`, `src/engine/economy/rates.ts` |
 | `Biology/` | `Dravio.Domain.Biology` | `Lifecycle` (stage, tích phân vàng), `BondRules`, `Suitability`, `Genetics` (founder, kiểm genotype) | `engine/progression/growth.ts`, `engine/biology/bond.ts`, `engine/world/habitat.ts`, `engine/genetics/alleles.ts` (một phần) |
-| `World/` | `Dravio.Domain.World` | `Placement.IsProducing`, `IsPlacedInValidHabitat` | `engine/world/placement.ts` |
+| `World/` | `Dravio.Domain.World` | `Placement.IsProducing`, `IsPlacedInValidHabitat`, `Zones`, `WorldGraph`, `Survey` (U2.3) | `engine/world/*.ts` |
+| `Progression/` | `Dravio.Domain.Progression` | `StarterPack`, `Achievements`, `Tutorial` (U2.4) | `engine/inventory/packs.ts` (phần gói hướng dẫn), `engine/progression/achievements.ts`, `engine/progression/tutorial.ts` |
 | `Text/` | `Dravio.Domain.Text` | `NicknameRules`, `GraphemeCounter` | `engine/inventory/nickname.ts` |
 | `Core/` | `Dravio.Domain.Core` | `IRng`/`Mulberry32`/`Rng.HashSeed`, `IClock`/`TimeRules`, `GameCommand` và các lệnh, `CommandDispatcher`, `DomainEvent`, `DomainError`, `GameStateValidator`, `InitialStateFactory`, `JsCompat` | `engine/core/*.ts` |
 
@@ -47,9 +48,26 @@ Code nằm trong assembly `Dravio.Domain` (`Dravio.Domain.asmdef`). Assembly nà
 | `ConsumeFoodCommand(food, dragon)` | Nửa sau của luồng cho ăn, do mô phỏng của engine phát ra. Rồng phải cùng chỗ với viên thức ăn, đúng diet, đang idle và đã qua cooldown XP 8 s. Trước khi cộng XP, lệnh quyết toán thời gian online, rồi cộng XP 8 + 6 × `foodQualityLevel` và +1 bond. |
 | `PetCommand(dragon)` | +1 bond, cooldown 30 s, trần 10 bond/ngày UTC/rồng và 100 tuyệt đối. Khi đã chạm trần, lệnh vẫn hợp lệ và vẫn phát `dragonPetted`, nhưng không phát `bondChanged`. |
 | `RenameDragonCommand(dragon, nickname)` | Chuẩn hóa NFC, trim kiểu JS, độ dài 1–24 grapheme, cấm ký tự Cc, bidi và U+FFFD. `null` xóa tên. Tên được lưu nguyên văn, nên UI phải hiển thị như text thuần, không bật rich text. |
+| `MoveDragonCommand(dragon, target)` (U2.3) | Đích là microhabitat (`MoveTarget.Zone`) hoặc kho (`MoveTarget.Storage`). Thứ tự kiểm (ADR 0008 mục 4): microhabitat thuộc zone → rồng rảnh (không released/care/shelter, `activity = idle`) → zone mở → microhabitat mở → suitability ≥ 50 → không phải chỗ hiện tại → còn chỗ (5/zone, rồng cùng zone không tính chính nó). Kiểm trước, rồi quyết toán thời gian online, rồi mới đổi chỗ. Vào kho thì rời ngân sách sản xuất (`productionChanged`). |
+| `SetProductionSlotCommand(dragon, enabled)` (U2.3) | Bỏ chọn luôn được. Chọn chỉ khi rồng ở sinh cảnh đã mở và hợp lệ, và còn ngân sách 5 + 2 × `islandCapacityLevel` (tối đa 25, tính chung mọi zone). Quyết toán thời gian trước khi đổi. |
+| `UnlockHabitatCommand(habitat)` (U2.3) | ADR 0009: ID có luật → zone mở → chưa mở → đã có khám phá điều kiện. Miễn phí, không đổi sức chứa/ngân sách/vàng, không quyết toán thời gian. Danh sách mở giữ theo thứ tự zone. |
+| `SurveyHabitatCommand(habitat)` (U2.3) | Ghi nhận khám phá của microhabitat có điều kiện: đá ấm cần đang nuôi Emberling và đã xem hồ sơ của nó; bờ hồ không cần sở hữu Droplet. Event `habitatSurveyed` rồi `discoveryRecorded`. `discoveries` giữ sắp xếp. |
+| `ViewBiologyProfileCommand(species)` (U2.3) | Chỉ với loài đang nuôi (chưa thả); thêm vào `tutorial.profilesViewed` (sắp xếp). Xem lại là thành công không event (vẫn tăng revision, như TS). |
+
+| `BuyTutorialPackCommand()` (U2.4) | Gói Starter hướng dẫn (ADR 0013, GDD tr. 4/15, kịch bản S01): giá **100 G**, một lần mỗi save. Thứ tự kiểm: còn trứng chờ (`pack-pending`) → đã dùng (`tutorial-pack-used`) → thiếu vàng (`not-enough-gold`). Kiểm trước, quyết toán thời gian online, rồi trừ vàng. Kết quả **cố định**: Sproutling (`sprout`) Normal, genotype founder; uid trứng sinh từ `hashSeed("tutorial-pack", saveId)` nên cùng save luôn ra cùng trứng. Không chạm `pityCount` hay RNG domain. Đặt `tutorial.starterPackUsed = true`, tạo `pendingPack`, phát `packBought`. |
+| `ClaimPackCommand(target)` (U2.4) | Nở trứng đang chờ vào kho hoặc microhabitat, dùng **cùng** kiểm tra sinh học/sức chứa của `moveDragon` (`Zones.CheckPlacement`). Rồng mới: XP 0, gen 1, `origin = pack`, tính cách theo `hashSeed("hatch", pack.id)`. `stats.totalHatched + 1`, phát `dragonHatched`. Không có trứng → `no-pending-pack`. `StarterPack.PackPlacementOptions` cho UI danh sách chỗ đặt. |
+| `SetTutorialStatusCommand(status)` (U2.4) | Chỉ `active` (xem lại) hoặc `skipped` (bỏ qua); `completed` là `invalid-command`. Cùng trạng thái, hoặc skip khi đã hoàn tất → `already-there`. Về `active` đặt lại `startedAtMs = now`; từ `completed` thì xóa danh sách bước (xem lại từ đầu). Không quyết toán thời gian. |
+
+**Đánh giá sau mỗi lệnh thành công (U2.4).** Giống `dispatch` của TS, sau mỗi lệnh thành công (kể cả không đổi gì), dispatcher luôn chạy `Achievements.Evaluate` rồi `Tutorial.Evaluate` trên bản sao làm việc, trước các `IPostCommandEvaluator` bổ sung. Lệnh bị từ chối hoặc trùng `requestId` không đánh giá, nên không thể nhận thưởng qua lệnh lỗi.
+- Thành tựu: bản TS b33ec7a mới cài luật cho **2/12** thành tựu — `ACH_FIRST_HATCH` (`stats.totalHatched ≥ 1`, thưởng 50 G) và `ACH_FIRST_ADULT` (có rồng chưa thả ở Adult, thưởng 100 G). Thưởng cộng thẳng vào `goldMicro`, **không** vào `totalGoldEarnedMicro`. Một thành tựu đã có trong `unlockedAchievements` không bao giờ được đánh giá lại (chống nhận nhiều lần, kể cả khi save có thành tựu mở mà chưa nhận). Emberling khởi tạo **không** tính là lần nở (`totalHatched` bắt đầu 0); chỉ `claimPack` tăng bộ đếm. Bảng thưởng 12 mục (GDD Phụ lục F) có trong `ProgressCatalog.AchievementRewardG`.
+- Hướng dẫn TUT_01–TUT_08 (ADR 0009 mục 4, ADR 0013): chỉ chạy khi `status = active`; điều kiện đọc GameState, không đọc thao tác UI; bước chỉ hoàn thành theo thứ tự, điều kiện đã thỏa trước được ghi liên tiếp khi tới lượt. TUT_01: có rồng chưa thả trong zone và `clock.lastProcessedAtMs − startedAtMs ≥ 15 s`; TUT_02: có rồng đã ăn được XP (`lastFeedXpAtMs` khác null — thả thức ăn sai diet không tính); TUT_03: đã xem hồ sơ Emberling; TUT_04: đá ấm đã mở; TUT_05: đã mua và nhận gói Starter (`starterPackUsed` và không còn `pendingPack`); TUT_06: bờ hồ đã mở; TUT_07: có rồng chưa thả ở Adult; TUT_08: ba microhabitat Origin đều mở. Đủ 8 bước → `completed` + `tutorialStatusChanged`. Hướng dẫn không cho thêm vàng ngoài thưởng thành tựu.
+
+`GameSession` (Platform) lưu ngay sau `buyTutorialPack` và `claimPack` thành công (`IMMEDIATE_SAVE` của `gameSession.ts`), để tắt app không làm lại được kết quả gói hay thưởng đã nhận.
+
+`WorldGraph` (U2.3): node = zone, cạnh `origin_ocean_estuary` (cần bơi, cửa ngõ bờ hồ ↔ cửa sông) và `origin_sky_low_island` (cần bay, đồng cỏ ↔ đảo thấp có chỗ đậu); `CanTravel` là BFS. Giống bản TS b33ec7a, `CanTravel` **chưa** được nối vào `moveDragon` vì Ocean/Sky còn khóa ở G1 (ADR 0010 mục 4). Không có lệnh nào để UI tự khai báo khám phá hay mở sinh cảnh (`recordDiscovery` là hàm engine, không phải lệnh).
 
 Hành vi chung của dispatch:
-- Lệnh sai hình dạng (requestId rỗng hoặc > 64 ký tự, enum lạ, ID rỗng, nickname > 1024) hoặc thuộc loại chưa port đều trả `invalid-command`.
+- Lệnh sai hình dạng (requestId rỗng hoặc > 64 ký tự, enum lạ, ID rỗng, nickname > 1024, đích claim/move sai, status hướng dẫn khác active/skipped) đều trả `invalid-command`. Từ U2.4 đủ 13 loại lệnh của bản TS b33ec7a.
 - `requestId` trùng trả `Duplicate = true`, không event, không tăng revision. Code nhớ 200 requestId gần nhất.
 - Lệnh bị từ chối trả lại **chính object state đầu vào**, không tiêu RNG và không tiêu vàng.
 - Lệnh thành công trả bản sao mới, tăng revision 1 và ghi nhận requestId.
@@ -78,7 +96,9 @@ Project `DotNet~` nằm trong thư mục mà Unity bỏ qua (tên kết thúc b�
 - 34 chuỗi nickname kèm số grapheme của `Intl.Segmenter`;
 - 8 kịch bản phát lại lệnh (393 bước), trong đó có fuzz 300 bước trên 7 rồng (sản xuất/không, biến thể, kho, released, bận, nâng cấp, đồng hồ lùi, requestId trùng).
 
-Mỗi bước kịch bản so sánh ok/lỗi, `Duplicate`, việc trả lại đúng object state, toàn bộ event theo thứ tự và toàn bộ state sau lệnh. Phần state so sánh loại trừ tutorial và achievements (xem mục 7), và vàng của TS đã trừ thưởng thành tựu.
+Mỗi bước kịch bản so sánh ok/lỗi, `Duplicate`, việc trả lại đúng object state, toàn bộ event theo thứ tự và toàn bộ state sau lệnh. Golden U2.1/U2.3 được sinh khi C# chưa có thành tựu/hướng dẫn nên loại trừ tutorial, achievements và event của chúng, và vàng của TS đã trừ thưởng thành tựu; từ U2.4 test C# trừ phần thưởng C# tự cộng trước khi so, nên các golden cũ đồng thời kiểm số tiền thưởng khớp TS.
+
+**Golden U2.4** (`Golden/ts-progress-golden-b33ec7a.json`, sinh bằng `Tools~/progress-golden.test.ts`) so **toàn bộ** state (tutorial, thành tựu, vàng thật gồm thưởng) và **mọi** event, cộng probe `currentStep` / `packPlacementOptions` / `hatchFromPack` sau từng bước. 13 kịch bản, 584 bước: chơi hết 8 bước, thứ tự/cascade, TUT_01 cần rồng trong zone, bỏ qua và xem lại, luật gói (requestId trùng, `pack-pending`, `tutorial-pack-used`, `no-pending-pack`, chỗ đặt bị khóa/không hợp, đích sai), 100 G − 1 microG và đúng 100 G, zone đầy, chống thưởng lặp, thành tựu mở mà chưa nhận, Emberling khởi tạo không tính lần nở, save Schema v2 thật sau migration, và fuzz 500 bước trên đủ 13 lệnh.
 
 Cách sinh lại golden. Kết quả hiện tại tái sinh được trùng từng byte:
 
@@ -98,19 +118,15 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 
 ## 7. Khác biệt có chủ đích và phần chưa port
 
-**Khác biệt có thể quan sát so với `dispatch` của TS.** Bản TS chạy `evaluateAchievements` rồi `evaluateTutorial` sau mỗi lệnh thành công. U2.1 chưa port hai bước này (thuộc U4). Hệ quả cụ thể:
-- Khi rồng đầu tiên lên Adult, bản TS cộng +100 G (`ACH_FIRST_ADULT`) vào `goldMicro`; bản C# thì chưa.
-- `tutorial.completed` và hai danh sách thành tựu không tự tiến.
+**Khác biệt so với `dispatch` của TS.** Từ U2.4 không còn khác biệt quan sát được trên 13 lệnh của bản b33ec7a: thành tựu và hướng dẫn chạy sau mỗi lệnh thành công như TS (trước U2.4, C# thiếu +100 G của `ACH_FIRST_ADULT`). `IPostCommandEvaluator` vẫn có để cắm thêm luật, chạy sau phần đánh giá có sẵn.
 
-Điểm cắm cho hai bước này là `IPostCommandEvaluator`, được truyền vào `Dispatch` và chạy theo đúng thứ tự TS. U2.1 không truyền evaluator nào.
-
-**Chưa port trong U2.1:**
-- Lệnh `moveDragon`, `setProductionSlot`, `unlockHabitat`, `surveyHabitat`, `viewBiologyProfile`, `buyTutorialPack`, `claimPack`, `setTutorialStatus`. Dispatch các lệnh này trả `invalid-command`.
-- Đánh giá thành tựu và tutorial.
-- Roll biến thể/pity, roll gói trứng, lai tạo, kiểu hình, phân phối di truyền, phả hệ.
-- World graph `canTravel`.
-- Persistence, migration, checksum, autosave, khóa ghi (U2.2).
-- Chính sách online/offline theo vòng đời ứng dụng (`platform/timePolicy.ts`), chăm sóc, thiên tai, cứu hộ.
+**Chưa port (sau U2.4):**
+- Luật của 10/12 thành tựu còn lại (`ACH_FIRST_BREED`, `ACH_MUTATION_*`, `ACH_LEGENDARY`, `ACH_GOLD_10K/250K`, `ACH_DECOR_ALL`, `ACH_CODEX_16`, `ACH_CODEX_MASTER`) — bản TS b33ec7a cũng **chưa** cài, chỉ có ID và thưởng. UI hiện thành tựu chưa cài là "chưa mở".
+- Gói trứng thường (`elemental`, `mystic`, `astral`): catalog giá/tỷ lệ đã có trong `PackCatalog` nhưng chưa có lệnh mua, roll độ hiếm/biến thể, pity Prismatic, gói miễn phí hằng ngày. Bản TS b33ec7a cũng chưa có lệnh này.
+- Nút nhận ×2 vàng offline (`offlineReceipt.bonusClaimed`), lai tạo, kiểu hình, phân phối di truyền, phả hệ.
+- Văn bản i18n `tutorial.step.*`, `tutorial.hint.*`, `achievement.*` (thuộc UI, chưa port vào Unity).
+- Chăm sóc, thiên tai, cứu hộ, vận chuyển cứu hộ giữa zone.
+- Persistence và chính sách thời gian đã có ở U2.2 (`Assets/Dravio/Persistence`, `Assets/Dravio/Platform`).
 - Các trường dữ liệu của những phần này vẫn có trong `GameState` và được validator kiểm, để state tương thích schema v4.
 
 **Giới hạn đã biết:**
@@ -120,7 +136,9 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 ## 8. Phạm vi đã kiểm thử
 
 - **Đã chạy:**
-  - `dotnet test` với .NET SDK 8.0.134 trên Linux: 201/201 pass.
+  - `dotnet test` với .NET SDK 8.0.134 trên Linux: 266/266 pass sau U2.4 (201 của U2.1 + 36 của U2.3 + 29 của U2.4); Persistence 170/170.
+  - U2.4: golden `ts-progress-golden-b33ec7a.json` 13 kịch bản / 584 bước, tái sinh trùng từng byte. Port `tests/unit/tutorial.test.ts` (`TutorialProgressTests`). Cài thử 8 lỗi (mốc quan sát 14 s, không tăng `totalHatched`, Emberling khởi tạo tính là nở, thưởng lặp, biên 100 G, thứ tự lỗi gói, không đưa vào `claimed`, bỏ lưu ngay sau mua/nhận): đều bị bắt.
+  - U2.3: golden `ts-world-golden-b33ec7a.json` (Tools~/world-golden.test.ts) gồm 144 tổ hợp `canTravel`, khả năng tới của mọi loài, 3 kịch bản lệnh (490 bước, có fuzz 400 bước trên mọi lệnh U2.1 + U2.3) kèm `placementOptions`, `habitatUnlockStatus`, ngân sách, sức chứa và điều kiện khảo sát ở 56 điểm dò; tái sinh trùng từng byte. Cài thử 7 lỗi (chỗ trống tự tính, thứ tự kiểm, bỏ quyết toán, thứ tự mở, điều kiện khảo sát, sắp xếp hồ sơ, rời ngân sách khi vào kho): đều bị bắt.
   - Biên dịch Domain với `netstandard2.1` + C# 9: không lỗi, không cảnh báo.
   - Test TS gốc ở baseline (`npx vitest run`): pass.
   - Golden tái sinh trùng từng byte.

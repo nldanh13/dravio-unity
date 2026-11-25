@@ -2,7 +2,7 @@ namespace Dravio.Domain.Core
 {
     /// <summary>
     /// Domain event do engine phát sau mỗi lệnh thành công (src/engine/core/events.ts).
-    /// Lớp trình bày (Unity) chỉ đọc, không suy diễn lại luật. U2.1 port 9 loại event của các lệnh trong phạm vi.
+    /// Lớp trình bày (Unity) chỉ đọc, không suy diễn lại luật. U2.1 port 9 loại event, U2.3 thêm 6 loại của world/habitat, U2.4 thêm 5 loại của gói/thành tựu/hướng dẫn (đủ 20 loại của bản TS).
     /// </summary>
     public abstract class DomainEvent
     {
@@ -97,5 +97,102 @@ namespace Dravio.Domain.Core
         public string DragonUid { get; }
         /// <summary>null khi xóa tên.</summary>
         public string Nickname { get; }
+    }
+
+    // ---- U2.3: world / habitat ----
+
+    public sealed class DragonMoved : DomainEvent
+    {
+        public DragonMoved(string dragonUid, DragonLocation from, DragonLocation to) { DragonUid = dragonUid; From = from; To = to; }
+        public override string Type => "dragonMoved";
+        public string DragonUid { get; }
+        public DragonLocation From { get; }
+        public DragonLocation To { get; }
+    }
+
+    public sealed class ProductionChanged : DomainEvent
+    {
+        public ProductionChanged(string dragonUid, bool enabled) { DragonUid = dragonUid; Enabled = enabled; }
+        public override string Type => "productionChanged";
+        public string DragonUid { get; }
+        public bool Enabled { get; }
+    }
+
+    public sealed class HabitatUnlocked : DomainEvent
+    {
+        public HabitatUnlocked(string zoneId, string habitatId) { ZoneId = zoneId; HabitatId = habitatId; }
+        public override string Type => "habitatUnlocked";
+        public string ZoneId { get; }
+        public string HabitatId { get; }
+    }
+
+    public sealed class DiscoveryRecorded : DomainEvent
+    {
+        public DiscoveryRecorded(string discoveryId) { DiscoveryId = discoveryId; }
+        public override string Type => "discoveryRecorded";
+        public string DiscoveryId { get; }
+    }
+
+    public sealed class HabitatSurveyed : DomainEvent
+    {
+        public HabitatSurveyed(string habitatId) { HabitatId = habitatId; }
+        public override string Type => "habitatSurveyed";
+        public string HabitatId { get; }
+    }
+
+    public sealed class BiologyProfileViewed : DomainEvent
+    {
+        public BiologyProfileViewed(string speciesId) { SpeciesId = speciesId; }
+        public override string Type => "biologyProfileViewed";
+        public string SpeciesId { get; }
+    }
+
+    // ---- U2.4: starter pack, achievements, tutorial ----
+
+    public sealed class PackBought : DomainEvent
+    {
+        public PackBought(string packId, string speciesId, long priceGoldMicro, bool tutorial) { PackId = packId; SpeciesId = speciesId; PriceGoldMicro = priceGoldMicro; Tutorial = tutorial; }
+        public override string Type => "packBought";
+        public string PackId { get; }
+        public string SpeciesId { get; }
+        public long PriceGoldMicro { get; }
+        public bool Tutorial { get; }
+    }
+
+    public sealed class DragonHatched : DomainEvent
+    {
+        public DragonHatched(string dragonUid, string speciesId, MutationType mutation, DragonLocation location, bool tutorial)
+        {
+            DragonUid = dragonUid; SpeciesId = speciesId; Mutation = mutation; Location = location; Tutorial = tutorial;
+        }
+        public override string Type => "dragonHatched";
+        public string DragonUid { get; }
+        public string SpeciesId { get; }
+        public MutationType Mutation { get; }
+        public DragonLocation Location { get; }
+        public bool Tutorial { get; }
+    }
+
+    public sealed class AchievementUnlocked : DomainEvent
+    {
+        public AchievementUnlocked(string achievementId, long rewardGoldMicro) { AchievementId = achievementId; RewardGoldMicro = rewardGoldMicro; }
+        public override string Type => "achievementUnlocked";
+        public string AchievementId { get; }
+        /// <summary>Đã cộng vào goldMicro (không vào totalGoldEarnedMicro).</summary>
+        public long RewardGoldMicro { get; }
+    }
+
+    public sealed class TutorialStepCompleted : DomainEvent
+    {
+        public TutorialStepCompleted(string stepId) { StepId = stepId; }
+        public override string Type => "tutorialStepCompleted";
+        public string StepId { get; }
+    }
+
+    public sealed class TutorialStatusChanged : DomainEvent
+    {
+        public TutorialStatusChanged(TutorialStatus status) { Status = status; }
+        public override string Type => "tutorialStatusChanged";
+        public TutorialStatus Status { get; }
     }
 }

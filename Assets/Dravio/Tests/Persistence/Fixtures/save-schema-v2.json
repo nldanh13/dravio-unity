@@ -1,0 +1,159 @@
+{
+  "format": "dravio-save",
+  "schemaVersion": 2,
+  "contentVersion": "g0-1.0",
+  "savedAtMs": 1795601320000,
+  "revision": 8,
+  "checksum": "fdffc9716759a8fa50ddd6c69804fbb527ad3633c6ed1866fdd903b11aa728c1",
+  "state": {
+    "schemaVersion": 2,
+    "contentVersion": "g0-1.0",
+    "saveId": "fixture-v2",
+    "revision": 8,
+    "goldMicro": 158025000,
+    "goldRemainder": 0,
+    "totalGoldEarnedMicro": 8025000,
+    "dragons": [
+      {
+        "uid": "d_20f5f69f38077eae",
+        "speciesId": "emberling",
+        "genotype": {
+          "pigment": [
+            "R",
+            "R"
+          ],
+          "pattern": [
+            "P",
+            "P"
+          ],
+          "eye": [
+            "B",
+            "b"
+          ]
+        },
+        "mutation": "normal",
+        "xpSec": 300,
+        "locked": false,
+        "location": {
+          "kind": "zone",
+          "zoneId": "origin",
+          "habitatId": "origin_warm_rocks"
+        },
+        "hatchedAtMs": 1795600800000,
+        "personality": "calm",
+        "bond": 2,
+        "parentIds": null,
+        "generation": 1,
+        "ancestry": "unknown",
+        "origin": "pack",
+        "activity": "idle",
+        "breedCooldownUntilMs": 0,
+        "lastFeedXpAtMs": 1795600920000,
+        "bondDay": "2026-11-25",
+        "bondDaily": 2,
+        "lastPetAtMs": 1795600920000,
+        "nickname": "Than"
+      }
+    ],
+    "zones": [
+      {
+        "id": "origin",
+        "realm": "land",
+        "unlocked": true,
+        "capacity": 5,
+        "unlockedHabitatIds": [
+          "origin_meadow",
+          "origin_warm_rocks"
+        ],
+        "decorationIds": [],
+        "activeDecorationIds": [],
+        "recovery": 0
+      },
+      {
+        "id": "ocean",
+        "realm": "ocean",
+        "unlocked": false,
+        "capacity": 5,
+        "unlockedHabitatIds": [],
+        "decorationIds": [],
+        "activeDecorationIds": [],
+        "recovery": 0
+      },
+      {
+        "id": "sky",
+        "realm": "sky",
+        "unlocked": false,
+        "capacity": 5,
+        "unlockedHabitatIds": [],
+        "decorationIds": [],
+        "activeDecorationIds": [],
+        "recovery": 0
+      }
+    ],
+    "productionDragonIds": [
+      "d_20f5f69f38077eae"
+    ],
+    "inventory": {},
+    "upgrades": {
+      "islandCapacityLevel": 0,
+      "foodQualityLevel": 0,
+      "foodCooldownLevel": 0,
+      "mutationLuckLevel": 0,
+      "hatchSpeedLevel": 0
+    },
+    "food": {
+      "lastSpawnAtMs": null,
+      "drops": []
+    },
+    "discoveries": [
+      "DISC_EMBERLING_THERMAL"
+    ],
+    "processedRequestIds": [
+      "fx-1",
+      "fx-2",
+      "fx-3",
+      "fx-4",
+      "fx-5",
+      "fx-6",
+      "fx-7",
+      "fx-8"
+    ],
+    "pityCount": 0,
+    "stats": {
+      "totalHatched": 0,
+      "totalSold": 0,
+      "totalBred": 0,
+      "totalFeedClicks": 1,
+      "dailyFreePacksClaimed": 0,
+      "lastDailyResetDate": "2026-11-25"
+    },
+    "settings": {
+      "language": "vi",
+      "sfxVolume": 0.8,
+      "bgmVolume": 0.6,
+      "hapticsEnabled": true,
+      "fpsLimit": 60,
+      "timeMode": "auto",
+      "compactMode": false,
+      "reducedMotion": false,
+      "alwaysOnTop": false,
+      "mode": "world",
+      "difficulty": "ecosystem"
+    },
+    "clock": {
+      "lastProcessedAtMs": 1795601320000,
+      "highWaterAtMs": 1795601320000
+    },
+    "offlineReceipt": {
+      "id": "offline-1795601320000",
+      "fromMs": 1795600920000,
+      "toMs": 1795601320000,
+      "goldMicro": 6693750,
+      "maturedIds": [
+        "d_20f5f69f38077eae"
+      ],
+      "bonusClaimed": false,
+      "createdAtMs": 1795601320000
+    }
+  }
+}
