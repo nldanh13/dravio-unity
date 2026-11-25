@@ -164,7 +164,8 @@ namespace Dravio.Editor
                     Debug.LogError(report);
                     return;
                 }
-                Debug.Log(report);
+                if (report.Contains("WARNING:")) Debug.LogWarning(report);
+                else Debug.Log(report);
             }
             GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (model == null || AssetDatabase.LoadAssetAtPath<SceneAsset>(source) == null)
