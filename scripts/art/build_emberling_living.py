@@ -9,10 +9,11 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 out = Path(args[0] if args else "art-exports/EmberlingLiving.fbx").resolve()
-care_preview = "--care-preview" in args[1:]
+polish_preview = "--polish-preview" in args[1:]
+care_preview = "--care-preview" in args[1:] or polish_preview
 walk_preview = "--walk-preview" in args[1:] or care_preview
-if care_preview and out.stem != "EmberlingCare":
-    raise ValueError("Care preview requires a separate EmberlingCare.fbx output")
+if care_preview and out.stem != ("EmberlingPolished" if polish_preview else "EmberlingCare"):
+    raise ValueError("Care or polish preview requires its own output filename")
 if walk_preview and not care_preview and out.stem != "EmberlingWander":
     raise ValueError("Walk preview requires a separate EmberlingWander.fbx output")
 out.parent.mkdir(parents=True, exist_ok=True)
@@ -101,20 +102,58 @@ for face in skin.data.polygons:
     face.material_index=int((forward>.84 and z<1.35 and abs(x)<.36) or (forward>.28 and z<1.10 and z>.38 and abs(x)<.29))
     face.use_smooth=True
 
+if polish_preview:
+    # Continuous cylindrical body UV in the undeformed mesh. U=0 top, .5 underside;
+    # V increases from tail to muzzle. Per-face unwrap avoids a seam across triangles.
+    # Limbs and head use an approximate projection; final artist UVs remain future work.
+    uv = skin.data.uv_layers.new(name="BodyPaint")
+    skin.data.uv_layers.active = uv
+    uv.active_render = True
+    for face in skin.data.polygons:
+        coords=[]
+        for loop_index in face.loop_indices:
+            p=skin.data.vertices[skin.data.loops[loop_index].vertex_index].co
+            f=-p.y
+            center=.72 + .60*max(0., min(1., (f-.20)/.75))
+            if f<-.65:
+                center=.58+.65*max(0.,min(1.,(-f-.65)/1.05))**2
+            u=(math.atan2(p.x,p.z-center)/(2*math.pi))%1.
+            v=max(0.,min(1.,(f+1.85)/3.4))
+            coords.append((loop_index,u,v))
+        seam=max(q[1] for q in coords)-min(q[1] for q in coords)>.5
+        for idx,u,v in coords:
+            uv.data[idx].uv=(u+1. if seam and u<.5 else u,v)
+        face.material_index=0
+    # One material for the entire skin; Unity supplies the continuous painted gradient.
+    skin.data.materials.pop(index=1)
+    
 for s in (-1,1):
-    ellipsoid("Eye surround",(s*.37,1.60,1.01),(.225,.27,.16),dark)
-    ellipsoid("Iris",(s*.39,1.60,1.12),(.164,.21,.11),iris)
-    ellipsoid("Pupil",(s*.40,1.61,1.195),(.105,.16,.055),black)
-    ellipsoid("Catchlight",(s*.40-.04,1.70,1.24),(.040,.048,.024),white)
-    ellipsoid("Small glint",(s*.40+.04,1.55,1.24),(.016,.020,.016),white)
+    ellipsoid("Eye surround",(s*.37,1.60,1.01),(.225,.27,.13 if polish_preview else .16),dark)
+    ellipsoid("Iris",(s*.39,1.60,1.085 if polish_preview else 1.12),(.164,.21,.085 if polish_preview else .11),iris)
+    ellipsoid("Pupil",(s*.40,1.61,1.15 if polish_preview else 1.195),(.105,.16,.045 if polish_preview else .055),black)
+    ellipsoid("Catchlight",(s*.40-.04,1.70,1.185 if polish_preview else 1.24),(.040,.048,.024),white)
+    ellipsoid("Small glint",(s*.40+.04,1.55,1.185 if polish_preview else 1.24),(.016,.020,.016),white)
     ellipsoid("Nostril",(s*.14,1.43,1.45),(.039,.029,.017),dark)
     for i in (-1,0,1):
         ellipsoid("Front claw",(s*.43+i*.10,.11,.86),(.041,.053,.071),belly)
         ellipsoid("Rear claw",(s*.48+i*.11,.11,-.075),(.041,.053,.071),belly)
 for i in range(4):
     ellipsoid("Rounded back scale",(0,1.16-i*.04,-.29-i*.15),(.095,.13,.11),dark)
-ellipsoid("Round flame",(0,1.30,-1.72),(.23,.31,.23),gold)
-ellipsoid("Flame core",(-.035,1.46,-1.78),(.12,.19,.14),cream)
+if polish_preview:
+    # Rounded flame silhouette, gently tapering and leaning back at the top.
+    for name,center,radii,material in [
+        ("Round flame",(0,1.30,-1.72),(.23,.32,.22),gold),
+        ("Flame core",(-.025,1.38,-1.73),(.135,.24,.13),cream)
+    ]:
+        obj=ellipsoid(name,center,radii,material)
+        for vertex in obj.data.vertices:
+            t=max(0.,min(1.,(vertex.co.z/radii[1]+1.)*.5))
+            taper=1.-.45*t*t
+            vertex.co.x*=taper
+            vertex.co.y=vertex.co.y*taper+.14*t*t
+else:
+    ellipsoid("Round flame",(0,1.30,-1.72),(.23,.31,.23),gold)
+    ellipsoid("Flame core",(-.035,1.46,-1.78),(.12,.19,.14),cream)
 
 
 # Generic quadruped skeleton. Coordinates use Blender space through xyz().
