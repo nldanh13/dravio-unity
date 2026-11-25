@@ -63,9 +63,15 @@ namespace Dravio
             if(navigation!=null)
             {
                 var row=navigation.GetComponent<LayoutElement>();
-                if(row!=null){row.minHeight=40;row.preferredHeight=44;row.flexibleHeight=0;}
+                if(row!=null){row.minHeight=40;row.preferredHeight=44;row.flexibleHeight=0;row.layoutPriority=10;}
                 var group=navigation.GetComponent<HorizontalLayoutGroup>();
                 if(group!=null)group.childForceExpandHeight=false;
+            }
+            var pageHost=panel.Find("Page host");
+            if(pageHost!=null)
+            {
+                var size=pageHost.GetComponent<LayoutElement>();
+                if(size!=null){size.minHeight=0;size.preferredHeight=0;size.flexibleHeight=1;size.layoutPriority=10;}
             }
             foreach(var child in panel.GetComponentsInChildren<LayoutElement>(true))
             {
