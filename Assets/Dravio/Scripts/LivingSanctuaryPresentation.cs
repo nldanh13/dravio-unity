@@ -37,7 +37,7 @@ namespace Dravio
             public GenotypeEntry[] genotype;
             public Vector3 position,target;
             public Quaternion rotation;
-            public bool walking,hasTarget,sleeping;
+            public bool walking,canSleep,hasTarget,sleeping;
             public float rest;
         }
         readonly Dictionary<string,Resident> residents=new(StringComparer.Ordinal);
@@ -51,7 +51,7 @@ namespace Dravio
         string selected,travelHabitat,foodId,foodUid;
         Vector3 foodPoint;
         float consumeAfter;
-        bool vi=true,active,following,focus=true,paused;
+        bool vi=true,active,following,focus=true,paused,previousReady;
         Camera cameraView;
         SanctuaryCameraFit cameraFit;
         bool restoreFit;
@@ -75,7 +75,7 @@ namespace Dravio
         void Awake()
         {
             // Do not break the playable legacy preview if the local manifest has not been imported.
-            active=host!=null && locations!=null && manager!=null && manager.catalog!=null &&
+            active=host!=null && locations!=null && manager!=null && legacy!=null && adapter!=null && manager.catalog!=null &&
                 manager.catalog.entries.Any(e=>e!=null && e.speciesId=="emberling" && e.prefab!=null);
             if(!active){FallbackText();return;}
             sync=new SanctuaryDragonSync(manager);
@@ -121,9 +121,7 @@ namespace Dravio
             if(fruit!=null && active)fruit.SetActive(false);
         }
 
-        static bool GroundWalker(DragonState d)=>SpeciesCatalog.Get(d.SpeciesId).Biology.Locomotion.Contains(Locomotion.Walk);
-        bool Presentable(DragonState d)=>d.Location.Kind==LocationKind.Zone && d.Location.ZoneId=="origin" &&
-            Ecosystem.StatusOf(State,d)==DragonStatus.InHabitat;
+        bool Presentable(DragonState d)=>LivingResidentPolicy.InOriginView(State,d);
         bool ClearPoint(Vector3 point,string habitat,string except)
         {
             if(!locations.IsWalkable(point,habitat))return false;
@@ -154,7 +152,7 @@ namespace Dravio
             foreach(var d in lastState.Dragons.OrderBy(x=>x.Uid,StringComparer.Ordinal))
             {
                 if(!Presentable(d))continue;
-                if(!GroundWalker(d)){unavailable[d.Uid]="ground-only";residents.Remove(d.Uid);continue;}
+                if(!LivingResidentPolicy.CanWalk(d)){unavailable[d.Uid]="ground-only";residents.Remove(d.Uid);continue;}
                 if(!SanctuaryVisualMapping.TryStage(Lifecycle.StageOf(d).ToString(),out var stage))continue;
                 var entry=manager.catalog.Resolve(d.SpeciesId,stage,out _);
                 if(entry==null || entry.prefab==null){unavailable[d.Uid]="missing-model";residents.Remove(d.Uid);continue;}
@@ -167,6 +165,8 @@ namespace Dravio
                 }
                 resident.stage=stage;resident.species=d.SpeciesId;resident.variant=d.Mutation.ToWire();
                 resident.walking=entry.rigged && entry.clips!=null && entry.clips.Contains("Walk");
+                resident.canSleep=entry.rigged && entry.clips!=null && entry.clips.Contains("Sleep");
+                if(!resident.canSleep)resident.sleeping=false;
                 resident.genotype=d.Genotype?.Select(g=>new GenotypeEntry(g.Key,g.Value.ToString())).ToArray()??Array.Empty<GenotypeEntry>();
             }
             var current=lastState.FindDragon(selected);
@@ -185,8 +185,9 @@ namespace Dravio
             if(!active)return;
             if(session==null && host.Session!=null){session=host.Session;session.DomainEvents+=OnEvents;}
             if(!ReferenceEquals(lastState,State))RefreshRoster();
-            if(!Ready){RefreshButtons();return;}
-            if(!feed.interactable && foodId==null && Selected!=null && residents.ContainsKey(selected))RefreshButtons();
+            bool ready=Ready;
+            if(ready!=previousReady){previousReady=ready;RefreshButtons();}
+            if(!ready)return;
             float dt=Mathf.Min(Time.deltaTime,.1f);
             frames.Clear();
             foreach(var r in residents.Values)
@@ -224,7 +225,8 @@ namespace Dravio
                 frames.Add(new SanctuaryDragonFrame{uid=r.uid,speciesId=r.species,variantId=r.variant,stage=r.stage,
                     genotype=r.genotype,visible=true,position=r.position,rotation=r.rotation,locomotion=locomotion,speed=speed});
             }
-            sync.Sync(frames);
+            var report=sync.Sync(frames);
+            if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
             if(foodId!=null && Time.unscaledTime>=consumeAfter)Consume();
             ReadSelection();
             // Domain eligibility refreshed on state/selection changes, not every rendered frame.
@@ -260,7 +262,8 @@ namespace Dravio
         {
             if(State==null)return;
             var ids=State.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.Uid).ToArray();
-            if(ids.Length>0)Select(ids[(Array.IndexOf(ids,selected)+1)%ids.Length]);
+            string next=LivingResidentPolicy.NextUid(ids,selected);
+            if(next!=null)Select(next);
         }
         void Message(string en,string vn){messageEn=en;messageVi=vn;if(status!=null)status.text=vi?vn:en;}
         bool Send(Func<string,GameCommand> build)
@@ -316,7 +319,7 @@ namespace Dravio
         }
         void ToggleSleep()
         {
-            if(selected!=null && residents.TryGetValue(selected,out var r))
+            if(selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep)
             {r.sleeping=!r.sleeping;r.hasTarget=false;Message(r.sleeping?"Resting (visual)":"Awake",r.sleeping?"Đang nghỉ (hoạt ảnh)":"Đã thức");}
         }
         void Observe()
@@ -392,7 +395,8 @@ namespace Dravio
             if(residents.TryGetValue(d.Uid,out var r))
             {
                 var entry=manager.catalog.Resolve(r.species,r.stage,out var match);
-                visual=(vi?"Model: ":"Model: ")+match+(entry==null?"":" · "+entry.stage+" · "+(entry.approved?"approved":"unapproved"));
+                visual=(manager.IsLive(d.Uid)?(vi?"Model: ":"Model: "):(vi?"Chưa spawn: ":"Not spawned: "))+match+
+                    (entry==null?"":" · "+entry.stage+" · "+(entry.approved?"approved":"unapproved"));
             }
             else if(unavailable.TryGetValue(d.Uid,out string why))visual=why switch{
                 "missing-model"=>vi?"Thiếu model đúng loài":"Missing species model",
@@ -416,7 +420,8 @@ namespace Dravio
             bool visible=d!=null && residents.ContainsKey(d.Uid);
             bool ready=Ready;
             feed.interactable=ready && visible && foodId==null;
-            pet.interactable=sleep.interactable=inspect.interactable=rosterInspect.interactable=observe.interactable=ready && visible;
+            pet.interactable=inspect.interactable=rosterInspect.interactable=observe.interactable=ready && visible;
+            sleep.interactable=ready && visible && residents[selected].canSleep;
             resume.interactable=ready && (visible || following);
             nextDragon.interactable=ready && State.Dragons.Count(x=>x.Location.Kind!=LocationKind.Released)>1;
             // Eligibility can change on each Domain revision; never calculate gameplay rules here.

@@ -137,7 +137,7 @@ namespace Dravio.Editor
             var sleep=Button(ui,row2,"Doze / wake","Ngủ / thức",56);
             var inspect=Button(ui,row2,"Inspect","Quan sát",56);
             var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",52);
-            Label(ui,care,"Drag to rotate in inspection. F / P / N / Space / R on keyboard.","Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,52);
+            Label(ui,care,playable?"Tap a dragon or select it in Dragons. Inspect follows the selected model.":"Drag to rotate in inspection. F / P / N / Space / R on keyboard.",playable?"Chạm vào rồng hoặc chọn trong danh sách Rồng. Quan sát sẽ theo dõi cá thể.":"Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,64);
             if(playable)
             {
                 saveStatus=Label(ui,care,"Loading save","Đang mở lưu trữ",14,Paper,TextAnchor.MiddleLeft,32,false);
@@ -146,7 +146,7 @@ namespace Dravio.Editor
             else if(integrated)Label(ui,care,"Session-only game data; no save or offline reward. Sleep and inspection are visual.","Dữ liệu trong phiên; chưa lưu hay thưởng offline. Ngủ và quan sát chỉ là hoạt ảnh.",14,Muted,TextAnchor.MiddleLeft,70);
             else Label(ui,care,"Visual actions only. No food or bond changes yet.","Chỉ thử hoạt ảnh. Chưa trừ thức ăn hay thay đổi gắn kết.",14,Muted,TextAnchor.MiddleLeft,54);
 
-            Label(ui,info,"Species reference","Hồ sơ loài",18,Gold,TextAnchor.MiddleLeft,36);
+            Label(ui,info,"Emberling reference","Hồ sơ Emberling",18,Gold,TextAnchor.MiddleLeft,36);
             if(playable)bioRecord=Button(ui,info,"Record profile observation","Ghi nhận đã xem sinh học",44);
             Fact(ui,info,"Group","Nhóm",biology.group,biology.group);
             Fact(ui,info,"Respiration","Hô hấp",biology.respiration,Translate(biology.respiration));
@@ -160,7 +160,7 @@ namespace Dravio.Editor
             Label(ui,info,"Reference data, not live health or comfort.","Dữ liệu loài, không phải chỉ số sức khỏe hay tiện nghi hiện tại.",13,Muted,TextAnchor.MiddleLeft,56);
 
             Label(ui,roster,"Preview residents","Rồng trong bản thử",18,Gold,TextAnchor.MiddleLeft,36);
-            Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
+            if(!playable)Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
             var rosterInspect=Button(ui,roster,playable?"Inspect selected":"Inspect Emberling",playable?"Quan sát rồng đã chọn":"Quan sát Emberling",46);
             Text livingProfile=null,livingTravel=null;
             Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null;
