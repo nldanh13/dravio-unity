@@ -86,3 +86,35 @@ Copy-Item "art-exports\EmberlingWander.fbx" "Assets\Dravio\Art\Models\"
 ```
 
 Select EmberlingWander.fbx and use **Dravio > Preview Selected Wandering Emberling FBX**. It creates a separate EmberlingWanderPreview.unity scene, prefab and two-state controller. Open existing preview instead of overwriting. Save and commit new assets only after local acceptance. Neither the new Blender export nor the Unity compilation/playback was executed in the authoring environment.
+
+## U1.3c — Care & interaction preview
+
+Based on U1.3b source (832748a), which has not yet been locally tested. Latest locally accepted baseline is U1.3a (311fd63). This branch is independently reviewable, keeps all prior scene/FBX assets, and does not touch the Environment or Domain workstreams. No real food inventory, bond, health, gold, offline simulation or persistence changes.
+
+Generate the cumulative model directly; there is no need to export Wander separately first:
+
+```powershell
+cd "B:\Dravio\Dravio-unity"
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/art/Export-EmberlingPreview.ps1
+```
+
+Or use the explicit Blender command with `art-exports/EmberlingCare.fbx --care-preview`, then copy the FBX to Assets/Dravio/Art/Models. The guarded PowerShell script never overwrites an existing Assets FBX. Select EmberlingCare.fbx, choose **Dravio > Preview Selected Care Emberling FBX**. This makes a separate EmberlingCarePreview scene, controller, prefab and interactive HUD. Existing preview scenes are not overwritten.
+
+Baked clip contract at 30 fps (one FBX take; importer offsets relative to its first frame):
+- Idle 1–181 (6s, loop)
+- Walk 182–217 (1.167s, loop)
+- Eat 218–278 (2s, one shot; head dip/bob, no jaw articulation or actual food consumption)
+- Doze 279–399 (4s, loop; eyes closed and head lowered while standing, not a full lying-down sleep pose)
+- Happy 400–445 (1.5s, one shot; head and tail response)
+
+Auto wandering/rest is the default. F or Feed plays Eat, P or Pet plays Happy, N or Doze/wake toggles dozing, Space or Inspect toggles manual rotation; Resume exploring restores autonomy. Actions are interruptible and one-shot actions return to Idle automatically. Inspection uses existing drag/arrows/R, camera does not orbit. Buttons use UGUI and the Input System UI module. Visual-only states must not be treated as real gameplay commands.
+
+Deferred acceptance checklist (run when Unity is available):
+1. Export completes, FBX imported with exactly five intended named clips; Generic avatar valid.
+2. Scene and Prefab/Animator assets generated without overwriting U1.3a. No red Console errors.
+3. Watch two Idle and Walk loops, check orientation, feet sliding, leg deformation and bounded motion.
+4. Exercise each button and keyboard shortcut, rapid interrupts and resume; test touch separately.
+5. Verify one-shot completion, doze remains until interrupted, inspect drag does not compete with autonomous movement, camera remains fixed.
+6. Check HUD at 16:9 and portrait, colors, frame rate, no action state alters actual game data. Save/commit generated assets only after inspection.
+
+No Blender, Unity, input or visual test was executed on U1.3b/U1.3c by the code author. Skinning/gait and dozing are provisional; production IK, full lying-down posture, jaw animation, texture painting and mobile optimization remain future work. Keep PRs as drafts until accepted.
