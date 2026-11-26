@@ -499,7 +499,7 @@ namespace Dravio.Editor
             var r=Surface(en,parent,Color.white);var b=r.gameObject.AddComponent<Button>();b.targetGraphic=r.GetComponent<Image>();
             var colors=b.colors;colors.normalColor=Gold;colors.highlightedColor=new Color(1,.90f,.65f);
             colors.pressedColor=new Color(.66f,.54f,.34f);colors.selectedColor=colors.highlightedColor;b.colors=colors;
-            var nav=b.navigation;nav.mode=Navigation.Mode.None;b.navigation=nav;
+            var nav=b.navigation;nav.mode=UnityEngine.UI.Navigation.Mode.None;b.navigation=nav;
             var size=r.gameObject.AddComponent<LayoutElement>();size.preferredHeight=height;size.preferredWidth=width;
             if(width<0)size.flexibleWidth=1;
             var label=Label(ui,r,en,vi,16,Ink,TextAnchor.MiddleCenter,height);
