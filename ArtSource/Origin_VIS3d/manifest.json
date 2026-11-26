@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "status": "original procedural art candidates; not visually approved",
+  "coordinateSystem": "glTF Y up, +Z front, metres; rock frame and waterfall surface share local origin",
+  "meshes": [
+    {
+      "name": "Origin_Waterfall_Rock_Frame",
+      "triangles": 1764,
+      "vertices": 5292,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.7573744058609009,
+          -0.0010000000474974513,
+          -1.3786402940750122
+        ],
+        "max": [
+          1.6830711364746094,
+          2.7192442417144775,
+          0.8328077793121338
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 234056,
+      "embeddedTexture": null,
+      "path": "ArtSource/Origin_VIS3d/Models/Origin_Waterfall_Rock_Frame.glb",
+      "blob": "51097ee95e88dcf02955c4928dda5df04aaa8581"
+    },
+    {
+      "name": "Origin_Waterfall_Surface",
+      "triangles": 432,
+      "vertices": 1296,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -0.5199999809265137,
+          0.09000000357627869,
+          -0.8479999899864197
+        ],
+        "max": [
+          0.5199999809265137,
+          2.5399999618530273,
+          0.5577197670936584
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 321016,
+      "embeddedTexture": "T_VIS3D_Waterfall_Flow",
+      "path": "ArtSource/Origin_VIS3d/Models/Origin_Waterfall_Surface.glb",
+      "blob": "a334918705cf041d4d8f7f8a2a06fac1a929dc2b"
+    },
+    {
+      "name": "Origin_Stream_Surface",
+      "triangles": 384,
+      "vertices": 1152,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.3088444471359253,
+          0.03500000014901161,
+          0
+        ],
+        "max": [
+          1.4189444780349731,
+          0.03500000014901161,
+          4.5
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 314640,
+      "embeddedTexture": "T_VIS3D_Stream_Ripples",
+      "path": "ArtSource/Origin_VIS3d/Models/Origin_Stream_Surface.glb",
+      "blob": "2b84ce10fbfc88e1b07c7c5e320e0af45dca80ad"
+    },
+    {
+      "name": "Origin_Stream_Bank_Stone_Cluster",
+      "triangles": 980,
+      "vertices": 2940,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.0511374473571777,
+          -0.017000000923871994,
+          0.0410764254629612
+        ],
+        "max": [
+          1.1706445217132568,
+          0.40955013036727905,
+          1.7717804908752441
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 130580,
+      "embeddedTexture": null,
+      "path": "ArtSource/Origin_VIS3d/Models/Origin_Stream_Bank_Stone_Cluster.glb",
+      "blob": "4121c9ab88a21cc7853a63afe5df5d5f2e169b13"
+    }
+  ],
+  "textures": [
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Waterfall_Flow.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 65536,
+      "zeroAlpha": 0,
+      "bytes": 262501,
+      "blob": "1a776f93ead227a345d8b72261ddf08023889e78"
+    },
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Stream_Ripples.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 65536,
+      "zeroAlpha": 0,
+      "bytes": 262501,
+      "blob": "212a1cd0dcf8f17c68efb78c10829ac8786a09ee"
+    },
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Foam_Splash.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 21599,
+      "zeroAlpha": 43937,
+      "bytes": 262501,
+      "blob": "fb26b1d89b8c8e7ef2878f706629b639082040b2"
+    },
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Grass_Tuft.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 15583,
+      "zeroAlpha": 49953,
+      "bytes": 262501,
+      "blob": "1b46a04459cd23f4f4b7b2131363c01a5a2945d4"
+    },
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Meadow_Flowers.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 12332,
+      "zeroAlpha": 53204,
+      "bytes": 262501,
+      "blob": "d4697e230fca1372fe0131e6bcbd470becc744b2"
+    },
+    {
+      "path": "ArtSource/Origin_VIS3d/Textures/T_VIS3D_Mushroom_Cluster.png",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB",
+      "nonzeroAlpha": 19067,
+      "zeroAlpha": 46469,
+      "bytes": 262501,
+      "blob": "087ce905b48b9ced315eb4eeb5ce031bd38a0252"
+    }
+  ],
+  "scope": "art source only; no gameplay water/terrain/collider changes",
+  "validation": "generated nondegenerate triangles and unit normals, finite positions, corner-normal opposition count, PNG alpha pixel counts; no external renderer/validator"
+}

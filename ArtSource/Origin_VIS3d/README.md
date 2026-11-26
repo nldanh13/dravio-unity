@@ -1,0 +1,10 @@
+# VIS.3d — Origin water and foliage art candidates
+
+Issue #90 / handoff #91. Four original procedural GLBs and six source PNGs in ArtSource/Origin_VIS3d. All source art, not runtime imports.
+
+- Waterfall Rock Frame + Waterfall Surface use same local pivot. Rock frame is opaque vertex-colour art; the water curtain uses an embedded alpha-flow texture, with UV v=0 at top. Preview GLB material is static. Integration AI may replace material with a scrolling UV shader, not infer depth/collision or water gameplay.
+- Stream Surface is a separate 4.5m curved ribbon; bank stones are a small decorative cluster, placed independently as needed. No placement in scene.
+- Textures: 256x256 RGBA8 waterfall flow, stream ripples (both also embedded in corresponding GLB), foam splash, grass tuft, meadow flowers, mushroom cluster. Last four are alpha cards; no 3D mesh needed. Foam can be used as VFX billboard; grass/flower/mushroom as alpha-cut cards. Texture content is simple original procedural draft, not painted master. Water textures are color and alpha, not normal maps.
+- Reproduce with Node (no dependencies): node scripts/art/environment/build_origin_vis3d.mjs <new output directory>. Manifest records dimensions, triangle counts, alpha counts, Git blob SHA. Use Blender or compatible glTF importer to inspect. The Unity branch does not assume glTF import support.
+- Technical art handoff: retain separation of opaque rocks / transparent water / foam. Test alpha sorting and water UV direction; do not import duplicate embedded and external textures as runtime assets. Prefer atlas packing for foliage, inspect alpha edges and mip bleed. Validate material slots, texture memory and entire scene triangle budget after placement; no guarantee of FPS. Do not add new interaction zones or collider semantics. Preserve #89 existing QA scope and #87 UI scope.
+- Checks executed: procedural generation; finite positions and unit normals; nondegenerate triangles; normal opposition counts; alpha pixel counts. Not rendered or visually approved. No Blender/Unity or external glTF validator run. Existing gameplay, shader, scene, prefab, save and data files untouched.
