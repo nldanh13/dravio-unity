@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
+using Dravio.Domain.Progression;
+using Dravio.Domain.World;
 using NUnit.Framework;
 
 namespace Dravio.Domain.Tests.Simulation
@@ -37,6 +39,60 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         [Test]
+        public void Codex_16_of_16_is_reachable_with_table_A_aurorawing_egg_plus_breeding_amberhorn()
+        {
+            // Hành trình thật 40 ngày (Guided, 60 phút/ngày, bảng A): đủ 15 chuyến sân mây → trứng Aurorawing. Loài còn thiếu duy nhất là Amberhorn
+            // (Epic, chỉ lai được, nhóm T) — người chơi lai một cặp ứng viên bằng lệnh thật cho tới khi nở Amberhorn.
+            var sim = new EconomySimulator(Policy.Guided, EconomySimulationTests.Schedules[2], 1, EconomyVariant.LiveWithSky(SkyCloudBalance.ProposedA));
+            sim.Run(new double[] { 24 * 40 });
+            GameState s = sim.State;
+            using (SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
+            {
+                Assert.That(s.Codex.Any(e => e.SpeciesId == "aurorawing"), Is.True, "Aurorawing trong Codex nhờ trứng mốc 15");
+                var missing = SpeciesCatalog.All.Where(sp => !s.Codex.Any(e => e.SpeciesId == sp.Id)).Select(sp => sp.Id).ToList();
+                long now = s.Clock.HighWaterAtMs + 60_000;
+                DragonSpecies amber = SpeciesCatalog.Get("amberhorn");
+                var pairs = (from a in SpeciesCatalog.All from b in SpeciesCatalog.All
+                             where string.CompareOrdinal(a.Id, b.Id) <= 0 && Dravio.Domain.Breeding.BreedingRules.CandidateSpecies(a, b).Contains(amber) select (a, b)).ToList();
+                Assert.That(pairs, Is.Not.Empty, "có cặp lai ra Amberhorn");
+                (DragonSpecies pa, DragonSpecies pb) = pairs.First(p => p.a.PackEligible && p.b.PackEligible);
+                // Hai bố mẹ Adult (mua từ gói trong game thật; ở đây thêm thẳng để test chỉ đo phép lai) — rồi lai bằng lệnh thật.
+                s = s.DeepClone();
+                s.Dragons.Add(Support.Fixtures.Adult("pa-amber", pa.Id));
+                s.Dragons.Add(Support.Fixtures.Adult("pb-amber", pb.Id));
+                // Loài trong gói còn thiếu (may rủi, vd Sparkwing): mua gói đắt nhất bằng lệnh thật (vàng nạp đúng giá), tối đa 300 gói, tôn trọng giới hạn ngày.
+                for (int k = 0; k < 300 && SpeciesCatalog.All.Any(sp => sp.PackEligible && !s.Codex.Any(e => e.SpeciesId == sp.Id)); k++)
+                {
+                    PackDef pack = PackCatalog.All.Last();
+                    s.Player.Gold = MicroGold.FromWholeGold(pack.PriceG);
+                    DispatchResult bp = CommandDispatcher.Dispatch(s, new BuyPackCommand(Support.Fixtures.Rid(), pack.Id), new FixedClock(now));
+                    Assert.That(bp.Ok, Is.True, bp.Error?.ToString());
+                    s = CommandDispatcher.Dispatch(bp.State, new ClaimPackCommand(Support.Fixtures.Rid(), MoveTarget.Storage), new FixedClock(now)).State;
+                    now += 1_000;
+                }
+                s.Player.Gold = MicroGold.FromWholeGold(5_000_000);
+                bool hatched = false;
+                for (int tries = 0; tries < 200 && !hatched; tries++)
+                {
+                    if (s.PendingPack != null) s = CommandDispatcher.Dispatch(s, new ClaimPackCommand(Support.Fixtures.Rid(), MoveTarget.Storage), new FixedClock(now)).State;
+                    DispatchResult br = CommandDispatcher.Dispatch(s, new StartBreedCommand(Support.Fixtures.Rid(), "pa-amber", "pb-amber"), new FixedClock(now));
+                    Assert.That(br.Ok, Is.True, br.Error?.ToString());
+                    s = br.State;
+                    now = Math.Max(s.BreedingNest.FinishAtMs, s.FindDragon("pa-amber").BreedCooldownUntilMs) + 1_000;
+                    DispatchResult cl = CommandDispatcher.Dispatch(s, new ClaimBreedCommand(Support.Fixtures.Rid(), MoveTarget.Storage), new FixedClock(now));
+                    Assert.That(cl.Ok, Is.True, cl.Error?.ToString());
+                    s = cl.State;
+                    now = Math.Max(now, Math.Max(s.FindDragon("pa-amber").BreedCooldownUntilMs, s.FindDragon("pb-amber").BreedCooldownUntilMs)) + 1_000;
+                    hatched = s.Dragons.Any(d => d.SpeciesId == "amberhorn");
+                }
+                Assert.That(hatched, Is.True, "Amberhorn nở sau tối đa 200 lần lai " + pa.Id + " × " + pb.Id);
+                Assert.That(Codex.SpeciesDiscovered(s), Is.EqualTo(16), "thiếu: " + string.Join(",", SpeciesCatalog.All.Where(sp => !s.Codex.Any(e => e.SpeciesId == sp.Id)).Select(sp => sp.Id)));
+                Assert.That(s.UnlockedAchievements, Does.Contain("ACH_CODEX_16"));
+                Assert.That(Progression.Exploration.Titles(s).Single(t => t.TitleId == "title.dragon_scholar").Earned, Is.True);
+            }
+        }
+
+        [Test]
         public void Without_an_approved_table_no_simulated_player_ever_flies_to_the_cloud_terrace()
         {
             var sim = new EconomySimulator(Policy.Guided, EconomySimulationTests.Schedules[2], 1, EconomyVariant.Live);
@@ -66,6 +122,20 @@ namespace Dravio.Domain.Tests.Simulation
         {
             var hs = hours.Where(h => h.HasValue).Select(h => h.Value / 24).ToList();
             return hs.Count == 0 ? "— (0%)" : $"{F(Pct(hs, .5))} ({hs.Count * 100 / n}%)";
+        }
+
+        [Test]
+        public void Probe_codex_gaps_when_requested()
+        {
+            if (Environment.GetEnvironmentVariable("DRAVIO_U213_CODEX_PROBE") == null) Assert.Ignore("probe");
+            foreach (Policy p in new[] { Policy.Guided, Policy.Researcher, Policy.Casual })
+                for (int seed = 1; seed <= 3; seed++)
+                {
+                    var sim = new EconomySimulator(p, EconomySimulationTests.Schedules[1], seed, EconomyVariant.LiveWithSky(SkyCloudBalance.ProposedA));
+                    sim.Run(new double[] { 24 * 365 });
+                    var missing = SpeciesCatalog.All.Where(sp => !sim.State.Codex.Any(e => e.SpeciesId == sp.Id)).Select(sp => sp.Id + "(" + sp.Rarity + (sp.PackEligible ? ",gói" : ",lai") + ")");
+                    TestContext.Progress.WriteLine($"CODEX|{p}|{seed}|{string.Join(",", missing)}");
+                }
         }
 
         [Test]
