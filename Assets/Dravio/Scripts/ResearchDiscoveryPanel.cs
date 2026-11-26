@@ -31,7 +31,14 @@ namespace Dravio
         bool dirty=true,lastVi=true;
         float refreshAt;
         string lastResultEn="",lastResultVi="";
-        GameState lastState;
+        GameState lastState,questLogState;
+        QuestLogDto cachedQuestLog;
+        QuestLogDto QuestLogFor(GameState s)
+        {
+            if(!ReferenceEquals(questLogState,s)||cachedQuestLog==null)
+            {questLogState=s;cachedQuestLog=ProgressionQueries.QuestLog(s);}
+            return cachedQuestLog;
+        }
         public void Configure(DravioSessionHost h,LivingSanctuaryPresentation l,FantasyPreviewUI loc,GameObject p,
             Text o,Text d,Text f,Button c,Button j,Button q,Button back,Button forward,Button observe)
         {host=h;living=l;localization=loc;page=p;overview=o;detail=d;feedback=f;codex=c;journal=j;quests=q;prev=back;next=forward;record=observe;}
@@ -44,7 +51,18 @@ namespace Dravio
             record.interactable=false;
         }
         void ScrollTop(){var scroll=page!=null?page.GetComponent<ScrollRect>():null;if(scroll!=null)scroll.verticalNormalizedPosition=1f;}
-        void SetMode(int m){mode=m;dirty=true;Refresh();ScrollTop();}
+        void SetMode(int m)
+        {
+            mode=m;
+            var s=host?.Session?.State;
+            if(m==2&&s!=null)
+            {
+                // Explicit tab click refocuses; periodic refresh never changes the chosen quest.
+                string focus=ResearchDiscoveryView.JourneyQuest(QuestLogFor(s));
+                if(focus!=null)quest=focus;
+            }
+            dirty=true;Refresh();ScrollTop();
+        }
         void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;}
         void OnEvents(System.Collections.Generic.IReadOnlyList<DomainEvent> events)
         {
@@ -81,7 +99,7 @@ namespace Dravio
         {
             if(mode==0)return SpeciesCatalog.All.Select(s=>s.Id).ToArray();
             if(mode==1)return living.VisibleResearchOpportunities().Select(o=>o.Uid).ToArray();
-            return ProgressionQueries.QuestLog(state).Quests.Select(q=>q.QuestId).ToArray();
+            return QuestLogFor(state).Quests.Select(q=>q.QuestId).ToArray();
         }
         void Cycle(int step)
         {
@@ -163,11 +181,15 @@ namespace Dravio
             if(actionLabel!=null)actionLabel.text=mode==2?(Vi?"Nhận nhiệm vụ":"Claim quest"):(Vi?"Ghi quan sát":"Record observation");
             if(s==null||host.Session.Status!=SessionStatus.Ready)
             {Write(overview,Vi?"Đang tải dữ liệu nghiên cứu":"Loading research");Write(detail,"—");Write(feedback,"—");return;}
-            bool vi=Vi;var progress=ProgressionQueries.Overview(s);
+            bool vi=Vi;
+            if(mode!=2)
+            {
+            var progress=ProgressionQueries.Overview(s);
             Write(overview,(vi?"Bách khoa: ":"Codex: ")+progress.CodexCells+"/"+progress.CodexCellsTotal+
                 " · "+(vi?"Loài: ":"Species: ")+progress.SpeciesDiscovered+"/"+progress.SpeciesTotal+
                 "\n"+(vi?"Ghi nghiên cứu: ":"Research recording: ")+(progress.Rules.ResearchRecordingEnabled?"ON":"OFF")+
                 " · "+(vi?"Nhật ký đêm: ":"Night journal: ")+(progress.Rules.NightJournalEnabled?"ON":"OFF"));
+            }
             if(mode==0)
             {
                 var ids=SpeciesCatalog.All.Select(x=>x.Id).ToArray();
@@ -198,16 +220,18 @@ namespace Dravio
             }
             else
             {
-                var log=ProgressionQueries.QuestLog(s);var list=log.Quests;
+                var log=QuestLogFor(s);var list=log.Quests;
                 quest=ResearchDiscoveryView.KeepOrFirst(list.Select(q=>q.QuestId),quest);
                 var selected=list.FirstOrDefault(q=>q.QuestId==quest);
                 displayedQuest=quest;displayedSession=current;
                 displayedAction=ResearchDiscoveryView.QuestAction(log,quest);
                 Write(overview,(vi?"Nhiệm vụ đã nhận: ":"Quests claimed: ")+list.Count(q=>q.State==QuestState.Completed)+"/"+list.Count+
                     " · "+(vi?"Có thể nhận: ":"Ready: ")+log.ReadyQuestIds.Count+
-                    "\n"+ResearchDiscoveryView.WorldProgress(log,vi));
+                    "\n"+ResearchDiscoveryView.WorldProgress(log,vi)+"\n\n"+ResearchDiscoveryView.JourneySummary(log,vi));
+                string guidance=ResearchDiscoveryView.QuestGuidance(s,selected,vi);
                 Write(detail,(Array.IndexOf(list.Select(q=>q.QuestId).ToArray(),quest)+1)+"/"+list.Count+"\n\n"+
-                    ResearchDiscoveryView.Quest(selected,progress.Rules.QuestCompletionEnabled,vi));
+                    ResearchDiscoveryView.Quest(selected,ProgressionQueries.Rules().QuestCompletionEnabled,vi)+
+                    (string.IsNullOrEmpty(guidance)?"":"\n\n"+guidance));
                 if(actionLabel!=null&&displayedAction!=null&&displayedAction!="claim")
                     actionLabel.text=(vi?"Mở ":"Unlock ")+ResearchDiscoveryView.ZoneName(displayedAction,vi);
                 record.interactable=displayedAction!=null;

@@ -75,6 +75,35 @@ namespace Dravio.Tests
             Assert.That(ResearchDiscoveryView.Missing("route-rewards-undefined",true),Does.Contain("Chưa duyệt"));
             Assert.That(ResearchDiscoveryView.QuestName("QUEST_SKY_EXPLORATION",true),Is.EqualTo("Khám phá Thiên Giới"));
         }
+        [Test] public void JourneyFollowsCanonicalGatePrerequisiteAndKeepsTutorialBlockers()
+        {
+            var s=New();var log=ProgressionQueries.QuestLog(s);
+            Assert.That(ResearchDiscoveryView.NextWorld(log),Is.EqualTo("ocean"));
+            Assert.That(ResearchDiscoveryView.JourneyQuest(log),Is.EqualTo("Q_ORIGIN_FIELD_NOTES"));
+            Assert.That(ResearchDiscoveryView.JourneySummary(log,true),Does.Contain("Thủy Vực").And.Contain("hướng dẫn").And.Contain("Ghi chép Khởi Nguyên"));
+            var gate=log.Quests.Single(q=>q.QuestId=="QUEST_AQUATIC_EXPLORATION");
+            gate.LockedBy=new string[0];
+            Assert.That(ResearchDiscoveryView.JourneyQuest(log),Is.EqualTo(gate.QuestId));
+            log.ZoneUnlockMissing=new System.Collections.Generic.Dictionary<string,System.Collections.Generic.IReadOnlyList<string>>
+                {{"sky",new[]{"quest:QUEST_SKY_EXPLORATION"}}};
+            Assert.That(ResearchDiscoveryView.NextWorld(log),Is.EqualTo("sky"));
+            log.ZoneUnlockMissing=new System.Collections.Generic.Dictionary<string,System.Collections.Generic.IReadOnlyList<string>>();
+            Assert.That(ResearchDiscoveryView.JourneyQuest(log),Is.Null);
+            Assert.That(ResearchDiscoveryView.JourneySummary(log,false),Does.Contain("all three worlds unlocked"));
+        }
+        [Test] public void JourneyGuidanceUsesOwnedSpeciesAndUnlockedMaterialSourcesWithoutMutating()
+        {
+            var s=New();var log=ProgressionQueries.QuestLog(s);long rev=s.Revision;
+            var field=log.Quests.Single(q=>q.QuestId=="Q_ORIGIN_FIELD_NOTES");
+            var hint=ResearchDiscoveryView.QuestGuidance(s,field,true);
+            Assert.That(hint,Does.Contain("emberling").And.Not.Contain("leviathan"));
+            var forest=log.Quests.Single(q=>q.QuestId=="Q_ORIGIN_FOREST_SURVEY");
+            Assert.That(ResearchDiscoveryView.QuestGuidance(s,forest,true),Does.Contain("Rừng Khởi Nguyên").And.Contain("Còn thiếu"));
+            var sky=log.Quests.Single(q=>q.QuestId=="Q_EXPEDITION_CLOUD");
+            Assert.That(ResearchDiscoveryView.QuestGuidance(s,sky,false),Does.Contain("prerequisites"));
+            Assert.That(s.Revision,Is.EqualTo(rev));
+            Assert.That(s.Research.IsEmpty,Is.True);
+        }
         [Test] public void QuestAndCodexBrowsingDoesNotMutateCanonicalState()
         {
             var s=New();long rev=s.Revision,gold=s.Player.Gold.Micro;

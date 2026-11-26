@@ -126,6 +126,142 @@ namespace Dravio
             }
             return string.Join("\n",lines);
         }
+        // Presentation-only navigation: inspect canonical blockers, never manufacture eligibility.
+        public static string NextWorld(QuestLogDto log)
+        {
+            if(log==null)return null;
+            return new[]{"ocean","sky"}.FirstOrDefault(z=>log.ZoneUnlockMissing.ContainsKey(z));
+        }
+        public static string JourneyQuest(QuestLogDto log)
+        {
+            string zone=NextWorld(log);
+            if(zone==null)return null;
+            string id=WorldUnlockCatalog.RuleFor(zone)?.RequiresQuest;
+            var visited=new HashSet<string>(StringComparer.Ordinal);
+            while(!string.IsNullOrEmpty(id)&&visited.Add(id))
+            {
+                var q=log.Quests.FirstOrDefault(x=>x.QuestId==id);
+                if(q==null)return null;
+                var prereq=q.LockedBy.FirstOrDefault(x=>x.StartsWith("quest:",StringComparison.Ordinal));
+                if(prereq==null)return id;
+                id=prereq.Substring(6);
+            }
+            return null; // Broken/cyclic catalog: do not choose an unrelated quest.
+        }
+        public static string JourneySummary(QuestLogDto log,bool vi)
+        {
+            string zone=NextWorld(log);
+            if(zone==null)return vi?"Hành trình: đã mở đủ ba thế giới. Tiếp tục nhiệm vụ phụ và nghiên cứu.":
+                "Journey: all three worlds unlocked. Continue side quests and research.";
+            var lines=new List<string>{(vi?"Mục tiêu tiếp theo: ":"Next world: ")+ZoneName(zone,vi)};
+            var missing=log.ZoneUnlockMissing[zone];
+            if(missing.Contains("tutorial-completed"))
+                lines.Add(vi?"Hướng dẫn: hoàn tất hoặc tiếp tục hướng dẫn trong Guide.":"Guide: finish or resume the tutorial.");
+            if(missing.Contains("origin-habitats"))
+                lines.Add(vi?"Hướng dẫn: khảo sát và mở đủ sinh cảnh Khởi Nguyên.":"Guide: survey and unlock all Origin habitats.");
+            string id=JourneyQuest(log);
+            var q=log.Quests.FirstOrDefault(x=>x.QuestId==id);
+            if(q!=null)
+            {
+                string action=QuestAction(log,id);
+                lines.Add((vi?"Nhiệm vụ trọng tâm: ":"Focus quest: ")+QuestName(id,vi)+
+                    " · "+q.ProgressPct+"%");
+                if(action=="claim")lines.Add(vi?"Đủ yêu cầu: nhận nhiệm vụ trong thẻ tương ứng.":"Ready: claim the quest on its card.");
+                else if(action==zone)lines.Add(vi?"Đã đủ điều kiện: mở thế giới trong thẻ nhiệm vụ cổng.":"All requirements met: unlock the world on its gate quest card.");
+                else if(q.State!=QuestState.Completed)
+                    lines.Add(vi?"Xem yêu cầu còn thiếu trong thẻ nhiệm vụ.":"Review missing requirements on its quest card.");
+            }
+            if(log.ReadyQuestIds.Count>0)
+                lines.Add((vi?"Có thể nhận: ":"Ready to claim: ")+string.Join(", ",log.ReadyQuestIds.Select(x=>QuestName(x,vi))));
+            lines.Add(vi?"Nhấn lại Nhiệm vụ để về thẻ trọng tâm.":"Tap Quests again to return to the focus card.");
+            return string.Join("\n",lines);
+        }
+        static bool InRealm(IEnumerable<string> habitats,Realm realm)=>
+            habitats.Any(h=>HabitatCatalog.TryGet(h,out var profile)&&profile.Realm==realm);
+        // Suggestions are bounded, read-only examples from currently owned species and catalog routes.
+        // They do not certify placement, expedition departure or quest eligibility.
+        public static string QuestGuidance(GameState s,QuestStatusView q,bool vi)
+        {
+            if(s==null||q==null||q.State==QuestState.Completed)return "";
+            if(q.State==QuestState.Locked)
+                return vi?"Hoàn thành điều kiện mở trước; xem mục tiêu trọng tâm ở trên.":"Finish the prerequisites first; see the focus objective above.";
+            var lines=new List<string>();
+            var owned=s.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.SpeciesId)
+                .Distinct(StringComparer.Ordinal).OrderBy(x=>x,StringComparer.Ordinal).ToArray();
+            foreach(var req in q.Requirements.Where(x=>x.State!=RequirementState.Met))
+            {
+                var def=req.Def;
+                if(req.State==RequirementState.Blocked||req.State==RequirementState.Unknown)
+                {
+                    lines.Add(RequirementName(def,vi)+": "+(vi?"Chưa khả dụng":"Unavailable")+
+                        (string.IsNullOrEmpty(req.Detail)?"":" · "+Missing(req.Detail,vi)));
+                    continue;
+                }
+                switch(def.Kind)
+                {
+                    case QuestRequirementKind.MaterialDelivery:
+                    {
+                        var routes=ExpeditionCatalog.Routes.Where(r=>r.RewardsDefined&&r.Materials.Contains(def.Param)&&s.FindZone(r.ZoneId)?.Unlocked==true)
+                            .Select(r=>vi?r.NameVi:r.Id).ToArray();
+                        lines.Add(RequirementName(def,vi)+" · "+(vi?"Còn thiếu ":"Missing ")+Math.Max(0,req.Target-req.Current)+
+                            (routes.Length==0?(vi?" · Chưa có tuyến mở phù hợp":" · No suitable unlocked route"):
+                            (vi?" · Quản lý > Thám hiểm: ":" · Manage > Expedition: ")+string.Join(", ",routes)));
+                        break;
+                    }
+                    case QuestRequirementKind.ResearchTier:
+                    case QuestRequirementKind.CircadianRecords:
+                    case QuestRequirementKind.SpeciesRecordedInRealm:
+                    {
+                        var candidates=new List<string>();
+                        foreach(string id in owned)
+                        {
+                            var profile=ProgressionQueries.ResearchProfile(s,id).Species;
+                            if(def.Realm.HasValue&&!InRealm(profile.NativeHabitats,def.Realm.Value))continue;
+                            string hint;
+                            if(def.Kind==QuestRequirementKind.ResearchTier)
+                            {
+                                if(profile.Tier>=def.Tier)continue;
+                                hint=Hint(profile.NextStepKey,vi);
+                            }
+                            else if(def.Kind==QuestRequirementKind.CircadianRecords)
+                            {
+                                if(profile.CircadianCovered)continue;
+                                hint=vi?"Quan sát lúc hoạt động và nghỉ":"Observe active and resting phases";
+                            }
+                            else
+                            {
+                                if(!def.Realm.HasValue||InRealm(profile.ObservedHabitats,def.Realm.Value))continue;
+                                hint=vi?"Chuyển đến sinh cảnh phù hợp rồi quan sát":"Move to a suitable habitat and observe";
+                            }
+                            candidates.Add(id+" — "+hint);
+                            if(candidates.Count==3)break;
+                        }
+                        lines.Add(RequirementName(def,vi)+":\n"+(candidates.Count==0?
+                            (vi?"Chưa có loài đang nuôi phù hợp; kiểm tra Bách khoa, gói trứng hoặc lai giống.":"No matching owned species; check Codex, egg packs or breeding."):
+                            string.Join("\n",candidates)));
+                        break;
+                    }
+                    case QuestRequirementKind.AdultWithLocomotion:
+                    {
+                        var candidates=owned.Where(id=>def.Locomotion.HasValue&&SpeciesCatalog.GetBiology(id).Locomotion.Contains(def.Locomotion.Value)&&
+                            (!def.Realm.HasValue||InRealm(SpeciesCatalog.GetBiology(id).HabitatRules,def.Realm.Value)))
+                            .Where(id=>s.Dragons.Any(d=>d.SpeciesId==id&&d.Location.Kind!=LocationKind.Released&&
+                                (d.Location.Kind!=LocationKind.Zone||
+                                (def.Realm.HasValue&&!InRealm(new[]{d.Location.HabitatId},def.Realm.Value))||
+                                Dravio.Domain.Economy.EconomyRates.GrowthStageOf(d.XpSec,SpeciesCatalog.Get(id))!=GrowthStage.Adult)))
+                            .Take(3).ToArray();
+                        lines.Add(RequirementName(def,vi)+": "+(candidates.Length==0?
+                            (vi?"Kiểm tra loài có khả năng di chuyển phù hợp.":"Check species with the required locomotion."):
+                            string.Join(", ",candidates)+(vi?" — nuôi tới trưởng thành và đặt vào sinh cảnh phù hợp.":" — raise to Adult and place in a suitable habitat.")));
+                        break;
+                    }
+                    default:
+                        // Leave other objectives to their canonical requirement card rather than guessing.
+                        break;
+                }
+            }
+            return lines.Count==0?"":(vi?"Gợi ý thực hiện (không tự hoàn thành):":"Suggested actions (not automatic):")+"\n"+string.Join("\n\n",lines);
+        }
         static string RequirementName(QuestRequirementDef def,bool vi)
         {
             string name=def.Kind switch
