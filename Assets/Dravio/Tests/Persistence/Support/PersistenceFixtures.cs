@@ -1,0 +1,227 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Dravio.Domain;
+using Dravio.Domain.Catalog;
+using Dravio.Domain.Core;
+using Dravio.Persistence;
+using Dravio.Persistence.Json;
+using Dravio.Persistence.Schema;
+using Dravio.Persistence.Storage;
+using Dravio.Platform;
+
+namespace Dravio.Persistence.Tests.Support
+{
+    public static class PFix
+    {
+        /// <summary>Date.UTC(2026, 10, 1, 8, 0, 0) như persistence.test.ts.</summary>
+        public static readonly long T0 = new DateTimeOffset(2026, 11, 1, 8, 0, 0, TimeSpan.Zero).ToUnixTimeMilliseconds();
+
+        public const string GoldenRelative = "Assets/Dravio/Tests/Persistence/Golden/ts-persistence-golden-b33ec7a.json";
+        public const string FixturesRelative = "Assets/Dravio/Tests/Persistence/Fixtures";
+
+        private static JsonObject _golden;
+        public static JsonObject Golden => _golden ?? (_golden = (JsonObject)JsonParser.Parse(File.ReadAllText(Locate(GoldenRelative))));
+
+        public static string Locate(string relative)
+        {
+            foreach (string start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
+            {
+                var dir = new DirectoryInfo(start);
+                while (dir != null)
+                {
+                    string p = Path.Combine(dir.FullName, relative);
+                    if (File.Exists(p) || Directory.Exists(p)) return p;
+                    dir = dir.Parent;
+                }
+            }
+            throw new FileNotFoundException(relative);
+        }
+
+        /// <summary>Đọc fixture nguyên văn (bytes UTF-8 → string, không bỏ gì).</summary>
+        public static string Fixture(string name) => new System.Text.UTF8Encoding(false).GetString(File.ReadAllBytes(Path.Combine(Locate(FixturesRelative), name)));
+
+        public static GameState Fresh(uint seed = 7) => InitialStateFactory.Create("save-" + seed, T0, Rng.Create(seed));
+
+        private static int _seq;
+        public static string Rid(string p = "r") => p + "-" + (++_seq);
+
+        public static GameState Advanced(GameState s, long ms, string requestId = null)
+        {
+            var clock = new FixedClock(s.Clock.LastProcessedAtMs + ms);
+            DispatchResult r = CommandDispatcher.Dispatch(s, new AdvanceTimeCommand(requestId ?? Rid("a"), AdvanceMode.Online), clock);
+            if (!r.Ok) throw new InvalidOperationException(r.Error.ToString());
+            return r.State;
+        }
+
+        public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
+
+        /// <summary>
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 → 8 → 9 → 10 của C# (breedingNest, codex, expedition, vitals / healthCases / disasters / hazard, packDaily / sanctuaryProjectsBuilt / research, completedSideQuests / expeditionsClaimed / relations).
+        /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
+        /// </summary>
+        public static JsonObject AsUnity(JsonObject tsV4State)
+        {
+            MigrateResult m = Migrations.Migrate(4, tsV4State);
+            if (!m.Ok) throw new InvalidOperationException(string.Join("; ", m.Details));
+            return m.State;
+        }
+
+        /// <summary>
+        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition, trạng thái mở thế giới, sức khỏe và khối U2.10 (giới hạn gói, dự án, sổ nghiên cứu) (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
+        /// schemaVersion = 4. Trang trí đã mua vẫn nằm trong zones.decorationIds — TS chấp nhận chuỗi bất kỳ ở đó.
+        /// </summary>
+        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue", "healthCases", "disasters", "hazard",
+            "packDaily", "sanctuaryProjectsBuilt", "research", "completedSideQuests", "expeditionsClaimed", "relations" };
+
+        public static JsonObject AsV4(JsonObject unityState)
+        {
+            if (!(unityState.Get("breedingNest") is JsonNull)) throw new InvalidOperationException("breedingNest not empty: no v4 projection");
+            var o = new JsonObject();
+            if (!(unityState.Get("expedition") is JsonNull)) throw new InvalidOperationException("expedition in progress: no v4 projection");
+            if (unityState.Get("rewardQueue") is JsonArray rq && rq.Count > 0) throw new InvalidOperationException("reward egg queued: no v4 projection");
+            if (unityState.Get("healthCases") is JsonArray hc && hc.Count > 0) throw new InvalidOperationException("open health case: no v4 projection");
+            if (unityState.Get("disasters") is JsonArray ds && ds.Count > 0) throw new InvalidOperationException("open disaster: no v4 projection");
+            foreach (var kv in unityState)
+            {
+                if (UnityOnlyKeys.Contains(kv.Key)) continue;
+                if (kv.Key == "dragons" && kv.Value is JsonArray dragons)
+                {
+                    // U2.6: vitals là trường chỉ có ở Unity (v8); TS v4 không biết.
+                    var stripped = new JsonArray();
+                    foreach (JsonValue d in dragons) stripped.Add(d is JsonObject dob ? WithoutKey(dob, "vitals") : d);
+                    o.Set(kv.Key, stripped);
+                }
+                else o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            }
+            return o;
+        }
+
+        private static JsonObject WithoutKey(JsonObject o, string key)
+        {
+            var c = new JsonObject();
+            foreach (var kv in o) if (kv.Key != key) c.Set(kv.Key, kv.Value);
+            return c;
+        }
+
+        /// <summary>
+        /// Xuất một save C# cho bộ đọc TS (CI: Tools~/verify-csharp-saves.test.ts). name.unity.json là file schema Unity thật (v6) — TS phải từ chối
+        /// "newer-version" (chỉ đọc, không ghi đè). Khi tổ trống còn có name.save.json = ảnh v4 + name.canonical.txt mà TS phải đọc trùng state.
+        /// </summary>
+        public static void Export(string dir, string name, string v5Text)
+        {
+            if (dir == null) return;
+            var utf8 = new System.Text.UTF8Encoding(false);
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, name + ".unity.json"), v5Text, utf8);
+            var state = (JsonObject)((JsonObject)JsonParser.Parse(v5Text)).Get("state");
+            if (!(state.Get("breedingNest") is JsonNull) || !(state.Get("expedition") is JsonNull) || ((JsonArray)state.Get("rewardQueue")).Count > 0 ||
+                ((JsonArray)state.Get("healthCases")).Count > 0 || ((JsonArray)state.Get("disasters")).Count > 0) return;
+            File.WriteAllText(Path.Combine(dir, name + ".save.json"), AsV4Text(v5Text), utf8);
+            File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), SaveSchema.CanonicalJson(AsV4(state)), utf8);
+        }
+
+        /// <summary>Envelope v4 của TS dựng lại từ save C# v5 (tổ trống): so được từng byte với serializeSave của TS.</summary>
+        public static string AsV4Text(string v5Text)
+        {
+            var env = (JsonObject)JsonParser.Parse(v5Text);
+            JsonObject state = AsV4((JsonObject)env.Get("state"));
+            var o = new JsonObject();
+            foreach (var kv in env)
+            {
+                if (kv.Key == "schemaVersion") o.Set(kv.Key, JsonValue.From(4));
+                else if (kv.Key == "state") o.Set(kv.Key, state);
+                else if (kv.Key == "checksum") o.Set(kv.Key, JsonValue.From(SaveSchema.ChecksumOf(state)));
+                else o.Set(kv.Key, kv.Value);
+            }
+            return JsonWriter.Stringify(o);
+        }
+
+        /// <summary>Envelope ở schemaVersion bất kỳ với checksum hợp lệ (như envelopeAt của persistence.test.ts).</summary>
+        public static string EnvelopeAt(int version, GameState state = null)
+        {
+            JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
+            JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 10) foreach (string k in new[] { "completedSideQuests", "expeditionsClaimed", "relations" }) s.Remove(k);
+            if (version < 9) foreach (string k in new[] { "packDaily", "sanctuaryProjectsBuilt", "research" }) s.Remove(k);
+            if (version < 8)
+            {
+                foreach (string k in new[] { "healthCases", "disasters", "hazard" }) s.Remove(k);
+                var dragons = new JsonArray();
+                foreach (JsonValue d in (JsonArray)s.Get("dragons")) dragons.Add(d is JsonObject dob ? WithoutKey(dob, "vitals") : d);
+                s.Set("dragons", dragons);
+            }
+            if (version < 7) foreach (string k in new[] { "expedition", "completedQuests", "grantedRewards", "rewardQueue" }) s.Remove(k);
+            if (version < 6) s.Remove("codex");
+            if (version < 5) s.Remove("breedingNest");
+            if (version < 4) foreach (string k in new[] { "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements" }) s.Remove(k);
+            if (version == 1 || version == 3) s.Remove("discoveries");
+            s.Set("schemaVersion", JsonValue.From(version));
+            return JsonWriter.Stringify(env.ShallowCopy().Set("schemaVersion", JsonValue.From(version)).Set("state", s).Set("checksum", JsonValue.From(SaveSchema.ChecksumOf(s))));
+        }
+
+        public static (SaveManager mgr, MemorySaveStore store) Manager(MemorySaveStore store = null)
+        {
+            store = store ?? new MemorySaveStore();
+            return (new SaveManager(store, () => T0), store);
+        }
+    }
+
+    /// <summary>Đồng hồ tường giả có thể nhảy tiến/lùi.</summary>
+    public sealed class ManualClock : IClock
+    {
+        public long Now;
+        public ManualClock(long now) { Now = now; }
+        public long NowMs() => Now;
+    }
+
+    /// <summary>Môi trường phiên giả: đồng hồ tường + thời gian đơn điệu riêng, scheduler bơm bằng tay.</summary>
+    public sealed class SessionRig
+    {
+        public readonly ManualClock Clock;
+        public readonly PumpedScheduler Scheduler = new PumpedScheduler();
+        public long Monotonic;
+        public ISaveStore Store;
+        public IWriterLock Lock;
+        /// <summary>U2.6: luật thiên tai tiêm vào phiên (null = Production, tắt).</summary>
+        public DisasterRules Rules;
+        private int _ids;
+
+        public SessionRig(ISaveStore store, long wallNow, IWriterLock writerLock = null)
+        {
+            Store = store; Clock = new ManualClock(wallNow); Lock = writerLock;
+        }
+
+        public GameSession NewSession(bool visible = true)
+        {
+            var s = new GameSession(new SessionEnvironment
+            {
+                Clock = Clock, Store = Store, WriterLock = Lock, Scheduler = Scheduler, StartVisible = visible, DisasterRules = Rules,
+                NewId = () => "id-" + (++_ids).ToString("D6", System.Globalization.CultureInfo.InvariantCulture),
+            });
+            Scheduler.Pump(Monotonic);
+            s.Start();
+            return s;
+        }
+
+        /// <summary>Thời gian thật trôi: đồng hồ tường và đơn điệu cùng tiến, bơm scheduler từng bước 1 s.</summary>
+        public void Run(long ms, long stepMs = 1000)
+        {
+            long left = ms;
+            while (left > 0)
+            {
+                long d = Math.Min(stepMs, left);
+                Clock.Now += d; Monotonic += d; left -= d;
+                Scheduler.Pump(Monotonic);
+            }
+        }
+
+        /// <summary>Tiến trình bị đóng băng/không chạy (chạy nền, ngủ máy): thời gian trôi nhưng không có frame.</summary>
+        public void Frozen(long ms) { Clock.Now += ms; Monotonic += ms; }
+    }
+
+    public static class Helpers
+    {
+        public static List<string> Names(IEnumerable<SlotFailure> fs) { var l = new List<string>(); foreach (var f in fs) l.Add(f.ToString()); return l; }
+    }
+}
