@@ -72,7 +72,15 @@ Tính theo ma trận hành vi U2.9. "Tối thiểu" = tập tính + 2 pha + 1 si
 
 So sánh: U2.9 không giới hạn đạt Ethology sau 14–51 lần quan sát (15–50 phút). Test `Ethology_needs_several_days_under_U210_pacing_but_one_day_without_it` kiểm cả hai chế độ.
 
-**Rủi ro lịch chơi (quyết định cần duyệt số 3).** Mô phỏng Researcher "5 phút/ngày lúc 09:00" không bao giờ đạt Ethology cho loài ban ngày, vì không bao giờ thấy chúng ngủ. Loài `both` vẫn đạt vì có ngủ ngắn ban ngày. Ba hướng: quan sát theo `settings.timeMode` của Sanctuary; "nhật ký đêm" tự ghi một phát hiện pha nghỉ sau một đêm offline; hoặc giữ nguyên.
+**Rủi ro lịch chơi (quyết định cần duyệt số 3).** Người chơi "5 phút/ngày lúc 09:00" không bao giờ thấy loài ban ngày ngủ, nên không đạt Ethology cho chúng (mô phỏng: 0 loài ở ngày 30, 1 loài ở ngày 90). Loài `both` vẫn đạt vì có ngủ ngắn ban ngày.
+
+**Giải pháp đề xuất R11, nhật ký đêm** (`ResearchLog.WriteNightJournal`, TẮT ở production, bật trong `ResearchPacing.ProposedU210NightJournal`):
+
+- Khi người chơi mở game sau một đêm offline, `ResearchLog.LastNightSampleMs(lastOnlineMs, nowMs, utcOffsetMinutes)` tìm thời điểm 02:00 gần nhất (giờ Sanctuary).
+- Engine đọc quyết định của Behavioral Engine lúc đó (pha Night). Mỗi loài có rồng đang ngủ hoặc nghỉ ở sinh cảnh được tối đa **1 phát hiện**: tập tính nghỉ (Sleep / Rest) trước, rồi pha Night.
+- Phát hiện này tính vào giới hạn 2 / loài / ngày. Nó không tính là quan sát cá thể và không thêm ngày ghi chép, nên không rút ngắn yêu cầu "≥ 2 ngày".
+- Kết quả mô phỏng: người chơi buổi sáng đạt **3 loài Ethology ở ngày 30** (trước: 0), ngang người chơi nhiều phiên.
+- Gợi ý UI: một trang "Nhật ký đêm" khi mở game, ví dụ "Đêm qua Emberling ngủ ở đá ấm".
 
 ## 5. Nghiên cứu cá thể (R5)
 

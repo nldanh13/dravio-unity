@@ -12,10 +12,22 @@
   <ItemGroup>
     <Compile Include="../../Domain/**/*.cs" />
     <Compile Include="../../Scripts/LivingResidentPolicy.cs" />
+    <Compile Include="../../Scripts/ConnectedWorldPolicy.cs" />
+    <Compile Include="ConnectedWorldPolicyTests.cs" />
+    <Compile Include="../../Scripts/SpatialResidentPolicy.cs" />
+    <Compile Include="SpatialResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/SocialPresentationScheduler.cs" />
+    <Compile Include="SocialPresentationSchedulerTests.cs" />
+    <Compile Include="../../Scripts/ResearchDiscoveryView.cs" />
+    <Compile Include="ResearchDiscoveryViewTests.cs" />
+    <Compile Include="../../Scripts/ExpeditionPresentation.cs" />
+    <Compile Include="ExpeditionPresentationTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
     <Compile Include="SanctuaryRoutePlannerTests.cs" />
+    <Compile Include="../../Scripts/Navigation/MediumTraversalReview.cs" />
+    <Compile Include="MediumTraversalReviewTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
     <Compile Include="../../Scripts/U54MotionPolicy.cs" />
     <Compile Include="U54IntegrationPolicyTests.cs" />

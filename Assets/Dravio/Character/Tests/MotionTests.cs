@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dravio.Character.Integration;
@@ -152,7 +153,10 @@ namespace Dravio.Character.Tests
         {
             float bank, pitch, bend;
             MotionShapeSolver.Compute(DragonMotionMode.Air, 60f, 0f, 3f, 60f, out bank, out pitch, out bend);
-            Assert.AreEqual(-MotionShapeSolver.MaxBankDeg, bank, 1e-4f, "full right turn: roll right (negative about forward)");
+            double expected = Math.Atan(3.0 * (60.0 * Math.PI / 180.0) / 9.81) * 180.0 / Math.PI;   // coordinated turn, 17.8 deg
+            Assert.AreEqual(-expected, bank, 1e-3, "right turn: roll right (negative about forward), tan(bank) = V w / g");
+            MotionShapeSolver.Compute(DragonMotionMode.Air, 60f, 0f, 0f, 60f, out bank, out pitch, out bend);
+            Assert.AreEqual(-MotionShapeSolver.MaxBankDeg, bank, 1e-4f, "no speed sent: the U1-CHAR.7 linear mapping is kept");
             MotionShapeSolver.Compute(DragonMotionMode.Air, 600f, 50f, 1f, 60f, out bank, out pitch, out bend);
             Assert.AreEqual(-MotionShapeSolver.MaxBankDeg, bank, 1e-4f, "clamped");
             Assert.AreEqual(MotionShapeSolver.MaxPitchDeg, pitch, 1e-4f, "clamped climb");
@@ -160,6 +164,27 @@ namespace Dravio.Character.Tests
             Assert.AreEqual(0f, bank); Assert.Less(pitch, 0f); Assert.Less(bend, 0f);
             MotionShapeSolver.Compute(DragonMotionMode.Ground, 90f, 1f, 1f, 180f, out bank, out pitch, out bend);
             Assert.AreEqual(0f, bank); Assert.AreEqual(0f, pitch); Assert.Greater(bend, 0f);
+        }
+
+        [Test]
+        public void CoordinatedBank_GrowsWithSpeedAndTurnRate_AndTheHeadStaysLevel()
+        {
+            float slow = MotionShapeSolver.CoordinatedBankDeg(45f, 1f), fast = MotionShapeSolver.CoordinatedBankDeg(45f, 4f);
+            Assert.Less(fast, slow, "same yaw rate, faster flight: steeper bank (more negative for a right turn)");
+            Assert.AreEqual(-slow, MotionShapeSolver.CoordinatedBankDeg(-45f, 1f), 1e-5f, "symmetric");
+            Assert.AreEqual(0f, MotionShapeSolver.CoordinatedBankDeg(0f, 5f), 1e-6f);
+            Assert.AreEqual(-MotionShapeSolver.MaxBankDeg, MotionShapeSolver.CoordinatedBankDeg(720f, 10f), 1e-5f, "clamped");
+            // at the catalogue's air limit for the nominal speed the bank just reaches the limit (pipeline derives it the same way)
+            float v = 1.2f;
+            float limit = (float)(MotionShapeSolver.Gravity * Math.Tan(MotionShapeSolver.MaxBankDeg * Math.PI / 180.0) / v * 180.0 / Math.PI);
+            Assert.AreEqual(-MotionShapeSolver.MaxBankDeg, MotionShapeSolver.CoordinatedBankDeg(limit, v), 1e-3f);
+            float neck, head;
+            MotionShapeSolver.HeadRollCompensation(-20f, 1f, out neck, out head);
+            Assert.AreEqual(-20f + neck + head, 0f, 1e-5f, "full stabilisation: head level");
+            MotionShapeSolver.HeadRollCompensation(-20f, 0f, out neck, out head);
+            Assert.AreEqual(0f, neck + head, 1e-6f, "gain 0: no correction");
+            MotionShapeSolver.HeadRollCompensation(-20f, 3f, out neck, out head);
+            Assert.AreEqual(20f, neck + head, 1e-5f, "gain clamped to 1");
         }
 
         // ---- sync ----

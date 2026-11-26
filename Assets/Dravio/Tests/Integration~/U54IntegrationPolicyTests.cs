@@ -26,6 +26,12 @@ namespace Dravio.Tests
             var social=ProgressionQueries.SocialProfile(state,d.Uid);
             var rules=overview.Rules;
             Assert.That(r.Species,Is.Not.Null);Assert.That(social,Is.Not.Null);
+            Assert.That(rules.ResearchRecordingEnabled && rules.NightJournalEnabled,Is.True);
+            var economy=ProgressionQueries.SanctuaryEconomy(state,now);
+            Assert.That(economy.StarterDailyLimit,Is.EqualTo(5));
+            Assert.That(economy.StarterPacksLeftToday,Is.EqualTo(5));
+            Assert.That(economy.StarterPriceGoldMicro,Is.EqualTo(150000000L));
+            Assert.That(economy.ProjectsBuilt,Is.Zero);
             Assert.That(rules.ResearchPacingEnabled||rules.SocialGameplayEffectsEnabled||rules.QuestCompletionEnabled||
                 rules.ComfortDriftEnabled||rules.NaturalDisastersEnabled||rules.EnergyDrainEnabled,Is.False);
             foreach(var q in ProgressionQueries.QuestRequirements(state))Assert.That(q.CanComplete,Is.False);
