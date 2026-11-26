@@ -42,7 +42,7 @@ namespace Dravio.Tests
             for(int tick=0;tick<180;tick++)
             {
                 var before=lab.Agents.Select(a=>a.Position).ToArray();
-                lab.Step(LabMode.PredictiveSteering,flock:scenario==LabScenario.MixedGroups?.5:0);
+                lab.Step(LabMode.PredictiveSteering,flock:scenario==LabScenario.MixedGroups ? .5 : 0);
                 for(int i=0;i<count;i++)
                 {
                     var a=lab.Agents[i];
@@ -61,6 +61,26 @@ namespace Dravio.Tests
             var a=SteeringLab.Create(LabScenario.MixedGroups,5);var b=SteeringLab.Create(LabScenario.MixedGroups,5);
             for(int i=0;i<100;i++){a.Step(LabMode.PredictiveSteering,flock:.5);b.Step(LabMode.PredictiveSteering,flock:.5);}
             Assert.That(a.Agents.Select(x=>(x.Position.X,x.Position.Y)),Is.EqualTo(b.Agents.Select(x=>(x.Position.X,x.Position.Y))));
+        }
+        [TestCase(LabScenario.HeadOn,5)]
+        [TestCase(LabScenario.Crossing,5)]
+        [TestCase(LabScenario.Crossing,15)]
+        [TestCase(LabScenario.Crossing,30)]
+        [TestCase(LabScenario.Obstacle,15)]
+        [TestCase(LabScenario.MixedGroups,15)]
+        public void ReportComparison(LabScenario scenario,int count)
+        {
+            foreach(var mode in new[]{LabMode.StopOnly,LabMode.PredictiveSteering})
+            {
+                var lab=SteeringLab.Create(scenario,count);
+                // Timing is diagnostic only, not a CI threshold or Unity/mobile benchmark.
+                var timer=System.Diagnostics.Stopwatch.StartNew();
+                for(int i=0;i<400;i++)lab.Step(mode,flock:scenario==LabScenario.MixedGroups ? .5 : 0);
+                timer.Stop();
+                TestContext.Progress.WriteLine(FormattableString.Invariant(
+                    $"LAB {scenario} {lab.Agents.Count} {mode}: arrived={lab.Arrived}, stoppedTicks={lab.StoppedAgentTicks}, gap={lab.MinGap:F4} m, distance={lab.DistanceTravelled:F2} m, elapsed={timer.Elapsed.TotalMilliseconds:F2} ms"));
+                Assert.That(lab.MinGap,Is.GreaterThanOrEqualTo(.02499));
+            }
         }
         [Test] public void InvalidStepRejected()
         {
