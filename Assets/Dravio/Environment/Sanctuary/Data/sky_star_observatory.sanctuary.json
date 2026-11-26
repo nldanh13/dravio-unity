@@ -1,0 +1,81 @@
+{
+  "generator": "scripts/art/environment/build_sanctuary_projects.py",
+  "blender": "5.3.0",
+  "status": "style-sample (not accepted; art-direction review)",
+  "projectId": "sky_star_observatory",
+  "domainIndex": 18,
+  "world": "sky",
+  "kind": "landmark",
+  "prefabId": "PF_SANC_sky_star_observatory",
+  "model": "Models/SM_SANC_sky_star_observatory.fbx",
+  "materials": [
+    "ENV_Sky_Props"
+  ],
+  "lods": [
+    {
+      "mesh": "SM_SANC_sky_star_observatory_LOD0",
+      "triangles": 856,
+      "screenRelativeHeight": 0.35
+    },
+    {
+      "mesh": "SM_SANC_sky_star_observatory_LOD1",
+      "triangles": 428,
+      "screenRelativeHeight": 0.12
+    },
+    {
+      "mesh": "SM_SANC_sky_star_observatory_LOD2",
+      "triangles": 188,
+      "screenRelativeHeight": 0.02
+    }
+  ],
+  "lod0Budget": 6000,
+  "uvErrors": 0,
+  "boundsUnity": {
+    "center": [
+      -0.0,
+      2.0,
+      -0.45
+    ],
+    "size": [
+      3.12,
+      4.0,
+      4.1
+    ]
+  },
+  "footprintRadius_m": 2.05,
+  "pivot": "bottom centre (ground y = 0)",
+  "front": "-Z (faces the Sanctuary camera)",
+  "anchors": {
+    "ANCHOR_Approach": [
+      -0.0,
+      0.0,
+      -2.6
+    ],
+    "ANCHOR_Crystal": [
+      0,
+      1.65,
+      0
+    ],
+    "ANCHOR_Perch_0": [
+      -0.953,
+      2.75,
+      -0.55
+    ],
+    "ANCHOR_Perch_1": [
+      0.953,
+      2.75,
+      -0.55
+    ],
+    "ANCHOR_VFX_Complete": [
+      -0.0,
+      3.9,
+      -0.0
+    ]
+  },
+  "notDecidedHere": [
+    "cost",
+    "buildMaterials",
+    "buffs",
+    "rewards"
+  ]
+}

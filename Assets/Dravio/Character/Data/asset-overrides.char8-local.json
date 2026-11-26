@@ -1,0 +1,35 @@
+{
+  "_comment": "CHAR.8 local run: asset-overrides.u7-local.json plus Aurorawing. Canonical data does not state Aurorawing's limb count; \"auto\" rigs only when the mesh measurement is unambiguous and the batch report flags it for the art director. The CHAR.8 Aurorawing blockout has four legs as a PROPOSAL (AURORAWING.md), not a GDD value. props.egg_aurorawing.height 0.22 m is a PROPOSAL for the reward egg (AURORAWING.md).",
+  "species": {
+    "droplet": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "zephyr": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "steamdrake": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "magma": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "sparkwing": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "aurorawing": {
+      "limbCount": "auto",
+      "yawOffset": null
+    }
+  },
+  "files": {},
+  "props": {
+    "egg_aurorawing": {
+      "height": 0.22
+    }
+  }
+}

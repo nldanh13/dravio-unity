@@ -1,0 +1,421 @@
+[
+  {
+    "species": "emberling",
+    "locomotion": [
+      "walk"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": []
+  },
+  {
+    "species": "droplet",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": true,
+      "Water rest": true,
+      "Surface": true,
+      "Water entry/exit": true,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "sprout",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": true,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": []
+  },
+  {
+    "species": "zephyr",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": true,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "steamdrake",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": true,
+      "Water rest": true,
+      "Surface": true,
+      "Water entry/exit": true,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "magma",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": true,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "sparkwing",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "frostfin",
+    "locomotion": [
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": false,
+      "Water": true,
+      "Water rest": true,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": []
+  },
+  {
+    "species": "mossback",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": true,
+      "Water rest": true,
+      "Surface": true,
+      "Water entry/exit": true,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "blossom",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": true,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "solaris",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "leviathan",
+    "locomotion": [
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": false,
+      "Water": true,
+      "Water rest": true,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": []
+  },
+  {
+    "species": "amberhorn",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": false,
+      "Perch": false,
+      "Underground": true,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": []
+  },
+  {
+    "species": "aurorawing",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": "SAMPLE",
+      "Juvenile": "SAMPLE",
+      "Adult": "SAMPLE",
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "celestia",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": false,
+      "Water rest": false,
+      "Surface": false,
+      "Water entry/exit": false,
+      "Air": true,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  },
+  {
+    "species": "gaia",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "capabilities": {
+      "Ground": true,
+      "Water": true,
+      "Water rest": true,
+      "Surface": true,
+      "Water entry/exit": true,
+      "Air": false,
+      "Perch": false,
+      "Underground": false,
+      "Greet": true
+    },
+    "models": {
+      "Baby": null,
+      "Juvenile": null,
+      "Adult": null,
+      "Unstaged": null
+    },
+    "requiresInput": [
+      "limbCount"
+    ]
+  }
+]
