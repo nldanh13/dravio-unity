@@ -72,6 +72,8 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 8, contentV
 - **Migration 9 → 10**: ba khối rỗng, không suy diễn từ dữ liệu cũ. Save gốc giữ ở `archive:schema-9`.
 - **Quan hệ không bao giờ làm mất save**: `relations` được làm sạch khi nạp và khi ghi; khối hỏng thành rỗng. `completedSideQuests` / `expeditionsClaimed` sửa tay sai bị từ chối.
 - Ảnh v4 cho TS bỏ ba khóa này (`WorldProgressionSaveTests`).
+
+**U2.12 — không đổi schema** (ADR 0207). Save v10 của một hành trình thật (người chơi theo hướng dẫn, chỉ lệnh thật, từ save mới tới khi mở đủ ba thế giới) qua vòng lưu–nạp trùng từng byte canonical, hợp lệ, và sau khi nạp không nhận lại được nhiệm vụ hay trứng thế giới (`JourneyEndStateSaveTests`). Ảnh v4 không biểu diễn được chuyến thám hiểm đang chạy, nên test này không xuất cho TS.
 - **Ảnh chiếu v4 cho TS**: bỏ `vitals`, `healthCases`, `disasters`, `hazard`. Chỉ chiếu được khi không có ca mở hay sự kiện mở; save có ca chỉ xuất `.unity.json` (TS từ chối `newer-version`).
 - **Lưu ngay** sau `moveToShelter`, `assessCase`, `setCarePlan`, `startCare`, `reviewCase`, `dischargeDragon`, và sau tick có `hazardForecast`, `disasterStruck`, `healthCaseOpened`, `dragonSheltered`, `disasterClosed`, `careCompleted` (tắt app ngay sau đó không làm mất hay tạo lại ca).
 - Migration: 1 → 2 → 4 → 5 → 6 → 7 → 8 → 9 → 10. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
