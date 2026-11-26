@@ -66,3 +66,17 @@ The real LivingSanctuaryPresentation has opt-in UNITY_EDITOR-only instrumentatio
 Records per-frame projected resident count, motion attempts/arrival calls (not unique dragons), moving count, dynamic step blocks (includes geometry rejection), route plans/failures, clip substitutions, minimum sampled center separation, motion-loop and Sync CPU p95. No complete frame timing, no mesh collision proof, no GC capture, no Android measurement. Trace sampling overhead is outside motion/Sync timing but can affect overall frame rate. Use Unity Profiler separately for whole-frame and allocations. The actual-controller baseline is not yet measured and does not replay candidate trajectories. A later opt-in candidate A/B run must use matching saves, scene, actions and motion contracts before promotion.
 
 TL.9/10 CI status should be checked on GitHub; actual Unity execution remains pending.
+
+## TL.9/10 verified code CI
+
+[CI 45740436608](https://github.com/nldanh13/dravio-unity/actions/runs/45740436608): 77 Integration tests. Same routed crowd after 800 ticks: 5/5 unchanged, 14/14 unchanged, 30-agent arrivals 18 -> 20; stopped agent ticks 634 -> 598, min sampled gap .0250m. At 400 ticks, 30-agent arrivals 16 -> 18. Recovery is a modest improvement, not a high-density solution. Actual-controller Unity trace still not collected.
+
+## TL.11 opt-in food perception/action gate
+
+Unity Editor only. Inspector on LivingSanctuaryPresentation: Experimental Food Perception (off by default); leave Shared Food Allocation off. Mode is latched at FoodSpawned for that marker, so toggling perception mid-drop cannot bypass the request gate. Selected UID stays the owner of an experimental marker even if selection/shared allocation changes. No effect in player builds. No schema, Domain or Character change.
+
+A single local food marker is sensed within 3m when its same-habitat ground segment is navigable. This is a conservative geometry proxy, not physics LOS, not new biological senses. Two-second canonical-clock memory can guide approach but never authorize consumption while occluded. Require live valid food, original UID, eligibility, no gameplay health Rest, <= .55m reach, <= 15-degree facing, and Idle/None in the last synced visual instance. The existing canonical policy and Send remain the authority. Only one request for the experimental marker; a rejected request is not retried automatically; food may expire. Accepted FoodConsumed drives existing Eat intent. Gate cleared on marker removal; no memory persisted. No social/point perception integration yet.
+
+Local acceptance: play copied save; enable inspector option before feeding; confirm selected UID receives one accepted request after turning/waking, selection change doesn't redirect food, storage/expiry/occlusion cannot lead to stale consume, and normal behavior is unchanged when disabled. Inspect TL.11 in profile/Console; collect TL.10 trace in identical scenario with gate off/on. Pure gate tests cover range/reach, sight, memory expiry, wrong identity, cooldown/eligibility (as input), time rollback and repeated request. They do not compile or run the MonoBehaviour in Unity. If a rig cannot show Idle/None reliably, no experimental consume; investigate with CHAR.7 rather than weakening the gate.
+
+TL.12 contact/IK promotion remains dependent on real GLB and CHAR.7 rig readiness. No external animation library or rig override introduced in TL.11.

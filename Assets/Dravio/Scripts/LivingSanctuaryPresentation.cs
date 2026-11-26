@@ -37,8 +37,15 @@ namespace Dravio
         [Tooltip("TL.11 experimental selected-UID food perception/action sequence. Off by default; ignored with shared allocation.")]
         [SerializeField] bool experimentalFoodPerception;
         readonly FoodActionPresentationGate foodGate=new FoodActionPresentationGate();
-        bool UseFoodGate=>experimentalFoodPerception && !sharedFoodAllocation;
+        bool foodGateForMarker;
+        bool UseFoodGate=>foodGateForMarker;
+        string lastFoodGateOutcome="—";
 #endif
+        bool SharedAllocationForMarker=>sharedFoodAllocation
+#if UNITY_EDITOR
+            && !UseFoodGate
+#endif
+            ;
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
         sealed class Resident
@@ -285,7 +292,7 @@ namespace Dravio
             }
             // Shared allocation is an experimental gameplay change, not silently enabled.
             // Default mode keeps the existing selected-UID food contract.
-            if(foodId!=null && sharedFoodAllocation)
+            if(foodId!=null && SharedAllocationForMarker)
             {
                 var assigned=all.FirstOrDefault(d=>d.Behavior==DragonBehavior.SeekFood && d.TargetFoodId==foodId);
                 foodUid=assigned?.Uid;
@@ -671,16 +678,25 @@ namespace Dravio
             if(drop==null){ClearFood();return;}
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
-            if(!AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,sharedFoodAllocation))return;
+            if(!AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,SharedAllocationForMarker))return;
             var idToEat=foodId;var who=foodUid;
 #if UNITY_EDITOR
             if(UseFoodGate && !foodGate.TryRequest(who,idToEat,r.habitat,NowMs,drop.ExpiresAtMs,
                 FoodPerceptionEligible(r),Vector3.Distance(r.position,foodPoint),
                 Segment(r.position,foodPoint,r.habitat),FoodFacing(r),FoodMotionReady(r)))return;
 #endif
+#if UNITY_EDITOR
+            bool usedGate=UseFoodGate;
+#endif
             bool accepted=Send(id=>new ConsumeFoodCommand(id,idToEat,who));
 #if UNITY_EDITOR
-            if(UseFoodGate)foodGate.Resolve(accepted);
+            if(usedGate)
+            {
+                // Accepted FoodConsumed can synchronously clear the marker and gate during Send.
+                foodGate.Resolve(accepted);
+                lastFoodGateOutcome=accepted?"accepted":"rejected";
+                Debug.Log("TL.11 food request "+lastFoodGateOutcome);
+            }
 #endif
             if(accepted)Message("Food consumed: "+who,"Rồng đã ăn: "+who);
             else consumeAfter=Time.unscaledTime+1f; // original retry only; experimental gate permits one request per marker.
@@ -688,7 +704,7 @@ namespace Dravio
         void ClearFood()
         {
 #if UNITY_EDITOR
-            foodGate.Clear();
+            foodGate.Clear();foodGateForMarker=false;
 #endif
             foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
         }
@@ -700,6 +716,10 @@ namespace Dravio
                 if(e is FoodSpawned f && feedPending && foodRequestedUid!=null && foodId==null)
                 {
                     foodId=f.FoodId;foodUid=sharedFoodAllocation?null:foodRequestedUid;consumeAfter=Time.unscaledTime+.6f;
+#if UNITY_EDITOR
+                    foodGateForMarker=experimentalFoodPerception && !sharedFoodAllocation;
+                    if(foodGateForMarker)lastFoodGateOutcome="pending";
+#endif
                     RefreshButtons();
                     if(fruit!=null){fruit.transform.position=foodPoint+Vector3.up*.12f;fruit.SetActive(true);}
                 }
@@ -827,7 +847,7 @@ namespace Dravio
             profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
                 "\n"+(vi?"Lượt tìm đường / lỗi: ":"Routes planned / failed: ")+plannedRoutes+"/"+failedRoutes;
 #if UNITY_EDITOR
-            if(UseFoodGate)profile.text+="\nTL.11: "+foodGate.Phase+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests;
+            if(experimentalFoodPerception || UseFoodGate)profile.text+="\nTL.11: "+(UseFoodGate?foodGate.Phase.ToString():"next marker")+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests+" · last "+lastFoodGateOutcome;
 #endif
             if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
