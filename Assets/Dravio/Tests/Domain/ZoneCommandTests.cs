@@ -42,7 +42,7 @@ namespace Dravio.Domain.Tests
             return s;
         }
 
-        private static GameState With(GameState s, params DragonState[] dragons) { GameState c = s.DeepClone(); c.Dragons.AddRange(dragons); return c; }
+        private static GameState With(GameState s, params DragonState[] dragons) { GameState c = s.DeepClone(); c.Dragons.AddRange(dragons); return Fixtures.Normalize(c); }
 
         private static DispatchResult Run(GameState s, GameCommand c, IClock clock) => CommandDispatcher.Dispatch(s, c, clock);
         private static MoveDragonCommand Move(string uid, MoveTarget t) => new MoveDragonCommand(Rid(), uid, t);
@@ -122,11 +122,15 @@ namespace Dravio.Domain.Tests
             var (s, _) = Game();
             GameState d = Discover(s, "DISC_AQUATIC_HABITAT");
             Assert.That(Zones.RecordDiscovery(d.DeepClone(), "DISC_AQUATIC_HABITAT", new List<DomainEvent>()), Is.EqualTo(DomainErrorCode.AlreadyThere));
-            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: 13 lệnh công khai của bản TS + 4 lệnh mới của U2.5.
+            // Không có kiểu lệnh nào để UI tự khai báo khám phá/hoàn thành: 13 lệnh công khai của bản TS + 4 lệnh mới của U2.5 + 6 lệnh của U2.7 + 3 lệnh của U2.8 + 6 lệnh chăm sóc / trú ẩn của U2.6
+            // + 2 lệnh của U2.10 (xây dự án Sanctuary, quan sát rồng — quan sát vẫn do BehaviorEngine quyết định, UI không tự khai báo phát hiện)
+            // (không có lệnh tự tạo thiên tai hay tự khai báo hồi phục — GDD tr. 9).
             var commandTypes = typeof(GameCommand).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(GameCommand)) && !t.IsAbstract).Select(t => t.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
-            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "BuyPackCommand", "BuyTutorialPackCommand", "ClaimBreedCommand", "ClaimPackCommand",
-                "ConsumeFoodCommand", "FeedCommand", "MoveDragonCommand", "PetCommand", "RenameDragonCommand", "SetProductionSlotCommand", "SetTutorialStatusCommand",
-                "StartBreedCommand", "SurveyHabitatCommand", "TapEggCommand", "UnlockHabitatCommand", "ViewBiologyProfileCommand" }));
+            Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "AssessCaseCommand", "BuildSanctuaryProjectCommand", "BulkSellCommand", "BuyDecorationCommand", "BuyPackCommand", "BuyTutorialPackCommand", "BuyUpgradeCommand",
+                "ClaimBreedCommand", "ClaimExpeditionCommand", "ClaimPackCommand", "CompleteQuestCommand", "ConsumeFoodCommand", "DischargeDragonCommand", "FeedCommand", "LockDragonCommand", "MoveDragonCommand",
+                "MoveToShelterCommand", "ObserveDragonCommand", "PetCommand", "RenameDragonCommand", "ReviewCaseCommand",
+                "SellDragonCommand", "SetCarePlanCommand", "SetProductionSlotCommand", "SetTutorialStatusCommand", "StartBreedCommand", "StartCareCommand", "StartExpeditionCommand", "SurveyHabitatCommand", "TapEggCommand",
+                "ToggleDecorationCommand", "UnlockHabitatCommand", "UnlockZoneCommand", "ViewBiologyProfileCommand" }));
         }
 
         [Test]

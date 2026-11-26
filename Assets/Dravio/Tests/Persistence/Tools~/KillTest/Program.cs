@@ -4,6 +4,7 @@ using Dravio.Domain.Core;
 using Dravio.Persistence;
 using Dravio.Persistence.Storage;
 
+// seed <dir>: ghi và xác nhận một save trước khi bắt đầu thử nghiệm crash.
 // write <dir>: ghi save liên tục (mỗi lần +1 s thời gian game), in "rev N" sau mỗi lần Save trả về.
 // check <dir> <minRev>: nạp lại, kiểm cả 3 slot, yêu cầu revision ≥ bản đã được xác nhận ghi xong.
 public static class Program
@@ -12,7 +13,7 @@ public static class Program
     {
         string dir = args[1];
         var store = new FileSaveStore(dir);
-        if (args[0] == "write")
+        if (args[0] == "write" || args[0] == "seed")
         {
             using (FileWriterLock writer = FileWriterLock.TryAcquire(dir))
             {
@@ -24,7 +25,13 @@ public static class Program
                 {
                     var clock = new FixedClock(s.Clock.LastProcessedAtMs + 1000);
                     s = CommandDispatcher.Dispatch(s, new AdvanceTimeCommand(Guid.NewGuid().ToString(), AdvanceMode.Online), clock).State;
-                    if (mgr.Save(s)) { Console.WriteLine("rev " + s.Revision); Console.Out.Flush(); }
+                    if (mgr.Save(s))
+                    {
+                        Console.WriteLine("rev " + s.Revision);
+                        Console.Out.Flush();
+                        if (args[0] == "seed") return 0;
+                    }
+                    else if (args[0] == "seed") return 4;
                 }
             }
         }

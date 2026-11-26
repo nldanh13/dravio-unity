@@ -198,7 +198,153 @@ namespace Dravio.Domain.Core
             Target != null && (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
     }
 
+    // ---- U2.7: implementation mới theo GDD 3.1 (Phụ lục C.3, E, F) — TS b33ec7a chỉ có hàm thuần sellPriceG / upgradeCostG ----
+
+    /// <summary>Bán một rồng (sellDragon): giá = floor(baseSell × stageSell × mutationSell) tại thời điểm bán.</summary>
+    public sealed class SellDragonCommand : GameCommand
+    {
+        public SellDragonCommand(string requestId, string dragonUid) : base(requestId) { DragonUid = dragonUid; }
+        public string DragonUid { get; }
+        public override string Type => "sellDragon";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    /// <summary>
+    /// Bán nhanh mọi rồng Common Adult chưa khóa, không bận, chừa một rồng (bulkSell, GDD Phụ lục F). <see cref="ExpectedTotalGoldMicro"/> là tổng
+    /// người chơi đã xác nhận trên UI; nếu sau quyết toán tổng khác thì từ chối (quote-changed), không bán gì.
+    /// </summary>
+    public sealed class BulkSellCommand : GameCommand
+    {
+        public BulkSellCommand(string requestId, long expectedTotalGoldMicro) : base(requestId) { ExpectedTotalGoldMicro = expectedTotalGoldMicro; }
+        public long ExpectedTotalGoldMicro { get; }
+        public override string Type => "bulkSell";
+        internal override bool IsWellFormed() => ExpectedTotalGoldMicro > 0;
+    }
+
+    /// <summary>Khóa/mở khóa chống bán rồng yêu thích (lockDragon). Rồng bị khóa vẫn lai được (ADR 0003).</summary>
+    public sealed class LockDragonCommand : GameCommand
+    {
+        public LockDragonCommand(string requestId, string dragonUid, bool locked) : base(requestId) { DragonUid = dragonUid; Locked = locked; }
+        public string DragonUid { get; }
+        public bool Locked { get; }
+        public override string Type => "lockDragon";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    /// <summary>Mua một cấp nâng cấp (buyUpgrade): cost = floor(base × scale^level), trừ vàng và tăng cấp cùng transaction (GDD Phụ lục E).</summary>
+    public sealed class BuyUpgradeCommand : GameCommand
+    {
+        public BuyUpgradeCommand(string requestId, string upgradeId) : base(requestId) { UpgradeId = upgradeId; }
+        public string UpgradeId { get; }
+        public override string Type => "buyUpgrade";
+        internal override bool IsWellFormed() => IsId(UpgradeId);
+    }
+
+    /// <summary>Mua một món trang trí cho một khu (buyDecoration): mỗi món một bản sao theo khu, không bán lại.</summary>
+    public sealed class BuyDecorationCommand : GameCommand
+    {
+        public BuyDecorationCommand(string requestId, string zoneId, string decorationId) : base(requestId) { ZoneId = zoneId; DecorationId = decorationId; }
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public override string Type => "buyDecoration";
+        internal override bool IsWellFormed() => IsId(ZoneId) && IsId(DecorationId);
+    }
+
+    /// <summary>Bật/tắt món trang trí đã sở hữu (toggleDecoration), miễn phí.</summary>
+    public sealed class ToggleDecorationCommand : GameCommand
+    {
+        public ToggleDecorationCommand(string requestId, string zoneId, string decorationId, bool active) : base(requestId) { ZoneId = zoneId; DecorationId = decorationId; Active = active; }
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public bool Active { get; }
+        public override string Type => "toggleDecoration";
+        internal override bool IsWellFormed() => IsId(ZoneId) && IsId(DecorationId);
+    }
+
+    // ---- U2.8: thám hiểm (implementation mới, GDD tr. 22; Phụ lục C.3 startExpedition / claimExpedition) ----
+
+    public sealed class StartExpeditionCommand : GameCommand
+    {
+        public StartExpeditionCommand(string requestId, string routeId, string dragonUid) : base(requestId) { RouteId = routeId; DragonUid = dragonUid; }
+        public string RouteId { get; }
+        public string DragonUid { get; }
+        public override string Type => "startExpedition";
+        internal override bool IsWellFormed() => IsId(RouteId) && IsId(DragonUid);
+    }
+
+    /// <summary>Mở một thế giới khi đủ điều kiện (ADR U2.8-0201); trao trứng cố định một lần (vào pendingPack hoặc hàng chờ).</summary>
+    public sealed class UnlockZoneCommand : GameCommand
+    {
+        public UnlockZoneCommand(string requestId, string zoneId) : base(requestId) { ZoneId = zoneId; }
+        public string ZoneId { get; }
+        public override string Type => "unlockZone";
+        internal override bool IsWellFormed() => IsId(ZoneId);
+    }
+
+    public sealed class ClaimExpeditionCommand : GameCommand
+    {
+        public ClaimExpeditionCommand(string requestId) : base(requestId) { }
+        public override string Type => "claimExpedition";
+        internal override bool IsWellFormed() => true;
+    }
+
     /// <summary>Kết quả dispatch. Khi thất bại, <see cref="State"/> là chính object state đầu vào (không đổi gì).</summary>
+    // ---- U2.6: chăm sóc / cứu hộ / trú ẩn (implementation mới, GDD Phụ lục C.3 "Care / rescue" và "moveToShelter") ----
+
+    /// <summary>Đưa rồng vào nơi trú của zone trong lúc có cảnh báo thiên tai.</summary>
+    public sealed class MoveToShelterCommand : GameCommand
+    {
+        public MoveToShelterCommand(string requestId, string dragonUid) : base(requestId) { DragonUid = dragonUid; }
+        public string DragonUid { get; }
+        public override string Type => "moveToShelter";
+        internal override bool IsWellFormed() => IsId(DragonUid);
+    }
+
+    public abstract class CaseCommand : GameCommand
+    {
+        protected CaseCommand(string requestId, string caseId) : base(requestId) { CaseId = caseId; }
+        public string CaseId { get; }
+        internal override bool IsWellFormed() => IsId(CaseId);
+    }
+
+    /// <summary>Nhận định: hiện triệu chứng giả tưởng. Bắt buộc trước setCarePlan / startCare.</summary>
+    public sealed class AssessCaseCommand : CaseCommand
+    {
+        public AssessCaseCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "assessCase";
+    }
+
+    public sealed class SetCarePlanCommand : CaseCommand
+    {
+        public SetCarePlanCommand(string requestId, string caseId, string planId) : base(requestId, caseId) { PlanId = planId; }
+        public string PlanId { get; }
+        public override string Type => "setCarePlan";
+        internal override bool IsWellFormed() => IsId(CaseId) && IsId(PlanId);
+    }
+
+    public sealed class StartCareCommand : CaseCommand
+    {
+        public StartCareCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "startCare";
+    }
+
+    /// <summary>Lượng giá sau khi đủ thời lượng; điều kiện để xuất viện.</summary>
+    public sealed class ReviewCaseCommand : CaseCommand
+    {
+        public ReviewCaseCommand(string requestId, string caseId) : base(requestId, caseId) { }
+        public override string Type => "reviewCase";
+    }
+
+    /// <summary>Xuất viện về kho an toàn hoặc microhabitat hợp lệ còn chỗ.</summary>
+    public sealed class DischargeDragonCommand : CaseCommand
+    {
+        public DischargeDragonCommand(string requestId, string caseId, MoveTarget target) : base(requestId, caseId) { Target = target; }
+        public MoveTarget Target { get; }
+        public override string Type => "dischargeDragon";
+        internal override bool IsWellFormed() =>
+            IsId(CaseId) && Target != null && (Target.Kind == LocationKind.Storage || (Target.Kind == LocationKind.Zone && IsId(Target.ZoneId) && IsId(Target.HabitatId)));
+    }
+
     public sealed class DispatchResult
     {
         private DispatchResult(bool ok, GameState state, IReadOnlyList<DomainEvent> events, bool duplicate, DomainError error)

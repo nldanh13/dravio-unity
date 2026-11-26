@@ -1,4 +1,4 @@
-# Dravio Core Domain (C#) — U2.1 → U2.5
+# Dravio Core Domain (C#) — U2.1 → U2.9
 
 Đây là bản port lõi domain của Dravio từ TypeScript sang C# thuần. Nguồn đối chiếu là **nldanh13/dravio @ `b33ec7a3dc98b4a74857fe92d143475028fc0d96`**, gồm GDD 3.1, ADR 0003/0004/0010/0013, `src/types`, `src/data`, `src/engine` và `tests/unit`. Luật, ID, thông số cân bằng và công thức kinh tế được giữ nguyên. Phần nào khác bản TS thì có ghi rõ ở mục 7.
 
@@ -14,6 +14,10 @@ Code nằm trong assembly `Dravio.Domain` (`Dravio.Domain.asmdef`). Assembly nà
 | `Biology/` | `Dravio.Domain.Biology` | `Lifecycle` (stage, tích phân vàng), `BondRules`, `Suitability`, `Genetics` (founder, kiểm genotype) | `engine/progression/growth.ts`, `engine/biology/bond.ts`, `engine/world/habitat.ts`, `engine/genetics/alleles.ts` (một phần) |
 | `World/` | `Dravio.Domain.World` | `Placement.IsProducing`, `IsPlacedInValidHabitat`, `Zones`, `WorldGraph`, `Survey` (U2.3) | `engine/world/*.ts` |
 | `Breeding/` | `Dravio.Domain.Breeding` | `BreedingRules` (U2.5, port TS), `Hatchery` (U2.5, **implementation mới**) | `engine/genetics/breeding.ts`; lệnh: GDD/ADR 0003 |
+| `Expedition/` | `Dravio.Domain.Expedition` | `Expeditions`: thám hiểm (U2.8, **implementation mới**) | GDD tr. 22 |
+| `Queries/` | `Dravio.Domain.Queries` | `Ecosystem`: API truy vấn chỉ đọc cho Unity (U2.8) | — |
+| `Behavior/` | `Dravio.Domain.Behavior` | `PersonalityProfiles`, `BehaviorCatalog`, `BehaviorEngine`, `HabitatEcology`, `EcologyComfort` (tắt), `Research` (tắt): U2.9, **implementation mới**, chỉ đọc | — (ADR 0203) |
+| `Sanctuary/` | `Dravio.Domain.Sanctuary` | `SanctuaryRules`: bán, bán nhanh, khóa, nâng cấp, trang trí (U2.7, **implementation mới**) | GDD tr. 15, Phụ lục C.3, E, F |
 | `Progression/` | `Dravio.Domain.Progression` | `StarterPack`, `Achievements`, `Tutorial` (U2.4) | `engine/inventory/packs.ts` (phần gói hướng dẫn), `engine/progression/achievements.ts`, `engine/progression/tutorial.ts` |
 | `Text/` | `Dravio.Domain.Text` | `NicknameRules`, `GraphemeCounter` | `engine/inventory/nickname.ts` |
 | `Core/` | `Dravio.Domain.Core` | `IRng`/`Mulberry32`/`Rng.HashSeed`, `IClock`/`TimeRules`, `GameCommand` và các lệnh, `CommandDispatcher`, `DomainEvent`, `DomainError`, `GameStateValidator`, `InitialStateFactory`, `JsCompat` | `engine/core/*.ts` |
@@ -108,6 +112,154 @@ Hành vi chung của dispatch:
 7. **Không cho chọn chỗ ở mức "khu bảo tồn"**: GDD nói "nếu chưa mở habitat của loài, giữ tại khu bảo tồn thích hợp không sản xuất". Hiện dùng kho an toàn (`storage`) cho vai trò này.
 8. **Thứ tự RNG trong một giao dịch** (loài → biến thể → UID trứng; lai: độ hiếm → loài → allele → biến thể → UID) là lựa chọn của bản Unity, vì TS chưa có lệnh để so.
 
+## 5c. U2.7 — Quản lý khu bảo tồn, nâng cấp, trang trí, Bách khoa
+
+| Phần | Nguồn | Parity với TS |
+|---|---|---|
+| `EconomyRates.SellPriceG`, `UpgradeCostG`, `ProductionBudget` | Port TS (U2.1) | **Có** (golden U2.1: 192 tổ hợp giá bán, mọi cấp nâng cấp) |
+| `ACH_FIRST_HATCH`, `ACH_FIRST_ADULT` | Port TS (U2.4) | **Có** (golden U2.4) |
+| Lệnh `sellDragon`, `bulkSell`, `lockDragon`, `buyUpgrade`, `buyDecoration`, `toggleDecoration`; Bách khoa (`codex`); 10 thành tựu còn lại; Schema v6 | **Implementation mới** theo GDD 3.1 | **Không** — TS b33ec7a không có các lệnh/luật này |
+
+**Luật đã cài (trích tài liệu):**
+- **Bán** (GDD tr. 15, tr. 8):
+  - Giá = floor(baseSell × 0,35/0,65/1 × mutationSell), tính theo stage lúc bán (đã quyết toán thời gian).
+  - Không bán: rồng cuối cùng (`last-dragon`), rồng bị khóa (`dragon-locked`), rồng bận — đang lai, thám hiểm, care, shelter (`dragon-busy`) — và rồng đã thả.
+  - Vàng bán cộng vào `goldMicro`, **không** vào `totalGoldEarned` (Phụ lục F). `stats.totalSold` + 1. Rồng rời ngân sách sản xuất.
+  - Phả hệ của con cháu giữ UID bố mẹ, nên kiểm cận huyết vẫn đúng sau khi bán bố/mẹ (ADR 0003 #4).
+- **Bán nhanh** (Phụ lục F):
+  - Gồm mọi rồng Common Adult chưa khóa, không bận.
+  - Người chơi xác nhận tổng tiền: lệnh mang `expectedTotalGoldMicro` lấy từ `SanctuaryRules.BulkSellQuoteMicro`. Nếu tổng đổi sau quyết toán thì báo `quote-changed` và không bán gì.
+  - Luôn chừa một rồng.
+- **Khóa** (`lockDragon`): chỉ chống bán và chuyển giao; rồng bị khóa vẫn lai được (ADR 0003).
+- **Nâng cấp** (Phụ lục E):
+  - Năm loại theo catalog: `islandCapacityLevel` 500/1,85/10, `foodQualityLevel` 200/1,75/10, `foodCooldownLevel` 250/1,8/8, `mutationLuckLevel` 1 500/2,2/8, `hatchSpeedLevel` 600/1,9/6.
+  - Cost = floor(base × scale^level). Trừ vàng và tăng cấp cùng transaction. Hết cấp thì báo `upgrade-maxed`.
+  - Hiệu ứng đã nối từ trước: ngân sách 5 + 2L (tối đa 25), XP ăn, số viên thức ăn, trọng số biến thể, thời gian ấp. `hatchSpeed` chỉ áp cho tổ mới.
+  - GDD không đặt điều kiện mở khóa nào khác.
+- **Trang trí** (Phụ lục E, tr. 21):
+  - 6 món giữ ID và giá v2: `cherry_tree` 350, `crystal_pond` 1 200, `sky_lantern` 2 500, `ancient_gate` 6 000, `glow_mushroom` 12 000, `star_observatory` 25 000 G.
+  - Mỗi món một bản sao theo khu, chỉ ở khu đã mở. Mua xong tự bật; bật/tắt miễn phí; không bán lại.
+  - **Không có hiệu ứng kinh tế**: GDD v3 bỏ +5 % vàng mỗi món. "Hiệu ứng sinh cảnh" chỉ là đề xuất hình ảnh, thuộc lớp trình bày.
+- **Bách khoa** (tr. 22, Phụ lục C.2, F):
+  - 64 ô = 16 loài × 4 biến thể. Một ô được ghi khi người chơi **sở hữu** một rồng của loài/biến thể đó; trứng chưa nhận không tính.
+  - Emberling khởi đầu là khám phá đầu tiên nhưng không phải lần nở (`totalHatched` của loài = 0).
+  - Mỗi loài lưu `discoveredMutations`, `totalHatched`, `observedStages`.
+  - Chỉ tăng, giữ sau bán/thả: được ghi lại ngay trước khi rồng rời kho.
+- **10 thành tựu** (Phụ lục F; thưởng cộng vào vàng, mở và nhận một lần, không nhận lại sau khi bán rồi có lại):
+
+| ID | Điều kiện | Thưởng |
+|---|---|---|
+| `ACH_FIRST_BREED` | "Nhận rồng lai đầu tiên" — `totalBred ≥ 1` (lúc `claimBreed`, không phải lúc bắt đầu lai) | 150 |
+| `ACH_MUTATION_CRYSTAL` / `_GOLDEN` / `_PRISMATIC` | Ô Bách khoa đầu tiên có biến thể đó | 100 / 300 / 1 000 |
+| `ACH_LEGENDARY` | Ô Bách khoa đầu tiên của loài Legendary | 2 000 |
+| `ACH_GOLD_10K` / `ACH_GOLD_250K` | `totalGoldEarned` ≥ 10 000 / 250 000 G (chỉ vàng sản xuất) | 300 / 2 500 |
+| `ACH_DECOR_ALL` | "Sở hữu đủ 6 loại trang trí bất kỳ đảo" | 1 000 |
+| `ACH_CODEX_16` | Đủ 16 loài | 2 000 |
+| `ACH_CODEX_MASTER` | ≥ 32/64 ô | 3 000 |
+
+- **Không có quảng cáo**: không lệnh nào gắn với quảng cáo (xem 5b).
+- **Thả rồng**: GDD chỉ định nghĩa `releaseDragon` trong luồng cứu hộ (Care/rescue, chưa port), nên **không** có lệnh thả rồng sở hữu.
+- **Lưu ngay**: `sellDragon`, `bulkSell`, `buyUpgrade`, `buyDecoration`, `lockDragon`.
+
+**Quyết định còn thiếu (U2.7)** — chưa tự đặt:
+1. **Môi trường hợp lệ của từng món trang trí**: GDD ghi "chỉ đặt ở môi trường hợp lệ" nhưng không có bảng món ↔ realm/microhabitat. Hiện mọi khu đã mở đều nhận được. "6 vị trí định sẵn" (vị trí món nào ở đâu) thuộc lớp trình bày.
+2. **Bán nhanh chừa con nào**: GDD chỉ nói "chừa một rồng". Hiện chừa rồng đầu tiên trong kho.
+3. **Thả rồng sở hữu**: chưa có quy định ngoài luồng cứu hộ.
+4. **Điều kiện mở khóa nâng cấp**: GDD không có; chỉ kiểm giá và cấp tối đa.
+5. **`islandCapacityLevel` vô dụng ở G1**: ngân sách 5 + 2L, nhưng Khởi Nguyên chỉ có 5 chỗ vật lý và Ocean/Sky còn khóa. Cấp 1–10 tốn vàng mà không tăng sản xuất cho tới G2. Xem báo cáo kinh tế.
+6. **`totalHatched` theo loài khi migration v5 → v6**: không có dữ liệu, để 0 (không suy diễn).
+7. **"Khám phá" Bách khoa**: hiện định nghĩa là "sở hữu rồng". GDD còn nhắc khám phá qua thám hiểm/cứu hộ hoang dã — các hệ đó chưa port.
+
+Phân tích cân bằng (chỉ đề xuất, không đổi thông số): [ECONOMY_AUDIT.md](ECONOMY_AUDIT.md).
+
+## 5d. U2.8 — Mở rộng thế giới, di chuyển, thám hiểm, API truy vấn
+
+Hướng dẫn tích hợp đầy đủ (chữ ký API, DTO, ví dụ, mã lỗi, event): [INTEGRATION.md](INTEGRATION.md).
+
+| Phần | Nguồn | Parity với TS |
+|---|---|---|
+| `WorldGraph` (2 cạnh, cửa ngõ, `CanTravel`), 7 microhabitat và hồ sơ môi trường, suitability, sức chứa 5/zone, ngân sách 5 + 2L | Port TS (U2.1/U2.3) | **Có** (golden U2.3: 144 tổ hợp `canTravel`, khả năng tới của mọi loài, `placementOptions`) |
+| Nối `canTravel` vào `moveDragon` (kèm luật cửa ngõ), `WorldExpansion.ApplyZoneUnlock`, thám hiểm, `Queries.Ecosystem`, Schema v7 | **Implementation mới** (ADR 0010 mục 4 "nối khi mở realm"; GDD tr. 5, 22) | **Không** |
+
+**Luật đã cài:**
+- **Di chuyển** (`moveDragon`), thứ tự kiểm giữ nguyên TS rồi thêm một bước cuối:
+  - Một cạnh chỉ dùng được khi cả hai zone đã mở **và** cả hai microhabitat cửa ngõ đã mở. Rồng cần ít nhất một kiểu di chuyển của cạnh: bơi cho Thủy Vực, bay cho Thiên Giới.
+  - Tìm đường bằng BFS. Từ Thủy Vực sang Thiên Giới phải đi qua Khởi Nguyên, nên cần cả bơi và bay.
+  - **Kho là vùng trung lập** (ADR 0201): không phải điểm xuất phát Khởi Nguyên. Rời kho vào một thế giới cần một cạnh đang mở đi vào thế giới đó mà rồng đi được; Khởi Nguyên không có cạnh đi vào nên luôn vào được.
+  - Chuyển chỗ quyết toán sản xuất đúng tại thời điểm chuyển (đã có từ U2.3).
+- **Mở thế giới** (ADR 0201), lệnh `unlockZone(zoneId)`:
+  - Thủy Vực cần hướng dẫn hoàn tất, đủ 3 sinh cảnh Khởi Nguyên và nhiệm vụ `QUEST_AQUATIC_EXPLORATION`. Thiên Giới cần Thủy Vực và `QUEST_SKY_EXPLORATION`. Không có điều kiện vàng hay cấp độ.
+  - Nội dung nhiệm vụ là TBD, nên save mới vẫn khóa cả hai thế giới. `WorldExpansion.ApplyQuestComplete` là hàm engine cho hệ nhiệm vụ. Từ U2.11 (ADR 0206) lệnh `completeQuest` gọi hàm này cho nhiệm vụ cổng; xem `Docs/u2.11/WORLD_PROGRESSION.md`.
+  - Khi mở: mở zone cùng mọi microhabitat; trao một lần trứng Droplet/Zephyr cố định, Normal, không tính pity. Kho đầy hoặc đang có trứng chờ → trứng nằm trong `rewardQueue`, giao sau lệnh thành công đầu tiên có chỗ.
+- **Thám hiểm** (GDD tr. 22):
+
+| Tuyến | Điều kiện | Thời gian | Thưởng |
+|---|---|---|---|
+| `origin_forest` (Rừng Khởi Nguyên) | 1 Adult sống đất (realm đất liền) | 15 phút | tổng 2–4 `wood`/`seed` |
+| `ocean_reef` (Rạn Thủy Vực) | 1 Adult bơi | 30 phút | tổng 2–4 `crystal`/`coral` |
+| `sky_cloud` (Sân mây Thiên Giới) | 1 Adult bay | 45 phút | chưa duyệt → tuyến khóa (`route-rewards-undefined`) |
+
+  - Một slot chung. Tuyến chỉ mở khi thế giới của nó đã mở và có bảng thưởng được duyệt. Thành công 100 % (MVP).
+  - Ngưỡng sức khỏe (Health ≥ 80, Mobility ≥ 80, Comfort ≥ 60, không có ca chăm sóc mở) được kiểm từ U2.6 (lỗi `vitals-below-threshold`, `detail` là điều kiện thiếu; ca mở → `dragon-busy`).
+  - Seed và phần thưởng chốt lúc khởi hành: số lượng chọn đều trong 2–4, mỗi đơn vị chọn đều trong danh sách vật liệu của tuyến. Luồng RNG là `hashSeed("expedition", saveId, revision)`. Không phí.
+  - Trong lúc đi, rồng không sinh vàng, không lai, không bán, không chuyển. Rồng giữ chỗ cũ.
+  - Hoàn tất cả khi offline: rồng về idle đúng tại `finishAtMs`, quyết toán sản xuất được tách tại mốc này.
+  - Nhận thưởng một lần, cộng vào `inventory`. Không tự khởi hành tiếp.
+- **API truy vấn chỉ đọc** `Queries.Ecosystem`, gồm 13 hàm, xem INTEGRATION.md. Test xác nhận mã lỗi trả về trùng với kết quả dispatch thật trên mọi rồng.
+
+**Quyết định U2.8 đã duyệt:** xem [ADR 0201](../../../Docs/adr/0201-u2-8-world-unlock-expedition-materials.md), gồm mở thế giới, thành công 100 %, ID vật liệu, ngưỡng sức khỏe, kho trung lập, trang trí chỉ thẩm mỹ (trường `Effects` = 0).
+
+**Còn mở** (không tự đặt):
+1. Nội dung hai nhiệm vụ mở thế giới.
+2. Bảng thưởng `sky_cloud` và ID "bụi sao"; nguồn của `stone`.
+3. Công thức dùng vật liệu (chế tạo, phục hồi).
+4. Tỷ lệ thất bại thám hiểm (`SuccessPermille` có sẵn, đang tắt).
+5. ~~Kiểm ngưỡng sức khỏe sau khi U2.6 được gộp.~~ Đã kiểm từ U2.6.
+6. Điểm nghiên cứu từ thám hiểm (hệ nghiên cứu chưa port); vận chuyển bằng phương tiện cứu hộ.
+
+## 5e. U2.6 — Sức khỏe, thiên tai, trú ẩn, chăm sóc
+
+Quyết định và phần còn thiếu: [ADR 0202](../../../Docs/adr/0202-u2-6-health-disaster-rescue.md) (đề xuất, chờ duyệt). Hướng dẫn tích hợp: [INTEGRATION.md mục 7](INTEGRATION.md). Toàn bộ là **implementation mới theo GDD**, không có parity TS.
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Chỉ số `Vitals` (health, energy, comfort, mobility, hydration; 0–100, gốc 100) | `Model/Health.cs`, `DragonState.Vitals` | bật |
+| Ngưỡng lai 80/80/60 + không ca mở (ADR 0003) | `Breeding/Hatchery.cs` (`HealthBlock`, chạy sau `BreedingRules.CheckBreed` để giữ parity) | bật |
+| Ngưỡng thám hiểm 80/80/60 + không ca mở (ADR 0201 mục 4) | `Expedition/Expeditions.cs` (`DragonBlock`), `UncheckedHealthConditions` nay rỗng | bật |
+| Trạm chăm sóc 2 chỗ, hàng chờ FIFO, nhận định → kế hoạch → bắt đầu → xem lại → xuất viện, 4 pha | `Health/HealthEngine.cs` (`CareCenter`) | bật |
+| Cảnh báo 10 phút, rủi ro theo resilience, ≤ 2 ca, trú ẩn, cooldown 24 h, an toàn offline/Zen | `Health/HealthEngine.cs` (`DisasterEngine`) | **tắt** ở `DisasterRules.Production` (D7) |
+| Truy vấn chỉ đọc | `Queries/HealthQueries.cs` | bật |
+
+**Tất định và online/offline:** mọi roll dùng `Rng.HashSeed` theo `saveId`/`eventId`/UID, không đọc RNG của state, nên lưu–nạp không bao giờ roll lại. `advanceTime` online tách quyết toán tại từng mốc kiểm hazard và mốc hết dự báo, nên một lần tiến 75 phút cho kết quả trùng 4 500 tick 1 s (vàng, ca, sự kiện, vị trí rồng). Đồng hồ hazard chỉ tích khi online ở World mode. Tiến trình chăm sóc chạy theo đồng hồ thật, giống nhau online, offline và qua mức chặn 24 h.
+
+**Validator v8:** chỉ số trong 0–100; ca duy nhất, đúng rồng, tối đa một ca mở mỗi rồng; kế hoạch hợp lệ và đã nhận định; ca đang chạy phải ở `care(caseId)`, ca chờ phải ở nơi trú; thời lượng khớp mức độ và kế hoạch; tiến trình không vượt đồng hồ; không quá 2 ca trong trạm và không để ca chờ khi trạm còn chỗ; sự kiện duy nhất mỗi zone, zone đã mở; không sản xuất khi đang có ca. Rồng ở nơi trú / trạm mà không có ca từ save cũ vẫn hợp lệ (D8).
+
+## 5f. U2.9 — Cá tính, hành vi, sinh thái sinh cảnh, nghiên cứu
+
+Quyết định và phần chờ duyệt: [ADR 0203](../../../Docs/adr/0203-u2-9-dragon-behavior-personality-ecology-research.md) (đề xuất). Hướng dẫn tích hợp: [INTEGRATION.md mục 8](INTEGRATION.md). Ma trận 16 loài: [BEHAVIOR_MATRIX.md](BEHAVIOR_MATRIX.md). Báo cáo cân bằng: [BEHAVIOR_SIMULATION.md](BEHAVIOR_SIMULATION.md). Toàn bộ là **implementation mới**, không có parity TS. **Không đổi Save Schema (vẫn v8), không có lệnh hay event mới.**
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Cá tính: 4 nét 0–100 dẫn xuất từ `Personality` đã lưu + lệch ±10 ổn định theo UID; thức ăn và microhabitat ưa thích | `Behavior/PersonalityProfile.cs` | bật (chỉ đọc) |
+| 11 hành vi, khả năng theo loài và nơi ở, chu kỳ ngày đêm, ưu tiên gameplay, chọn có trọng số tất định theo nhịp 60 s | `Behavior/BehaviorCatalog.cs`, `Behavior/BehaviorEngine.cs` | bật (chỉ đọc; Sanctuary chưa nối) |
+| Giải thích độ phù hợp theo từng yếu tố (điểm lấy từ Suitability, không engine mới) | `Behavior/HabitatEcology.cs` (`HabitatEcology`) | bật (chỉ đọc) |
+| Môi trường → comfort (ADR 0202 P8 / 0203 C1–C2) | `Behavior/HabitatEcology.cs` (`EcologyComfort`) | **tắt** (`EcologyComfortRules.Production`) |
+| Cấp nghiên cứu, mở hồ sơ Codex theo cấp, sổ quan sát tập tính | `Behavior/Research.cs` | **tắt** (`ResearchRules.Production`); sổ quan sát chưa lưu (Schema v9 chờ duyệt) |
+| Truy vấn cho Unity | `Queries/BehaviorQueries.cs` | bật |
+
+## 5g. U2.10 — Nghiên cứu, sinh thái xã hội, tiến trình thế giới
+
+Quyết định và phần chờ duyệt: [ADR 0204](../../../Docs/adr/0204-u2-10-research-social-progression.md) (đề xuất). Thiết kế: [Docs/u2.10](../../../Docs/u2.10/). Toàn bộ là **implementation mới**, chỉ đọc. **Không đổi Save Schema (vẫn v8), không có lệnh hay event mới, không đổi giá hay công thức.**
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Sổ nghiên cứu, nhịp theo ngày, phát hiện tập tính / pha / sinh cảnh / cá thể, cơ hội quan sát | `Behavior/ResearchProgress.cs` | **tắt** (`ResearchPacing.Production`); sổ chưa lưu |
+| Bản nháp khối `research` Schema v9 + migration v8 → v9 + validator | `Behavior/ResearchProgress.cs` (`ResearchSchemaDraft`) | **chỉ bản nháp**, chưa nối Persistence |
+| Tập tính xã hội 16 loài, độ hòa đồng, độ quen từ phả hệ, ứng viên tương tác trình diễn | `Behavior/SocialEcology.cs` | bật (chỉ đọc, trình diễn) |
+| Tác động comfort của quan hệ | `Behavior/SocialEcology.cs` (`ComfortTargetModifier`) | **tắt** (`SocialRules.Production`) |
+| Nội dung nhiệm vụ cổng và nhiệm vụ phụ, evaluator | `Progression/QuestProposals.cs` | **tắt** (`QuestRules.Production`): không hoàn thành nhiệm vụ nào |
+| Truy vấn cho Unity | `Queries/ProgressionQueries.cs` | bật |
+
 ## 6. Kiểm thử
 
 **Trong Unity:** mở *Window → General → Test Runner → EditMode* rồi chạy `Dravio.Domain.Tests`. Package Test Framework 1.8.0 đã có sẵn dưới dạng phụ thuộc gián tiếp trong `packages-lock.json`, nên không phải sửa manifest. Assembly test có `defineConstraints: UNITY_INCLUDE_TESTS` và chỉ chạy trong Editor.
@@ -152,11 +304,10 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 
 **Khác biệt so với `dispatch` của TS.** Từ U2.4 không còn khác biệt quan sát được trên 13 lệnh của bản b33ec7a: thành tựu và hướng dẫn chạy sau mỗi lệnh thành công như TS (trước U2.4, C# thiếu +100 G của `ACH_FIRST_ADULT`). `IPostCommandEvaluator` vẫn có để cắm thêm luật, chạy sau phần đánh giá có sẵn.
 
-**Chưa port (sau U2.5):**
-- Luật của 10/12 thành tựu còn lại (`ACH_FIRST_BREED`, `ACH_MUTATION_*`, `ACH_LEGENDARY`, `ACH_GOLD_10K/250K`, `ACH_DECOR_ALL`, `ACH_CODEX_16`, `ACH_CODEX_MASTER`) — bản TS b33ec7a cũng **chưa** cài, chỉ có ID và thưởng. UI hiện thành tựu chưa cài là "chưa mở".
-- Điều kiện sức khỏe khi lai (cần hệ chăm sóc); lượt nghiên cứu biến thể định hướng (GDD tr. 22); bán/thả rồng (`sellDragon`, `releaseDragon`); nâng cấp (`buyUpgrade`) — các cấp `mutationLuckLevel`/`hatchSpeedLevel` đã được lệnh U2.5 đọc nhưng chưa có lệnh tăng.
+**Chưa port (sau U2.6):**
+- Lượt nghiên cứu biến thể định hướng (GDD tr. 22); `releaseDragon` (luồng cứu hộ); nội dung nhiệm vụ mở Thủy Vực/Thiên Giới (TBD); dùng vật liệu (chế tạo decor, phục hồi zone); tuyến thám hiểm P1 theo loài, di tích, cứu hộ hoang dã; mốc Codex 64/64 và thành tựu cứu hộ (P1).
 - Văn bản i18n `tutorial.step.*`, `tutorial.hint.*`, `achievement.*` (thuộc UI, chưa port vào Unity).
-- Chăm sóc, thiên tai, cứu hộ, vận chuyển cứu hộ giữa zone.
+- Luồng cứu hộ trong hướng dẫn (`acceptRescue`, `advanceRehab`, `releaseDragon`), vận chuyển cứu hộ giữa zone, hư hại môi trường vùng, công thức môi trường → comfort (ADR 0202 P6–P8).
 - Persistence và chính sách thời gian đã có ở U2.2 (`Assets/Dravio/Persistence`, `Assets/Dravio/Platform`).
 - Các trường dữ liệu của những phần này vẫn có trong `GameState` và được validator kiểm, để state tương thích schema v4.
 
@@ -167,7 +318,10 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 ## 8. Phạm vi đã kiểm thử
 
 - **Đã chạy:**
-  - `dotnet test` với .NET SDK 8.0.134 trên Linux: 314/314 pass sau U2.5 (thêm 48 của U2.5); Persistence 175/175.
+  - U2.9: Domain 422 pass + 3 bỏ qua có chủ đích (thêm báo cáo mô phỏng hành vi); Persistence 192/192 (không đổi); Domain biên dịch được với `netstandard2.1` + C# 9. `BehaviorTests` (40) và `BehaviorSimulationTests` (2 chạy trong CI) gồm vân tay golden tất định, khả năng theo sinh học trên hơn 50 000 quyết định, SeekFood → `consumeFood` luôn hợp lệ, truy vấn không đổi state, kinh tế trùng khớp khi chèn truy vấn vào mô phỏng U2.7, luật đề xuất mặc định tắt. Cài thử 5 lỗi (bỏ kiểm hồi feed, bay không cần chỗ đậu, bỏ ngủ theo nhịp, gợi ý đi bộ dưới nước, giao một drop cho nhiều rồng): đều bị bắt.
+  - U2.6: Domain 380 pass + 2 bỏ qua có chủ đích; Persistence 192/192; bộ đọc TS (`verify-csharp-saves.test.ts`) đọc đúng mọi save C# xuất ra, kể cả save v8.
+  - U2.8: Domain 342 pass + 2 bỏ qua có chủ đích; Persistence 182/182. Cài thử 8 lỗi U2.8 (bỏ kiểm cửa ngõ, bỏ kiểm kiểu di chuyển, khóa tuyến, slot, nhận hai lần, tách quyết toán, khoảng 2–4, migration rồng mồ côi): đều bị bắt.
+  - `dotnet test` với .NET SDK 8.0.134 trên Linux: Domain 330 pass + 2 bỏ qua có chủ đích (sinh báo cáo mô phỏng và đo thời gian, chỉ chạy khi đặt biến môi trường) sau U2.7; Persistence 179/179. Cài thử 12 lỗi U2.7: 11 bị bắt, 1 tương đương hành vi (Bách khoa quét cả rồng đã thả — rồng đó đã được ghi khi còn sở hữu).
   - U2.5: golden `ts-genetics-golden-b33ec7a.json` (Tools~/genetics-golden.test.ts) — 27 phân phối locus, 28 kiểu hình, 256 cặp loài (ứng viên, phân phối, phí), 28 thời gian ấp, 27 phân phối biến thể, 4 × 400 roll biến thể/pity, 8 × 300 roll gói, 6 × 200 roll lai, 100 genotype con, 23 ca checkBreed. Tái sinh trùng từng byte. Test phân phối nhiều seed qua đường lệnh: 4 gói × 8 000, biến thể 2 × 20 000 (luck 0 và 8), lai 12 000 (loài, 3 locus, biến thể b = 2), Mendel 27 tổ hợp × 6 000, pity trên 5 seed × 50 000. Dung sai 4,5σ, seed cố định nên không chập chờn. Hồi quy Tutorial/Achievement: mọi golden U2.1/U2.3/U2.4 vẫn pass nguyên trạng. Cài thử 13 lỗi (hệ số bố mẹ biến thể, pity lệch 1, chung ông bà, luật Legendary, thứ tự allele, cooldown, giữ chỗ trứng, pity gói, reset ngày, tách quyết toán, trần gõ, …): đều bị bắt.
   - U2.4: golden `ts-progress-golden-b33ec7a.json` 13 kịch bản / 584 bước, tái sinh trùng từng byte. Port `tests/unit/tutorial.test.ts` (`TutorialProgressTests`). Cài thử 8 lỗi (mốc quan sát 14 s, không tăng `totalHatched`, Emberling khởi tạo tính là nở, thưởng lặp, biên 100 G, thứ tự lỗi gói, không đưa vào `claimed`, bỏ lưu ngay sau mua/nhận): đều bị bắt.
   - U2.3: golden `ts-world-golden-b33ec7a.json` (Tools~/world-golden.test.ts) gồm 144 tổ hợp `canTravel`, khả năng tới của mọi loài, 3 kịch bản lệnh (490 bước, có fuzz 400 bước trên mọi lệnh U2.1 + U2.3) kèm `placementOptions`, `habitatUnlockStatus`, ngân sách, sức chứa và điều kiện khảo sát ở 56 điểm dò; tái sinh trùng từng byte. Cài thử 7 lỗi (chỗ trống tự tính, thứ tự kiểm, bỏ quyết toán, thứ tự mở, điều kiện khảo sát, sắp xếp hồ sơ, rời ngân sách khi vào kho): đều bị bắt.

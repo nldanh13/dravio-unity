@@ -228,7 +228,9 @@ namespace Dravio.Domain.Tests
         public void Busy_dragons_pause_production()
         {
             var (state, clock) = NewGame();
-            Ember(state).Activity = DragonActivity.Care;
+            // U2.6: rồng đang chăm sóc phải có ca mở thật (care + caseId) và đã rời ngân sách sản xuất.
+            Ember(state).Location = DragonLocation.Care("case-busy");
+            state = Normalize(state);
             clock.Advance(60_000);
             DispatchResult r = Ok(state, Online(), clock);
             Assert.That(r.State.Player.Gold, Is.EqualTo(state.Player.Gold));

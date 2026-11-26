@@ -12,8 +12,8 @@ namespace Dravio.Persistence.Tests
     /// <summary>
     /// Đối chiếu với golden sinh từ persistence TypeScript gốc: canonicalJson, SHA-256, serializeSave, parseSaveText
     /// trên 54 file (hợp lệ, hỏng, sửa tay, phiên bản khác, migration, fixture thật v1/v2).
-    /// U2.5: bản Unity ghi Schema v5 (= v4 + breedingNest). Golden TS dừng ở v4, nên mỗi phép so dùng ảnh v5 của kết quả TS
-    /// (PFix.AsV5 = đúng bước migration 4 → 5) hoặc chiếu save C# về v4 (PFix.AsV4 khi tổ trống) — phần chung vẫn phải trùng từng byte.
+    /// U2.5/U2.7: bản Unity ghi Schema v6 (= v4 + breedingNest + codex). Golden TS dừng ở v4, nên mỗi phép so dùng ảnh Unity của kết quả TS
+    /// (PFix.AsUnity = đúng các bước migration 4 → 5 → 6) hoặc chiếu save C# về v4 (PFix.AsV4 khi tổ trống) — phần chung vẫn phải trùng từng byte.
     /// </summary>
     public sealed class SchemaParityTests
     {
@@ -32,7 +32,7 @@ namespace Dravio.Persistence.Tests
             foreach (JsonObject e in Items("envelopes"))
             {
                 var errors = new List<string>();
-                GameState s = GameStateJson.FromJson(PFix.AsV5((JsonObject)e.Get("state")), errors);
+                GameState s = GameStateJson.FromJson(PFix.AsUnity((JsonObject)e.Get("state")), errors);
                 Assert.That(errors, Is.Empty, Str(e, "name"));
                 string canonical = SaveSchema.CanonicalJson(PFix.AsV4(GameStateJson.ToJson(SaveSchema.ToPersistedState(s))));
                 Assert.That(canonical, Is.EqualTo(Str(e, "canonical")), Str(e, "name"));
@@ -48,9 +48,9 @@ namespace Dravio.Persistence.Tests
             foreach (JsonObject e in Items("envelopes").Take(3))
             {
                 var errors = new List<string>();
-                GameState s = GameStateJson.FromJson(PFix.AsV5((JsonObject)e.Get("state")), errors);
+                GameState s = GameStateJson.FromJson(PFix.AsUnity((JsonObject)e.Get("state")), errors);
                 string v5 = SaveSchema.Serialize(s, PFix.T0 + 1000 + i);
-                Assert.That(((JsonNumber)((JsonObject)JsonParser.Parse(v5)).Get("schemaVersion")).Value, Is.EqualTo(5));
+                Assert.That(((JsonNumber)((JsonObject)JsonParser.Parse(v5)).Get("schemaVersion")).Value, Is.EqualTo(Dravio.Domain.Catalog.ContentInfo.SchemaVersion));
                 Assert.That(PFix.AsV4Text(v5), Is.EqualTo(Str(e, "text")), Str(e, "name"));
                 i++;
             }
@@ -118,7 +118,7 @@ namespace Dravio.Persistence.Tests
                 double? migrated = c.Get("migratedFrom") is JsonNumber mn ? mn.Value : 4;
                 Assert.That(r.Save.MigratedFrom.HasValue ? (double?)r.Save.MigratedFrom.Value : null, Is.EqualTo(migrated));
                 Assert.That(r.Save.SavedAtMs, Is.EqualTo((long)((JsonNumber)c.Get("savedAtMs")).Value));
-                string expected = SaveSchema.CanonicalJson(KnownKeysOnly(PFix.AsV5((JsonObject)c.Get("state"))));
+                string expected = SaveSchema.CanonicalJson(KnownKeysOnly(PFix.AsUnity((JsonObject)c.Get("state"))));
                 Assert.That(PFix.Canonical(r.Save.State), Is.EqualTo(expected));
                 return;
             }
@@ -169,7 +169,7 @@ namespace Dravio.Persistence.Tests
                 var exp = (JsonObject)rep.Get("report");
                 Assert.That(report.DroppedStateKeys, Is.EqualTo(((JsonArray)exp.Get("droppedStateKeys")).Select(x => ((JsonString)x).Value)), name);
                 Assert.That(report.DroppedDragonKeys, Is.EqualTo(((JsonArray)exp.Get("droppedDragonKeys")).Select(x => ((JsonString)x).Value)), name);
-                Assert.That(PFix.Canonical(clean), Is.EqualTo(SaveSchema.CanonicalJson(KnownKeysOnly(PFix.AsV5((JsonObject)rep.Get("state"))))), name);
+                Assert.That(PFix.Canonical(clean), Is.EqualTo(SaveSchema.CanonicalJson(KnownKeysOnly(PFix.AsUnity((JsonObject)rep.Get("state"))))), name);
                 Assert.That(clean.Dragons.All(d => d.RegistryRef == null), Is.True);
                 var pv = (JsonObject)rep.Get("preview");
                 SaveFile.ImportPreview p = SaveFile.PreviewOf(clean, r.Save.SavedAtMs, r.Save.MigratedFrom, Array.Empty<string>());

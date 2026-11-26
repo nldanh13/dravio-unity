@@ -3,6 +3,15 @@ using Dravio.Domain.Core;
 
 namespace Dravio.Domain
 {
+    /// <summary>U2.10 E1: bộ đếm gói Starter theo ngày UTC. Day = null khi chưa mua gói nào.</summary>
+    public sealed class PackDailyState
+    {
+        /// <summary>"YYYY-MM-DD" (UTC) của lần mua gần nhất, hoặc null.</summary>
+        public string Day { get; set; }
+        public int StarterBought { get; set; }
+        public PackDailyState Clone() => (PackDailyState)MemberwiseClone();
+    }
+
     /// <summary>Zone vật lý (ADR 0003): 3 zone, mỗi zone 5 chỗ ở P0; microhabitat là cấu hình trong zone.</summary>
     public sealed class ZoneState
     {
@@ -122,6 +131,60 @@ namespace Dravio.Domain
         }
     }
 
+    /// <summary>
+    /// Một mục Bách khoa (GDD 3.1 Phụ lục C.2 codex; schema v6, U2.7). Chỉ tăng, không bao giờ giảm: khám phá được giữ sau khi bán
+    /// hoặc thả (GDD Phụ lục F). Thứ tự danh sách theo catalog (biến thể Normal → Prismatic, stage Baby → Adult).
+    /// </summary>
+    public sealed class CodexEntry
+    {
+        public string SpeciesId { get; set; }
+        public List<MutationType> DiscoveredMutations { get; set; } = new List<MutationType>();
+        /// <summary>Số lần nở loài này (claimPack / claimBreed); rồng có sẵn lúc tạo save không tính.</summary>
+        public long TotalHatched { get; set; }
+        public List<GrowthStage> ObservedStages { get; set; } = new List<GrowthStage>();
+
+        public CodexEntry Clone()
+        {
+            var c = (CodexEntry)MemberwiseClone();
+            c.DiscoveredMutations = new List<MutationType>(DiscoveredMutations);
+            c.ObservedStages = new List<GrowthStage>(ObservedStages);
+            return c;
+        }
+    }
+
+    /// <summary>
+    /// Chuyến thám hiểm đang chạy hoặc chờ nhận (GDD tr. 22; schema v7, U2.8). "Chốt thời gian, seed và bảng thưởng khi bắt đầu": phần thưởng
+    /// đã roll và lưu ngay lúc khởi hành, nhận đúng một lần; hoàn tất cả khi offline; không tự khởi hành tiếp.
+    /// </summary>
+    public sealed class ExpeditionJob
+    {
+        public string Id { get; set; }
+        public string RouteId { get; set; }
+        public string DragonUid { get; set; }
+        public long StartedAtMs { get; set; }
+        public long FinishAtMs { get; set; }
+        /// <summary>Vật liệu → số lượng, thứ tự theo catalog vật liệu.</summary>
+        public List<KeyValuePair<string, int>> Rewards { get; set; } = new List<KeyValuePair<string, int>>();
+        public ExpeditionStatus Status { get; set; }
+
+        public ExpeditionJob Clone()
+        {
+            var c = (ExpeditionJob)MemberwiseClone();
+            c.Rewards = new List<KeyValuePair<string, int>>(Rewards);
+            return c;
+        }
+    }
+
+    /// <summary>Trứng thưởng cố định đang chờ được giao vào pendingPack (khi kho đầy hoặc đang có trứng chờ nhận). Schema v7.</summary>
+    public sealed class QueuedEgg
+    {
+        public string RewardId { get; set; }
+        public string SpeciesId { get; set; }
+        public MutationType Mutation { get; set; }
+        public long QueuedAtMs { get; set; }
+        public QueuedEgg Clone() => (QueuedEgg)MemberwiseClone();
+    }
+
     /// <summary>Tiến trình hướng dẫn (schema v4, ADR 0013). U2.1 chỉ giữ và kiểm tra dữ liệu, chưa port evaluateTutorial.</summary>
     public sealed class TutorialState
     {
@@ -171,8 +234,36 @@ namespace Dravio.Domain
         public PendingPack PendingPack { get; set; }
         /// <summary>(breedingNest) Trứng lai đang ấp hoặc chờ nhận; null = tổ trống. Schema v5.</summary>
         public BreedingEgg BreedingNest { get; set; }
+        /// <summary>(codex) Bách khoa theo loài, thứ tự catalog; chỉ chứa loài đã khám phá. Schema v6.</summary>
+        public List<CodexEntry> Codex { get; set; } = new List<CodexEntry>();
+        /// <summary>(expedition) Slot thám hiểm P0; null = trống. Schema v7.</summary>
+        public ExpeditionJob Expedition { get; set; }
+        /// <summary>(completedQuests) Nhiệm vụ đã hoàn thành, thứ tự catalog. Schema v7.</summary>
+        public List<string> CompletedQuests { get; set; } = new List<string>();
+        /// <summary>(grantedRewards) Phần thưởng một lần đã cấp (vd ZONE_EGG_OCEAN) — chống nhận lại. Schema v7.</summary>
+        public List<string> GrantedRewards { get; set; } = new List<string>();
+        /// <summary>(rewardQueue) Trứng thưởng đã cấp nhưng chưa vào pendingPack. Schema v7.</summary>
+        public List<QueuedEgg> RewardQueue { get; set; } = new List<QueuedEgg>();
         public List<string> UnlockedAchievements { get; set; } = new List<string>();
         public List<string> ClaimedAchievements { get; set; } = new List<string>();
+        /// <summary>(healthCases) Ca chăm sóc đang mở (queued / active). Schema v8.</summary>
+        public List<HealthCase> HealthCases { get; set; } = new List<HealthCase>();
+        /// <summary>(disasters) Sự kiện thiên tai chưa đóng, tối đa một mỗi thế giới. Schema v8.</summary>
+        public List<DisasterState> Disasters { get; set; } = new List<DisasterState>();
+        /// <summary>(hazard) Đồng hồ kiểm hazard + cooldown theo thế giới. Schema v8.</summary>
+        public HazardState Hazard { get; set; } = new HazardState();
+        /// <summary>(packDaily) U2.10 E1: số gói Starter mua bằng vàng trong ngày UTC <see cref="PackDailyState.Day"/>. Schema v9.</summary>
+        public PackDailyState PackDaily { get; set; } = new PackDailyState();
+        /// <summary>(sanctuaryProjectsBuilt) U2.10 E5: số dự án Sanctuary đã xây (0 … SanctuaryProjectCatalog.Max). Schema v9.</summary>
+        public int SanctuaryProjectsBuilt { get; set; }
+        /// <summary>(research) U2.10 R1–R11: sổ nghiên cứu (tập tính, pha, sinh cảnh theo loài; tiến trình cá thể). Schema v9.</summary>
+        public Behavior.ResearchLog Research { get; set; } = new Behavior.ResearchLog();
+        /// <summary>(completedSideQuests) U2.11: nhiệm vụ phụ đã nhận hoàn thành, thứ tự catalog. Nhiệm vụ cổng vẫn nằm ở <see cref="CompletedQuests"/>. Schema v10.</summary>
+        public List<string> CompletedSideQuests { get; set; } = new List<string>();
+        /// <summary>(expeditionsClaimed) U2.11: số chuyến thám hiểm đã nhận theo tuyến (mốc thưởng khám phá). Schema v10.</summary>
+        public SortedDictionary<string, int> ExpeditionsClaimed { get; set; } = new SortedDictionary<string, int>(System.StringComparer.Ordinal);
+        /// <summary>(relations) U2.11: thời gian sống chung theo cặp rồng (độ quen, chỉ trình diễn). Schema v10.</summary>
+        public Behavior.RelationLog Relations { get; set; } = new Behavior.RelationLog();
 
         /// <summary>Bản sao sâu. Dispatch làm việc trên bản sao để lệnh bị từ chối không đổi state gốc.</summary>
         public GameState DeepClone()
@@ -189,8 +280,21 @@ namespace Dravio.Domain
             c.Tutorial = Tutorial?.Clone();
             c.PendingPack = PendingPack?.Clone();
             c.BreedingNest = BreedingNest?.Clone();
+            c.Expedition = Expedition?.Clone();
+            c.CompletedQuests = CompletedQuests == null ? null : new List<string>(CompletedQuests);
+            c.GrantedRewards = GrantedRewards == null ? null : new List<string>(GrantedRewards);
+            if (RewardQueue != null) { c.RewardQueue = new List<QueuedEgg>(RewardQueue.Count); foreach (var q in RewardQueue) c.RewardQueue.Add(q?.Clone()); }
+            if (Codex != null) { c.Codex = new List<CodexEntry>(Codex.Count); foreach (var e in Codex) c.Codex.Add(e?.Clone()); }
             c.UnlockedAchievements = UnlockedAchievements == null ? null : new List<string>(UnlockedAchievements);
             c.ClaimedAchievements = ClaimedAchievements == null ? null : new List<string>(ClaimedAchievements);
+            if (HealthCases != null) { c.HealthCases = new List<HealthCase>(HealthCases.Count); foreach (var h in HealthCases) c.HealthCases.Add(h?.Clone()); }
+            if (Disasters != null) { c.Disasters = new List<DisasterState>(Disasters.Count); foreach (var x in Disasters) c.Disasters.Add(x?.Clone()); }
+            c.Hazard = Hazard?.Clone();
+            c.PackDaily = PackDaily?.Clone();
+            c.Research = Research?.Clone();
+            c.CompletedSideQuests = CompletedSideQuests == null ? null : new List<string>(CompletedSideQuests);
+            c.ExpeditionsClaimed = ExpeditionsClaimed == null ? null : new SortedDictionary<string, int>(ExpeditionsClaimed, System.StringComparer.Ordinal);
+            c.Relations = Relations?.Clone();
             return c;
         }
 
@@ -198,6 +302,28 @@ namespace Dravio.Domain
         {
             if (Dragons == null) return null;
             foreach (var d in Dragons) if (d != null && d.Uid == uid) return d;
+            return null;
+        }
+
+        public HealthCase FindCase(string caseId)
+        {
+            if (HealthCases == null) return null;
+            foreach (var c in HealthCases) if (c != null && c.CaseId == caseId) return c;
+            return null;
+        }
+
+        /// <summary>Ca đang mở của một rồng (tối đa một).</summary>
+        public HealthCase OpenCaseOf(string uid)
+        {
+            if (HealthCases == null) return null;
+            foreach (var c in HealthCases) if (c != null && c.DragonId == uid && c.Status != CaseStatus.Closed) return c;
+            return null;
+        }
+
+        public DisasterState OpenDisasterIn(string zoneId)
+        {
+            if (Disasters == null) return null;
+            foreach (var d in Disasters) if (d != null && d.ZoneId == zoneId && d.Phase != DisasterPhase.Closed) return d;
             return null;
         }
 

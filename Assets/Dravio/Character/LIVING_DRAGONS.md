@@ -76,13 +76,118 @@ Bảng archetype được sinh bằng `build_archetypes.py` từ `locomotion`, `
   - `Burrow` chỉ khi biết đào
 - **Anchor VFX:** `VFX_Mouth`, `VFX_TailTip`, `VFX_Back`, `VFX_Ground` là bone không có trọng số.
 - **Foot IK:** mỗi chân là một chuỗi `upper → lower → foot`, ghi trong `rig.json` (`ikChains`).
-- **Kiểm tra biến dạng:** đo tỉ lệ độ dài cạnh mesh ở 4 khung hình mỗi clip. Ngưỡng là p99.9 ≤ 1,6 (giãn) và p0.1 ≥ 0,45 (nén). Clip vượt ngưỡng được ghi `deformationOk = false` và đưa vào báo cáo, không bị ẩn đi.
+- **Kiểm tra biến dạng:** `rig_archetype.py` đo nhanh tỉ lệ độ dài cạnh mesh ở 4 khung hình mỗi clip; `anim_qa.py` đo đủ mọi khung (mục bên dưới). Ngưỡng là p99.9 ≤ 1,6 (giãn) và p0.1 ≥ 0,45 (nén). Clip vượt ngưỡng được ghi `deformationOk = false` và đưa vào báo cáo, không bị ẩn đi.
 - **Giới hạn:** bone được đặt theo hình khối và chuyển động là procedural placeholder. Animator vẫn phải duyệt và thường phải chỉnh tay trong Blender trước khi dùng thật.
+
+### Rig v2 và QA animation (U1-CHAR.4)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U4.md`.
+
+- **Landmark hình học:**
+  - `rig_geometry.py` đo thân, chân, đầu và đuôi trên chính lưới: lát cắt theo trục thân, bàn chân lấy từ điểm chạm đất, không dùng hộp bao.
+  - Khi phép đo sai, đặt điểm tay trong `asset-overrides.json` ▸ `files.<stem>.landmarks`. File JSON chứa headTip, headCenter, neckBase, chest, pelvis, tailBase, tailTip, feet, eyes.
+- **Trọng số:**
+  - Chân, đuôi và cổ dùng chain weights, liên tục dọc xương.
+  - Bone chân không skin lên thân, mắt hay đuôi. Chỉ có một dải hẹp ở háng, với bone đùi.
+  - Dải chuyển tiếp có giới hạn: thân/đuôi, thân/cổ, cổ/đầu, cánh/vây.
+  - Tối đa 4 ảnh hưởng mỗi đỉnh, không có đỉnh nào thiếu trọng số. Mảnh rời gắn cứng theo từng mảnh.
+- **`limbCount: "auto"`:** chỉ nhận số chân đo được khi kết quả rõ ràng (2 hoặc 4 bàn chân đối xứng). Nếu không, rig bị từ chối kèm số đo. Batch ghi chú để art director xác nhận.
+- **Clip:**
+  - Tham số từng clip nằm ở `Data/rig-profiles.json`, theo archetype.
+  - Mỗi clip có hai lượt. Lượt đầu đo xuyên đất, sau đó giảm biên độ hoặc nâng root bằng một hằng số (`groundClearanceLift_m`). Không áp dụng cho Swim, Fly, Glide.
+  - Hành trình vỗ xuống của cánh bị giới hạn hình học để không xuyên thân.
+  - Walk/Run có `groundSpeed` (m/s): chân trụ trượt lùi đúng bằng tốc độ này, nên không có moonwalk.
+- **Hướng:** Blender Z-up nhìn −Y chuyển thành Unity +Z, pivot ở mặt đất. Chiều cao Emberling giữ 0,90 m.
+- **Root motion:** clip đi tại chỗ. Runtime di chuyển dragon và đặt `PlaybackRate = speed / groundSpeed`.
+- **QA:**
+  - `anim_qa.py` ghi `<Name>_animqa.json` (thêm `.png` khi có `--images`) cho từng model, theo ngưỡng `animationQa` trong `character-budgets.json`.
+  - Các kiểm tra: giãn/nén cạnh, trượt chân, xuyên đất, khoảng hở chân trụ, moonwalk, khép vòng, bounds, hướng đầu, cánh xuyên thân, trọng số, hướng xương và đối xứng L/R, chiều cao, LOD.
+  - Không nới ngưỡng để đổi WARNING thành PASS.
+  - Batch chạy QA sau `build_lods` và ghi trạng thái vào manifest (`animQa`).
+- **Batch:**
+  - Kiểm tra thư mục nguồn và báo lỗi rõ khi không có `.glb`.
+  - Override theo loài, rồi theo file. Tên file có alias (`fileNameAliases`, ví dụ Sproutling → sprout).
+  - Cache tính theo hash của nguồn, script pipeline, budgets/archetypes/profiles, override và landmark.
+  - Tên trong `Imported/approved-assets.json` không bao giờ bị ghi đè.
+- **Chạy tại máy:** `scripts/art/character/run_u4_local.ps1` đo rig cũ bằng QA mới, chạy batch v2, rồi ghi báo cáo trước/sau.
+
+### Rig v3 (U1-CHAR.5)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U5.md`. Ngưỡng QA không đổi.
+
+- **Bước chân C1:** pha vung của Walk/Run là spline Hermite.
+  - Bàn chân rời đất và chạm đất với đúng vận tốc của pha trụ. Bản trước dừng hẳn ở hai đầu nên mỗi bước bị giật.
+  - Độ cao dùng `sin²`, nên không bật lên khi nhấc chân và không đập khi chạm đất.
+  - Biên độ chân giữ đúng ±sải/2 như trước. Pha trụ ngắn đi một chút để bù đoạn vượt quá, và `groundSpeed` được tính lại theo đó.
+- **Bàn chân trụ gập theo cẳng chân:** `sleep.footFollow` 0,8 và `burrow.footFollow` 0,5. Trước đây giữ bàn chân phẳng khi cẳng chân gập nên cổ chân bị nén (Sleep/Burrow).
+- **Đuôi khi bơi kiểu paddle:** `swim.tailBase` = tỷ lệ biên độ ở gốc đuôi. Droplet dùng 0,45, nên đuôi uốn tăng dần ra ngọn thay vì bẻ ở hông.
+- **Pivot trên mặt đối xứng:** khi đo được các cặp chân L/R, mặt đối xứng (và pivot) đặt ở trung điểm các cặp chân thay vì tâm hộp bao. Thân hình chữ S hoặc đuôi lệch một bên làm hộp bao lệch tâm. Độ dời ghi ở `rig.json` ▸ `size.midlineShift_m`. Khi file override có landmark tay thì không dời.
+- **Báo cáo:** `build_character_reports.py <work> <out>` ghi:
+  - QA từng model (`qa/<Name>.md`)
+  - `prefab-catalog.md/json`
+  - `animation-report.md` (clip so với sinh học)
+  - `performance-budget.md` (ước tính tĩnh)
+
+  Model `SAMPLE_*` luôn được ghi nhãn SAMPLE. Model thật được ghi "chưa nghiệm thu".
+- **Chạy tại máy:** `scripts/art/character/run_u5_local.ps1`. Script đo rig U4 bằng QA hiện tại, chạy batch v3, ghi báo cáo trước/sau cùng bộ báo cáo trên. Có thể chạy thêm Unity batch mode để import manifest và chạy EditMode test.
+
+### Dragon Animation Lab
+
+Menu **Dravio ▸ Character ▸ Animation Lab** tạo hoặc mở `Scenes/DragonAnimationLab.unity`: camera, đèn, mặt đất và bậc thang. Scene này không đụng Scene Open Game, HUD, Domain hay Persistence.
+
+Ở Play mode có bảng điều khiển:
+- chọn loài/giai đoạn và clip
+- thanh thời gian, bước từng frame, tốc độ
+- ép LOD0/1/2
+- bật/tắt Foot IK và nền gồ ghề
+- hiện skeleton
+- 4 góc nhìn
+- cảnh báo QA của clip đang xem
+
+### Rig v4: hành vi tự nhiên (U1-CHAR.6)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U6.md`. Clip, Animator và ánh xạ: [ANIMATION_CATALOG.md](ANIMATION_CATALOG.md).
+
+- **7 clip mới:**
+  - Rest, Wake, LookAround, Curious cho mọi loài;
+  - Drink, Stretch, Bask cho loài `walk`.
+  - Luật nằm trong `build_archetypes.py`. Không thêm khả năng sinh học nào.
+- **Wake:** khởi đầu đúng ở tư thế Sleep đã author (cùng hệ số tránh xuyên đất) và kết thúc ở Idle. `anim_qa.py` (QA v2) kiểm thêm `transitions` với ngưỡng khép vòng sẵn có. Chân phải dời chỗ thì được nhấc lên, không kéo lê.
+- **Profile:** quadruped có `drink`. Serpentine có `sleep.footFollow` 0,8 và `rest`/`bask.dropLegs` 0,3. Nhịp thở không xoay Spine1 trên rig serpentine có chân.
+- **Runtime:**
+  - `DragonBehaviorPlanner`: intent sang clip, chuyển tiếp, biến thể Idle, phản hồi;
+  - `DragonPersonalityPresentation`;
+  - `DragonHeadLook`, `DragonBlink`.
+  - Animator có thêm `Rest`, `Bask`, các action mới và tham số `Tempo`.
+  - Tích hợp: [CHARACTER_BEHAVIOR_API.md](CHARACTER_BEHAVIOR_API.md).
+- **Animation Lab:** bảng *Behaviour preview* chạy planner thật để thử intent, tính cách và Pet/Call/Feed.
+- **Stress scene:** `behaviourIntents = true` chạy qua `SanctuaryDragonSync`, có intent, tính cách và look-at.
+
+### Rig v5: chuyển động nâng cao (U1-CHAR.7)
+
+Chi tiết: `scripts/art/character/TEST_REPORT_U7.md`, [MOTION_CATALOG.md](MOTION_CATALOG.md), [MOTION_API.md](MOTION_API.md).
+
+- **10 clip mới**, phân quyền theo sinh học canonical:
+  - Greet cho mọi loài;
+  - SwimIdle;
+  - SwimRest (thở mang hoặc lưỡng hô hấp);
+  - SwimSurface (thở phổi hoặc lưỡng hô hấp);
+  - WaterEnter/Exit (biết bơi và biết đi);
+  - Perch (chỉ loài có "chân đậu");
+  - DigPrep, BurrowEnter, BurrowEmerge.
+- **TakeOff/Land** được khớp lại hai đầu: đầu chạm đất = Idle **đã author**, đầu trên không = Fly **đã author** cộng độ lệch root (`motion.rootOffsets_m`).
+- **Clip nối chuỗi** (`CHAINED`) không bị bước tránh xuyên đất tự giảm biên độ. `anim_qa.py` v3 kiểm 14 cặp chuyển tiếp và độ lệch root, đồng thời xuất `motionEnvelope`.
+- **Metadata:** `rig.json` ▸ `motion` (kích thước thân, tốc độ, độ lệch root, giới hạn quay); manifest ▸ `motion`; catalog ▸ `Entry.motion`.
+- **Runtime:**
+  - planner có máy trạng thái theo môi trường (`DragonMotionMode`), chuyển tiếp nối chuỗi, readiness, `canTranslate`;
+  - `DragonMotionShaper` (nghiêng cánh, ngóc/chúi, uốn thân, dáng đuôi, vây tai);
+  - `IDragonMotionTarget` (ẩn khi ở dưới đất).
+- **Chạy tại máy:** `scripts/art/character/run_u7_local.ps1`, dùng override `asset-overrides.u7-local.json` (limbCount `"auto"` cho Droplet, Zephyr, Steamdrake, Magma, Sparkwing).
 
 ## 4. Nhập vào Unity
 
 1. Đưa thư mục `Imported/` vào `Assets/Dravio/Character/Imported/`. Preset import tự áp dụng ở lần import đầu: rồng là Generic, prop không có animation và avatar, normal map, ASTC.
-2. Chạy **Dravio ▸ Character ▸ Import Batch Manifest**, hoặc `-executeMethod Dravio.Character.Editor.LivingAssetBatchImporter.RunDefault`. Với mỗi rồng, menu này:
+2. Chạy **Dravio ▸ Character ▸ Import Batch Manifest**, hoặc ở batch mode `-executeMethod Dravio.Character.Editor.CharacterBatchCli.RunImport` (thoát với mã 1 khi có mục lỗi). Với mỗi rồng, menu này:
    - cắt clip từ take FBX theo frame trong manifest, tương đối với frame đầu của take
    - tạo material URP
    - tạo prefab LODGroup gắn `DragonVisualInstance`
@@ -134,7 +239,9 @@ mgr.Despawn(uid);
   - **Animator:** `cullingMode = CullUpdateTransforms` và `keepAnimatorStateOnDisable`.
   - **`UpdateRatePolicy`:** dragon gần và trong khung hình cập nhật mỗi frame. Dragon xa cập nhật 2 frame một lần, dragon ngoài khung hình 8 frame một lần, và các cá thể lệch pha nhau để không dồn vào cùng một frame. Quá 80 m thì không cập nhật.
   - **LOD:** mọi prefab có LODGroup.
-  - **Foot IK:** chỉ chạy khi dragon ở gần, cập nhật mỗi frame và đang ở trạng thái mặt đất (Idle, Walk, Run).
+  - **Foot IK:** chỉ chạy khi dragon ở gần, cập nhật mỗi frame và đang đứng trên đất (Idle, Walk, Run, Sleep). Tắt khi Swim, Fly, Burrow và khi Happy nhảy. Chân đang bước (nhấc khỏi độ cao bind) không bị kéo, nên IK không đè animation. Khi một chân phải xuống thấp hơn tầm với, pelvis được hạ xuống, không bao giờ nâng lên. Offset được làm mượt (`smoothTime`).
+
+**Tích hợp với Unified Sanctuary:** xem [SANCTUARY_INTEGRATION.md](SANCTUARY_INTEGRATION.md). `SanctuaryDragonSync` nhận danh sách rồng mỗi frame và tự gọi Spawn / Despawn / SetStage / ApplyState. Phần sổ sách của manager nằm trong `DragonVisualRoster` (pure C#, có test ngoài Unity: `dotnet test "Assets/Dravio/Character/Tests/DotNet~/Dravio.Character.Tests.csproj"`).
 
 ## 6. Stress test
 

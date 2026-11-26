@@ -23,9 +23,16 @@ namespace Dravio.Character.Editor
         internal const string Folder = "Assets/Dravio/Character/Animation";
         internal const string ArchetypesPath = "Assets/Dravio/Character/Data/dragon-archetypes.json";
 
-        private static readonly string[] Locomotion = { "Idle", "Walk", "Run", "Swim", "Fly", "Burrow", "Sleep" };
-        private static readonly string[] Actions = { "", "Eat", "Happy" };
-        private static readonly HashSet<string> MovingStates = new HashSet<string> { "Walk", "Run", "Swim", "Fly", "Burrow" };
+        // index = DragonLocomotion / DragonInteraction value (U1-CHAR.6 appended Rest, Bask and Drink..Curious)
+        private static readonly string[] Locomotion = { "Idle", "Walk", "Run", "Swim", "Fly", "Burrow", "Sleep", "Rest", "Bask",
+                                                        "SwimIdle", "SwimRest", "SwimSurface", "Perch", "Glide" };
+        private static readonly string[] Actions = { "", "Eat", "Happy", "Drink", "Wake", "Stretch", "LookAround", "Curious",
+                                                     "Greet", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge",
+                                                     "Nuzzle" /* U1-CHAR.8 */ };
+        private static readonly HashSet<string> MovingStates = new HashSet<string> { "Walk", "Run", "Swim", "Fly", "Burrow", "SwimSurface", "Glide" };
+        /// <summary>U1-CHAR.7 medium transitions: their ends are authored to match the neighbouring clips exactly
+        /// (anim_qa transitions), so a short blend is enough and a long one would smear the match.</summary>
+        private static readonly HashSet<string> ChainedActions = new HashSet<string> { "Wake", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge" };
 
         /// <summary>Blend times by archetype: long bodies and swimmers blend slower so the chain does not snap.</summary>
         private static float BlendSeconds(string archetype)
@@ -69,8 +76,10 @@ namespace Dravio.Character.Editor
             {
                 var have = new HashSet<string>(existing.layers[0].stateMachine.states.Select(s => s.state.name));
                 var missing = needed.Where(n => !have.Contains(n)).ToArray();
-                message = missing.Length == 0 ? "Using " + path
-                    : "Existing " + path + " lacks states " + string.Join(", ", missing) + " (not modified; delete it to regenerate).";
+                bool tempo = existing.parameters.Any(p => p.name == DragonAnimatorParams.Tempo);
+                message = (missing.Length == 0 ? "Using " + path
+                    : "Existing " + path + " lacks states " + string.Join(", ", missing) + " (not modified; delete it to regenerate).")
+                    + (tempo ? "" : " No Tempo parameter (pre-U1-CHAR.6): personality tempo is ignored until it is regenerated.");
                 return existing;
             }
             var ctrl = AnimatorController.CreateAnimatorControllerAtPath(path);
@@ -78,6 +87,7 @@ namespace Dravio.Character.Editor
             ctrl.AddParameter(DragonAnimatorParams.Action, AnimatorControllerParameterType.Int);
             ctrl.AddParameter(DragonAnimatorParams.Speed, AnimatorControllerParameterType.Float);
             ctrl.AddParameter(new AnimatorControllerParameter { name = DragonAnimatorParams.PlaybackRate, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
+            ctrl.AddParameter(new AnimatorControllerParameter { name = DragonAnimatorParams.Tempo, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
             var sm = ctrl.layers[0].stateMachine;
             float blend = BlendSeconds(archetype);
             int row = 0;
@@ -88,7 +98,9 @@ namespace Dravio.Character.Editor
                 var st = sm.AddState(n, new Vector3(300, 60 * row++, 0));
                 st.motion = Placeholder(ctrl, n);
                 st.writeDefaultValues = true;
-                if (MovingStates.Contains(n)) { st.speedParameterActive = true; st.speedParameter = DragonAnimatorParams.PlaybackRate; }
+                // moving clips follow ground speed; in-place clips follow the personality tempo (U1-CHAR.6)
+                st.speedParameterActive = true;
+                st.speedParameter = MovingStates.Contains(n) ? DragonAnimatorParams.PlaybackRate : DragonAnimatorParams.Tempo;
                 if (n == "Idle") sm.defaultState = st;
                 var t = sm.AddAnyStateTransition(st);
                 t.canTransitionToSelf = false;
@@ -103,10 +115,12 @@ namespace Dravio.Character.Editor
                 if (!needed.Contains(n)) continue;
                 var st = sm.AddState(n, new Vector3(600, 60 * (a - 1), 0));
                 st.motion = Placeholder(ctrl, n);
+                st.speedParameterActive = true;
+                st.speedParameter = DragonAnimatorParams.Tempo;
                 var t = sm.AddAnyStateTransition(st);
                 t.canTransitionToSelf = false;
                 t.hasExitTime = false;
-                t.duration = 0.15f;
+                t.duration = ChainedActions.Contains(n) ? 0.05f : 0.15f;
                 t.AddCondition(AnimatorConditionMode.Equals, a, DragonAnimatorParams.Action);
             }
             EditorUtility.SetDirty(ctrl);

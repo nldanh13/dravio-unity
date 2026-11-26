@@ -33,7 +33,7 @@ namespace Dravio.Domain.Breeding
             return n;
         }
 
-        private static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
+        public static bool HasRoomForNewEgg(GameState s) => OccupiedSlots(s) < StorageCatalog.MaxDragons;
 
         // ---------------- Gói trứng ----------------
 
@@ -95,14 +95,25 @@ namespace Dravio.Domain.Breeding
             }
         }
 
+        /// <summary>
+        /// U2.6 — ADR 0003: health ≥ 80, mobility ≥ 80, comfort ≥ 60 và không có HealthCase mở, kiểm SAU checkBreed của TS (giữ nguyên thứ tự lỗi
+        /// và golden parity của checkBreed). Ca mở luôn kèm activity = care nên checkBreed đã trả breed-busy / breed-emergency-shelter trước.
+        /// </summary>
+        public static DomainErrorCode? HealthBlock(GameState s, DragonState a, DragonState b)
+        {
+            if (Health.HealthChecks.BreedingShortfalls(s, a).Count > 0 || Health.HealthChecks.BreedingShortfalls(s, b).Count > 0)
+                return DomainErrorCode.BreedVitalsBelowThreshold;
+            return null;
+        }
+
         /// <summary>Preview cho UI (query, không tiêu RNG): null kèm mã lỗi nếu cặp không hợp lệ.</summary>
         public static BreedPreview Preview(GameState s, string uidA, string uidB, long nowMs, out DomainErrorCode? error)
         {
             DragonState a = s.FindDragon(uidA), b = s.FindDragon(uidB);
             if (a == null || b == null) { error = DomainErrorCode.UnknownDragon; return null; }
             BreedPreview p = BreedingRules.QueryBreedPreview(a, b, nowMs, out BreedRejection? r);
-            error = r == null ? (DomainErrorCode?)null : ToCode(r.Value);
-            return p;
+            error = r == null ? HealthBlock(s, a, b) : ToCode(r.Value);
+            return error == null ? p : null;
         }
 
         public static DomainErrorCode? CheckStartBreed(GameState s, string uidA, string uidB, long nowMs)
@@ -112,6 +123,8 @@ namespace Dravio.Domain.Breeding
             if (s.BreedingNest != null) return DomainErrorCode.NestBusy;
             BreedRejection? r = BreedingRules.CheckBreed(a, b, nowMs);
             if (r != null) return ToCode(r.Value);
+            DomainErrorCode? health = HealthBlock(s, a, b);
+            if (health != null) return health;
             if (!HasRoomForNewEgg(s)) return DomainErrorCode.StorageFull;
             long fee = BreedingRules.BreedFeeG(SpeciesCatalog.Get(a.SpeciesId), SpeciesCatalog.Get(b.SpeciesId));
             if (s.Player.Gold < MicroGold.FromWholeGold(fee)) return DomainErrorCode.NotEnoughGold;
@@ -256,6 +269,7 @@ namespace Dravio.Domain.Breeding
             s.BreedingNest = null;
             s.Player.Stats.TotalHatched += 1;
             s.Player.Stats.TotalBred += 1;
+            Codex.RecordHatch(s, child.SpeciesId);
             events.Add(new DragonHatched(child.Uid, child.SpeciesId, child.Mutation, child.Location, false));
             return null;
         }
