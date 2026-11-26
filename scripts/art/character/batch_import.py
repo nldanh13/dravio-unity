@@ -40,7 +40,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
-PIPELINE_VERSION = 'u1-char5-v1'
+PIPELINE_VERSION = 'u1-char7b-v1'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
 # Every script and data file whose change must re-process an asset (cache fingerprint).
 PIPELINE_FILES = ['batch_import.py', 'char_common.py', 'inspect_character.py', 'prepare_character.py',
@@ -227,8 +227,31 @@ def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False):
              'animQa': {'status': qa['status'], 'warnings': [f"{w['clip'] or 'model'}: {w['check']} {w['message']} "
                                                              f"({w['value']} vs {w['limit']})" for w in qa['warnings']]}
              if qa else None,
+             'motion': motion_block(rigged, qa),
              'files': {'fbx': f'{name}_LODs.fbx'}}
     return steps, notes, (d, entry)
+
+
+def motion_block(rigged, qa):
+    """U1-CHAR.7 motion metadata for the Unity catalog, flat (JsonUtility reads no dictionaries); 0 = not
+    applicable / not measured. Sources: rig.json motion (body size, root offsets, turn limits) and the animation
+    QA (motion envelope per medium, authored transitions)."""
+    if not rigged:
+        return None
+    m = rigged.get('motion') or {}
+    body, off, turn = m.get('body', {}), m.get('rootOffsets_m', {}), m.get('maxTurnRateDegPerSec', {})
+    env = (qa or {}).get('motionEnvelope') or {}
+    tr = (qa or {}).get('transitions') or []
+    f = lambda v: float(v) if v is not None else 0.0  # noqa: E731
+    return {
+        'bodyLength': f(body.get('length_m')), 'bodyWidth': f(body.get('width_m')), 'bodyHeight': f(body.get('height_m')),
+        'takeOffRootOffset': f(off.get('TakeOff.end')), 'landRootOffset': f(off.get('Land.start')),
+        'maxTurnGround': f(turn.get('ground')), 'maxTurnWater': f(turn.get('water')), 'maxTurnAir': f(turn.get('air')),
+        'groundHeight': f(env.get('groundHeight_m')), 'groundLength': f(env.get('groundLength_m')), 'groundWidth': f(env.get('groundWidth_m')),
+        'swimVerticalExtent': f(env.get('swimVerticalExtent_m')), 'swimWidth': f(env.get('swimWidth_m')),
+        'flightSpan': f(env.get('flightSpan_m')), 'flightVerticalExtent': f(env.get('flightVerticalExtent_m')),
+        'transitionsChecked': len(tr), 'transitionMaxDeg': max((t.get('poseErrorDeg', 0.0) for t in tr), default=0.0),
+    }
 
 
 def process_prop(r, src, info, out, ov):

@@ -24,9 +24,14 @@ namespace Dravio.Character.Editor
         internal const string ArchetypesPath = "Assets/Dravio/Character/Data/dragon-archetypes.json";
 
         // index = DragonLocomotion / DragonInteraction value (U1-CHAR.6 appended Rest, Bask and Drink..Curious)
-        private static readonly string[] Locomotion = { "Idle", "Walk", "Run", "Swim", "Fly", "Burrow", "Sleep", "Rest", "Bask" };
-        private static readonly string[] Actions = { "", "Eat", "Happy", "Drink", "Wake", "Stretch", "LookAround", "Curious" };
-        private static readonly HashSet<string> MovingStates = new HashSet<string> { "Walk", "Run", "Swim", "Fly", "Burrow" };
+        private static readonly string[] Locomotion = { "Idle", "Walk", "Run", "Swim", "Fly", "Burrow", "Sleep", "Rest", "Bask",
+                                                        "SwimIdle", "SwimRest", "SwimSurface", "Perch", "Glide" };
+        private static readonly string[] Actions = { "", "Eat", "Happy", "Drink", "Wake", "Stretch", "LookAround", "Curious",
+                                                     "Greet", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge" };
+        private static readonly HashSet<string> MovingStates = new HashSet<string> { "Walk", "Run", "Swim", "Fly", "Burrow", "SwimSurface", "Glide" };
+        /// <summary>U1-CHAR.7 medium transitions: their ends are authored to match the neighbouring clips exactly
+        /// (anim_qa transitions), so a short blend is enough and a long one would smear the match.</summary>
+        private static readonly HashSet<string> ChainedActions = new HashSet<string> { "Wake", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge" };
 
         /// <summary>Blend times by archetype: long bodies and swimmers blend slower so the chain does not snap.</summary>
         private static float BlendSeconds(string archetype)
@@ -114,7 +119,7 @@ namespace Dravio.Character.Editor
                 var t = sm.AddAnyStateTransition(st);
                 t.canTransitionToSelf = false;
                 t.hasExitTime = false;
-                t.duration = 0.15f;
+                t.duration = ChainedActions.Contains(n) ? 0.05f : 0.15f;
                 t.AddCondition(AnimatorConditionMode.Equals, a, DragonAnimatorParams.Action);
             }
             EditorUtility.SetDirty(ctrl);

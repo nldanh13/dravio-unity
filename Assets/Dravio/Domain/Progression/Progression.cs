@@ -17,7 +17,7 @@ namespace Dravio.Domain.Progression
     {
         internal static readonly Personality[] Personalities = { Personality.Playful, Personality.Calm, Personality.Curious, Personality.Shy };
 
-        public static MicroGold Price => MicroGold.FromWholeGold(PackCatalog.Get(ProgressCatalog.TutorialPackId).PriceG);
+        public static MicroGold Price => MicroGold.FromWholeGold(ProgressCatalog.TutorialPackPriceG);
 
         public static DomainErrorCode? CheckBuy(GameState state)
         {

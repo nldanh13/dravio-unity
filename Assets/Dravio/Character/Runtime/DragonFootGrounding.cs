@@ -47,9 +47,14 @@ namespace Dravio.Character
         /// are animated without ground contact (or with the feet digging), so they are never corrected.</summary>
         public static bool AppliesTo(DragonLocomotion shown, DragonInteraction interaction)
         {
-            if (interaction == DragonInteraction.Happy) return false;
+            // feet leave the ground (hop, take-off, landing, water's edge) or scoop the soil (digging): no ground IK
+            if (interaction == DragonInteraction.Happy || interaction == DragonInteraction.TakeOff || interaction == DragonInteraction.Land
+                || interaction == DragonInteraction.WaterEnter || interaction == DragonInteraction.WaterExit
+                || interaction == DragonInteraction.DigPrep || interaction == DragonInteraction.BurrowEnter || interaction == DragonInteraction.BurrowEmerge)
+                return false;
             return shown == DragonLocomotion.Idle || shown == DragonLocomotion.Walk || shown == DragonLocomotion.Run
-                || shown == DragonLocomotion.Sleep || shown == DragonLocomotion.Rest || shown == DragonLocomotion.Bask;
+                || shown == DragonLocomotion.Sleep || shown == DragonLocomotion.Rest || shown == DragonLocomotion.Bask
+                || shown == DragonLocomotion.Perch;
         }
 
         public void Configure(DragonVisualCatalog.IkChain[] chains)

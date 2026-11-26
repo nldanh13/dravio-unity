@@ -43,6 +43,21 @@ namespace Dravio.Navigation
             }
             return false;
         }
+        // Separate horizontal/vertical margins for the U5.4.2 review tool only.
+        public bool ClearReviewVolume(Vector3 point,string habitat,NavigationMedium medium,MediumReviewEnvelope envelope)
+        {
+            if(data==null || data.volumes==null || string.IsNullOrEmpty(habitat) || !Point(point).Finite || !envelope.Valid ||
+                (medium!=NavigationMedium.Swim && medium!=NavigationMedium.Air))return false;
+            string mode=medium==NavigationMedium.Swim?"swim":"fly";
+            foreach(var volume in data.volumes)
+            {
+                if(volume==null || volume.medium!=mode || volume.habitatId!=habitat || !volume.Contains(point))continue;
+                if(point.y-envelope.Vertical<volume.yMin || point.y+envelope.Vertical>volume.yMax ||
+                    SanctuaryLocationData.EdgeDistance(volume.polygonXZ,point.x,point.z)<envelope.Horizontal)continue;
+                if(!data.BlockedAt(point-Vector3.up*envelope.Vertical,envelope.Horizontal))return true;
+            }
+            return false;
+        }
         public bool Segment(Vector3 a,Vector3 b,string habitat,NavigationMedium medium,float clearance=.25f)
             =>SanctuaryRoutePlanner.SegmentClear(Point(a),Point(b),p=>Clear(Vector(p),habitat,medium,clearance));
 

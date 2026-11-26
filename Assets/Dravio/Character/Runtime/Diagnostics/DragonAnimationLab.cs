@@ -17,6 +17,9 @@ namespace Dravio.Character.Diagnostics
     ///  * U1-CHAR.6 behaviour preview: the real DragonBehaviorPlanner drives the clips from an intent, a
     ///    personality style and player reactions (Petted / Called / Fed), so transitions (Sleep -> Wake),
     ///    idle variations and reactions can be reviewed per species
+    ///  * U1-CHAR.7 motion: the planner's medium (Ground/Water/Air/Perched/Underground), the running transition,
+    ///    canTranslate, the model hidden underground, the catalog motion metadata, and sliders that feed the
+    ///    DragonMotionShaper (turn rate, vertical speed) to review banking, pitching and body bend
     /// The clip is played through a manual PlayableGraph (not the Animator controller), so what is shown is exactly
     /// the imported clip at the chosen time. Root motion is off, as in game: the clips are authored in place.
     /// </summary>
@@ -50,6 +53,10 @@ namespace Dravio.Character.Diagnostics
         private DragonPersonalityStyle _style = DragonPersonalityStyle.Unspecified;
         private float _tempo = 1f;
         private string _behaviourLog = "";
+        private float _labTurn, _labClimb;
+        private DragonMotionShaper _shaper;
+        private Renderer[] _renderers = new Renderer[0];
+        private DragonBehaviorOutput _lastOut;
 
         public GameObject Instance { get { return _instance; } }
         public AnimationClip CurrentClip { get { return _clip >= 0 && _clip < _clips.Length ? _clips[_clip] : null; } }
@@ -74,6 +81,7 @@ namespace Dravio.Character.Diagnostics
             if (_instance != null) Destroy(_instance);
             _entry = entryIndex;
             _planner = null;
+            _shaper = null;
             var e = catalog.entries[entryIndex];
             if (e.prefab == null) { _instance = null; _clips = new AnimationClip[0]; return; }
             _instance = Instantiate(e.prefab, stage != null ? stage.position : Vector3.zero, Quaternion.identity);
@@ -171,8 +179,24 @@ namespace Dravio.Character.Diagnostics
                 _planner = new DragonBehaviorPlanner(new DragonAnimationMap(e.rigged ? e.clips : null),
                     i => DragonVisualCatalog.ClipSecondsOf(e, i), DragonPersonalityPresentation.For(_style), DragonBehaviorPlanner.SeedFor(e.speciesId));
             }
-            var o = _planner.Update(Time.deltaTime, _intent, 0f, 0f);
+            var o = _planner.Update(Time.deltaTime, _intent, 0f, _labTurn);
+            _lastOut = o;
             _tempo = o.tempo;
+            if (_instance != null)
+            {
+                if (_shaper == null)
+                {
+                    _shaper = _instance.GetComponent<DragonMotionShaper>();
+                    _renderers = _instance.GetComponentsInChildren<Renderer>(true);
+                }
+                foreach (var r in _renderers) if (r != null) r.enabled = o.visible; // underground: hidden
+                if (_shaper != null)
+                {
+                    _shaper.enabled = true;
+                    _shaper.SetInput(o.mode, _labTurn, _labClimb, 1f, e.motion != null ? e.motion.MaxTurn(o.mode) : 0f);
+                    _shaper.TailCarriage = _planner.Presentation.tailCarriage;
+                }
+            }
             if (o.trigger != DragonInteraction.None) _behaviourLog = "start " + o.trigger + (o.note != null ? " | " + o.note : "");
             else if (o.note != null) _behaviourLog = o.note;
             string want = _planner.ActiveAction != DragonInteraction.None ? _planner.ActiveAction.ToString() : o.locomotion.ToString();
@@ -374,6 +398,23 @@ namespace Dravio.Character.Diagnostics
                         GUILayout.Label("Shown " + _planner.Shown + (_planner.ActiveAction != DragonInteraction.None ? " + " + _planner.ActiveAction : "")
                             + "  tempo x" + _tempo.ToString("0.00") + "  idle " + _planner.IdleSeconds.ToString("0") + "/" + _planner.NextVariationAt.ToString("0") + " s");
                     if (!string.IsNullOrEmpty(_behaviourLog)) GUILayout.Label(_behaviourLog);
+                    if (_planner != null)
+                    {
+                        GUILayout.Label("Medium " + _lastOut.mode + (_lastOut.targetMode != _lastOut.mode ? " -> " + _lastOut.targetMode : "")
+                            + (_lastOut.transition != DragonInteraction.None ? "  transition " + _lastOut.transition : "")
+                            + "  canTranslate " + _lastOut.canTranslate + (_lastOut.visible ? "" : "  (hidden underground)"));
+                        var c2 = _planner.Capabilities;
+                        GUILayout.Label("Can: ground " + c2.ground + ", water " + c2.water + ", air " + c2.air + ", perch " + c2.perch + ", underground " + c2.underground);
+                    }
+                    GUILayout.Label("Turn rate " + _labTurn.ToString("0") + " deg/s" + (_shaper == null ? " (no DragonMotionShaper on prefab)" : ""));
+                    _labTurn = GUILayout.HorizontalSlider(_labTurn, -180f, 180f);
+                    GUILayout.Label("Vertical speed " + _labClimb.ToString("0.0") + " m/s");
+                    _labClimb = GUILayout.HorizontalSlider(_labClimb, -2f, 2f);
+                    var m = e.motion;
+                    if (m != null && m.bodyLength > 0f)
+                        GUILayout.Label("Body " + m.bodyLength.ToString("0.00") + " x " + m.bodyWidth.ToString("0.00") + " x " + m.bodyHeight.ToString("0.00")
+                            + " m; swim extent " + m.swimVerticalExtent.ToString("0.00") + " m; flight span " + m.flightSpan.ToString("0.00")
+                            + " m; TakeOff/Land root " + m.takeOffRootOffset.ToString("0.00") + "/" + m.landRootOffset.ToString("0.00") + " m");
                 }
                 GUILayout.Space(6);
                 GUILayout.Label("Animation QA: " + (string.IsNullOrEmpty(e.animQaStatus) ? "no report" : e.animQaStatus));
