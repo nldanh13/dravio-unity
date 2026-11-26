@@ -94,8 +94,8 @@ namespace Dravio.Domain.Tests
                     if (got == null)
                     {
                         reachable++;
-                        if (h.ZoneId == "ocean") Assert.That(loco, Does.Contain(Locomotion.Swim), sp.Id + " vào Thủy Vực phải bơi được");
-                        if (h.ZoneId == "sky") Assert.That(loco, Does.Contain(Locomotion.Fly), sp.Id + " lên Thiên Giới phải bay được");
+                        if (h.ZoneId == "ocean") Assert.That(loco, Has.Member(Locomotion.Swim), sp.Id + " vào Thủy Vực phải bơi được");
+                        if (h.ZoneId == "sky") Assert.That(loco, Has.Member(Locomotion.Fly), sp.Id + " lên Thiên Giới phải bay được");
                         DispatchResult r = Ok(s, new MoveDragonCommand(Rid(), "x", MoveTarget.Zone(h.ZoneId, h.Id)), clock);
                         Assert.That(r.State.FindDragon("x").Location.HabitatId, Is.EqualTo(h.Id));
                     }
