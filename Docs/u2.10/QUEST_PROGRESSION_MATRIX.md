@@ -61,9 +61,11 @@ Mô phỏng hoàn thành nhiệm vụ cổng khi đề xuất báo đủ, trừ 
 
 | Lịch chơi | Mở Thủy Vực (trung vị) | Mở Thiên Giới |
 |---|---|---|
-| 5 phút/ngày (chỉ buổi sáng) | xem báo cáo | xem báo cáo |
-| 3 × 10 phút/ngày | xem báo cáo | xem báo cáo |
-| 60 phút/ngày | xem báo cáo | xem báo cáo |
+| 5 phút/ngày (chỉ buổi sáng) | ngày 15,5 (90 % seed trong 90 ngày) | ngày 30 (45 % seed) |
+| 3 × 10 phút/ngày | ngày 5,3 (100 %) | ngày 13,5 (55 %) |
+| 60 phút/ngày | ngày 5,0 (100 %) | ngày 26 (60 %) |
+
+20 seed, trung vị trên các seed có mở. Thiên Giới khó hơn dự kiến vì cần một loài Thủy Vực đạt Ethology (ECONOMY_SIMULATION.md mục 6); đây là điểm cần chủ dự án chọn trước khi duyệt Q2.
 
 ## 7. Trạng thái ở production
 
