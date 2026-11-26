@@ -10,6 +10,21 @@ namespace Dravio.EditorTools
 {
     public static class TechnologyLabMapReport
     {
+        [MenuItem("Dravio/Technology Lab/Routed Crowd Benchmark")]
+        public static void Crowd()
+        {
+            var map=new LabLocationMap();
+            JsonUtility.FromJsonOverwrite(File.ReadAllText("Assets/Dravio/Environment/Data/OriginSanctuaryLocations.json"),map);
+            var report=new StringBuilder("Same authored A* paths; local steering comparison, not full production controller.\n");
+            foreach(int n in new[]{5,15,30})
+            {
+                var lab=RoutedCrowdExperiment.Build(map,"origin_meadow",n);
+                if(lab==null){report.AppendLine("No valid pair for "+n);continue;}
+                for(int i=0;i<400;i++)lab.Step();
+                report.AppendLine(lab.Summary());
+            }
+            Debug.Log(report.ToString());
+        }
         [MenuItem("Dravio/Technology Lab/Authored Route Benchmark")]
         public static void Run()
         {

@@ -48,6 +48,9 @@ namespace Dravio.TechnologyLab
         readonly LabObstacle[] obstacles;
         readonly LabVec[] planned,desired;
         readonly double halfExtent;
+        readonly Func<LabVec,LabVec,bool> geometry;
+        readonly Func<LabAgent,LabVec> waypoint;
+        readonly LabVec[] targets;
         public IReadOnlyList<LabAgent> Agents=>agents;
         public IReadOnlyList<LabObstacle> Obstacles=>obstacles;
         public double HalfExtent=>halfExtent;
@@ -58,10 +61,11 @@ namespace Dravio.TechnologyLab
         public long SafetyRejects { get; private set; }
         public double MinGap { get; private set; }=double.PositiveInfinity;
         public double DistanceTravelled { get; private set; }
-        public SteeringLab(LabAgent[] input,LabObstacle[] obstacles,double halfExtent)
+        public SteeringLab(LabAgent[] input,LabObstacle[] obstacles,double halfExtent,
+            Func<LabVec,LabVec,bool> geometry=null,Func<LabAgent,LabVec> waypoint=null)
         {
             if(input==null || input.Length==0 || !(halfExtent>0) || !Finite(halfExtent))throw new ArgumentException("arena");
-            this.halfExtent=halfExtent;
+            this.halfExtent=halfExtent;this.geometry=geometry;this.waypoint=waypoint;
             this.obstacles=obstacles==null?Array.Empty<LabObstacle>():(LabObstacle[])obstacles.Clone();
             foreach(var o in this.obstacles)
                 if(!o.Center.Finite || !(o.Radius>0) || !Finite(o.Radius))throw new ArgumentException("obstacle");
@@ -82,7 +86,7 @@ namespace Dravio.TechnologyLab
                 for(int j=0;j<i;j++)
                     if((agents[i].Position-agents[j].Position).Length+Epsilon<agents[i].Radius+agents[j].Radius+Margin)
                         throw new ArgumentException("initial overlap");
-            planned=new LabVec[agents.Length];desired=new LabVec[agents.Length];
+            planned=new LabVec[agents.Length];desired=new LabVec[agents.Length];targets=new LabVec[agents.Length];
             UpdateMetrics();
         }
         static bool Finite(double x)=>!double.IsNaN(x)&&!double.IsInfinity(x);
@@ -95,6 +99,7 @@ namespace Dravio.TechnologyLab
         }
         bool WorldClear(LabVec start,LabVec end,double radius)
         {
+            if(geometry!=null && !geometry(start,end))return false;
             double limit=halfExtent-radius-Margin;
             if(Math.Abs(start.X)>limit || Math.Abs(start.Y)>limit || Math.Abs(end.X)>limit || Math.Abs(end.Y)>limit)return false;
             foreach(var o in obstacles)
@@ -112,7 +117,7 @@ namespace Dravio.TechnologyLab
         }
         LabVec Preferred(int i,double flock)
         {
-            var a=agents[i];var seek=(a.Goal-a.Position).Unit;
+            var a=agents[i];var seek=(targets[i]-a.Position).Unit;
             if(flock<=0 || a.Group<0)return seek;
             var align=new LabVec();var center=new LabVec();int count=0;
             for(int j=0;j<agents.Length;j++)
@@ -126,7 +131,7 @@ namespace Dravio.TechnologyLab
         }
         double Score(int i,LabVec velocity,double dt,LabVec preferred)
         {
-            var a=agents[i];var goal=a.Goal-a.Position;
+            var a=agents[i];var goal=targets[i]-a.Position;
             // A short predictive horizon biases choices away from a future conflict.
             // This is sampled steering, not ORCA, and the prediction itself is not a safety proof.
             double horizon=.8;
@@ -156,7 +161,9 @@ namespace Dravio.TechnologyLab
             {
                 var a=agents[i];
                 planned[i]=a.Position;
-                desired[i]=a.Arrived?new LabVec():(a.Goal-a.Position).Unit*Math.Min(a.Speed,(a.Goal-a.Position).Length/dt);
+                targets[i]=a.Arrived?a.Position:(waypoint==null?a.Goal:waypoint(a));
+                if(!targets[i].Finite)targets[i]=a.Position;
+                desired[i]=a.Arrived?new LabVec():(targets[i]-a.Position).Unit*Math.Min(a.Speed,(targets[i]-a.Position).Length/dt);
             }
             // Rotate priority every tick. Already selected trajectories and all remaining stationary
             // bodies are reserved. Replacing a stationary trajectory only when all swept pairs are
@@ -175,7 +182,7 @@ namespace Dravio.TechnologyLab
                 foreach(double angle in Angles)
                 foreach(double scale in Speeds)
                 {
-                    var v=LabVec.Rotate(preferred,angle*Math.PI/180)*Math.Min(a.Speed*scale,(a.Goal-a.Position).Length/dt);
+                    var v=LabVec.Rotate(preferred,angle*Math.PI/180)*Math.Min(a.Speed*scale,(targets[i]-a.Position).Length/dt);
                     var end=a.Position+v*dt;
                     if(!Safe(i,end)){SafetyRejects++;continue;}
                     double score=Score(i,v,dt,preferred);

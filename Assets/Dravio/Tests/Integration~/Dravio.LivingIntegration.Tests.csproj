@@ -21,6 +21,8 @@
     <Compile Include="SteeringLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/AuthoredRouteBenchmark.cs" />
     <Compile Include="AuthoredNavigationLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/RoutedCrowdExperiment.cs" />
+    <Compile Include="RoutedCrowdLabTests.cs" />
     <None Include="../../Environment/Data/OriginSanctuaryLocations.json" Link="LabMaps/OriginSanctuaryLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../Environment/Zones/Ocean/Data/OceanLocations.json" Link="LabMaps/OceanLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../Environment/Zones/Sky/Data/SkyLocations.json" Link="LabMaps/SkyLocations.json" CopyToOutputDirectory="PreserveNewest" />
