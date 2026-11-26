@@ -159,6 +159,26 @@ def main():
               'clip_sources': {n: src for n, src, _, _ in TARGET},
               'walkStretch': (35 / (clips['Walk']['end'] - clips['Walk']['start'])) if clips else None}
     a.out.with_suffix('.qa.json').write_text(json.dumps(report, indent=1))
+    if rig:
+        # contract rig.json so anim_qa.py can measure the exported take exactly like the rig v7 source:
+        # renamed bones, contract clip ranges, contacts and groundSpeed rescaled by each clip's time stretch
+        t = json.dumps(rig)
+        for old, new in RENAME.items():
+            t = t.replace('"%s"' % old, '"%s"' % new)
+        cr = json.loads(t)
+        contacts = cr.get('contacts', {})
+        cr['clips'], cr['contacts'] = {}, {}
+        for name, src, t0, t1 in TARGET:
+            sc0 = clips[src]
+            f = (t1 - t0) / max(1, sc0['end'] - sc0['start'])
+            c = {'start': t0, 'end': t1, 'loop': name in ('Idle', 'Walk', 'Doze')}
+            if sc0.get('groundSpeed'):
+                c['groundSpeed'] = round(sc0['groundSpeed'] / f, 4)
+            cr['clips'][name] = c
+            if src in contacts:
+                cr['contacts'][name] = {k: [[round(a0 * f), round(a1 * f)] for a0, a1 in v] for k, v in contacts[src].items()}
+        cr['name'] = a.out.stem
+        a.out.with_name(a.out.stem + '_contract_rig.json').write_text(json.dumps(cr, indent=1))
     print('exported', a.out, tris, 'tris')
 
 

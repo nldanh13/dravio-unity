@@ -14,6 +14,9 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `run_selftest.py`, `selftest_checks.py` | Blender | End-to-end run + cross-checks on the TEST models |
 | `build_archetypes.py` | Python only | Rig/animation archetype + clip set per species from canonical locomotion/silhouette (`--check`) |
 | `rig_archetype.py` | Blender | Rig v2: archetype skeleton placed on measured landmarks (`rig_geometry.py`), chain weights + bounded blend bands, ≤4 influences, species clips with ground clearance and wing limits, deformation check |
+| `repair_chibi_rig.py` | Blender | CHAR.9b, opt-in per species (`repair` in the overrides; batch step after `rig_archetype`): linear skinning as Unity (`skinning`), Neck/Head share, geodesic weight blend around sharp leg–body transitions, anatomy-aware clip amplitude (`head`, `legs`, `knees`) |
+| `export_emberling_legacy_contract.py` | Blender | CHAR.9: rig v7 Emberling → `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` (22-bone / 5-clip contract of `EmberlingAssetAudit`) + `_contract_rig.json` so `anim_qa.py` can measure the export and the re-imported FBX |
+| `measure_skin_deformation.py` | Blender | Worst-frame stretch/compression (stricter diagnostic than `anim_qa.py`'s pooled percentiles) |
 | `rig_geometry.py` | Python + numpy | Geometric body plan: slices, feet from ground contacts, head/tail, manual landmarks, weight helpers, gait tracks |
 | `anim_qa.py` | Blender | Animation QA per model: stretch/compression, foot sliding, ground penetration, contact gap, moonwalk, loops, bounds, facing, wing-body penetration, weights, bone orientation, height, LODs → `<Name>_animqa.json` (+ `.png` with `--images`) |
 | `compare_animqa.py` | Python only | Before/after table of two folders of `*_animqa.json` (Vietnamese markdown) |
@@ -28,4 +31,4 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `tests/` | Python only | `python -m unittest discover -s scripts/art/character/tests` |
 
 All Blender scripts accept arguments after `--` and also run with the `bpy` module
-(`pip install bpy==5.3.*`, then `python script.py <args>`). No tool writes to its input file.
+(`pip install bpy==5.3.*`, then `python script.py <args>`). No tool writes to its input file, except `repair_chibi_rig.py`, which edits the batch's own `_Rigged.blend` / `_rig.json` in the work folder (never a source GLB). `anim_qa.py` reports `skinning`: Unity plays `linear`; rig v7 alone leaves Blender on dual quaternion.
