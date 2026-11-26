@@ -130,7 +130,7 @@ namespace Dravio.Editor
             var upgradeStatus=new List<Text>();
             var upgradeButtons=new List<Button>();
             Button unlockOcean=null,unlockSky=null,claimExpedition=null;
-            Text expeditionRouteText=null,expeditionDragonText=null;
+            Text expeditionRouteText=null,expeditionDragonText=null,expeditionClaimFeedback=null;
             Button nextExpeditionRoute=null,nextExpeditionDragon=null,startExpedition=null;
             Text hatcheryStatus=null,parentsStatus=null,hatcheryFeedback=null;
             Button standard=null,elemental=null,mystic=null,astral=null,packMeadow=null,packStorage=null,selectA=null,selectB=null,breed=null,tap=null,breedMeadow=null,breedStorage=null;
@@ -231,7 +231,7 @@ namespace Dravio.Editor
                 worldOrigin.interactable=worldOcean.interactable=worldSky.interactable=false;
                 Label(ui,management,"Visiting does not move dragons. Move them separately in Dragons.","Xem thế giới không chuyển rồng. Chuyển riêng ở mục Rồng.",14,Muted,TextAnchor.MiddleLeft,66);
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
-                managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
+                managementFeedback=AutoText(ui,management,Muted);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
                 projectStatus=AutoText(ui,management,Paper);
                 projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
@@ -264,11 +264,12 @@ namespace Dravio.Editor
                 managementExpedition=AutoText(ui,management,Paper);
                 expeditionRouteText=AutoText(ui,management,Paper);
                 nextExpeditionRoute=Button(ui,management,"Next route","Tuyến tiếp theo",46);
-                expeditionDragonText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,125,false);
+                expeditionDragonText=AutoText(ui,management,Paper);
                 nextExpeditionDragon=Button(ui,management,"Next expedition dragon","Rồng thám hiểm tiếp theo",46);
                 startExpedition=Button(ui,management,"Depart","Khởi hành",46);
                 nextExpeditionRoute.interactable=nextExpeditionDragon.interactable=startExpedition.interactable=false;
                 claimExpedition=Button(ui,management,"Claim expedition rewards","Nhận thưởng thám hiểm",46);
+                expeditionClaimFeedback=AutoText(ui,management,Paper);
                 Label(ui,management,"One expedition slot. The adult must meet health and route requirements. Away dragons do not produce gold; claim materials after return.","Một ô thám hiểm. Rồng trưởng thành cần đủ sức khỏe và phù hợp tuyến. Rồng đi xa không sinh vàng; nhận vật liệu khi trở về.",14,Muted,TextAnchor.MiddleLeft,100);
                 Label(ui,management,"Materials","Vật liệu",18,Gold,TextAnchor.MiddleLeft,36);
                 managementMaterials=AutoText(ui,management,Paper);
@@ -352,7 +353,7 @@ namespace Dravio.Editor
                         upgradeStatus.ToArray(),upgradeButtons.ToArray());
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockOcean.onClick,session.UnlockOcean);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockSky.onClick,session.UnlockSky);
-                    session.ConfigureExpedition(expeditionRouteText,expeditionDragonText,nextExpeditionRoute,nextExpeditionDragon,startExpedition);
+                    session.ConfigureExpedition(expeditionRouteText,expeditionDragonText,nextExpeditionRoute,nextExpeditionDragon,startExpedition,expeditionClaimFeedback);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionRoute.onClick,session.NextExpeditionRoute);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionDragon.onClick,session.NextExpeditionDragon);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(startExpedition.onClick,session.StartSelectedExpedition);

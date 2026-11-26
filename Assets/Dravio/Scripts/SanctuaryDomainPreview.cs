@@ -40,8 +40,10 @@ namespace Dravio
         [SerializeField] private Text expeditionRouteText,expeditionDragonText;
         [SerializeField] private Button nextExpeditionRoute,nextExpeditionDragon,startExpedition;
         private string expeditionRouteId,expeditionDragonUid;
-        public void ConfigureExpedition(Text route,Text dragon,Button nextRoute,Button nextDragon,Button start)
-        {expeditionRouteText=route;expeditionDragonText=dragon;nextExpeditionRoute=nextRoute;nextExpeditionDragon=nextDragon;startExpedition=start;}
+        [SerializeField] private Text expeditionClaimFeedback;
+        private string claimEn="",claimVi="";
+        public void ConfigureExpedition(Text route,Text dragon,Button nextRoute,Button nextDragon,Button start,Text claimFeedback=null)
+        {expeditionRouteText=route;expeditionDragonText=dragon;nextExpeditionRoute=nextRoute;nextExpeditionDragon=nextDragon;startExpedition=start;expeditionClaimFeedback=claimFeedback;}
         [SerializeField] private Text[] upgradeStatus;
         [SerializeField] private Button[] upgradeButtons;
         [SerializeField] private Text healthStatus,careCaseStatus,carePlanStatus;
@@ -381,8 +383,10 @@ namespace Dravio
             var events=Send(id=>new ClaimExpeditionCommand(id));
             if(events==null)return;
             bool saveError=Session.SaveError;
-            SetMessage(ExpeditionPresentation.ClaimFeedback(events,false,saveError),
-                ExpeditionPresentation.ClaimFeedback(events,true,saveError));
+            claimEn=ExpeditionPresentation.ClaimFeedback(events,false,saveError);
+            claimVi=ExpeditionPresentation.ClaimFeedback(events,true,saveError);
+            SetMessage(claimEn,claimVi);
+            RefreshClaimFeedback();
         }
         public void NextExpeditionRoute()
         {
@@ -409,8 +413,15 @@ namespace Dravio
                 "Expedition started; dragon returns automatically, rewards require claim.",
                 "Đã khởi hành; rồng tự trở về, phần thưởng cần nhận.");
         }
+        void RefreshClaimFeedback()
+        {
+            if(expeditionClaimFeedback==null)return;
+            expeditionClaimFeedback.text=string.IsNullOrEmpty(claimEn)?"—":
+                (vi?"Lần nhận thưởng gần nhất trong phiên:\n":"Last claim this session:\n")+(vi?claimVi:claimEn);
+        }
         void RefreshExpedition(bool ready)
         {
+            RefreshClaimFeedback();
             if(expeditionRouteText==null)return;
             nextExpeditionRoute.interactable=nextExpeditionDragon.interactable=startExpedition.interactable=false;
             if(state==null){expeditionRouteText.text=expeditionDragonText.text="—";return;}
