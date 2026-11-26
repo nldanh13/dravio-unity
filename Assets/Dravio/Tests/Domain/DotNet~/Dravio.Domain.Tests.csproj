@@ -16,7 +16,7 @@
     <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../Domain/DotNet~/Dravio.Domain.csproj" />
+    <ProjectReference Include="../AssemblyBoundary~/Dravio.Domain.csproj" />
     <Compile Include="../*.cs;../Support/*.cs;../Simulation/*.cs" />
   </ItemGroup>
   <ItemGroup>
