@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector  # noqa: E402
 REPO = Path(__file__).resolve().parents[3]
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
-RIG_VERSION = 2
+RIG_VERSION = 3  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot
 FPS = 30
 BASE_FRAMES = {'Idle': 120, 'Eat': 60, 'Sleep': 120, 'Happy': 45, 'Swim': 48, 'Burrow': 60,
                'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40}
@@ -596,9 +596,10 @@ class Animator:
         contacts = {}
         pr = self.prof
 
-        def tail_wave(amp, freq=1.0, lag=0.6, axis='Z', phase=0.0):
+        def tail_wave(amp, freq=1.0, lag=0.6, axis='Z', phase=0.0, base=0.6):
+            # base: share of the amplitude at the tail root (1 at the tip); lower = the bend grows along the tail
             for i, n in enumerate(self.tails):
-                mul(n, axis, amp * (0.6 + 0.4 * i / max(1, len(self.tails) - 1)) * math.sin(tau * (freq * t + phase) - lag * i))
+                mul(n, axis, amp * (base + (1.0 - base) * i / max(1, len(self.tails) - 1)) * math.sin(tau * (freq * t + phase) - lag * i))
 
         def spine_wave(amp, wl=0.8, freq=1.0, axis='Z'):
             chain = self.spine + [n for n in self.tails if n != 'TailFin']
@@ -626,7 +627,7 @@ class Animator:
                 dy, dz = rg.foot_track(t, phases[k], duty, stride, lift)
                 feet[k] = self.leg[k]['ankle0'] + Vector((0, dy, dz))
                 contacts[k] = dz == 0.0
-            self.ground_speed[clip] = stride / (duty * frames / FPS)
+            self.ground_speed[clip] = rg.stance_stride(stride, duty) / (duty * frames / FPS)  # planted-foot speed
             root.z += cfg['bob'] * h * (0.5 - 0.5 * math.cos(2 * tau * t))
             root.z -= cfg['bob'] * h  # bob downward from rest so feet stay reachable
             mul('Chest', 'Y', 0.03 * math.sin(tau * t))
@@ -700,6 +701,9 @@ class Animator:
                 spine_wave(0.08, freq=2.0)
         elif clip == 'Burrow':
             cfg = pr.get('burrow', {})
+            # planted hind paws share the ankle fold while the body drops (U1-CHAR.5: a flat paw under a
+            # folding shin pinched the ankle, same as Sleep)
+            self.foot_follow = cfg.get('footFollow', 0.0)
             reach, cyc = cfg.get('digReachLegs', 0.35) * LL, cfg.get('digCycles', 2)
             root.z -= cfg.get('chestDropH', 0.04) * h
             mul('Chest', 'X', cfg.get('chestPitch', 0.10))
@@ -723,7 +727,7 @@ class Animator:
             cfg = pr.get('swim', {})
             fk_legs = True
             if cfg.get('style') == 'paddle':  # round swimmers: tail stroke, fins and paddling legs
-                tail_wave(cfg.get('tailStroke', 0.35), 1.0, 0.5)
+                tail_wave(cfg.get('tailStroke', 0.35), 1.0, 0.5, base=cfg.get('tailBase', 0.6))
                 for s, sign in (('L', 1), ('R', -1)):
                     mul(f'EarFin_{s}', 'Y', sign * cfg.get('finFlap', 0.45) * math.sin(tau * t))
                     mul(f'Fin_{s}', 'Y', sign * cfg.get('finFlap', 0.45) * math.sin(tau * t))
@@ -1116,6 +1120,20 @@ def main():
     probe = rg.Analysis(np.array([v.co[:] for v in obj.data.vertices]))
     E = np.array([e.vertices[:] for e in obj.data.edges])
     detected = probe.detect_limbs(rg.main_component_mask(len(probe.V), E))
+    # symmetry plane from paired feet (U1-CHAR.5): the bounding-box centre is off the midline for S-curved or
+    # one-sided silhouettes, which put the L/R bones asymmetrically. Manual landmarks are given in the
+    # source's own frame, so they disable the shift.
+    positional = any(k != 'limbCount' for k in manual)
+    dx = 0.0 if positional else rg.feet_midline_offset(detected.get('feet', {}), h=size['height'])
+    if abs(dx) > 0.002 * size['height']:
+        for v in obj.data.vertices:
+            v.co.x -= dx
+        obj.data.update()
+        probe = rg.Analysis(np.array([v.co[:] for v in obj.data.vertices]))
+        detected = probe.detect_limbs(rg.main_component_mask(len(probe.V), E))
+    else:
+        dx = 0.0
+    size['midlineShift_m'] = round(dx, 4)
     limb_arg = str(manual['limbCount']) if 'limbCount' in manual else a.limb_count
     limb, limb_src = resolve_limbs(sp, limb_arg, detected)
     if arch == 'walker':

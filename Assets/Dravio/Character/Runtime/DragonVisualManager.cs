@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dravio.Character.Integration;
 using UnityEngine;
 
 namespace Dravio.Character
@@ -16,7 +17,7 @@ namespace Dravio.Character
     /// No Domain, Persistence, HUD or scene dependency.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class DragonVisualManager : MonoBehaviour
+    public sealed class DragonVisualManager : MonoBehaviour, IDragonVisualTarget
     {
         public DragonVisualCatalog catalog;
         [Tooltip("Optional. Empty or missing = no genotype/variant visual changes (none are defined in the GDD yet)")]
@@ -30,16 +31,17 @@ namespace Dravio.Character
         /// <summary>uid, message. Raised for fallbacks (missing stage model, unsupported locomotion, ...).</summary>
         public event Action<string, string> Warning;
 
-        public int Count { get { return _live.Count; } }
-        public int PoolCreated { get { return _pool != null ? _pool.Created : 0; } }
-        public int PoolReused { get { return _pool != null ? _pool.Reused : 0; } }
+        public int Count { get { return _roster != null ? _roster.Count : 0; } }
+        public int PoolCreated { get { return _roster != null ? _roster.Created : 0; } }
+        public int PoolReused { get { return _roster != null ? _roster.Reused : 0; } }
+        /// <summary>Instances destroyed because their prefab's free list was full.</summary>
+        public int PoolDestroyed { get { return _roster != null ? _roster.Destroyed : 0; } }
         public int EvaluatedLastFrame { get; private set; }
         public int VisibleLastFrame { get; private set; }
 
-        private readonly Dictionary<string, DragonVisualInstance> _live = new Dictionary<string, DragonVisualInstance>(StringComparer.Ordinal);
+        private DragonVisualRoster<GameObject, DragonVisualInstance> _roster;
         private readonly List<DragonVisualInstance> _iter = new List<DragonVisualInstance>();
         private readonly Dictionary<string, DragonVisualSpawn> _spawns = new Dictionary<string, DragonVisualSpawn>(StringComparer.Ordinal);
-        private KeyedPool<GameObject, DragonVisualInstance> _pool;
         private Transform _poolRoot;
         private readonly Plane[] _planes = new Plane[6];
         private int _nextPhase;
@@ -48,14 +50,15 @@ namespace Dravio.Character
 
         private void EnsurePool()
         {
-            if (_pool != null) return;
+            if (_roster != null) return;
             var root = new GameObject("DragonVisualPool");
             root.SetActive(false);
             root.transform.SetParent(transform, false);
             _poolRoot = root.transform;
-            _pool = new KeyedPool<GameObject, DragonVisualInstance>(CreateInstance,
+            _roster = new DragonVisualRoster<GameObject, DragonVisualInstance>(CreateInstance,
                 i => { i.transform.SetParent(transform, false); },
                 i => { i.ResetForPool(); i.transform.SetParent(_poolRoot, false); },
+                i => { if (i != null) Destroy(i.gameObject); },
                 maxPooledPerPrefab);
         }
 
@@ -83,17 +86,8 @@ namespace Dravio.Character
             }
             if (match != DragonVisualCatalog.Match.Exact)
                 Warn(spawn.uid, spawn.speciesId + "/" + spawn.stage + " has no exact model; using " + entry.stage + " (" + match + ")");
-            DragonVisualInstance inst;
-            if (_live.TryGetValue(spawn.uid, out inst) && inst.SourcePrefab != entry.prefab)
-            {
-                Release(inst);
-                inst = null;
-            }
-            if (inst == null)
-            {
-                inst = _pool.Get(entry.prefab);
-                _live[spawn.uid] = inst;
-            }
+            DragonVisualRoster<GameObject, DragonVisualInstance>.AcquireResult how;
+            DragonVisualInstance inst = _roster.Acquire(spawn.uid, entry.prefab, out how);
             _spawns[spawn.uid] = spawn;
             inst.Setup(spawn.uid, entry, match, phenotypeProfile, spawn);
             ApplyState(spawn.uid, spawn.state);
@@ -105,7 +99,7 @@ namespace Dravio.Character
         {
             DragonVisualSpawn s;
             DragonVisualInstance inst;
-            if (!_spawns.TryGetValue(uid, out s) || !_live.TryGetValue(uid, out inst)) return null;
+            if (!_spawns.TryGetValue(uid, out s) || _roster == null || !_roster.TryGet(uid, out inst)) return null;
             s.stage = stage;
             s.state = inst.State;
             return Spawn(s);
@@ -114,7 +108,7 @@ namespace Dravio.Character
         public bool ApplyState(string uid, DragonVisualState state)
         {
             DragonVisualInstance inst;
-            if (!_live.TryGetValue(uid, out inst)) return false;
+            if (_roster == null || !_roster.TryGet(uid, out inst)) return false;
             if (!inst.Apply(state))
                 Warn(uid, inst.Entry.speciesId + " has no " + state.locomotion + " clip; showing " + inst.ShownLocomotion);
             return true;
@@ -123,7 +117,7 @@ namespace Dravio.Character
         public bool Trigger(string uid, DragonInteraction interaction)
         {
             DragonVisualInstance inst;
-            if (!_live.TryGetValue(uid, out inst) || catalog == null) return false;
+            if (_roster == null || !_roster.TryGet(uid, out inst) || catalog == null) return false;
             bool ok = inst.Trigger(interaction, catalog.InteractionSeconds(inst.Entry, interaction));
             if (!ok) Warn(uid, inst.Entry.speciesId + " cannot play " + interaction);
             return ok;
@@ -133,33 +127,32 @@ namespace Dravio.Character
         {
             DragonVisualInstance inst;
             anchor = null;
-            return _live.TryGetValue(uid, out inst) && inst.TryGetAnchor(anchorName, out anchor);
+            return _roster != null && _roster.TryGet(uid, out inst) && inst.TryGetAnchor(anchorName, out anchor);
         }
 
-        public bool TryGet(string uid, out DragonVisualInstance instance) { return _live.TryGetValue(uid, out instance); }
+        public bool TryGet(string uid, out DragonVisualInstance instance)
+        {
+            instance = null;
+            return _roster != null && _roster.TryGet(uid, out instance);
+        }
+
+        public bool IsLive(string uid) { DragonVisualInstance i; return TryGet(uid, out i); }
 
         public void Despawn(string uid)
         {
-            DragonVisualInstance inst;
-            if (_live.TryGetValue(uid, out inst)) Release(inst);
-            _live.Remove(uid);
+            if (uid == null) return;
+            if (_roster != null) _roster.Release(uid);
             _spawns.Remove(uid);
         }
 
         public void DespawnAll()
         {
-            _iter.Clear();
-            _iter.AddRange(_live.Values);
-            foreach (var i in _iter) Release(i);
-            _live.Clear();
+            if (_roster != null) _roster.ReleaseAll();
             _spawns.Clear();
         }
 
-        private void Release(DragonVisualInstance inst)
-        {
-            if (inst == null) return;
-            if (!_pool.Release(inst.SourcePrefab, inst)) Destroy(inst.gameObject);
-        }
+        bool IDragonVisualTarget.Spawn(DragonVisualSpawn spawn) { return Spawn(spawn) != null; }
+        bool IDragonVisualTarget.SetStage(string uid, DragonVisualStage stage) { return SetStage(uid, stage) != null; }
 
         private void Update()
         {
@@ -170,7 +163,8 @@ namespace Dravio.Character
             float dt = Time.deltaTime;
             int evaluated = 0, visible = 0;
             _iter.Clear();
-            _iter.AddRange(_live.Values);
+            if (_roster != null)
+                foreach (var uid in _roster.Uids) { DragonVisualInstance i; if (_roster.TryGet(uid, out i)) _iter.Add(i); }
             foreach (var inst in _iter)
             {
                 var bounds = inst.WorldBounds();
@@ -186,8 +180,8 @@ namespace Dravio.Character
 
         private void OnDestroy()
         {
-            if (_pool == null) return;
-            foreach (var i in _pool.DrainAll()) if (i != null) Destroy(i.gameObject);
+            if (_roster == null) return;
+            foreach (var i in _roster.DrainPool()) if (i != null) Destroy(i.gameObject);
         }
 
         private void Warn(string uid, string message)
