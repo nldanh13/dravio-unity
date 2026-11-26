@@ -1,6 +1,6 @@
 # ADR 0207 — U2.12: Economy & Ecosystem Validation (không đổi luật, không đổi save)
 
-- **Trạng thái:** Draft PR, chờ chủ dự án xem. Không merge `main`.
+- **Trạng thái:** PR riêng (U2.12), chờ chủ dự án xem. Không merge `main` khi chưa duyệt. Nhánh đã gộp `main` mới nhất (2026-11-26, sau PR #1 và #62), không xung đột.
 - **Phạm vi:** Nhánh `feat/u2-12-ecosystem-validation`, xếp chồng trên U2.11 (PR #57, nhánh `claude/project-thread-hcwo4k`, ADR 0206). Domain và Persistence C# thuần, không UnityEngine. Không chạm UI, Character, Environment, Unity Presentation.
 - **Giữ nguyên:** mọi luật đã duyệt (E1, E2, E5, R11, U2.11). Save Schema vẫn **v10**, không trường mới, không migration. Thiên tai, Comfort drift, tiêu hao năng lượng, khóa Codex, tác động comfort của quan hệ vẫn TẮT. Tuyến `sky_cloud` vẫn khóa. Không bật luật thử nghiệm nào.
 
@@ -13,6 +13,7 @@
 | Hành trình mô phỏng bằng lệnh thật | Hai kiểu người chơi mới trong bộ mô phỏng: **Guided** (theo hướng dẫn, nghiên cứu đầy đủ, lai cho nhiệm vụ Thân thiết) và **Casual** (1 gói/ngày, chỉ làm bước rẻ: xem hồ sơ, 1 bữa ăn + 2 lần quan sát mỗi phiên) | `Tests/Domain/Simulation/EconomySimulator.cs` |
 | Mô phỏng kinh tế 7 / 30 / 90 / 365 ngày | 8 kiểu người chơi × 3 lịch chơi × 3 seed, luật thật v10 | `U212EcosystemValidationTests.Write_u212_ecosystem_report_when_requested`, kết quả `Docs/u2.12/ECONOMY_365.md` |
 | Kiểm thử tự động | 14 test Domain (kiểm toán, hướng dẫn, hành trình, bất biến kinh tế) + 2 test Persistence (save v10 của hành trình ba thế giới) | `U212EcosystemValidationTests.cs`, `JourneyEndStateSaveTests.cs` |
+| Độ quen nhanh (không đổi kết quả) | `SocialEcology.Familiarity` cho yêu cầu `relationPairs` (O(n²) cặp, không băm tính cách); test so với `Relation(...).Familiarity` trên mọi cặp. Mô phỏng 365 ngày nhanh hơn khoảng 10 lần | `Behavior/SocialEcology.cs`, `QuestProposals.cs` |
 | Tối ưu mô phỏng (không đổi kết quả) | `ArrangeProducers` thoát sớm khi chắc chắn không đổi chỗ được; đã so từng dòng kết quả có / không tối ưu | `EconomySimulator.cs` |
 
 ## Phát hiện (không sửa luật — cần chủ dự án quyết định)
@@ -28,6 +29,9 @@
 | F7 | Nhiệm vụ đếm cả rồng đang đi thám hiểm là "Adult ở sinh cảnh" / "cư dân Good" (vị trí vẫn là Zone), trong khi quan hệ thì bỏ qua rồng đi xa | Thấp (nhất quán) | (Đổi luật) loại rồng đang thám hiểm khỏi `adultWithLocomotion`, `residentsThriving`, `residentsAtHome` |
 | F8 | `QuestProposals.Evaluate` (`relationPairs`) và `QuestLog` là O(n²) theo số rồng; kho tối đa 500 rồng → ~125 000 cặp | Thấp (hiệu năng Unity) | Unity gọi `QuestLog` / `Journey` khi có event (không mỗi frame), lưu kết quả tới lệnh kế tiếp |
 | F9 | Ảnh v4 cho TS không biểu diễn được chuyến thám hiểm đang chạy (giới hạn từ U2.8), nên save giữa hành trình thật không chiếu sang TS được | Thông tin | Giữ nguyên; test v4 dùng save không có chuyến đang chạy |
+| F11 | Casual lịch 60 phút/ngày chỉ mở Thiên Giới ở 1/3 seed (cổng cần Ethology của một loài Thủy Vực) — xem ECONOMY_365 | Trung bình | Unity nhắc quan sát rồng Thủy Vực từ `Journey`; hoặc xem lại yêu cầu cổng |
+| F12 | Pha lê / san hô dồn 400–1 500 đơn vị sau 1 năm (F3 có số liệu) | Trung bình | Vật liệu theo thế giới (đã duyệt, làm ở U2.13) |
+| F13 | Collector / Breeder chạm trần kho 500 rồng sau 1 năm | Thấp | UI nhắc bán nhanh; trứng thưởng chờ `rewardQueue` |
 | F10 | Người chơi không xem hồ sơ / không quan sát thì không bao giờ tới Thủy Vực (U2.11 đã thấy). Casual có hướng dẫn tới được cả Thủy Vực và Thiên Giới | Thiết kế | Unity hiển thị `Journey(s).Steps[0]` trên HUD hành trình |
 
 ## Hệ quả
