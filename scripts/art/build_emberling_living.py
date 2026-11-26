@@ -3,16 +3,18 @@
 # No external assets. Not a finished sculpt, rig, or painterly texture.
 import bpy
 import math
+import json
 import sys
 from pathlib import Path
 from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 out = Path(args[0] if args else "art-exports/EmberlingLiving.fbx").resolve()
-polish_preview = "--polish-preview" in args[1:]
+refined_preview = "--refined-preview" in args[1:]
+polish_preview = "--polish-preview" in args[1:] or refined_preview
 care_preview = "--care-preview" in args[1:] or polish_preview
 walk_preview = "--walk-preview" in args[1:] or care_preview
-if care_preview and out.stem != ("EmberlingPolished" if polish_preview else "EmberlingCare"):
+if care_preview and out.stem != ("EmberlingRefined" if refined_preview else "EmberlingPolished" if polish_preview else "EmberlingCare"):
     raise ValueError("Care or polish preview requires its own output filename")
 if walk_preview and not care_preview and out.stem != "EmberlingWander":
     raise ValueError("Walk preview requires a separate EmberlingWander.fbx output")
@@ -170,11 +172,20 @@ specs = [
     ("Flame",(0,1.23,-1.70),(0,1.67,-1.75),"Tail2"),
 ]
 for s,label in [(-1,"L"),(1,"R")]:
-    specs += [
-        ("Fore_"+label,(s*.37,.71,.43),(s*.43,.16,.59),"Chest"),
-        ("Hind_"+label,(s*.43,.65,-.47),(s*.48,.16,-.35),"Pelvis"),
-        ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
-    ]
+    if refined_preview:
+        specs += [
+            ("Fore_"+label,(s*.37,.71,.43),(s*.40,.40,.37),"Chest"),
+            ("ForeLower_"+label,(s*.40,.40,.37),(s*.43,.16,.59),"Fore_"+label),
+            ("Hind_"+label,(s*.43,.65,-.47),(s*.46,.38,-.23),"Pelvis"),
+            ("HindLower_"+label,(s*.46,.38,-.23),(s*.48,.16,-.35),"Hind_"+label),
+            ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
+        ]
+    else:
+        specs += [
+            ("Fore_"+label,(s*.37,.71,.43),(s*.43,.16,.59),"Chest"),
+            ("Hind_"+label,(s*.43,.65,-.47),(s*.48,.16,-.35),"Pelvis"),
+            ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
+        ]
 
 meshes=[o for o in bpy.context.scene.objects if o.type=="MESH"]
 bpy.ops.object.select_all(action='DESELECT')
@@ -211,6 +222,10 @@ def body_weights(p):
         return blend("Pelvis","Tail1",(-f-.69)/.24)
     if z<.55 and abs(x)>.18:
         leg=("Fore_" if f>.02 else "Hind_")+side
+        if refined_preview:
+            lower=("ForeLower_" if f>.02 else "HindLower_")+side
+            if z<.40:return blend(lower,leg,(z-.25)/.15)
+            return blend(leg,"Chest" if f>.02 else "Pelvis",(z-.40)/.15)
         return blend(leg,"Chest" if f>.02 else "Pelvis",(z-.23)/.32)
     if z>1.02 and f>.28:
         return blend("Chest","Head",(z-1.02)/.27)
@@ -222,8 +237,8 @@ def rigid_bone(o):
     side="L" if x<0 else "R"
     if name.startswith(("Eye surround","Iris","Pupil","Catchlight","Small glint")):
         return "Eye_"+side
-    if name.startswith("Front claw"):return "Fore_"+side
-    if name.startswith("Rear claw"):return "Hind_"+side
+    if name.startswith("Front claw"):return ("ForeLower_" if refined_preview else "Fore_")+side
+    if name.startswith("Rear claw"):return ("HindLower_" if refined_preview else "Hind_")+side
     if name.startswith(("Round flame","Flame core")):return "Flame"
     if name.startswith("Rounded back scale"):return "Chest" if -y>-.40 else "Pelvis"
     return "Head"
@@ -331,6 +346,60 @@ if care_preview:
             if bone.name=="Root":continue
             for prop in ("rotation_euler","scale"):
                 bone.keyframe_insert(data_path=prop,frame=frame,group=bone.name)
+if refined_preview:
+    # Replace leg channels with two-joint FK. No claim of planted-foot IK:
+    # art QA must tune stride, skin weights and translation speed together.
+    pairs=[("Fore_L","ForeLower_L",0.),("Hind_L","HindLower_L",.25),
+           ("Fore_R","ForeLower_R",.5),("Hind_R","HindLower_R",.75)]
+    pelvis_local_down=arm.data.bones["Pelvis"].matrix_local.to_3x3().inverted() @ Vector((0,0,-.18))
+    for frame in range(1,446):
+        scene.frame_set(frame)
+        walking=182<=frame<=217
+        sleeping=279<=frame<=399
+        pose["Pelvis"].location=pelvis_local_down if sleeping else Vector((0,0,0))
+        pose["Pelvis"].keyframe_insert(data_path="location",frame=frame,group="Pelvis")
+        for upper,lower,offset in pairs:
+            is_fore=upper.startswith("Fore")
+            pitch=0.
+            bend=0.
+            if walking:
+                t=(frame-182)/35
+                phase=2*math.pi*(t+offset)
+                lift=max(0.,math.sin(phase))
+                pitch=.23*math.cos(phase)
+                bend=(-.30 if is_fore else .30)*lift
+            elif sleeping:
+                # Opposing joint angles shorten the projected leg by ~.18 units
+                # in the sagittal plane, compensating for the lowered pelvis.
+                pitch=.46 if is_fore else -.40
+                bend=-.92 if is_fore else .80
+            def pitch_sign(name):
+                axis=arm.data.bones[name].matrix_local.to_3x3() @ Vector((1,0,0))
+                return 1. if axis.x>=0 else -1.
+            pose[upper].rotation_euler=(pitch*pitch_sign(upper),0,0)
+            pose[lower].rotation_euler=(bend*pitch_sign(lower),0,0)
+            for name in (upper,lower):
+                pose[name].keyframe_insert(data_path="rotation_euler",frame=frame,group=name)
+    # Validate authored vertex assignments before export. No runtime or visual claims.
+    issues=[]
+    for obj in meshes:
+        for vertex in obj.data.vertices:
+            total=sum(g.weight for g in vertex.groups)
+            if not math.isfinite(total) or abs(total-1.)>.001 or len(vertex.groups)>4:
+                issues.append(f"{obj.name}:{vertex.index}")
+                if len(issues)>=20:break
+        if len(issues)>=20:break
+    if issues:raise RuntimeError("Invalid skin weights: "+", ".join(issues))
+    report={
+        "model":out.name,"bones":[b.name for b in arm.data.bones],
+        "mesh_count":len(meshes),"vertices":sum(len(o.data.vertices) for o in meshes),
+        "triangles":sum(sum(max(0,len(p.vertices)-2) for p in o.data.polygons) for o in meshes),
+        "fps":30,"clip_frames":{"Idle":[1,181],"Walk":[182,217],"Eat":[218,278],"Doze":[279,399],"Happy":[400,445]},
+        "checks":{"normalized_skin_weights":True,"maximum_four_weights":True},
+        "limits":"FK prototype; gait, sleep pose, UV, Unity import and visual QA pending"
+    }
+    # Persist report only after the FBX export succeeds.
+
 action=arm.animation_data.action
 action.name="Emberling_Care" if care_preview else "Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
 scene.frame_set(1)
@@ -344,4 +413,9 @@ bpy.ops.export_scene.fbx(filepath=str(out),use_selection=True,
     apply_unit_scale=True,add_leaf_bones=False,mesh_smooth_type='FACE',
     bake_anim=True,bake_anim_use_all_actions=False,bake_anim_use_nla_strips=False,
     bake_anim_force_startend_keying=True,bake_anim_simplify_factor=0.0)
-print("Dravio rigged idle prototype exported:",out)
+if refined_preview:
+    if not out.is_file() or out.stat().st_size<=0:
+        raise RuntimeError("FBX missing after export")
+    report["fbx_bytes"]=out.stat().st_size
+    out.with_suffix(".qa.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+print("Dravio rigged prototype exported:",out)
