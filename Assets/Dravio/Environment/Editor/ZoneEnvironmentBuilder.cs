@@ -161,7 +161,8 @@ namespace Dravio.EnvironmentArt.EditorTools
             {
                 // Kelp and seagrass sway in the current; sky grass in the high wind.
                 OriginSanctuaryEnvironmentBuilder.ConfigurePainterly(props, atlas, emission, wind: 0.05f, path: 0f, clip: false);
-                props.SetColor("_EmissionColor", new Color(1.7f, 1.7f, 1.7f, 1f));
+                // ENV Alpha (#79): 1.7 clipped crystals / anemones / glyphs to white in the Game view.
+                props.SetColor("_EmissionColor", ocean ? new Color(1.2f, 1.2f, 1.2f, 1f) : new Color(1.3f, 1.3f, 1.3f, 1f));
                 OriginSanctuaryEnvironmentBuilder.ConfigurePainterly(fol, foliage, null, wind: ocean ? 0.16f : 0.13f, path: 0f, clip: true);
                 OriginSanctuaryEnvironmentBuilder.ConfigurePainterly(gr, ground, null, wind: 0f, path: 1f, clip: false);
                 gr.SetFloat("_RimStrength", 0f);
@@ -185,14 +186,16 @@ namespace Dravio.EnvironmentArt.EditorTools
                 if (waterOk)
                 {
                     // Sky: the water shader drawn as a slowly drifting sea of clouds.
+                    // ENV Alpha (#79): near-white shallow / foam blew out; clouds now stay below white and the
+                    // deep tone carries more blue, so the cloud relief (texture) reads against the islands.
                     w.SetTexture("_BaseMap", water);
-                    w.SetColor("_ShallowColor", new Color(0.97f, 0.97f, 1f));
-                    w.SetColor("_DeepColor", new Color(0.74f, 0.78f, 0.94f));
-                    w.SetColor("_FoamColor", new Color(1f, 1f, 1f));
-                    w.SetFloat("_FoamWidth", 0.2f);
+                    w.SetColor("_ShallowColor", new Color(0.90f, 0.92f, 0.98f));
+                    w.SetColor("_DeepColor", new Color(0.60f, 0.67f, 0.88f));
+                    w.SetColor("_FoamColor", new Color(0.95f, 0.96f, 1f));
+                    w.SetFloat("_FoamWidth", 0.16f);
                     w.SetFloat("_Opacity", 0.96f);
                     w.SetFloat("_ShoreOpacity", 0f);
-                    w.SetFloat("_SparkleStrength", 0.08f);
+                    w.SetFloat("_SparkleStrength", 0.04f);
                     w.SetVector("_ScrollA", new Vector4(0.006f, 0.002f, 0f, 0f));
                     w.SetVector("_ScrollB", new Vector4(-0.004f, 0.003f, 0f, 0f));
                     w.renderQueue = (int)RenderQueue.Transparent;
@@ -316,6 +319,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             {
                 EditorSceneManager.OpenScene(z.ScenePath);
                 Debug.Log($"Dravio Environment: opened existing {z.ScenePath} (use 'Rebuild {z.prefix} Scene (overwrite)').");
+                RefreshArtInOpenScene(z, living);
                 return true;
             }
             var layout = OriginSanctuaryEnvironmentBuilder.LoadLayout(z.LayoutJson);
@@ -461,7 +465,67 @@ namespace Dravio.EnvironmentArt.EditorTools
                 });
             }
             comp.entries = entries.ToArray();
-            comp.fullLightIntensity = 1.05f;
+            comp.fullLightIntensity = FullLightIntensity(living);
+        }
+
+        // Light at which the FX reach their authored alpha: the zone's own default-hour (day) light.
+        static float FullLightIntensity(SanctuaryLivingData living) =>
+            Mathf.Max(0.5f, living.EvaluateTimeOfDay(living.defaultHour).lightIntensity);
+
+        /// <summary>
+        /// ENV Alpha (#79): carry art-only changes (FX alpha, particle colours) into an EXISTING zone scene without
+        /// rebuilding it. Matches by object name (fx id / particle volume id); positions, IDs, markers, cameras,
+        /// prefab instances and GUIDs are not touched. Materials, prefabs (colliders) and data assets are already
+        /// refreshed by BuildEverything before the scene is opened.
+        /// </summary>
+        public static int RefreshArtInOpenScene(Zone z, SanctuaryLivingData living)
+        {
+            if (EditorSceneManager.GetActiveScene().path != z.ScenePath) return 0;
+            int changed = 0;
+            var byId = (living.fx ?? Array.Empty<SanctuaryLivingData.FxQuad>()).ToDictionary(f => f.id, f => f);
+            foreach (var fx in Object.FindObjectsByType<EnvironmentScrollingFx>(FindObjectsInactive.Include))
+            {
+                Undo.RecordObject(fx, "Refresh zone FX");
+                for (int i = 0; fx.entries != null && i < fx.entries.Length; i++)
+                {
+                    var e = fx.entries[i];
+                    if (e.renderer != null && byId.TryGetValue(e.renderer.name, out var f))
+                    {
+                        if (!Mathf.Approximately(e.alpha, f.alpha)) changed++;
+                        e.alpha = f.alpha;
+                        float w = Mathf.Max(0.01f, f.width);
+                        var t = e.renderer.transform;
+                        if (!Mathf.Approximately(t.localScale.x, w)) { Undo.RecordObject(t, "Refresh zone FX"); t.localScale = new Vector3(w, f.height, 1f); changed++; }
+                    }
+                }
+                fx.fullLightIntensity = FullLightIntensity(living);
+                EditorUtility.SetDirty(fx);
+            }
+            foreach (var v in living.particleVolumes ?? Array.Empty<SanctuaryLivingData.ParticleVolume>())
+            {
+                string ch = string.IsNullOrEmpty(v.channel) ? v.id : v.channel;
+                foreach (var ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Include))
+                {
+                    if (ps.name != v.id) continue;
+                    Undo.RecordObject(ps, "Refresh zone particles");
+                    var main = ps.main;
+                    main.startColor = LookFor(z, ch).color;
+                    EditorUtility.SetDirty(ps);
+                    changed++;
+                }
+            }
+            if (living.fog != null && living.fog.end > 0f &&
+                (!Mathf.Approximately(RenderSettings.fogStartDistance, living.fog.start) ||
+                 !Mathf.Approximately(RenderSettings.fogEndDistance, living.fog.end)))
+            {
+                RenderSettings.fogStartDistance = living.fog.start; // scene render settings, not an object
+                RenderSettings.fogEndDistance = living.fog.end;
+                changed++;
+            }
+            if (changed > 0) EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            Debug.Log($"Dravio Environment {z.prefix}: refreshed {changed} FX / particle value(s) in the open scene " +
+                      "(not saved automatically; review, then save).");
+            return changed;
         }
 
         // ------------------------------------------------------------- particles
@@ -485,7 +549,7 @@ namespace Dravio.EnvironmentArt.EditorTools
                 default: // pondRings slot: vent bubbles / cloud wisps
                     return ocean
                         ? new Look { color = new Color(0.9f, 1f, 1f, 0.85f), size = new Vector2(0.05f, 0.11f), noise = 0.1f, additive = false, texture = "T_ENV_FX_Bubble", rise = 0.7f }
-                        : new Look { color = new Color(1f, 1f, 1f, 0.55f), size = new Vector2(2.2f, 3.6f), noise = 0f, additive = false, texture = "T_ENV_FX_CloudWisp", rise = 0f };
+                        : new Look { color = new Color(0.93f, 0.95f, 1f, 0.42f), size = new Vector2(2.2f, 3.6f), noise = 0f, additive = false, texture = "T_ENV_FX_CloudWisp", rise = 0f };
             }
         }
 

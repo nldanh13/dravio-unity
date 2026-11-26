@@ -38,10 +38,18 @@ ORIGIN_SHA256 = {
 }
 
 # Pixel budget per texture (width x height) on mobile.
-TEXTURE_MAX = {"PropsAtlas": (1024, 1024), "PropsEmission": (512, 512), "Foliage": (1024, 512),
+TEXTURE_MAX = {"PropsAtlas": (512, 512), "PropsEmission": (128, 128), "Foliage": (1024, 512),
                "Ground": (512, 512), "Water": (256, 256), "Caustics": (256, 256), "LightShaft": (64, 256),
                "Bubble": (64, 64), "CloudWisp": (128, 128), "Petal": (64, 64)}
 ZONE_TEXTURE_PIXEL_BUDGET = 2_400_000
+# ENV Alpha (#79): ZoneEnvironmentBuilder.BudgetProblems, unchanged: sum over the textures the zone scene's
+# materials reference of width * height * 4 * 1.333 must be <= 6 MiB. Textures each zone scene binds: the four
+# zone materials, the zone FX quads / particles, and the shared Origin soft dot (bursts).
+UNITY_TEXTURE_BUDGET_BYTES = 6 * 1024 * 1024
+SCENE_TEXTURES = {
+    "ocean": ["PropsAtlas", "PropsEmission", "Foliage", "Ground", "FX_Caustics", "FX_LightShaft", "FX_Bubble"],
+    "sky": ["PropsAtlas", "PropsEmission", "Foliage", "Ground", "Water", "FX_CloudWisp", "FX_Petal"],
+}
 
 
 def sha(path):
@@ -304,6 +312,33 @@ class BudgetTests(unittest.TestCase):
                 self.assertTrue(w & (w - 1) == 0 and h & (h - 1) == 0, f + " not power of two")
                 total += w * h
             self.assertLessEqual(total, ZONE_TEXTURE_PIXEL_BUDGET, z)
+
+    def test_box_collider_top_under_every_perch_and_rest_matches_its_height(self):
+        """Mirror of ZoneEnvironmentBuilder.Validate (ray from y + 3 down, tolerance 0.20, unchanged): the first
+        collider hit is the highest prop box whose footprint contains the point. Points on island tops (mesh
+        colliders) have no prop box and are checked by the Blender build instead. ENV Alpha (#79): perch_06 on the
+        Sky gate keystone was 4.27 vs 4.49 before the keystone box."""
+        for z, mod in ZONES.items():
+            obstacles = zc.obstacle_polygons(mod)
+            points = list(getattr(mod, "PERCHES", [])) + list(getattr(mod, "REST_POINTS", []))
+            for i, (hid, src, x, y, zz) in enumerate(points):
+                tops = [o["top"] for o in obstacles if o["source"] == src and zc.point_in_poly(x, zz, o["polygon"])
+                        and o["top"] <= y + 3.0]
+                if not tops:
+                    continue
+                self.assertLessEqual(abs(max(tops) - y), 0.20, f"{z} {src} ({x}, {zz}): collider top {max(tops)} vs {y}")
+
+    def test_unity_rgba32_estimate_fits_the_validator_budget(self):
+        soft_dot = os.path.join(UNITY_ENV, "Textures", "T_ENV_FX_SoftDot.png")
+        for z, names in SCENE_TEXTURES.items():
+            total = 0
+            for n in names:
+                f = f"T_ENV_{n}.png" if n.startswith("FX_") else f"T_ENV_{z.capitalize()}_{n}.png"
+                with Image.open(os.path.join(zone_dir(z, "Textures"), f)) as im:
+                    total += int(im.size[0] * im.size[1] * 4 * 1.333)
+            with Image.open(soft_dot) as im:
+                total += int(im.size[0] * im.size[1] * 4 * 1.333)
+            self.assertLessEqual(total, UNITY_TEXTURE_BUDGET_BYTES, f"{z}: {total / 1048576:.2f} MiB")
 
     def test_textures_have_no_nan_or_empty_tiles(self):
         for z in ZONES:

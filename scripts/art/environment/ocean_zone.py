@@ -235,22 +235,24 @@ AUDIO_EMITTERS = [
     {"id": CP, "x": 5.0, "y": 1.0, "z": 0.5, "innerRadius": 3.0, "outerRadius": 11.0},
     {"id": "ocean_vent", "x": VENT[0], "y": VENT[1], "z": VENT[2], "innerRadius": 1.5, "outerRadius": 7.0},
 ]
-FOG = {"mode": "linear", "start": 18.0, "end": 48.0}
+FOG = {"mode": "linear", "start": 22.0, "end": 56.0}  # ENV Alpha: less veil on the play area
 # Cosmetic underwater light: sun shafts from the surface and caustics on the seabed.
 # Both fade with the light intensity of the time of day (EnvironmentScrollingFx).
+# ENV Alpha (#79): owner QA saw strong white caustics / shafts hiding detail. Caustics alpha 0.22 -> 0.11, shafts
+# about half (0.26..0.10 -> 0.13..0.05) and narrower, so they read as light on the reef, not as fog over it.
 FX = [
     {"id": "caustics", "kind": "caustics", "texture": "T_ENV_FX_Caustics", "x": 0.0, "y": 0.03, "z": 0.4,
-     "width": 22.0, "height": 17.0, "yaw": 0.0, "tilt": 90.0, "alpha": 0.22, "scroll": [0.018, 0.011], "tiling": 5.0},
+     "width": 22.0, "height": 17.0, "yaw": 0.0, "tilt": 90.0, "alpha": 0.11, "scroll": [0.018, 0.011], "tiling": 5.0},
 ] + [
     {"id": f"light_shaft_{i:02d}", "kind": "light_shaft", "texture": "T_ENV_FX_LightShaft", "x": x, "y": 2.6, "z": z,
      "width": w, "height": 6.5, "yaw": 0.0, "tilt": -18.0, "alpha": a, "scroll": [0.0, 0.0], "tiling": 1.0}
-    for i, (x, z, w, a) in enumerate([(-5.6, 1.0, 2.8, 0.26), (-3.9, -1.6, 2.2, 0.22), (-1.6, 2.2, 2.6, 0.2),
-                                       (1.2, -0.8, 2.1, 0.17), (3.6, 2.8, 2.0, 0.13), (6.0, 0.4, 1.8, 0.1)], 1)
+    for i, (x, z, w, a) in enumerate([(-5.6, 1.0, 2.2, 0.13), (-3.9, -1.6, 1.8, 0.11), (-1.6, 2.2, 2.0, 0.10),
+                                       (1.2, -0.8, 1.7, 0.08), (3.6, 2.8, 1.6, 0.065), (6.0, 0.4, 1.5, 0.05)], 1)
 ]
 
-UNDER_SKY_DAY, UNDER_SKY_NIGHT = [0.42, 0.74, 0.80], [0.10, 0.20, 0.36]
-UNDER_EQ_DAY, UNDER_EQ_NIGHT = [0.26, 0.52, 0.58], [0.06, 0.14, 0.26]
-UNDER_GR_DAY, UNDER_GR_NIGHT = [0.20, 0.30, 0.32], [0.03, 0.06, 0.12]
+UNDER_SKY_DAY, UNDER_SKY_NIGHT = [0.38, 0.68, 0.76], [0.10, 0.20, 0.36]
+UNDER_EQ_DAY, UNDER_EQ_NIGHT = [0.22, 0.45, 0.52], [0.06, 0.14, 0.26]
+UNDER_GR_DAY, UNDER_GR_NIGHT = [0.12, 0.20, 0.24], [0.03, 0.06, 0.12]
 UNDER_FOG_DAY, UNDER_FOG_NIGHT = list(SCENE["background"]), [0.03, 0.09, 0.17]
 
 
@@ -258,8 +260,8 @@ def _grade(g, k):
     n = zc.nightness(k)
     day = 1.0 - n
     g["lightColor"] = zc.mix(k["lightColor"], [0.62, 0.92, 1.0], 0.45)
-    g["lightIntensity"] = k["lightIntensity"] * 0.78
-    g["shadowStrength"] = k["shadowStrength"] * 0.6
+    g["lightIntensity"] = k["lightIntensity"] * 0.82
+    g["shadowStrength"] = k["shadowStrength"] * 0.72
     g["ambientSky"] = zc.mix(zc.mix(UNDER_SKY_DAY, UNDER_SKY_NIGHT, n), k["ambientSky"], 0.15)
     g["ambientEquator"] = zc.mix(zc.mix(UNDER_EQ_DAY, UNDER_EQ_NIGHT, n), k["ambientEquator"], 0.2)
     g["ambientGround"] = zc.mix(UNDER_GR_DAY, UNDER_GR_NIGHT, n)

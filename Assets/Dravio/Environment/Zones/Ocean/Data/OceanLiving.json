@@ -37,8 +37,8 @@
     0.81,
     1.0
    ],
-   "lightIntensity": 0.3276,
-   "shadowStrength": 0.24,
+   "lightIntensity": 0.3444,
+   "shadowStrength": 0.288,
    "ambientSky": [
     0.13,
     0.224,
@@ -82,8 +82,8 @@
     0.81,
     1.0
    ],
-   "lightIntensity": 0.2808,
-   "shadowStrength": 0.21,
+   "lightIntensity": 0.2952,
+   "shadowStrength": 0.252,
    "ambientSky": [
     0.13,
     0.224,
@@ -127,22 +127,22 @@
     0.81,
     1.0
    ],
-   "lightIntensity": 0.078,
-   "shadowStrength": 0.15,
+   "lightIntensity": 0.082,
+   "shadowStrength": 0.18,
    "ambientSky": [
-    0.1934,
-    0.3188,
-    0.4648
+    0.1866,
+    0.3086,
+    0.458
    ],
    "ambientEquator": [
-    0.132,
-    0.2268,
-    0.3392
+    0.1256,
+    0.2156,
+    0.3296
    ],
    "ambientGround": [
-    0.064,
-    0.108,
-    0.16
+    0.048,
+    0.088,
+    0.144
    ],
    "fogColor": [
     0.0733,
@@ -175,19 +175,19 @@
    "lightIntensity": 0.0,
    "shadowStrength": 0.0,
    "ambientSky": [
-    0.2296,
-    0.3677,
-    0.5022
+    0.2194,
+    0.3524,
+    0.492
    ],
    "ambientEquator": [
-    0.16,
-    0.2632,
-    0.3688
+    0.1504,
+    0.2464,
+    0.3544
    ],
    "ambientGround": [
-    0.081,
-    0.132,
-    0.18
+    0.057,
+    0.102,
+    0.156
    ],
    "fogColor": [
     0.0943,
@@ -220,19 +220,19 @@
    "lightIntensity": 0.0,
    "shadowStrength": 0.0,
    "ambientSky": [
-    0.2296,
-    0.3677,
-    0.5022
+    0.2194,
+    0.3524,
+    0.492
    ],
    "ambientEquator": [
-    0.16,
-    0.2632,
-    0.3688
+    0.1504,
+    0.2464,
+    0.3544
    ],
    "ambientGround": [
-    0.081,
-    0.132,
-    0.18
+    0.057,
+    0.102,
+    0.156
    ],
    "fogColor": [
     0.0943,
@@ -262,22 +262,22 @@
     0.777,
     0.725
    ],
-   "lightIntensity": 0.4836,
-   "shadowStrength": 0.27,
+   "lightIntensity": 0.5084,
+   "shadowStrength": 0.324,
    "ambientSky": [
-    0.3668,
-    0.5613,
-    0.6571
+    0.3447,
+    0.5282,
+    0.635
    ],
    "ambientEquator": [
-    0.276,
-    0.4136,
-    0.4744
+    0.2552,
+    0.3772,
+    0.4432
    ],
    "ambientGround": [
-    0.1405,
-    0.216,
-    0.25
+    0.0885,
+    0.151,
+    0.198
    ],
    "fogColor": [
     0.1944,
@@ -307,22 +307,22 @@
     0.898,
     0.857
    ],
-   "lightIntensity": 0.9204,
-   "shadowStrength": 0.39,
+   "lightIntensity": 1.0004,
+   "shadowStrength": 0.5184,
    "ambientSky": [
-    0.474,
-    0.755,
-    0.821
+    0.428,
+    0.6935,
+    0.781
    ],
    "ambientEquator": [
-    0.34,
-    0.556,
-    0.58
+    0.294,
+    0.486,
+    0.518
    ],
    "ambientGround": [
+    0.12,
     0.2,
-    0.3,
-    0.32
+    0.24
    ],
    "fogColor": [
     0.2272,
@@ -349,29 +349,29 @@
    "lightAzimuth": -38.0,
    "lightColor": [
     0.829,
-    0.92,
-    0.879
+    0.9145,
+    0.8625
    ],
-   "lightIntensity": 1.053,
-   "shadowStrength": 0.45,
+   "lightIntensity": 1.1644,
+   "shadowStrength": 0.5904,
    "ambientSky": [
-    0.477,
-    0.758,
-    0.8225
+    0.428,
+    0.695,
+    0.784
    ],
    "ambientEquator": [
-    0.34,
-    0.56,
-    0.58
+    0.292,
+    0.488,
+    0.516
    ],
    "ambientGround": [
+    0.12,
     0.2,
-    0.3,
-    0.32
+    0.24
    ],
    "fogColor": [
-    0.2248,
-    0.5008,
+    0.2224,
+    0.4996,
     0.5368
    ],
    "nightGlow": 0.25,
@@ -397,22 +397,22 @@
     0.876,
     0.791
    ],
-   "lightIntensity": 0.936,
-   "shadowStrength": 0.432,
+   "lightIntensity": 1.0168,
+   "shadowStrength": 0.5616,
    "ambientSky": [
-    0.477,
-    0.749,
-    0.809
+    0.431,
+    0.686,
+    0.769
    ],
    "ambientEquator": [
-    0.348,
-    0.548,
-    0.568
+    0.3,
+    0.476,
+    0.508
    ],
    "ambientGround": [
+    0.12,
     0.2,
-    0.3,
-    0.32
+    0.24
    ],
    "fogColor": [
     0.2344,
@@ -442,22 +442,22 @@
     0.722,
     0.637
    ],
-   "lightIntensity": 0.6084,
-   "shadowStrength": 0.33,
+   "lightIntensity": 0.6396,
+   "shadowStrength": 0.396,
    "ambientSky": [
-    0.3336,
-    0.4975,
-    0.5987
+    0.3149,
+    0.4694,
+    0.58
    ],
    "ambientEquator": [
-    0.272,
-    0.3752,
-    0.4328
+    0.2544,
+    0.3444,
+    0.4064
    ],
    "ambientGround": [
-    0.1235,
-    0.192,
-    0.23
+    0.0795,
+    0.137,
+    0.186
    ],
    "fogColor": [
     0.1925,
@@ -487,22 +487,22 @@
     0.645,
     0.67
    ],
-   "lightIntensity": 0.1248,
-   "shadowStrength": 0.18,
+   "lightIntensity": 0.1312,
+   "shadowStrength": 0.216,
    "ambientSky": [
-    0.1858,
-    0.2898,
-    0.4461
+    0.1807,
+    0.2822,
+    0.441
    ],
    "ambientEquator": [
-    0.14,
-    0.2136,
-    0.3264
+    0.1352,
+    0.2052,
+    0.3192
    ],
    "ambientGround": [
-    0.0555,
-    0.096,
-    0.15
+    0.0435,
+    0.081,
+    0.138
    ],
    "fogColor": [
     0.0868,
@@ -535,19 +535,19 @@
    "lightIntensity": 0.0,
    "shadowStrength": 0.0,
    "ambientSky": [
-    0.1662,
-    0.2669,
-    0.4274
+    0.1628,
+    0.2618,
+    0.424
    ],
    "ambientEquator": [
-    0.12,
-    0.1964,
-    0.3176
+    0.1168,
+    0.1908,
+    0.3128
    ],
    "ambientGround": [
-    0.047,
-    0.084,
-    0.14
+    0.039,
+    0.074,
+    0.132
    ],
    "fogColor": [
     0.0666,
@@ -580,19 +580,19 @@
    "lightIntensity": 0.0,
    "shadowStrength": 0.0,
    "ambientSky": [
-    0.1662,
-    0.2669,
-    0.4274
+    0.1628,
+    0.2618,
+    0.424
    ],
    "ambientEquator": [
-    0.12,
-    0.1964,
-    0.3176
+    0.1168,
+    0.1908,
+    0.3128
    ],
    "ambientGround": [
-    0.047,
-    0.084,
-    0.14
+    0.039,
+    0.074,
+    0.132
    ],
    "fogColor": [
     0.0666,
@@ -622,8 +622,8 @@
     0.81,
     1.0
    ],
-   "lightIntensity": 0.2964,
-   "shadowStrength": 0.24,
+   "lightIntensity": 0.3116,
+   "shadowStrength": 0.288,
    "ambientSky": [
     0.13,
     0.224,
@@ -1164,8 +1164,8 @@
  ],
  "fog": {
   "mode": "linear",
-  "start": 18.0,
-  "end": 48.0
+  "start": 22.0,
+  "end": 56.0
  },
  "fx": [
   {
@@ -1179,7 +1179,7 @@
    "height": 17.0,
    "yaw": 0.0,
    "tilt": 90.0,
-   "alpha": 0.22,
+   "alpha": 0.11,
    "scroll": [
     0.018,
     0.011
@@ -1193,11 +1193,11 @@
    "x": -5.6,
    "y": 2.6,
    "z": 1.0,
-   "width": 2.8,
+   "width": 2.2,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.26,
+   "alpha": 0.13,
    "scroll": [
     0.0,
     0.0
@@ -1211,11 +1211,11 @@
    "x": -3.9,
    "y": 2.6,
    "z": -1.6,
-   "width": 2.2,
+   "width": 1.8,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.22,
+   "alpha": 0.11,
    "scroll": [
     0.0,
     0.0
@@ -1229,11 +1229,11 @@
    "x": -1.6,
    "y": 2.6,
    "z": 2.2,
-   "width": 2.6,
+   "width": 2.0,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.2,
+   "alpha": 0.1,
    "scroll": [
     0.0,
     0.0
@@ -1247,11 +1247,11 @@
    "x": 1.2,
    "y": 2.6,
    "z": -0.8,
-   "width": 2.1,
+   "width": 1.7,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.17,
+   "alpha": 0.08,
    "scroll": [
     0.0,
     0.0
@@ -1265,11 +1265,11 @@
    "x": 3.6,
    "y": 2.6,
    "z": 2.8,
-   "width": 2.0,
+   "width": 1.6,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.13,
+   "alpha": 0.065,
    "scroll": [
     0.0,
     0.0
@@ -1283,11 +1283,11 @@
    "x": 6.0,
    "y": 2.6,
    "z": 0.4,
-   "width": 1.8,
+   "width": 1.5,
    "height": 6.5,
    "yaw": 0.0,
    "tilt": -18.0,
-   "alpha": 0.1,
+   "alpha": 0.05,
    "scroll": [
     0.0,
     0.0

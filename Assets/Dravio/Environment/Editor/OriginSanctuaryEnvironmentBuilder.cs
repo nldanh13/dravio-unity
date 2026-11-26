@@ -437,13 +437,14 @@ namespace Dravio.EnvironmentArt.EditorTools
             EnsureFolder(ScenesDir);
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // Lighting: warm key light, cool painted ambient, soft distance fog.
-            Color sky = new Color(0.70f, 0.80f, 0.66f);
+            // Lighting: warm key light, cool painted ambient, soft distance fog. Equal to the default hour of
+            // Data/OriginSanctuaryLiving.json (living.py DAY_*; ENV Alpha #79: stronger key, lower fill, deeper shadow).
+            Color sky = new Color(0.68f, 0.79f, 0.66f);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.80f, 0.86f, 0.95f);
-            RenderSettings.ambientEquatorColor = new Color(0.66f, 0.72f, 0.58f);
-            RenderSettings.ambientGroundColor = new Color(0.40f, 0.36f, 0.30f);
+            RenderSettings.ambientSkyColor = new Color(0.70f, 0.78f, 0.92f);
+            RenderSettings.ambientEquatorColor = new Color(0.58f, 0.64f, 0.50f);
+            RenderSettings.ambientGroundColor = new Color(0.33f, 0.28f, 0.23f);
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
@@ -454,10 +455,10 @@ namespace Dravio.EnvironmentArt.EditorTools
             var sunGo = new GameObject("Warm Sun");
             var sun = sunGo.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = new Color(1f, 0.92f, 0.78f);
-            sun.intensity = 1.35f;
+            sun.color = new Color(1f, 0.91f, 0.75f);
+            sun.intensity = 1.42f;
             sun.shadows = LightShadows.Soft;
-            sun.shadowStrength = 0.75f;
+            sun.shadowStrength = 0.82f;
             sunGo.transform.rotation = Quaternion.Euler(46f, -38f, 0f);
 
             var camGo = new GameObject("Fixed Ortho Camera") { tag = "MainCamera" };
