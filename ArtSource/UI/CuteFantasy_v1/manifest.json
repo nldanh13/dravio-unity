@@ -1,0 +1,1636 @@
+{
+  "version": "1.0-draft",
+  "style": "Cute Stylized 3D / Premium Casual Fantasy",
+  "native_resolution": true,
+  "alpha_method": "High-alpha segmentation, connected components and edge cleanup; source boards have partially opaque backgrounds. Manual QA required.",
+  "unity_import": {
+    "textureType": "Sprite (2D and UI)",
+    "spriteMode": "Single",
+    "alphaIsTransparency": true,
+    "mipmapEnabled": false,
+    "wrapMode": "Clamp",
+    "filterMode": "Bilinear",
+    "npotScale": "None",
+    "compression": "None for first QA",
+    "pixelsPerUnit": "100 initially; tune per sprite against canvas reference",
+    "slice_border_order": "left,top,right,bottom (Unity Vector4 x=left,y=bottom,z=right,w=top)"
+  },
+  "missing_or_unresolved": [
+    "function:rest",
+    "function:day",
+    "function:night",
+    "function:upgrade",
+    "function:temperature",
+    "item:mystic",
+    "item:astral",
+    "progress_frame_and_fill_independent",
+    "decorative_corners_and_edges_independent",
+    "true_hollow_portrait_frame",
+    "tabs_without_rail_verified",
+    "divider",
+    "item:aether",
+    "item:aquatic",
+    "item:stardust"
+  ],
+  "assets": [
+    {
+      "id": "ui_btn_primary_normal",
+      "path": "Buttons/ui_btn_primary_normal.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        26,
+        19,
+        26,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        17,
+        120,
+        133,
+        174
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "ae57c66fe3702de95100ee390ceb8099b7004a10d42b02f02022a8868ac5786f"
+    },
+    {
+      "id": "ui_btn_primary_highlighted",
+      "path": "Buttons/ui_btn_primary_highlighted.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        34,
+        19,
+        35,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        136,
+        120,
+        238,
+        174
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "772b01133452624c3262a071ba58c005f3a936d577c1047eeab3f8f6444291e3"
+    },
+    {
+      "id": "ui_btn_primary_pressed",
+      "path": "Buttons/ui_btn_primary_pressed.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        33,
+        20,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        239,
+        120,
+        343,
+        174
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d1ff89036c3f23d491aec31c3a1376ca671c2982591efbef3d6c81df6f173549"
+    },
+    {
+      "id": "ui_btn_primary_disabled",
+      "path": "Buttons/ui_btn_primary_disabled.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        32,
+        20,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        345,
+        120,
+        447,
+        174
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "a670a110c7dee9df5131dd1a91454f7d8f9055022ff82a2c2cef7847875d4172"
+    },
+    {
+      "id": "ui_btn_reward_normal",
+      "path": "Buttons/ui_btn_reward_normal.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        26,
+        19,
+        26,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        17,
+        179,
+        133,
+        234
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "c58cb40a8d049350a710925cf7790df61a61e3445b52c0d533065835ca6c9607"
+    },
+    {
+      "id": "ui_btn_reward_highlighted",
+      "path": "Buttons/ui_btn_reward_highlighted.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        34,
+        19,
+        34,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        136,
+        179,
+        238,
+        234
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "54a3550015fc20436645ace23fa59199a6fb9e4498b0b6cd68029e591e97eadd"
+    },
+    {
+      "id": "ui_btn_reward_pressed",
+      "path": "Buttons/ui_btn_reward_pressed.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        32,
+        19,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        239,
+        179,
+        343,
+        234
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "a142f6929e67e974b43791d7ac4a00ce6b632d12d002e887a812b377b26c94cb"
+    },
+    {
+      "id": "ui_btn_reward_disabled",
+      "path": "Buttons/ui_btn_reward_disabled.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        32,
+        19,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        345,
+        179,
+        447,
+        234
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "6a78263ca339033294bf332c4867cc3a4989ac41de0677f325f9cb226d877c91"
+    },
+    {
+      "id": "ui_btn_secondary_normal",
+      "path": "Buttons/ui_btn_secondary_normal.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        26,
+        19,
+        26,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        17,
+        239,
+        133,
+        293
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "4247b6e6cdf3f18d23cd33e5eddedb1cc311ce0b51c0126a1482caf20a6042c8"
+    },
+    {
+      "id": "ui_btn_secondary_highlighted",
+      "path": "Buttons/ui_btn_secondary_highlighted.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        34,
+        19,
+        35,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        136,
+        239,
+        238,
+        293
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "210ed714543c7747ee3e1c1a0518f07603d9af2ee55fc00a44777bb11017cfc8"
+    },
+    {
+      "id": "ui_btn_secondary_pressed",
+      "path": "Buttons/ui_btn_secondary_pressed.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        33,
+        20,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        239,
+        239,
+        343,
+        293
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "7881a41ff95b4e0ae9a1488acc102e5889fee2710ad10fb2d88c5bf59e81e50a"
+    },
+    {
+      "id": "ui_btn_secondary_disabled",
+      "path": "Buttons/ui_btn_secondary_disabled.png",
+      "width": 119,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        33,
+        19,
+        33,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        345,
+        239,
+        447,
+        293
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "4ad39f32952672794d45c2048e0df4c5c285cd3106245b8ca99e10986aae6d2a"
+    },
+    {
+      "id": "ui_btn_danger_normal",
+      "path": "Buttons/ui_btn_danger_normal.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        26,
+        19,
+        26,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        17,
+        298,
+        133,
+        351
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "f8db03a40e1f3b3ffd983373bdfd212c5463cfb4450413e373a1ed2dff37dd4f"
+    },
+    {
+      "id": "ui_btn_danger_highlighted",
+      "path": "Buttons/ui_btn_danger_highlighted.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        33,
+        19,
+        34,
+        19
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        136,
+        298,
+        238,
+        351
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "72b30fe2a1bbe787574e730233f0f2396c75531ace4f67cb36dd183a52f7763b"
+    },
+    {
+      "id": "ui_btn_danger_pressed",
+      "path": "Buttons/ui_btn_danger_pressed.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        33,
+        20,
+        33,
+        21
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        239,
+        298,
+        343,
+        351
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "aec0df359928411c874d67c2d0060a4791d285867ef95dc7672ac32735b470b9"
+    },
+    {
+      "id": "ui_btn_danger_disabled",
+      "path": "Buttons/ui_btn_danger_disabled.png",
+      "width": 118,
+      "height": 55,
+      "type": "9slice",
+      "borderLTRB_px": [
+        32,
+        19,
+        32,
+        20
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        345,
+        298,
+        447,
+        351
+      ],
+      "notes": "Suggested border; test pressed/highlighted alignment and edge masks. State canvases padded to same size; visible button widths differ; prefer color tint for transitions until QA.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "b1fbffe9d7ab727dd6bc24fda47e566728840209f64bec30864c0182ac957583"
+    },
+    {
+      "id": "ui_round_play",
+      "path": "Buttons/ui_round_play.png",
+      "width": 62,
+      "height": 62,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        38,
+        353,
+        94,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "44ecc90e27e98c2f6c1318f0f9f7471c4399e3feec10e2933c43b050ef58d7ae"
+    },
+    {
+      "id": "ui_round_pause",
+      "path": "Buttons/ui_round_pause.png",
+      "width": 61,
+      "height": 62,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        105,
+        353,
+        161,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "6cafe9c3d1a0cbf3ee9da0ad9daaf0b0d3e326d19cf23502f1bf8f2ea25f1ede"
+    },
+    {
+      "id": "ui_round_plus",
+      "path": "Buttons/ui_round_plus.png",
+      "width": 61,
+      "height": 63,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        170,
+        353,
+        226,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "a2369d9706df41fe5cba315ef322c4d828597215ad679006a09fc0205f59b3b2"
+    },
+    {
+      "id": "ui_round_minus",
+      "path": "Buttons/ui_round_minus.png",
+      "width": 60,
+      "height": 63,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        236,
+        353,
+        292,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "b894faa485efb2b137ec5824c41685012d6c801575d3ff906e2d22d7d4a6db72"
+    },
+    {
+      "id": "ui_round_done",
+      "path": "Buttons/ui_round_done.png",
+      "width": 62,
+      "height": 62,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        303,
+        353,
+        359,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "e638e5faa9b4656d124a9883079c35234c67494bd8d1e496881ec87ce57e062c"
+    },
+    {
+      "id": "ui_round_close",
+      "path": "Buttons/ui_round_close.png",
+      "width": 62,
+      "height": 62,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        369,
+        353,
+        425,
+        412
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "caa3ebc71c5586ff842735db3e5ea3b5d4fec33c07ffd1f2fb0ad5c7dc13f7f6"
+    },
+    {
+      "id": "ui_frame_panel_large",
+      "path": "Frames/ui_frame_panel_large.png",
+      "width": 286,
+      "height": 277,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        459,
+        106,
+        741,
+        378
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "1e826474928e06ebc8868ed39f420360322d753dd35ddc3e3032017728bd5643"
+    },
+    {
+      "id": "ui_frame_panel_tall",
+      "path": "Frames/ui_frame_panel_tall.png",
+      "width": 125,
+      "height": 273,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        746,
+        106,
+        872,
+        379
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "849f066ccc4b040baf5cf6a52c8d2f0feaeae5ec54738734cf2076d7d17d6f94"
+    },
+    {
+      "id": "ui_frame_card",
+      "path": "Frames/ui_frame_card.png",
+      "width": 116,
+      "height": 129,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        875,
+        106,
+        988,
+        233
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "b252dd38b21b71b13797dcc4e25cadc0d32b67a341d3f240d457df5ca2834d68"
+    },
+    {
+      "id": "ui_frame_portrait",
+      "path": "Frames/ui_frame_portrait.png",
+      "width": 139,
+      "height": 130,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        992,
+        105,
+        1129,
+        236
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "07cdc0b92cb5f2262d73b2657fb9f73b50da96e1225740c45473ea21d9e6bfee"
+    },
+    {
+      "id": "ui_frame_ribbon",
+      "path": "Frames/ui_frame_ribbon.png",
+      "width": 253,
+      "height": 68,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        875,
+        242,
+        1129,
+        310
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "37c757614df0790104b00ca2a492cf6d99d8fd924089e750411278f2997a8e3d"
+    },
+    {
+      "id": "ui_frame_speech",
+      "path": "Frames/ui_frame_speech.png",
+      "width": 252,
+      "height": 77,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        878,
+        313,
+        1129,
+        386
+      ],
+      "notes": "Unique ornament; use fixed aspect or separate corners/edges before responsive stretching.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "7c4482e798bc561b52d558d6852234cffd4248815d77bdc77024b183be4314f9"
+    },
+    {
+      "id": "ui_panel_plain",
+      "path": "Frames/ui_panel_plain.png",
+      "width": 280,
+      "height": 105,
+      "type": "9slice",
+      "borderLTRB_px": [
+        27,
+        27,
+        27,
+        27
+      ],
+      "source_sheet": 2,
+      "source_crop": [
+        913,
+        278,
+        1189,
+        380
+      ],
+      "notes": "Plain rounded panel; test border.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "221b70845643ae23e3a459d0b051f9046b7e8aa6fd7a172741e9956c5d5f7430"
+    },
+    {
+      "id": "ui_tab_normal",
+      "path": "Tabs/ui_tab_normal.png",
+      "width": 88,
+      "height": 63,
+      "type": "9slice",
+      "borderLTRB_px": [
+        18,
+        18,
+        18,
+        18
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        1258,
+        123,
+        1338,
+        181
+      ],
+      "notes": "Tab from attached rail; trim lower edge if needed.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "ec6651c121a7708df17163b1e276cd9ed1e4ae5a4d10ed282cbe2e49a6f72c6b"
+    },
+    {
+      "id": "ui_tab_selected",
+      "path": "Tabs/ui_tab_selected.png",
+      "width": 98,
+      "height": 62,
+      "type": "9slice",
+      "borderLTRB_px": [
+        18,
+        18,
+        18,
+        18
+      ],
+      "source_sheet": 1,
+      "source_crop": [
+        1168,
+        200,
+        1258,
+        257
+      ],
+      "notes": "Tab from attached rail; trim lower edge if needed.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "e3640ac3a610008416b25bada58858634f58c9a43c54d29608239dbd47e3f1c5"
+    },
+    {
+      "id": "ui_slot_common",
+      "path": "Slots/ui_slot_common.png",
+      "width": 83,
+      "height": 84,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        644,
+        454,
+        726,
+        541
+      ],
+      "notes": "Keep square; green reference not new gameplay rarity.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "158b5c05057ff2103fc806558c751f2a49274aeb15d9e35b1fe428e39077d15e"
+    },
+    {
+      "id": "ui_slot_green_reference",
+      "path": "Slots/ui_slot_green_reference.png",
+      "width": 84,
+      "height": 89,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        729,
+        454,
+        811,
+        541
+      ],
+      "notes": "Keep square; green reference not new gameplay rarity.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "a330cf865994413d3c0f66781beba94eafeda9c25edd3fe5f52c497acb0f949e"
+    },
+    {
+      "id": "ui_slot_rare",
+      "path": "Slots/ui_slot_rare.png",
+      "width": 84,
+      "height": 89,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        812,
+        454,
+        894,
+        541
+      ],
+      "notes": "Keep square; green reference not new gameplay rarity.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "3488e641f5e5105b0074d5159075baa33e123986d19fa7a03b040147a6579bbd"
+    },
+    {
+      "id": "ui_slot_epic",
+      "path": "Slots/ui_slot_epic.png",
+      "width": 85,
+      "height": 89,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        897,
+        454,
+        979,
+        541
+      ],
+      "notes": "Keep square; green reference not new gameplay rarity.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "997ca47470fc83b268e63f65b0d8676fb40255e1e31f8ee6d554a1bad8f20685"
+    },
+    {
+      "id": "ui_slot_legendary",
+      "path": "Slots/ui_slot_legendary.png",
+      "width": 86,
+      "height": 90,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        981,
+        454,
+        1063,
+        541
+      ],
+      "notes": "Keep square; green reference not new gameplay rarity.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "227c9d8500daad6177cb680c6460b4832590f06b31cc52646191561896e23c2e"
+    },
+    {
+      "id": "ui_slot_locked",
+      "path": "Slots/ui_slot_locked.png",
+      "width": 87,
+      "height": 87,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        647,
+        542,
+        739,
+        628
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "531d2e0da151ccc45ce4e827930034472a8e8707b379aea9e9c524f5e3ec8be4"
+    },
+    {
+      "id": "ui_slot_empty",
+      "path": "Slots/ui_slot_empty.png",
+      "width": 86,
+      "height": 87,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        743,
+        542,
+        835,
+        628
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "9bc7cbac66f87fb09ebc2903a35860eca2758b5cf5a27a3cb900b1bc2e0cc090"
+    },
+    {
+      "id": "ui_slot_expand",
+      "path": "Slots/ui_slot_expand.png",
+      "width": 87,
+      "height": 87,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        844,
+        542,
+        936,
+        628
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "711faceb0263902931249b77e4bd9c39d20c85b03524563a696249eddcc7abaf"
+    },
+    {
+      "id": "ui_slot_selected",
+      "path": "Slots/ui_slot_selected.png",
+      "width": 97,
+      "height": 88,
+      "type": "fixed_aspect",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        952,
+        542,
+        1044,
+        628
+      ],
+      "notes": "",
+      "status": "draft_needs_visual_QA",
+      "sha256": "cff10dfaf194c809f728cc373bef0b8f6070ad02302e1c0d2b62edebb807d1d0"
+    },
+    {
+      "id": "ui_bar_health_reference",
+      "path": "Bars/ui_bar_health_reference.png",
+      "width": 233,
+      "height": 38,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        76,
+        462,
+        304,
+        494
+      ],
+      "notes": "Already filled in reference; do not bind directly to progress value.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "db4145257567aca5e9f90eeb32f1b2ee207c9ed834822f191d396025add0b3a6"
+    },
+    {
+      "id": "ui_bar_energy_reference",
+      "path": "Bars/ui_bar_energy_reference.png",
+      "width": 234,
+      "height": 37,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        76,
+        501,
+        304,
+        533
+      ],
+      "notes": "Already filled in reference; do not bind directly to progress value.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "438d1b9e68086ae0bca4d33b9e85449199e47da54119aef6a64d40e5b203bb3d"
+    },
+    {
+      "id": "ui_bar_hunger_reference",
+      "path": "Bars/ui_bar_hunger_reference.png",
+      "width": 233,
+      "height": 37,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        76,
+        540,
+        304,
+        572
+      ],
+      "notes": "Already filled in reference; do not bind directly to progress value.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "f38d6c81b349a66b4c3cc732989ac0b03fd8afc590d03669457d1b181288670c"
+    },
+    {
+      "id": "ui_bar_bond_reference",
+      "path": "Bars/ui_bar_bond_reference.png",
+      "width": 233,
+      "height": 38,
+      "type": "fixed_aspect_reference",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        76,
+        579,
+        304,
+        611
+      ],
+      "notes": "Already filled in reference; do not bind directly to progress value.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "3770ef5927537b70a8580155712ae369240f57e498c19175dcd8f8c2df5b41d2"
+    },
+    {
+      "id": "icon_care",
+      "path": "Icons/Functions/icon_care.png",
+      "width": 49,
+      "height": 43,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        32,
+        458,
+        75,
+        496
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "2212e01a9aa044e100363fc0fc290686422ae826cce636c402a23a5c69bb0bbb"
+    },
+    {
+      "id": "icon_biology",
+      "path": "Icons/Functions/icon_biology.png",
+      "width": 82,
+      "height": 67,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        721,
+        665,
+        798,
+        739
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "17f0355eb3fe9ffceb386fb260790c0230be47ccb6b2f83b29ff8357e2a52734"
+    },
+    {
+      "id": "icon_dragons",
+      "path": "Icons/Functions/icon_dragons.png",
+      "width": 81,
+      "height": 73,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        126,
+        665,
+        209,
+        741
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "4d6b620a803314979804d2176afbf4aa9d2a836c1c2754a731488327eeea5598"
+    },
+    {
+      "id": "icon_eggs",
+      "path": "Icons/Functions/icon_eggs.png",
+      "width": 66,
+      "height": 73,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        232,
+        666,
+        306,
+        741
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d45e81447a078d2294fde369da3c009cd976bafc8d11c2ff41f3e0ce15850077"
+    },
+    {
+      "id": "icon_world",
+      "path": "Icons/Functions/icon_world.png",
+      "width": 89,
+      "height": 72,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1419,
+        743,
+        1518,
+        821
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d8615667222d926fdb02a3ec13524fe2f7aaefb440cd8bfd139fc54fb52397ef"
+    },
+    {
+      "id": "icon_quests",
+      "path": "Icons/Functions/icon_quests.png",
+      "width": 81,
+      "height": 75,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        520,
+        663,
+        607,
+        738
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "8a5035e68481185d639c5627043e8cc47ec7f8c7b29e6dba462309e71e67f92c"
+    },
+    {
+      "id": "icon_expedition",
+      "path": "Icons/Functions/icon_expedition.png",
+      "width": 74,
+      "height": 68,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        616,
+        665,
+        699,
+        739
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "009cb06dbb27bc4148104ea57f517c0aec8784dcc6503ebf3ec0ead598b0c92d"
+    },
+    {
+      "id": "icon_inventory",
+      "path": "Icons/Functions/icon_inventory.png",
+      "width": 74,
+      "height": 74,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        324,
+        666,
+        401,
+        741
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "043183fa76457f750d5d5c57c8c08ab67749200a79285f330d1c0a3176c79e7e"
+    },
+    {
+      "id": "icon_feed",
+      "path": "Icons/Functions/icon_feed.png",
+      "width": 85,
+      "height": 87,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        216,
+        889,
+        304,
+        982
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d6d35ed6ba9e5bf9109af846c3851f9f252b3e73ce9856e8a3ac08924ee64432"
+    },
+    {
+      "id": "icon_pet",
+      "path": "Icons/Functions/icon_pet.png",
+      "width": 55,
+      "height": 52,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1241,
+        497,
+        1308,
+        568
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "e6f5ec344edec6c21ff3a3642e6cd60488c69a23b4a7bee1a27ec719c07e8a01"
+    },
+    {
+      "id": "icon_inspect",
+      "path": "Icons/Functions/icon_inspect.png",
+      "width": 71,
+      "height": 59,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        711,
+        795,
+        784,
+        860
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "51000f31437b45a0e16db00296d6c037af7d7b234d4be4734582a8d1275d045b"
+    },
+    {
+      "id": "icon_build",
+      "path": "Icons/Functions/icon_build.png",
+      "width": 74,
+      "height": 73,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        126,
+        745,
+        208,
+        820
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "76e3f0d754371dfd420654809059603f83f4de2697f418d002506506855a50ad"
+    },
+    {
+      "id": "icon_research",
+      "path": "Icons/Functions/icon_research.png",
+      "width": 71,
+      "height": 76,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        425,
+        663,
+        504,
+        742
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "399cac7c13899cda40bf24b4effe60af8623fad5b685e7a8d8a0100ba29b2762"
+    },
+    {
+      "id": "icon_health",
+      "path": "Icons/Functions/icon_health.png",
+      "width": 43,
+      "height": 41,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        953,
+        423,
+        994,
+        456
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "651ab0c5323187409883fbef00aee30273272952752325c39bae07a63e867546"
+    },
+    {
+      "id": "icon_settings",
+      "path": "Icons/Functions/icon_settings.png",
+      "width": 72,
+      "height": 73,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        231,
+        744,
+        305,
+        821
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "ee5647e102bba0a8d51441c5a9d6636f864af460f97976f8fa7f3c68dbe30c6c"
+    },
+    {
+      "id": "icon_lock",
+      "path": "Icons/Functions/icon_lock.png",
+      "width": 48,
+      "height": 54,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        563,
+        924,
+        611,
+        976
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "8b30138f9c3b2ffe3adcf8431195ab8782e9ebeee1fc374c2a12e96402b9d84a"
+    },
+    {
+      "id": "icon_done",
+      "path": "Icons/Functions/icon_done.png",
+      "width": 47,
+      "height": 47,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1400,
+        506,
+        1449,
+        554
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "fdda621ffb37478d0bd177f64377bf8a7a60cde6771d2a89fa7180f714a109e7"
+    },
+    {
+      "id": "icon_warning",
+      "path": "Icons/Functions/icon_warning.png",
+      "width": 52,
+      "height": 53,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        409,
+        923,
+        457,
+        978
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "6f5052076b83731f4bf3ce1b01e62d826ded5b3467fb5d0a3d508553e80d22eb"
+    },
+    {
+      "id": "icon_reward",
+      "path": "Icons/Functions/icon_reward.png",
+      "width": 81,
+      "height": 82,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1427,
+        654,
+        1514,
+        738
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "b84081b74be8c817b298247bbc3d379ab543b566763af544abd0c97c6c3294b8"
+    },
+    {
+      "id": "icon_hunger",
+      "path": "Icons/Functions/icon_hunger.png",
+      "width": 47,
+      "height": 49,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        34,
+        535,
+        75,
+        576
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "8464452cd7cfa725457461c8a614bc8a78fb26530c6eca9d8388f9b75f6cb098"
+    },
+    {
+      "id": "icon_water",
+      "path": "Icons/Functions/icon_water.png",
+      "width": 43,
+      "height": 54,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        1011,
+        927,
+        1053,
+        981
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "e99815e413a492131787833b243d0842c83c1003a182bc64d5cb866e48423188"
+    },
+    {
+      "id": "icon_energy",
+      "path": "Icons/Functions/icon_energy.png",
+      "width": 48,
+      "height": 46,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        34,
+        499,
+        76,
+        537
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "f76e91bc79c6aa2cd4b0e0f6548a055cea94e6f877491cf465db31df97e5906e"
+    },
+    {
+      "id": "icon_bond",
+      "path": "Icons/Functions/icon_bond.png",
+      "width": 71,
+      "height": 54,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        479,
+        731,
+        550,
+        792
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "018643492e43ec5d1d67fec1a9f223257d2f8651d41eabe7691fd12470835c28"
+    },
+    {
+      "id": "icon_leaf",
+      "path": "Icons/Functions/icon_leaf.png",
+      "width": 66,
+      "height": 68,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        807,
+        744,
+        880,
+        822
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "ca8479b58fa531ef25fb5b43a99581284f669003968f42f45ec6167e2f0225c6"
+    },
+    {
+      "id": "icon_close",
+      "path": "Icons/Functions/icon_close.png",
+      "width": 62,
+      "height": 62,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        368,
+        352,
+        427,
+        411
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "caa3ebc71c5586ff842735db3e5ea3b5d4fec33c07ffd1f2fb0ad5c7dc13f7f6"
+    },
+    {
+      "id": "icon_next",
+      "path": "Icons/Functions/icon_next.png",
+      "width": 93,
+      "height": 94,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        1430,
+        905,
+        1520,
+        996
+      ],
+      "notes": "Visual candidate; check at 24–64 px.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "bd56e34e2b4bf651ccb4dc1e81ff115cdbe923a01994b35fe7126cb7a85687b3"
+    },
+    {
+      "id": "item_gold",
+      "path": "Icons/Items/item_gold.png",
+      "width": 90,
+      "height": 86,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        24,
+        893,
+        116,
+        982
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "27924dcce2fd190bc6e77e5512b7a73ed3ef70dedb532591e164e93128fc7255"
+    },
+    {
+      "id": "item_wood",
+      "path": "Icons/Items/item_wood.png",
+      "width": 87,
+      "height": 82,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        400,
+        894,
+        480,
+        980
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "0d184078b95e97fd53377a4e9a21bf86a615b2b90a211db105ec239e3c220b9e"
+    },
+    {
+      "id": "item_seed",
+      "path": "Icons/Items/item_seed.png",
+      "width": 75,
+      "height": 78,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1015,
+        894,
+        1095,
+        980
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "aa83e414e866bbae32e02b1c9402ebd510294406996750db2d56ec4800f57341"
+    },
+    {
+      "id": "item_stone",
+      "path": "Icons/Items/item_stone.png",
+      "width": 87,
+      "height": 80,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        477,
+        894,
+        571,
+        980
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "312f1807ef63b61b5e26d1cad965ed9e981e1be5a86e3060125595404887fcd0"
+    },
+    {
+      "id": "item_crystal",
+      "path": "Icons/Items/item_crystal.png",
+      "width": 88,
+      "height": 84,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        121,
+        893,
+        211,
+        981
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "6f1be79ae0ea06823f7c3aee0f29708fc3730d5beb84bdbc9fdd28185c79f265"
+    },
+    {
+      "id": "item_coral",
+      "path": "Icons/Items/item_coral.png",
+      "width": 82,
+      "height": 82,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        572,
+        891,
+        665,
+        982
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "7bceb1ea63c23f7c3b96510ddf842f215725abf6dcf9ae29bb29470deccc7a7b"
+    },
+    {
+      "id": "item_fruit",
+      "path": "Icons/Items/item_fruit.png",
+      "width": 85,
+      "height": 87,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        215,
+        891,
+        304,
+        981
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d6d35ed6ba9e5bf9109af846c3851f9f252b3e73ce9856e8a3ac08924ee64432"
+    },
+    {
+      "id": "item_leaf",
+      "path": "Icons/Items/item_leaf.png",
+      "width": 91,
+      "height": 84,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        1098,
+        891,
+        1183,
+        981
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "bae8c522ce058f2c50b9ab511b33179b431768ed6c71429a4538aa25569ed0f2"
+    },
+    {
+      "id": "item_starter",
+      "path": "Icons/Items/item_starter.png",
+      "width": 72,
+      "height": 61,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        556,
+        796,
+        627,
+        859
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "3e5e7ce665c3d33aff210405ab48cfc228077d0b24a1ad0362a340597dffd90d"
+    },
+    {
+      "id": "item_elemental",
+      "path": "Icons/Items/item_elemental.png",
+      "width": 70,
+      "height": 66,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 2,
+      "source_crop": [
+        477,
+        794,
+        548,
+        858
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "f5135f3c013c1cc7edc3221a27c54be8192fbed3a5640fa69526630fe5ae799a"
+    },
+    {
+      "id": "item_blueprint",
+      "path": "Icons/Items/item_blueprint.png",
+      "width": 85,
+      "height": 81,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        929,
+        891,
+        1014,
+        981
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "f6236ad1794aa4efd8975fb4507156928ff7f54a895a0317f3851a415353c0b1"
+    },
+    {
+      "id": "item_egg",
+      "path": "Icons/Items/item_egg.png",
+      "width": 66,
+      "height": 73,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 1,
+      "source_crop": [
+        232,
+        666,
+        306,
+        741
+      ],
+      "notes": "Visual candidate; pack art and material semantics require review.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "d45e81447a078d2294fde369da3c009cd976bafc8d11c2ff41f3e0ce15850077"
+    },
+    {
+      "id": "icon_back",
+      "path": "Icons/Functions/icon_back.png",
+      "width": 53,
+      "height": 54,
+      "type": "sprite",
+      "borderLTRB_px": null,
+      "source_sheet": 3,
+      "source_crop": [
+        26,
+        961,
+        71,
+        1007
+      ],
+      "notes": "Round control with arrow, not a bare glyph; circular extraction mask.",
+      "status": "draft_needs_visual_QA",
+      "sha256": "1ead4d6b7202a6c8aca8ca5e1841a86fddcf5c8b6e9892ee18354bdce988a868"
+    }
+  ],
+  "counts": {
+    "total": 83,
+    "functions": 27,
+    "items": 12,
+    "buttons": 22,
+    "frames": 7,
+    "tabs": 2,
+    "slots": 9,
+    "bar_references": 4
+  }
+}
