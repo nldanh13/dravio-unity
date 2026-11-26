@@ -382,12 +382,20 @@ namespace Dravio.Domain.Core
 
                 // Mở thế giới (ADR U2.8-0201): nhiệm vụ và thưởng là ID catalog, không trùng; trứng chờ phải là thưởng đã cấp, mỗi thưởng một lần.
                 if (s.CompletedQuests == null || !UniqueStrings(s.CompletedQuests, WorldUnlockCatalog.IsQuestId)) errors.Add("completedQuests: invalid");
-                if (s.GrantedRewards == null || !UniqueStrings(s.GrantedRewards, WorldUnlockCatalog.IsRewardId)) errors.Add("grantedRewards: invalid");
+                // U2.13: thêm trứng thưởng thám hiểm (Aurorawing, mốc 15 chuyến sky_cloud) — chỉ hợp lệ khi bộ đếm chuyến đã đạt mốc.
+                if (s.GrantedRewards == null || !UniqueStrings(s.GrantedRewards, id => WorldUnlockCatalog.IsRewardId(id) || Progression.Exploration.IsEggRewardId(id))) errors.Add("grantedRewards: invalid");
                 else
                 {
                     foreach (string rid in s.GrantedRewards)
                         foreach (ZoneUnlockRule r in WorldUnlockCatalog.Rules)
                             if (r.RewardId == rid && s.FindZone(r.ZoneId)?.Unlocked != true) errors.Add("grantedRewards: " + rid + " without unlocked zone");
+                    foreach (string rid in s.GrantedRewards)
+                    {
+                        if (!Progression.Exploration.IsEggRewardId(rid)) continue;
+                        Progression.ExplorationMilestoneDef em = Progression.Exploration.EggMilestone(rid);
+                        int eggClaims = s.ExpeditionsClaimed != null && em != null && s.ExpeditionsClaimed.TryGetValue(em.RouteId, out int ec) ? ec : 0;
+                        if (em == null || eggClaims < em.Claims) errors.Add("grantedRewards: " + rid + " before milestone");
+                    }
                     if (s.RewardQueue == null) errors.Add("rewardQueue: invalid");
                     else
                     {

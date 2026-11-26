@@ -94,6 +94,10 @@ namespace Dravio.Domain.Progression
             for (bool grew = true; grew;)
             {
                 grew = false;
+                // U2.13: trứng thưởng thám hiểm (Aurorawing, mốc 15 chuyến sky_cloud) khi tuyến của mốc dùng được (mở, có bảng thưởng, có rồng đi được).
+                foreach (ExplorationMilestoneDef m in Exploration.Milestones)
+                    if (m.EggSpeciesId != null && !o.Contains(m.EggSpeciesId) && ExpeditionCatalog.TryGet(m.RouteId, out ExpeditionRoute er) && RouteUsable(er, open, o))
+                    { o.Add(m.EggSpeciesId); grew = true; }
                 var parents = new List<DragonSpecies>();
                 foreach (DragonSpecies sp in SpeciesCatalog.All) if (o.Contains(sp.Id) && Placeable(sp.Id, open)) parents.Add(sp);
                 foreach (DragonSpecies a in parents)

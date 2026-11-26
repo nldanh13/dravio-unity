@@ -344,26 +344,39 @@ namespace Dravio.Domain.Catalog
 
     public static class ExpeditionCatalog
     {
-        public static readonly IReadOnlyList<ExpeditionRoute> Routes = Array.AsReadOnly(new[]
-        {
-            new ExpeditionRoute("origin_forest", "Rừng Khởi Nguyên", "origin", 15, ExpeditionRequirement.LandDweller, new[] { "wood", "seed" }, 2, 4),
-            // GDD "ngọc/rêu biển" → crystal/coral (chủ dự án duyệt).
-            new ExpeditionRoute("ocean_reef", "Rạn Thủy Vực", "ocean", 30, ExpeditionRequirement.Swimmer, new[] { "crystal", "coral" }, 2, 4),
-            // GDD "bụi sao" không có ID chuẩn: bảng thưởng TBD → tuyến khóa (chủ dự án duyệt).
-            new ExpeditionRoute("sky_cloud", "Sân mây Thiên Giới", "sky", 45, ExpeditionRequirement.Flyer, new string[0], 2, 4),
-        });
+        /// <summary>
+        /// Ba tuyến (thứ tự cố định). U2.13: tuyến <c>sky_cloud</c> lấy từ <see cref="SkyCloudBalance.Current"/>; trong game thật bảng chưa duyệt nên
+        /// tuyến vẫn không có vật liệu (route-rewards-undefined).
+        /// </summary>
+        public static IReadOnlyList<ExpeditionRoute> Routes => SkyCloudBalance.Current.Routes;
 
-        public static readonly IReadOnlyList<MaterialDef> Materials = Array.AsReadOnly(new[]
+        private static readonly MaterialDef[] BaseMaterials =
         {
             new MaterialDef("wood", "Gỗ", true),
             new MaterialDef("seed", "Hạt giống", true),
             new MaterialDef("stone", "Đá", false),
             new MaterialDef("crystal", "Pha lê", true),
             new MaterialDef("coral", "San hô", true),
-        });
+        };
+        private static readonly IReadOnlyList<MaterialDef> MaterialsSkyOff = Array.AsReadOnly(Append(BaseMaterials, new MaterialDef(SkyCloudBalance.MaterialId, "Bụi sao", false)));
+        private static readonly IReadOnlyList<MaterialDef> MaterialsSkyOn = Array.AsReadOnly(Append(BaseMaterials, new MaterialDef(SkyCloudBalance.MaterialId, "Bụi sao", true)));
 
-        /// <summary>ID vật liệu chuẩn theo thứ tự catalog (cả vật liệu chưa kích hoạt).</summary>
-        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "stone", "crystal", "coral" });
+        private static MaterialDef[] Append(MaterialDef[] xs, MaterialDef x)
+        {
+            var o = new MaterialDef[xs.Length + 1];
+            Array.Copy(xs, o, xs.Length);
+            o[xs.Length] = x;
+            return o;
+        }
+
+        /// <summary>Vật liệu chuẩn. U2.13: <c>stardust</c> ("Bụi sao") ở cuối; Active chỉ khi bảng sky_cloud được bật.</summary>
+        public static IReadOnlyList<MaterialDef> Materials => SkyCloudBalance.Current.Enabled ? MaterialsSkyOn : MaterialsSkyOff;
+
+        /// <summary>
+        /// ID vật liệu chuẩn theo thứ tự catalog (cả vật liệu chưa kích hoạt). U2.13: thêm <c>stardust</c> ở cuối (giữ thứ tự cũ), để save có bụi sao
+        /// hợp lệ khi tuyến được bật; save cũ không đổi (không có khóa này).
+        /// </summary>
+        public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed", "stone", "crystal", "coral", SkyCloudBalance.MaterialId });
 
         /// <summary>"Một slot thám hiểm chung P0".</summary>
         public const int Slots = 1;
