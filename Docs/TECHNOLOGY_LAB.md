@@ -34,6 +34,24 @@ dotnet test "Assets/Dravio/Tests/Integration~/Dravio.LivingIntegration.Tests.csp
 ```
 Checks: head-on reference deadlock vs steering progress, no swept overlap for crowd/obstacle/group scenarios, determinism, invalid input, speed bounds, comparison report. CI on Windows/Linux includes these tests in the existing projection-policy step. CPU numbers are synthetic managed CPU timings; no mobile FPS claim. The lab deliberately does not alter the production controller.
 
+## TL.2–6 experimental suite (extended)
+
+| Lab | Implementation | Unity menu / evidence | Status |
+|---|---|---|---|
+| TL.1 | Synthetic steering comparison | Steering Comparison | .NET pass at 9d1f6748 |
+| TL.2 | Same A* paths on actual Origin meadow JSON, fixed route follower and local steering A/B | Routed Crowd Benchmark | Code + tests; not full production controller replay |
+| TL.3 | Origin ground / Ocean swim / Sky air; all directed valid spawn pairs, grid .30/.45/.60, 2048-node limit, denser .025m validation | Authored Route Benchmark | Code + tests; NavVolume itself not installed |
+| TL.4 | Least-squares contact plane, combined tilt, body/foot offsets, rate/reach limits | Creature Techniques | Mathematical prototype; no rig or Unity physics |
+| TL.5 | Range/LOS/TTL memory and gated approach/face/readiness/request sequence | Creature Techniques | Mock stimuli/gates; no Domain commands |
+| TL.6 | Explicit mutual preference/compatibility, same habitat, range, exclusive deterministic nearest pairing | Creature Techniques | Read-only synthetic pairing; no relationships saved |
+| TL.7 | Promotion criteria, decision register and reproducible local acceptance | Docs/TECHNOLOGY_LAB_DECISIONS.md | Review gate, not production merge |
+
+All menu items are under Dravio > Technology Lab. Editor-only, no save/session/scene/catalog mutation. TL.2 requests 5/15/30 synthetic discs, using valid authored spawns first then separated grid samples; unreachable or densely invalid initial routes are excluded and counted. Fixed common A* paths isolate steering but do not reproduce production turning or dynamic replan. Completion rates may regress; report rather than conceal. TL.3 uses a headless mirror of location JSON; editor checks spawn parity against the production adapter. Dense validation is diagnostic (unsafeEdges > 0 blocks promotion), not a proof of continuous clearance. Missing endpoints or unsupported transitions are reported; not repaired by inventing geometry. No 3D package code imported. All tests use .NET 8; CI detailed console output includes comparison rows.
+
+```powershell
+dotnet test "Assets/Dravio/Tests/Integration~/Dravio.LivingIntegration.Tests.csproj" --logger "console;verbosity=detailed"
+```
+
 ## Promotion plan
 
 - TL.2 compare with real U5.3.6 route-following and fixed body radii from CHAR.7, same map/seed/goals, include near-obstacle and blocked narrow passage. Compare actual A* baseline, not just straight-line reference. Profile CPU/GC at 5/15/30 in Unity and on Android. Preserve canonical path validation, occupancy and motion readiness.
