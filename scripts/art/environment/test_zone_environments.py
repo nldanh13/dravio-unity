@@ -328,6 +328,54 @@ class BudgetTests(unittest.TestCase):
                     continue
                 self.assertLessEqual(abs(max(tops) - y), 0.20, f"{z} {src} ({x}, {zz}): collider top {max(tops)} vs {y}")
 
+    def test_committed_unity_files_carry_the_zone_data(self):
+        """ENV Alpha (#79): the owner-generated Ocean / Sky assets are committed (U6.0.3b). Their art values must
+        equal the JSON sources, so the repo is consistent without re-running the builders: living keyframes, fog and
+        FX in *Living.asset, obstacles in SkyLocations.asset, Sky gate box colliders, FX alpha / fog in the scenes."""
+        import re
+        import yaml
+
+        def asset(path):
+            with open(path, encoding="utf-8") as f:
+                return list(yaml.safe_load("\n".join(f.read().split("\n")[3:])).values())[0]
+
+        for z in ZONES:
+            Z = z.capitalize()
+            with open(os.path.join(zone_dir(z, "Data"), f"{Z}Living.json"), encoding="utf-8") as f:
+                liv = json.load(f)
+            a = asset(os.path.join(zone_dir(z, "Data"), f"{Z}Living.asset"))
+            for k_json, k_asset in zip(liv["keyframes"], a["keyframes"]):
+                for key in ("lightIntensity", "shadowStrength"):
+                    self.assertAlmostEqual(k_json[key], k_asset[key], places=4, msg=f"{z} {key}")
+                for key in ("ambientSky", "ambientEquator", "ambientGround", "fogColor", "lightColor"):
+                    for x, y in zip(k_json[key], k_asset[key]):
+                        self.assertAlmostEqual(x, y, places=4, msg=f"{z} {key}")
+            self.assertEqual(len(liv["keyframes"]), len(a["keyframes"]))
+            self.assertAlmostEqual(liv["fog"]["start"], a["fog"]["start"])
+            self.assertAlmostEqual(liv["fog"]["end"], a["fog"]["end"])
+            self.assertEqual([round(f["alpha"], 4) for f in liv["fx"]], [round(f["alpha"], 4) for f in a["fx"]])
+            with open(os.path.join(UNITY_ENV, "Scenes", f"{Z}_Environment.unity"), encoding="utf-8") as f:
+                scene = f.read()
+            self.assertIn(f"m_LinearFogStart: {liv['fog']['start']:g}\n", scene)
+            self.assertIn(f"m_LinearFogEnd: {liv['fog']['end']:g}\n", scene)
+            alphas = [float(v) for v in re.findall(r"\n    alpha: ([0-9.]+)\n", scene)]
+            self.assertEqual(sorted(alphas), sorted(f["alpha"] for f in liv["fx"]), z)
+        sky_loc = asset(os.path.join(zone_dir("sky", "Data"), "SkyLocations.asset"))
+        with open(os.path.join(zone_dir("sky", "Data"), "SkyLocations.json"), encoding="utf-8") as f:
+            self.assertEqual(len(json.load(f)["obstacles"]), len(sky_loc["obstacles"]))
+        self.assertIn(4.494, [round(o["top"], 3) for o in sky_loc["obstacles"]])
+        with open(os.path.join(zone_dir("sky", "Prefabs"), "SM_ENV_Sky_Gate.prefab"), encoding="utf-8") as f:
+            prefab = f.read()
+        boxes = re.findall(r"m_Size: \{x: ([0-9.]+), y: ([0-9.]+), z: ([0-9.]+)\}\n  m_Center: \{x: ([-0-9.]+), y: ([-0-9.]+), z: ([-0-9.]+)\}", prefab)
+        got = sorted(tuple(float(v) for v in b) for b in boxes)
+        want = sorted(tuple(b["size"]) + (tuple(b["center"]) if b["yaw"] == 0 else (0.0, 0.0, 0.0))
+                      for b in zc.collider_specs_unity(sky_zone)["SM_ENV_Sky_Gate"])
+        self.assertEqual(got, [tuple(float(v) for v in w) for w in want])
+        mats = {"ocean": 1.2, "sky": 1.3}
+        for z, e in mats.items():
+            with open(os.path.join(zone_dir(z, "Materials"), f"M_ENV_{z.capitalize()}_Props.mat"), encoding="utf-8") as f:
+                self.assertIn(f"_EmissionColor: {{r: {e:g}, g: {e:g}, b: {e:g}, a: 1}}", f.read())
+
     def test_unity_rgba32_estimate_fits_the_validator_budget(self):
         soft_dot = os.path.join(UNITY_ENV, "Textures", "T_ENV_FX_SoftDot.png")
         for z, names in SCENE_TEXTURES.items():
