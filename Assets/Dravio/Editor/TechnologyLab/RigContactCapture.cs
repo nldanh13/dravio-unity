@@ -70,12 +70,16 @@ namespace Dravio.TechnologyLab
             double gap=near>0?frames.Where(f=>f.NearGround>0).Sum(f=>f.MeanNearGroundAbsGap*f.NearGround)/near:-1;
             return FormattableString.Invariant($"TL.12 frames={Count} footSamples={feet} hits={hits} missing={feet-hits} nearGround={near} penetrationSamples={frames.Sum(f=>f.Penetrations)} maxPenetrationM={frames.Max(f=>f.MaxPenetration):F4} nearAbsGapM={gap:F4} candidateFrames={frames.Count(f=>f.Candidate.Valid)}");
         }
-        public string Csv()
+        public string Csv(string label=null)
         {
-            var b=new StringBuilder("sample,clip_seconds,feet,hits,near_ground,penetrations,max_penetration_m,mean_near_ground_abs_gap_m,candidate_valid,candidate_pitch_deg,candidate_roll_deg,candidate_offset_m\n");
+            var b=new StringBuilder();
+            string prefix=label==null?"":"\""+label.Replace("\"","\"\"").Replace("\r"," ").Replace("\n"," ")+"\",";
+            if(label!=null)b.Append("capture_label,");
+            b.Append("sample,clip_seconds,feet,hits,near_ground,penetrations,max_penetration_m,mean_near_ground_abs_gap_m,candidate_valid,candidate_pitch_deg,candidate_roll_deg,candidate_offset_m\n");
             for(int i=0;i<Count;i++)
             {
                 var f=frames[i];var p=f.Candidate;
+                b.Append(prefix);
                 b.AppendLine(FormattableString.Invariant($"{i},{f.Time:R},{f.Feet},{f.Hits},{f.NearGround},{f.Penetrations},{f.MaxPenetration:R},{f.MeanNearGroundAbsGap:R},{(p.Valid?1:0)},{p.Pitch:R},{p.Roll:R},{p.BodyOffset:R}"));
             }
             return b.ToString();

@@ -57,7 +57,7 @@ namespace Dravio.EditorTools
                     {
                         running=false;
                         var path=EditorUtility.SaveFilePanel("Export rig contact review","","dravio-rig-contact","csv");
-                        if(!string.IsNullOrEmpty(path))File.WriteAllText(path,capture.Csv());
+                        if(!string.IsNullOrEmpty(path))File.WriteAllText(path,capture.Csv(label));
                     }
             }
             EditorGUILayout.LabelField("Capture",label,EditorStyles.wordWrappedLabel);

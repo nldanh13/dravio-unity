@@ -39,6 +39,7 @@ namespace Dravio.Tests
                 CultureInfo.CurrentCulture=new CultureInfo("fr-FR");
                 Assert.That(c.Csv(),Does.Contain("0,0.25,1,1,1,1,0.03,0.03,0,0,0,0"));
                 Assert.That(c.Summary(),Does.Contain("maxPenetrationM=0.0300"));
+                Assert.That(c.Csv("test, IK on"),Does.Contain("\"test, IK on\",0,0.25"));
             }
             finally{CultureInfo.CurrentCulture=old;}
         }

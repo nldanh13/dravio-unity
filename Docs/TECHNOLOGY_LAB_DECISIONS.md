@@ -40,3 +40,5 @@ Remaining evidence: Unity compile/PlayMode, full production controller compariso
 ## Follow-up gates
 
 TL.8 broad-phase and adaptive route experiments passed CI. TL.9 recovery and goal-lease prototypes and TL.10 controller trace added; use TECHNOLOGY_LAB_RESULTS.md for exact benchmark and collection instructions. Do not promote a candidate solely on synthetic results. The actual controller has editor-only tracing but no runtime candidate integration or measured A/B replay yet. Retain original production routing until local traces and model readiness are available.
+
+TL.11 gate CI passed. TL.12 provides read-only Animation Lab contact capture (not a second IK solver). TL.13 provides the first opt-in real-controller adaptive route fallback trial; disabled by default and excluded from player builds. See TECHNOLOGY_LAB_RESULTS.md. Promotion remains HOLD pending local rig QA, matched controller A/B, device measurements and CHAR.7 contract. Do not infer successful model contact or actual controller performance from pure .NET tests.

@@ -80,3 +80,30 @@ A single local food marker is sensed within 3m when its same-habitat ground segm
 Local acceptance: play copied save; enable inspector option before feeding; confirm selected UID receives one accepted request after turning/waking, selection change doesn't redirect food, storage/expiry/occlusion cannot lead to stale consume, and normal behavior is unchanged when disabled. Inspect TL.11 in profile/Console; collect TL.10 trace in identical scenario with gate off/on. Pure gate tests cover range/reach, sight, memory expiry, wrong identity, cooldown/eligibility (as input), time rollback and repeated request. They do not compile or run the MonoBehaviour in Unity. If a rig cannot show Idle/None reliably, no experimental consume; investigate with CHAR.7 rather than weakening the gate.
 
 TL.12 contact/IK promotion remains dependent on real GLB and CHAR.7 rig readiness. No external animation library or rig override introduced in TL.11.
+
+## TL.11 verified
+
+CI [45740845790](https://github.com/nldanh13/dravio-unity/actions/runs/45740845790) passed at 4bb6809c. The opt-in food gate remains editor-only and requires Unity acceptance. Pure gate tests are not evidence of actual animation readiness or gameplay execution.
+
+## TL.12 actual rig contact diagnostics
+
+Existing CHAR.6 Rig v4 already implements DragonFootGrounding (two-bone IK), head look, blink and an Animation Lab. Do not add a second bone writer. Dravio > Technology Lab > Rig Contact Review observes the existing lab instance without changing its rig, clips, physics, prefab or save. The Character AI remains owner of deformation/IK and CHAR.7.
+
+Local steps:
+1. Import local actual catalog and run Dravio > Character > Animation Lab, Play. Choose a rigged catalog entry and a ground clip (Idle, Walk, Run, Rest, Sleep, Bask as supported).
+2. Open Rig Contact Review. Find active Animation Lab. Assign the scene's Ground transform explicitly; Uneven Ground root comes from the lab. Set Uneven Ground and Foot IK in the existing Animation Lab. Leave the chosen clip/terrain/IK mode unchanged for the capture.
+3. Start capture; sample up to 600 rendered frames, export CSV. Repeat with the same clip, playback speed, terrain, sample-time coverage and ray reach with IK switched off/on. Do not compare different clips/models/surface settings. Save label and CSV together.
+4. Report valid/missing foot rays, near-ground samples, foot-bone penetration proxy (>2cm below selected collider), maximum negative anchor gap, mean absolute near-ground gap and count of valid support planes. Support plane needs at least three noncollinear anchors within 4cm of sampled ground; candidate pitch/roll combined limit 18 degrees and offset 0.12m. These are diagnostic assumptions, not anatomy-approved limits.
+5. Review video/skeleton and real skin weights. Bone pivot is not foot sole, near-ground is not an authored plant curve, and the in-place clip cannot by itself measure world-space foot slide. A read-only candidate plane is not applied to the rig. No automated comparison of matched clips/frames, no mesh penetration certification, no phone performance claim. Probe uses raycast allocations and Editor update snapshots, not a production foot IK benchmark.
+
+The tool refuses ambiguous catalog entries, missing/nonunique/nonhierarchical IK bones, unsupported non-ground locomotion and mismatched configured chain counts. Explicit ground-only ray filtering excludes the dragon. Capture stops if clip, instance, IK mode or terrain toggle changes. Real GLB/Unity execution still pending; head, tail, wing and body pose modifications remain CHAR.7/local QA work.
+
+## TL.13 candidate runtime trial: Adaptive Ground Routing
+
+On LivingSanctuaryPresentation in the Editor only, Experimental Adaptive Ground Routing defaults OFF. Original controller still searches .45m with 768 expanded node limit. On an Unreachable/BudgetExceeded result only, optional fallback tries .30m and .20m (384 nodes each), same actual geometry and dynamic separation predicate, dense .025m edge recheck and exact goal. No reattempt for invalid endpoints, no change to successful original route, no unchecked paths. Combined node ceiling 1536 per route-planning frame when enabled, versus 768 before; CPU is not bounded by node count alone. This is a more conservative budget than TL.8's 2048 node experiment, so prior benchmark totals must not be presented as runtime fallback results.
+
+Tests use a narrow synthetic corridor, blocked map, unchanged success, exact goal/dense segment checks and the authored Origin spawn pairs with the actual 768+768 budget. No runtime steering/recovery integration, only the fallback route candidate. No player-build code path, no game rule/save changes.
+
+A/B: restore identical disposable save and restart Play Mode for each run (cached routes must not carry across trials). First use default baseline; collect TL.10 trace, repeat with only Experimental Adaptive Ground Routing enabled. Leave TL.11 food experiment and shared allocation unchanged/off. Use identical scenario, visual catalog, scene, seed/actions and observation window. Trace records adaptive_attempts/adaptive_rescues and labels suggested CSV filename with mode; changing mode mid-recording stops capture. Compare route failures/rescues, arrival calls, dynamic blocks, sampled center gap and motion CPU p95, plus actual Profiler whole-frame CPU/GC. Do not promote if clearance/animation regressions or CPU spikes worsen. No Unity A/B collected remotely.
+
+TL.13 is a production-controller **trial**, not production approval. Predictive steering needs coordinated swept trajectories plus turn/motion readiness and actual clearance tests before replacing the existing sequential movement. Keep draft and previous branches intact.
