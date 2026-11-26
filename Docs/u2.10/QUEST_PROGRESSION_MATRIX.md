@@ -57,15 +57,15 @@ Sinh cảnh Khởi Nguyên đã có luật canonical (ADR 0009): khảo sát `DI
 
 ## 6. Dòng thời gian kỳ vọng (mô phỏng Researcher, thử nghiệm)
 
-Mô phỏng hoàn thành nhiệm vụ cổng khi đề xuất báo đủ, trừ vật liệu, rồi gửi `unlockZone` thật (xem ECONOMY_SIMULATION.md):
+Mô phỏng hoàn thành nhiệm vụ cổng khi đề xuất báo đủ, trừ vật liệu, rồi gửi `unlockZone` thật. Người chơi mô phỏng đặt rồng vào sinh cảnh của thế giới mới mở và giữ một Adult biết bay ở sinh cảnh. Biến thể `proposed` có nhật ký đêm R11 (ECONOMY_SIMULATION.md mục 4):
 
 | Lịch chơi | Mở Thủy Vực (trung vị) | Mở Thiên Giới |
 |---|---|---|
-| 5 phút/ngày (chỉ buổi sáng) | ngày 15,5 (90 % seed trong 90 ngày) | ngày 30 (45 % seed) |
-| 3 × 10 phút/ngày | ngày 5,3 (100 %) | ngày 13,5 (55 %) |
-| 60 phút/ngày | ngày 5,0 (100 %) | ngày 26 (60 %) |
+| 5 phút/ngày (chỉ buổi sáng) | ngày 11 (100 % seed trong 90 ngày) | ngày 29 (90 %) |
+| 3 × 10 phút/ngày | ngày 5,2 (100 %) | ngày 15 (95 %) |
+| 60 phút/ngày | ngày 5,5 (100 %) | ngày 13 (95 %) |
 
-20 seed, trung vị trên các seed có mở. Thiên Giới khó hơn dự kiến vì cần một loài Thủy Vực đạt Ethology (ECONOMY_SIMULATION.md mục 6); đây là điểm cần chủ dự án chọn trước khi duyệt Q2.
+20 seed, trung vị trên các seed có mở. Báo cáo bản đầu ghi Thiên Giới chỉ mở ở 45–60 % seed; nguyên nhân là người chơi mô phỏng khi đó không bao giờ đặt rồng vào sinh cảnh Thủy Vực, nên yêu cầu "2 loài được ghi chép ở Thủy Vực" không thể đạt. Yêu cầu Q2 giữ nguyên.
 
 ## 7. Trạng thái ở production
 

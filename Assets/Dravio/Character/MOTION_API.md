@@ -31,6 +31,7 @@ Character Runtime **chỉ thể hiện chuyển động**. Những việc sau th
    - `verticalSpeed` (m/s, + = leo);
    - `speed`.
    Shaper dùng chúng để nghiêng cánh, ngóc/chúi và uốn thân. Nên giữ tốc độ quay trong `MotionInfo.maxTurn*`.
+   Từ U1-CHAR.7b, góc nghiêng khi bay là của vòng nghiêng cân bằng (cần `speed` > 0). Đầu giữ thăng bằng. Cơ sở: [BIOMECHANICS_RESEARCH.md](BIOMECHANICS_RESEARCH.md).
 5. **Khả năng theo loài × stage:** `sync.CapabilitiesOf(uid)` đọc từ clip của model đang hiện. Bảng 16 loài nằm ở `reports_u7_sample/capability-matrix.md`.
 6. **Lớn lên** (đổi model) giữ nguyên môi trường đang ở, không phát lại chuyển tiếp. Nếu model mới không có khả năng đó thì rồng giữ nguyên chỗ và báo `substituted`.
 
