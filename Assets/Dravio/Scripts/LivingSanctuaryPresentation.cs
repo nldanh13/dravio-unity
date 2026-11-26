@@ -33,6 +33,12 @@ namespace Dravio
         [SerializeField] GameObject fruit;
         [Tooltip("Experimental ADR 0203 B7/A4: assign food by preference instead of selected UID. Off until approved.")]
         [SerializeField] bool sharedFoodAllocation;
+#if UNITY_EDITOR
+        [Tooltip("TL.11 experimental selected-UID food perception/action sequence. Off by default; ignored with shared allocation.")]
+        [SerializeField] bool experimentalFoodPerception;
+        readonly FoodActionPresentationGate foodGate=new FoodActionPresentationGate();
+        bool UseFoodGate=>experimentalFoodPerception && !sharedFoodAllocation;
+#endif
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
         sealed class Resident
@@ -372,10 +378,61 @@ namespace Dravio
                 Gizmos.DrawWireSphere(point+Vector3.up*.05f,.07f);previous=point;
             }
         }
+#if UNITY_EDITOR
+        bool FoodFacing(Resident r)
+        {
+            var delta=foodPoint-r.position;delta.y=0;
+            return delta.sqrMagnitude<.0001f || Vector3.Angle(r.rotation*Vector3.forward,delta)<=FoodActionPresentationGate.FacingDegrees;
+        }
+        bool FoodMotionReady(Resident r)=>manager.TryGet(r.uid,out var live) &&
+            live.ShownLocomotion==DragonLocomotion.Idle && live.CurrentInteraction==DragonInteraction.None;
+        bool FoodPerceptionEligible(Resident r)
+        {
+            // Actual gameplay authority stays in the existing policy. Health recovery wins over the experiment.
+            return !(r.decision?.Role==BehaviorRole.Gameplay && r.decision.Behavior==DragonBehavior.Rest) &&
+                AutonomousPresentationPolicy.CanConsumeMarker(State,r.uid,foodUid,foodId,NowMs,phase,false);
+        }
+        DragonBehaviorIntent ExperimentalFoodIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
+        {
+            speed=0;turnRate=0;look=false;lookTarget=Vector3.zero;
+            var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
+            bool eligible=drop!=null && FoodPerceptionEligible(r);
+            double distance=Vector3.Distance(r.position,foodPoint);
+            // Conservative navigable-segment proxy for sight; not a physics raycast or full sensory model.
+            bool clear=eligible && Segment(r.position,foodPoint,r.habitat);
+            if(!foodGate.Observe(r.uid,foodId,r.habitat,NowMs,drop?.ExpiresAtMs??0,eligible,distance,clear))
+            {
+                r.fallback="perception: "+foodGate.Phase;
+                if(r.decision?.Role==BehaviorRole.Gameplay && r.decision.Behavior==DragonBehavior.Rest)
+                    return DragonBehaviorIntent.Recover;
+                return DragonBehaviorIntent.Idle;
+            }
+            if(r.point!=null)ReleasePoint(r);
+            look=true;lookTarget=foodPoint;
+            if(distance>FoodActionPresentationGate.Reach)
+            {
+                MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                foodGate.Presentation(false,false,false);
+                return speed>0?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+            }
+            var delta=foodPoint-r.position;delta.y=0;
+            if(delta.sqrMagnitude>.0001f)
+            {
+                var old=r.rotation;
+                r.rotation=Quaternion.RotateTowards(old,Quaternion.LookRotation(delta),180f*dt);
+                if(dt>0)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+            }
+            foodGate.Presentation(true,FoodFacing(r),FoodMotionReady(r));
+            return DragonBehaviorIntent.Idle;
+        }
+#endif
         DragonBehaviorIntent GroundIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
         {
             speed=0f;turnRate=0f;look=false;lookTarget=Vector3.zero;r.fallback=null;
             var behavior=r.decision?.Behavior??DragonBehavior.Idle;
+#if UNITY_EDITOR
+            if(UseFoodGate && IsFoodTarget(r))return ExperimentalFoodIntent(r,dt,out speed,out turnRate,out look,out lookTarget);
+#endif
             if(IsFoodTarget(r))
             {
                 var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
@@ -616,10 +673,25 @@ namespace Dravio
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
             if(!AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,sharedFoodAllocation))return;
             var idToEat=foodId;var who=foodUid;
-            if(Send(id=>new ConsumeFoodCommand(id,idToEat,who)))Message("Food consumed: "+who,"Rồng đã ăn: "+who);
-            else consumeAfter=Time.unscaledTime+1f; // no retry every frame; Domain remains authoritative.
+#if UNITY_EDITOR
+            if(UseFoodGate && !foodGate.TryRequest(who,idToEat,r.habitat,NowMs,drop.ExpiresAtMs,
+                FoodPerceptionEligible(r),Vector3.Distance(r.position,foodPoint),
+                Segment(r.position,foodPoint,r.habitat),FoodFacing(r),FoodMotionReady(r)))return;
+#endif
+            bool accepted=Send(id=>new ConsumeFoodCommand(id,idToEat,who));
+#if UNITY_EDITOR
+            if(UseFoodGate)foodGate.Resolve(accepted);
+#endif
+            if(accepted)Message("Food consumed: "+who,"Rồng đã ăn: "+who);
+            else consumeAfter=Time.unscaledTime+1f; // original retry only; experimental gate permits one request per marker.
         }
-        void ClearFood(){foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();}
+        void ClearFood()
+        {
+#if UNITY_EDITOR
+            foodGate.Clear();
+#endif
+            foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
+        }
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
             decisionsDirty=true;
@@ -754,6 +826,9 @@ namespace Dravio
             else status.text=vi?messageVi:messageEn;
             profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
                 "\n"+(vi?"Lượt tìm đường / lỗi: ":"Routes planned / failed: ")+plannedRoutes+"/"+failedRoutes;
+#if UNITY_EDITOR
+            if(UseFoodGate)profile.text+="\nTL.11: "+foodGate.Phase+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests;
+#endif
             if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
         }
