@@ -179,7 +179,7 @@ namespace Dravio.Editor
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
-                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,680,false);
+                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,980,false);
                 nextDragon=Button(ui,roster,"Next dragon","Rồng tiếp theo",46);
                 observeDragon=Button(ui,roster,"Record species profile","Ghi nhận hồ sơ loài",46);
                 researchObserve=Button(ui,roster,"Record research observation","Ghi quan sát nghiên cứu",46);

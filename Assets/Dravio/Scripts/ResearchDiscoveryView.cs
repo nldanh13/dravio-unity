@@ -30,6 +30,37 @@ namespace Dravio
             string name=string.IsNullOrEmpty(speciesId)?uid:speciesId+" #"+(uid??"").Substring(0,Math.Min(6,(uid??"").Length));
             return (vi?"Rồng đã ăn: ":"Food consumed by: ")+name+" · +"+xpGainedSec+" XP";
         }
+        public static string RelationSummary(RelationsDto relations,Func<string,string> partnerLabel,bool vi)
+        {
+            if(relations==null)return vi?"Chưa có hồ sơ quan hệ.":"No relationship profile.";
+            var lines=new List<string>{vi?"Quan hệ với rồng khác (chỉ thông tin)":"Relationships (information only)"};
+            if(relations.Relations.Count==0)
+            {
+                lines.Add(vi?"Chưa có cá thể khác.":"No other individuals yet.");
+                return string.Join("\n",lines);
+            }
+            // Domain supplies the ordered familiarity snapshot. Show at most three rows.
+            foreach(var relation in relations.Relations.Take(3))
+            {
+                string other=relation.UidA==relations.Uid?relation.UidB:relation.UidA;
+                string tier=relation.Tier switch
+                {
+                    RelationTier.Stranger=>vi?"Xa lạ":"Stranger",
+                    RelationTier.Acquainted=>vi?"Quen biết":"Acquainted",
+                    RelationTier.Friend=>vi?"Bạn bè":"Friend",
+                    RelationTier.Close=>vi?"Thân thiết":"Close",
+                    _=>relation.Tier.ToString()
+                };
+                string name=partnerLabel?.Invoke(other)??other;
+                lines.Add(name+" · "+tier+" · "+relation.Familiarity+"/100");
+                lines.Add((vi?"Hợp tính: ":"Affinity: ")+relation.Affinity+"/100 · "+
+                    (vi?"Sống chung ghi nhận: ":"Recorded shared time: ")+
+                    (relation.SharedMs/3600000d).ToString("0.#",System.Globalization.CultureInfo.InvariantCulture)+" h");
+            }
+            if(relations.Relations.Count>3)
+                lines.Add((vi?"Cá thể khác: ":"More individuals: ")+(relations.Relations.Count-3));
+            return string.Join("\n",lines);
+        }
         public static string KeepOrFirst(IEnumerable<string> ids,string current)
         {
             var list=ids.ToArray();return list.Contains(current,StringComparer.Ordinal)?current:list.FirstOrDefault();

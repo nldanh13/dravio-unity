@@ -105,6 +105,7 @@ namespace Dravio
         int substitutions;
         GameState progressionState;
         ProgressionOverviewDto progression;
+        string relationUid,relationEn,relationVi;
         readonly Dictionary<string,ResearchProfileDto> researchProfiles=new(StringComparer.Ordinal);
         List<SocialInteractionCandidate> socialCandidates=new();
 #if UNITY_EDITOR
@@ -1279,12 +1280,26 @@ namespace Dravio
             if(!ReferenceEquals(progressionState,State) || progression==null)
             {
                 progressionState=State;progression=ProgressionQueries.Overview(State);
-                researchProfiles.Clear();
+                researchProfiles.Clear();relationUid=null;
             }
             if(!researchProfiles.TryGetValue(d.SpeciesId,out var research))
             {research=ProgressionQueries.ResearchProfile(State,d.SpeciesId);researchProfiles[d.SpeciesId]=research;}
             var social=ProgressionQueries.SocialProfile(State,d.Uid);
             var rule=progression.Rules;
+            if(relationUid!=d.Uid)
+            {
+                var relations=ProgressionQueries.Relations(State,d.Uid);
+                string Partner(string uid)
+                {
+                    var other=State.FindDragon(uid);
+                    if(other==null)return uid;
+                    return (string.IsNullOrEmpty(other.Nickname)?other.SpeciesId:other.Nickname)+
+                        " #"+uid.Substring(0,Math.Min(6,uid.Length));
+                }
+                relationEn=ResearchDiscoveryView.RelationSummary(relations,Partner,false);
+                relationVi=ResearchDiscoveryView.RelationSummary(relations,Partner,true);
+                relationUid=d.Uid;
+            }
             profile.text+="\n"+(vi?"Nghiên cứu: ":"Research: ")+research.Species.Tier+
                 " · "+(rule.ResearchRecordingEnabled?(vi?"đang ghi nhận":"recording active"):(vi?"chưa ghi nhận":"recording off"))+
                 " · "+(rule.NightJournalEnabled?(vi?"nhật ký đêm bật":"night journal on"):"")+
@@ -1294,6 +1309,9 @@ namespace Dravio
             if(social!=null)
                 profile.text+="\n"+(vi?"Xã hội (đề xuất): ":"Social (proposal): ")+social.Style+" · "+social.Sociability+"/100 · "+
                     (social.PersonalSpaceDm/10f).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+" m";
+            profile.text+="\n"+(vi?relationVi:relationEn)+"\n"+
+                (rule.SocialGameplayEffectsEnabled?(vi?"Hiệu ứng xã hội: bật":"Social gameplay effects: on"):
+                    (vi?"Không cộng vàng, XP hay chỉ số từ quan hệ.":"Relationships grant no gold, XP or stat bonus."));
             var candidate=socialCandidates.FirstOrDefault(c=>(c.InitiatorUid==d.Uid||c.PartnerUid==d.Uid) &&
                 c.UntilMs>NowMs && !c.AffectsGameplay && c.Role==BehaviorRole.Presentation);
             if(SocialEnabled)profile.text+="\n"+(vi?"Thử nghiệm xã hội: ":"Social preview: ")+
@@ -1305,7 +1323,8 @@ namespace Dravio
                 profile.text+="\n"+(vi?"Gợi ý xã hội: ":"Social candidate: ")+candidate.Kind+
                     (string.IsNullOrEmpty(partner)?"":" · "+(State.FindDragon(partner)?.SpeciesId??"—"));
             }
-            profile.text+="\n"+(vi?"Nhiệm vụ đề xuất (chưa mở hoàn thành): ":"Quest proposals (completion disabled): ")+
+            profile.text+="\n"+(rule.QuestCompletionEnabled?(vi?"Nhiệm vụ đã hoàn thành: ":"Quests completed: "):
+                (vi?"Nhiệm vụ (chưa bật nhận thưởng): ":"Quests (completion disabled): "))+
                 progression.QuestsCompleted+" / "+(progression.QuestsCompleted+progression.QuestsReady+progression.QuestsInProgress+progression.QuestsLocked)+
                 "\n"+(vi?"Mục tiêu gợi ý: ":"Suggested goals: ")+string.Join(", ",progression.SuggestedGoals)+
                 "\n"+(vi?"Luật xã hội mới / nhiệm vụ: ":"New social / quest rules: ")+rule.SocialGameplayEffectsEnabled+" / "+rule.QuestCompletionEnabled;

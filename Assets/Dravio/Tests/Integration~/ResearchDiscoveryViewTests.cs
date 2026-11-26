@@ -11,6 +11,21 @@ namespace Dravio.Tests
     {
         const long Now=1795000000000;
         static GameState New()=>InitialStateFactory.Create("research-ui",Now,Rng.Create(1));
+        [Test] public void RelationsSummaryUsesCanonicalTiersAndBoundsVisibleRows()
+        {
+            var s=New();var uid=s.Dragons[0].Uid;var rev=s.Revision;
+            var empty=ProgressionQueries.Relations(s,uid);
+            Assert.That(ResearchDiscoveryView.RelationSummary(empty,null,false),Does.Contain("No other individuals"));
+            // DTO-only fixture: Domain owns score and ordering in production.
+            var rows=new[]{85,55,25,10}.Select((score,i)=>new SocialRelation
+                {UidA=i%2==0?uid:"other"+i,UidB=i%2==0?"other"+i:uid,Familiarity=score,Affinity=42,SharedMs=3600000}).ToArray();
+            var dto=new RelationsDto {Uid=uid,Relations=rows};
+            var text=ResearchDiscoveryView.RelationSummary(dto,x=>"name-"+x,false);
+            Assert.That(text,Does.Contain("name-other0 · Close · 85/100").And.Contain("name-other1 · Friend").And.Contain("name-other2 · Acquainted"));
+            Assert.That(text,Does.Not.Contain("name-other3"));
+            Assert.That(text,Does.Contain("More individuals: 1").And.Contain("Recorded shared time: 1 h"));
+            Assert.That(s.Revision,Is.EqualTo(rev));
+        }
         [Test] public void UnknownSpeciesDoesNotRevealIdentityOrBiology()
         {
             var s=New();var text=ResearchDiscoveryView.Species(s,"leviathan",false);
