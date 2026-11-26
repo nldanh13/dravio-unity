@@ -168,7 +168,7 @@ namespace Dravio.Domain.Tests
             DispatchResult r = Ok(s, new ObserveDragonCommand(Rid(), "a", DayPhase.Day), clock);
             DragonObserved ev = r.Events.OfType<DragonObserved>().Single();
             Assert.That((ev.DragonUid, ev.SpeciesId, ev.Findings.Count > 0), Is.EqualTo(("a", "emberling", true)));
-            Assert.That(r.State.Research.SpeciesRecord("emberling").Phases, Does.Contain(DayPhase.Day));
+            Assert.That(r.State.Research.SpeciesRecord("emberling").Phases, Has.Member(DayPhase.Day));
             Assert.That(r.State.Player.Gold.Micro - s.Player.Gold.Micro, Is.EqualTo(r.Events.OfType<AchievementUnlocked>().Sum(e => e.RewardGoldMicro)), "quan sát không cho vàng (chỉ thưởng thành tựu sẵn có)");
             Assert.That(r.State.FindDragon("a").Bond, Is.EqualTo(s.FindDragon("a").Bond));
             Assert.That(s.Research.IsEmpty, Is.True, "state gốc không đổi");

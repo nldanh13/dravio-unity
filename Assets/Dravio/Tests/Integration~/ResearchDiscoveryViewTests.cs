@@ -94,7 +94,7 @@ namespace Dravio.Tests
             var s=New();var log=ProgressionQueries.QuestLog(s);
             var q=log.Quests.Single(x=>x.QuestId=="Q_ORIGIN_FOREST_SURVEY");
             Assert.That(ResearchDiscoveryView.Quest(q,true,true),Does.Contain("Vật liệu giao khi nhận").And.Contain("Gỗ").And.Contain("blueprint.forest_lantern"));
-            Assert.That(ResearchDiscoveryView.Missing("route-rewards-undefined",true),Does.Contain("Chưa duyệt"));
+            Assert.That(ResearchDiscoveryView.Missing("route-rewards-undefined",true),Does.Contain("chưa có bảng thưởng hoạt động"));
             Assert.That(ResearchDiscoveryView.QuestName("QUEST_SKY_EXPLORATION",true),Is.EqualTo("Khám phá Thiên Giới"));
         }
         [Test] public void JourneyFollowsCanonicalGatePrerequisiteAndKeepsTutorialBlockers()

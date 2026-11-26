@@ -86,7 +86,7 @@ namespace Dravio.Domain.Tests
             SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, null);
             Assert.That(p.Gated, Is.False);
             Assert.That(p.RevealedSections, Is.EquivalentTo(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }));
-            Assert.That(p.ObservedPhases, Does.Contain(DayPhase.Day));
+            Assert.That(p.ObservedPhases, Has.Member(DayPhase.Day));
             IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, null);
             Assert.That(ind.Gated, Is.False);
             Assert.That(ind.FavoriteHabitatId, Is.Not.Null);
@@ -167,7 +167,7 @@ namespace Dravio.Domain.Tests
             // Ban đêm emberling ngủ → thấy pha nghỉ → hé lộ nhịp sinh học.
             long night = Day0 + 23 * Hour;
             log.Observe(s, BehaviorEngine.Decide(s, "a", night, DayPhase.Night), night, pace);
-            Assert.That(ResearchProgress.Individual(s, "a", log, pace).RevealedTraits, Does.Contain(IndividualTrait.Chronotype));
+            Assert.That(ResearchProgress.Individual(s, "a", log, pace).RevealedTraits, Has.Member(IndividualTrait.Chronotype));
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace Dravio.Domain.Tests
             log.WriteNightJournal(s, night, morning, ResearchPacing.ProposedU210NightJournal);
             foreach (SpeciesResearchRecord r in log.AllSpecies)
                 Assert.That(log.FindingsLeftToday(r.SpeciesId, morning, ResearchPacing.ProposedU210NightJournal), Is.GreaterThanOrEqualTo(0));
-            Assert.That(log.SpeciesRecord("emberling").Phases, Does.Contain(DayPhase.Night));
+            Assert.That(log.SpeciesRecord("emberling").Phases, Has.Member(DayPhase.Night));
         }
 
         [Test]
@@ -309,9 +309,9 @@ namespace Dravio.Domain.Tests
             DragonState c1 = Adult("c1", "emberling", d => d.ParentIds = new[] { "mom", "dad" });
             DragonState c2 = Adult("c2", "sprout", d => d.ParentIds = new[] { "mom", "dad" });
             DragonState half = Adult("c3", "emberling", d => d.ParentIds = new[] { "mom", "other" });
-            Assert.That(SocialEcology.Relation(mom, c1).Sources, Does.Contain(FamiliaritySource.ParentChild));
-            Assert.That(SocialEcology.Relation(c1, c2).Sources, Does.Contain(FamiliaritySource.Siblings));
-            Assert.That(SocialEcology.Relation(c1, half).Sources, Does.Contain(FamiliaritySource.HalfSiblings));
+            Assert.That(SocialEcology.Relation(mom, c1).Sources, Has.Member(FamiliaritySource.ParentChild));
+            Assert.That(SocialEcology.Relation(c1, c2).Sources, Has.Member(FamiliaritySource.Siblings));
+            Assert.That(SocialEcology.Relation(c1, half).Sources, Has.Member(FamiliaritySource.HalfSiblings));
             Assert.That(SocialEcology.Relation(mom, c1).Familiarity, Is.GreaterThanOrEqualTo(60));
             Assert.That(SocialEcology.Relation(dad, mom).Familiarity, Is.LessThan(SocialRules.CuriousMaxFamiliarity));
             SocialRelation r1 = SocialEcology.Relation(c1, c2), r2 = SocialEcology.Relation(c2, c1);
@@ -369,8 +369,8 @@ namespace Dravio.Domain.Tests
                 }
             }
             Assert.That(total, Is.GreaterThan(20));
-            Assert.That(kinds, Does.Contain(SocialInteractionKind.PlayTogether));
-            Assert.That(kinds, Does.Contain(SocialInteractionKind.RestTogether));
+            Assert.That(kinds, Has.Member(SocialInteractionKind.PlayTogether));
+            Assert.That(kinds, Has.Member(SocialInteractionKind.RestTogether));
             Assert.That(MiniJson.Diff(json, StateJson.ToJson(s)), Is.Null, "chỉ đọc");
         }
 
