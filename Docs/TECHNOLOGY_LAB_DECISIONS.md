@@ -36,3 +36,7 @@ Clone upstream to a directory outside Dravio, use Git LFS per README, record com
 - For perception/social, stable UID identity and mutual eligibility, expiry/removal cancellation; no implicit all-species social rule.
 
 Remaining evidence: Unity compile/PlayMode, full production controller comparison, actual NavVolume build/benchmark, real GLB hybrid animation, Android performance and project-owner ADR approval. These cannot be inferred from CI. The experimental suite is not a completed production integration.
+
+## Follow-up gates
+
+TL.8 broad-phase and adaptive route experiments passed CI. TL.9 recovery and goal-lease prototypes and TL.10 controller trace added; use TECHNOLOGY_LAB_RESULTS.md for exact benchmark and collection instructions. Do not promote a candidate solely on synthetic results. The actual controller has editor-only tracing but no runtime candidate integration or measured A/B replay yet. Retain original production routing until local traces and model readiness are available.
