@@ -103,6 +103,8 @@ namespace Dravio.Navigation
                 float.IsNaN(rootOffset)||float.IsInfinity(rootOffset)||!corridorClear(Position))
             {Fail("identity-eligibility-or-corridor-changed");return false;}
             if(shownMode!=Source && shownMode!=Target){Fail("unexpected-medium");return false;}
+            if(sawClip && !activeExpectedClip && !completedExpectedClip){Fail("interrupted-transition");return false;}
+            if(completedExpectedClip && (!sawClip || shownMode!=Target || !canTranslate)){Fail("uncertified-completion");return false;}
             if(activeExpectedClip)
             {
                 if(canTranslate){Fail("transition-did-not-lock");return false;}
@@ -113,7 +115,7 @@ namespace Dravio.Navigation
             if(offsetDue)
             {
                 if(!sawClip||Math.Abs(rootOffset-expectedOffset)>.001||
-                    !SanctuaryRoutePlanner.SegmentClear(Position,End,corridorClear,.025f))
+                    !targetClear(End)||!SanctuaryRoutePlanner.SegmentClear(Position,End,corridorClear,.025f))
                 {Fail("wrong-or-unsafe-root-offset");return false;}
                 Position=End;offsetApplied=true;
             }
