@@ -87,6 +87,18 @@ namespace Dravio.TechnologyLab
             }
             return false;
         }
+        public bool ClearReviewEnvelope(NavPoint p,string habitat,NavigationMedium medium,MediumReviewEnvelope envelope)
+        {
+            if(!p.Finite||!envelope.Valid||(medium!=NavigationMedium.Swim&&medium!=NavigationMedium.Air))return false;
+            string mode=medium==NavigationMedium.Swim?"swim":"fly";
+            foreach(var v in volumes)
+            {
+                if(v.habitatId!=habitat||v.medium!=mode||p.Y-envelope.Vertical<v.yMin||p.Y+envelope.Vertical>v.yMax||
+                    !Contains(v.polygonXZ,p.X,p.Z)||EdgeDistance(v.polygonXZ,p.X,p.Z)<envelope.Horizontal)continue;
+                if(!Blocked(new NavPoint(p.X,p.Y-envelope.Vertical,p.Z),envelope.Horizontal,true))return true;
+            }
+            return false;
+        }
         public static bool Matches(Spawn s,NavigationMedium m)=>m==NavigationMedium.Ground?
             string.IsNullOrEmpty(s.medium)||s.medium=="ground":m==NavigationMedium.Swim?s.medium=="swim":
             m==NavigationMedium.Air&&s.medium=="air";

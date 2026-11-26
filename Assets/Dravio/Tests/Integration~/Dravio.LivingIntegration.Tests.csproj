@@ -14,6 +14,14 @@
     <Compile Include="../../Scripts/LivingResidentPolicy.cs" />
     <Compile Include="../../Scripts/ConnectedWorldPolicy.cs" />
     <Compile Include="ConnectedWorldPolicyTests.cs" />
+    <Compile Include="../../Scripts/SpatialResidentPolicy.cs" />
+    <Compile Include="SpatialResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/SocialPresentationScheduler.cs" />
+    <Compile Include="SocialPresentationSchedulerTests.cs" />
+    <Compile Include="../../Scripts/ResearchDiscoveryView.cs" />
+    <Compile Include="ResearchDiscoveryViewTests.cs" />
+    <Compile Include="../../Scripts/ExpeditionPresentation.cs" />
+    <Compile Include="ExpeditionPresentationTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
