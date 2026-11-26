@@ -76,6 +76,9 @@ namespace Dravio.Domain.Tests.Simulation
 
         public GameState State => _s;
 
+        /// <summary>U2.9: gọi sau mỗi lệnh (state hiện tại, thời điểm). Dùng để chèn truy vấn chỉ đọc và kiểm chúng không đổi kết quả kinh tế.</summary>
+        public Action<GameState, long> AfterCommand { get; set; }
+
         private DispatchResult Do(GameCommand c)
         {
             DispatchResult r = CommandDispatcher.Dispatch(_s, c, new FixedClock(_now));
@@ -92,6 +95,7 @@ namespace Dravio.Domain.Tests.Simulation
                 _s = r.State;
                 if (_s.Player.Gold.Micro < 0) throw new InvalidOperationException("negative gold");
             }
+            AfterCommand?.Invoke(_s, _now);
             return r;
         }
 

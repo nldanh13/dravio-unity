@@ -1,4 +1,4 @@
-# Dravio Domain — Hướng dẫn tích hợp Unity (tới U2.6 / U2.8)
+# Dravio Domain — Hướng dẫn tích hợp Unity (tới U2.6 / U2.8 / U2.9)
 
 Tầng Unity **không tự tính luật**. Có hai việc duy nhất:
 
@@ -174,3 +174,69 @@ var env = new SessionEnvironment { /* … */ DisasterRules = DisasterRules.Propo
 - Rồng ở trạm có `Location = care(caseId)`, rồng ở nơi trú có `Location = shelter(zoneId)`; cả hai `Activity = care` khi có ca. Rồng chỉ trú (không có ca) giữ `Activity = idle` nhưng không sản xuất.
 - Không có tử vong. Kế hoạch không phù hợp không làm rồng xấu đi.
 - Xuất viện không tự gán lại slot sản xuất (ADR 0202 D5).
+
+## 8. U2.9 — Cá tính, hành vi, sinh thái sinh cảnh, nghiên cứu
+
+Luật và phần chờ duyệt: [ADR 0203](../../../Docs/adr/0203-u2-9-dragon-behavior-personality-ecology-research.md). Ma trận 16 loài: [BEHAVIOR_MATRIX.md](BEHAVIOR_MATRIX.md). Báo cáo cân bằng: [BEHAVIOR_SIMULATION.md](BEHAVIOR_SIMULATION.md).
+
+**Không có lệnh mới, không có event mới, không đổi save.** Mọi thứ là truy vấn chỉ đọc trên `GameSession.State`. Gọi bao nhiêu lần cũng được; cùng đầu vào cho cùng kết quả.
+
+### 8.1 Truy vấn (`Dravio.Domain.Queries.BehaviorQueries`)
+
+| Hàm | Trả về | Dùng cho |
+|---|---|---|
+| `All(s, nowMs, phase)` | `BehaviorDecision[]` cho mọi rồng chưa thả, thứ tự kho | Tầng Sanctuary, mỗi tick hoặc khi `UntilMs` đã qua |
+| `Dragon(s, uid, nowMs, phase)` | `BehaviorDecision` (null nếu không có / đã thả) | Một rồng (hộ chiếu, camera theo dõi) |
+| `Personality(s, uid)` | `PersonalityProfile`: `Archetype`, `Traits` (năng động, tò mò, ham chơi, dạn dĩ 0–100), `FavoriteDiet`, `FavoriteHabitatId`, `SummaryKey` | Hộ chiếu rồng |
+| `Species(speciesId)` / `Matrix()` | `SpeciesBehaviorProfile`: chu kỳ, kiểu di chuyển, 11 dòng `BehaviorAvailability` (`SpeciesBlock`, `Habitats`, `Ambient`) | Bách khoa, tooltip |
+| `Ecology(speciesId, habitatId)` | `HabitatEcologyReport`: `Score`, `Tier`, `Reason` (trùng Suitability), `Factors[]` (`Key`, `Kind` gate/quality/info, `Ok`, `Actual`, `Required`, `Deficit`, `ExplanationKey`), `PrimaryIssueKey` | Màn chọn chỗ đặt: "vì sao phù hợp / không" |
+| `Ecology(s, uid, rules?)` | `DragonEcologyView`: báo cáo ở chỗ hiện tại, `CurrentComfort`, `ComfortTarget`, `ComfortDriftEnabled` (false ở production), `InFavoriteHabitat` | Hộ chiếu rồng |
+| `Research(s, speciesId, journal?, rules?)` | `SpeciesResearchView`: `Gated` (false ở production), `Tier`, `RevealedSections`, `ObservableBehaviors`, `ObservedBehaviors`, `NextStepKey` | Bách khoa |
+
+`phase` là `Dravio.Domain.Behavior.DayPhase` (Dawn, Day, Dusk, Night), cùng thứ tự với `Dravio.EnvironmentArt.DayPhase`, nên ép kiểu trực tiếp được: `(DayPhase)(int)timeOfDay.Phase`. Không có Environment thì dùng `DayCycle.PhaseOfMinute(phútTrongNgày)` (ranh giới 5:00 / 7:00 / 17:30 / 19:30, giống dữ liệu `*Living.json`).
+
+### 8.2 `BehaviorDecision`
+
+| Trường | Ý nghĩa |
+|---|---|
+| `Visible` | false: rồng ở kho, đang lai, đang thám hiểm. Khi đó `Behavior = null` → `SanctuaryDragonFrame.visible = false` |
+| `Behavior` | Một trong 11 hành vi |
+| `Role` | `Gameplay` (suy ra từ state thật) hoặc `Presentation` (chỉ để xem) |
+| `Reason` | `ambient`, `circadian-sleep`, `food-drop`, `fed`, `vitals-low`, `energy-low`, `hazard-warning`, `in-care`, `sheltered`, `in-storage`, `busy-breeding`, `busy-expedition` |
+| `Locomotion` | Gợi ý trùng tên `Dravio.Character.DragonLocomotion` (Idle, Walk, Run, Swim, Fly, Burrow, Sleep). Luôn là kiểu loài có, nên runtime Character không phải hạ về Idle |
+| `Interaction` | `Eat` (vừa ăn) hoặc `Happy` (Play), trùng `DragonInteraction` → `sync.Trigger(uid, …)` một lần khi quyết định đổi |
+| `TargetFoodId` | Chỉ với SeekFood: dẫn rồng tới drop này rồi gửi `ConsumeFoodCommand(id, TargetFoodId, Uid)` (luôn hợp lệ tại thời điểm quyết định) |
+| `ZoneId`, `HabitatId`, `Phase`, `Activeness` | Ngữ cảnh |
+| `StartedAtMs`, `UntilMs` | Khoảng quyết định còn đúng nếu state không đổi. Nhịp trình diễn dài 60 s |
+| `Weights` | Trọng số đã cân nhắc (debug overlay) |
+
+### 8.3 Ví dụ tầng Sanctuary
+
+```csharp
+using Dravio.Domain.Behavior;
+using Dravio.Domain.Queries;
+
+DayPhase phase = (DayPhase)(int)timeOfDay.Phase;
+foreach (BehaviorDecision b in BehaviorQueries.All(session.State, clock.NowMs(), phase))
+{
+    if (!b.Visible) { frames.Add(Hidden(b.Uid)); continue; }
+    var locomotion = (DragonLocomotion)Enum.Parse(typeof(DragonLocomotion), b.Locomotion.ToString());
+    Vector3 goal = b.Behavior == DragonBehavior.SeekFood ? FoodPosition(b.TargetFoodId) : WanderPoint(b.Uid, b.HabitatId, b.StartedAtMs);
+    frames.Add(MoveToward(b.Uid, goal, locomotion));
+    if (b.Behavior == DragonBehavior.SeekFood && Reached(b.Uid, goal))
+        session.Send(id => new ConsumeFoodCommand(id, b.TargetFoodId, b.Uid));
+    if (Changed(b) && b.Interaction != InteractionHint.None) sync.Trigger(b.Uid, (DragonInteraction)(int)b.Interaction);
+}
+```
+
+Điểm đi lang thang (`WanderPoint`) và tốc độ là việc của tầng Sanctuary. Domain không biết tọa độ.
+
+### 8.4 Khóa i18n mới
+
+`behavior.<wire>` (`idle`, `rest`, `sleep`, `explore`, `seekFood`, `eat`, `play`, `bask`, `swim`, `fly`, `burrow`); `personality.<archetype>.summary`; `ecology.<factor>.<ok|too-cold|too-hot|not-native|altered|wrong-salinity|wrong-depth|wrong-altitude|needs-air|needs-water|cannot-swim|cannot-walk|cannot-fly|no-perch|low|not-relevant>`, `ecology.shelter.<zone|perch>`, `ecology.ok`, `ecology.invalid-env`; `research.next.<own|viewProfile|raiseToAdult|observe|done>`; `codexSection.<identity|habitat|physiology|behavior>`.
+
+### 8.5 Luật đang tắt (chỉ test và bản cân bằng)
+
+- `EcologyComfortRules.ProposedForReview`: comfort theo môi trường (ADR 0203 C1–C2). Production không gọi `EcologyComfort.Apply`.
+- `ResearchRules.ProposedForReview` + `ObservationJournal`: cấp nghiên cứu và ghi nhận tập tính (ADR 0203 D1–D3). Sổ quan sát chưa được lưu (Schema v9 chờ duyệt, D4).
+- Thiên tai tự nhiên vẫn tắt (ADR 0202).
