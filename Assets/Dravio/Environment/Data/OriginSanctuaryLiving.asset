@@ -1,0 +1,1014 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 246569fed896f75469f776d90a3e57fb, type: 3}
+  m_Name: OriginSanctuaryLiving
+  m_EditorClassIdentifier: Assembly-CSharp::Dravio.EnvironmentArt.SanctuaryLivingData
+  version: 1
+  zoneId: origin
+  layoutVersion: 2
+  defaultHour: 13
+  dayLengthMinutes: 24
+  phases:
+  - id: dawn
+    start: 5
+    end: 7
+  - id: day
+    start: 7
+    end: 17.5
+  - id: dusk
+    start: 17.5
+    end: 19.5
+  - id: night
+    start: 19.5
+    end: 5
+  keyframes:
+  - hour: 0
+    isMoon: 1
+    lightElevation: 48
+    lightAzimuth: -10
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0.42
+    shadowStrength: 0.4
+    ambientSky:
+    - 0.3
+    - 0.36
+    - 0.58
+    ambientEquator:
+    - 0.2
+    - 0.25
+    - 0.4
+    ambientGround:
+    - 0.1
+    - 0.1
+    - 0.15
+    fogColor:
+    - 0.12
+    - 0.16
+    - 0.26
+    nightGlow: 1
+    ambientFloorCut: 0.75
+    wind: 0.55
+    fireflies: 1
+    dust: 0
+    pondRings: 0.25
+    audioBirds: 0
+    audioCrickets: 1
+    audioFrogs: 0.8
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  - hour: 3
+    isMoon: 1
+    lightElevation: 34
+    lightAzimuth: -45
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0.36
+    shadowStrength: 0.35
+    ambientSky:
+    - 0.3
+    - 0.36
+    - 0.58
+    ambientEquator:
+    - 0.2
+    - 0.25
+    - 0.4
+    ambientGround:
+    - 0.1
+    - 0.1
+    - 0.15
+    fogColor:
+    - 0.12
+    - 0.16
+    - 0.26
+    nightGlow: 1
+    ambientFloorCut: 0.75
+    wind: 0.5
+    fireflies: 0.7
+    dust: 0
+    pondRings: 0.2
+    audioBirds: 0
+    audioCrickets: 0.8
+    audioFrogs: 0.5
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  - hour: 4.8
+    isMoon: 1
+    lightElevation: 12
+    lightAzimuth: -78
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0.1
+    shadowStrength: 0.25
+    ambientSky:
+    - 0.36
+    - 0.38
+    - 0.56
+    ambientEquator:
+    - 0.26
+    - 0.27
+    - 0.4
+    ambientGround:
+    - 0.1
+    - 0.1
+    - 0.15
+    fogColor:
+    - 0.2
+    - 0.2
+    - 0.3
+    nightGlow: 0.8
+    ambientFloorCut: 0.6
+    wind: 0.5
+    fireflies: 0.4
+    dust: 0
+    pondRings: 0.2
+    audioBirds: 0
+    audioCrickets: 0.5
+    audioFrogs: 0.3
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  - hour: 5
+    isMoon: 1
+    lightElevation: 8
+    lightAzimuth: -86
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0
+    shadowStrength: 0
+    ambientSky:
+    - 0.42
+    - 0.4
+    - 0.56
+    ambientEquator:
+    - 0.32
+    - 0.3
+    - 0.42
+    ambientGround:
+    - 0.13
+    - 0.12
+    - 0.16
+    fogColor:
+    - 0.28
+    - 0.25
+    - 0.34
+    nightGlow: 0.7
+    ambientFloorCut: 0.5
+    wind: 0.5
+    fireflies: 0.3
+    dust: 0
+    pondRings: 0.2
+    audioBirds: 0
+    audioCrickets: 0.4
+    audioFrogs: 0.2
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  - hour: 5.05
+    isMoon: 0
+    lightElevation: 0
+    lightAzimuth: 84
+    lightColor:
+    - 1
+    - 0.55
+    - 0.45
+    lightIntensity: 0
+    shadowStrength: 0
+    ambientSky:
+    - 0.42
+    - 0.4
+    - 0.56
+    ambientEquator:
+    - 0.32
+    - 0.3
+    - 0.42
+    ambientGround:
+    - 0.13
+    - 0.12
+    - 0.16
+    fogColor:
+    - 0.28
+    - 0.25
+    - 0.34
+    nightGlow: 0.7
+    ambientFloorCut: 0.5
+    wind: 0.5
+    fireflies: 0.3
+    dust: 0
+    pondRings: 0.2
+    audioBirds: 0
+    audioCrickets: 0.4
+    audioFrogs: 0.2
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  - hour: 6
+    isMoon: 0
+    lightElevation: 9
+    lightAzimuth: 74
+    lightColor:
+    - 1
+    - 0.66
+    - 0.5
+    lightIntensity: 0.62
+    shadowStrength: 0.45
+    ambientSky:
+    - 0.7
+    - 0.62
+    - 0.72
+    ambientEquator:
+    - 0.62
+    - 0.52
+    - 0.5
+    ambientGround:
+    - 0.3
+    - 0.25
+    - 0.24
+    fogColor:
+    - 0.78
+    - 0.62
+    - 0.6
+    nightGlow: 0.35
+    ambientFloorCut: 0.2
+    wind: 0.7
+    fireflies: 0.1
+    dust: 0.35
+    pondRings: 0.4
+    audioBirds: 1
+    audioCrickets: 0.15
+    audioFrogs: 0
+    audioInsects: 0
+    audioWind: 0.4
+    audioPond: 1
+  - hour: 8
+    isMoon: 0
+    lightElevation: 30
+    lightAzimuth: 40
+    lightColor:
+    - 1
+    - 0.88
+    - 0.74
+    lightIntensity: 1.18
+    shadowStrength: 0.65
+    ambientSky:
+    - 0.78
+    - 0.84
+    - 0.94
+    ambientEquator:
+    - 0.66
+    - 0.7
+    - 0.58
+    ambientGround:
+    - 0.38
+    - 0.34
+    - 0.29
+    fogColor:
+    - 0.72
+    - 0.79
+    - 0.68
+    nightGlow: 0
+    ambientFloorCut: 0
+    wind: 1
+    fireflies: 0
+    dust: 0.55
+    pondRings: 0.5
+    audioBirds: 0.85
+    audioCrickets: 0
+    audioFrogs: 0
+    audioInsects: 0
+    audioWind: 0.5
+    audioPond: 1
+  - hour: 13
+    isMoon: 0
+    lightElevation: 46
+    lightAzimuth: -38
+    lightColor:
+    - 1
+    - 0.92
+    - 0.78
+    lightIntensity: 1.35
+    shadowStrength: 0.75
+    ambientSky:
+    - 0.8
+    - 0.86
+    - 0.95
+    ambientEquator:
+    - 0.66
+    - 0.72
+    - 0.58
+    ambientGround:
+    - 0.4
+    - 0.36
+    - 0.3
+    fogColor:
+    - 0.7
+    - 0.8
+    - 0.66
+    nightGlow: 0
+    ambientFloorCut: 0
+    wind: 1
+    fireflies: 0
+    dust: 0.45
+    pondRings: 0.5
+    audioBirds: 0.6
+    audioCrickets: 0
+    audioFrogs: 0
+    audioInsects: 0.7
+    audioWind: 0.6
+    audioPond: 1
+  - hour: 16.5
+    isMoon: 0
+    lightElevation: 26
+    lightAzimuth: -62
+    lightColor:
+    - 1
+    - 0.84
+    - 0.62
+    lightIntensity: 1.2
+    shadowStrength: 0.72
+    ambientSky:
+    - 0.8
+    - 0.8
+    - 0.86
+    ambientEquator:
+    - 0.7
+    - 0.66
+    - 0.52
+    ambientGround:
+    - 0.4
+    - 0.33
+    - 0.26
+    fogColor:
+    - 0.78
+    - 0.76
+    - 0.6
+    nightGlow: 0
+    ambientFloorCut: 0
+    wind: 1.1
+    fireflies: 0
+    dust: 0.8
+    pondRings: 0.5
+    audioBirds: 0.6
+    audioCrickets: 0
+    audioFrogs: 0
+    audioInsects: 0.8
+    audioWind: 0.7
+    audioPond: 1
+  - hour: 18.3
+    isMoon: 0
+    lightElevation: 7
+    lightAzimuth: -78
+    lightColor:
+    - 1
+    - 0.56
+    - 0.34
+    lightIntensity: 0.78
+    shadowStrength: 0.55
+    ambientSky:
+    - 0.66
+    - 0.5
+    - 0.58
+    ambientEquator:
+    - 0.68
+    - 0.48
+    - 0.42
+    ambientGround:
+    - 0.3
+    - 0.22
+    - 0.2
+    fogColor:
+    - 0.86
+    - 0.56
+    - 0.46
+    nightGlow: 0.45
+    ambientFloorCut: 0.2
+    wind: 0.9
+    fireflies: 0.35
+    dust: 0.55
+    pondRings: 0.45
+    audioBirds: 0.3
+    audioCrickets: 0.35
+    audioFrogs: 0
+    audioInsects: 0.3
+    audioWind: 0.5
+    audioPond: 1
+  - hour: 19.2
+    isMoon: 0
+    lightElevation: 2
+    lightAzimuth: -85
+    lightColor:
+    - 0.85
+    - 0.42
+    - 0.4
+    lightIntensity: 0.16
+    shadowStrength: 0.3
+    ambientSky:
+    - 0.4
+    - 0.34
+    - 0.56
+    ambientEquator:
+    - 0.34
+    - 0.28
+    - 0.4
+    ambientGround:
+    - 0.14
+    - 0.12
+    - 0.16
+    fogColor:
+    - 0.36
+    - 0.26
+    - 0.36
+    nightGlow: 0.85
+    ambientFloorCut: 0.55
+    wind: 0.7
+    fireflies: 0.85
+    dust: 0.1
+    pondRings: 0.3
+    audioBirds: 0
+    audioCrickets: 0.85
+    audioFrogs: 0.6
+    audioInsects: 0
+    audioWind: 0.4
+    audioPond: 1
+  - hour: 19.4
+    isMoon: 0
+    lightElevation: 0
+    lightAzimuth: -88
+    lightColor:
+    - 0.8
+    - 0.4
+    - 0.42
+    lightIntensity: 0
+    shadowStrength: 0
+    ambientSky:
+    - 0.36
+    - 0.34
+    - 0.56
+    ambientEquator:
+    - 0.28
+    - 0.27
+    - 0.42
+    ambientGround:
+    - 0.12
+    - 0.11
+    - 0.16
+    fogColor:
+    - 0.24
+    - 0.22
+    - 0.34
+    nightGlow: 0.9
+    ambientFloorCut: 0.65
+    wind: 0.65
+    fireflies: 0.9
+    dust: 0
+    pondRings: 0.3
+    audioBirds: 0
+    audioCrickets: 0.9
+    audioFrogs: 0.7
+    audioInsects: 0
+    audioWind: 0.35
+    audioPond: 1
+  - hour: 19.45
+    isMoon: 1
+    lightElevation: 6
+    lightAzimuth: 72
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0
+    shadowStrength: 0
+    ambientSky:
+    - 0.36
+    - 0.34
+    - 0.56
+    ambientEquator:
+    - 0.28
+    - 0.27
+    - 0.42
+    ambientGround:
+    - 0.12
+    - 0.11
+    - 0.16
+    fogColor:
+    - 0.24
+    - 0.22
+    - 0.34
+    nightGlow: 0.9
+    ambientFloorCut: 0.65
+    wind: 0.65
+    fireflies: 0.9
+    dust: 0
+    pondRings: 0.3
+    audioBirds: 0
+    audioCrickets: 0.9
+    audioFrogs: 0.7
+    audioInsects: 0
+    audioWind: 0.35
+    audioPond: 1
+  - hour: 21
+    isMoon: 1
+    lightElevation: 32
+    lightAzimuth: 34
+    lightColor:
+    - 0.62
+    - 0.72
+    - 1
+    lightIntensity: 0.38
+    shadowStrength: 0.4
+    ambientSky:
+    - 0.3
+    - 0.36
+    - 0.58
+    ambientEquator:
+    - 0.2
+    - 0.25
+    - 0.4
+    ambientGround:
+    - 0.1
+    - 0.1
+    - 0.15
+    fogColor:
+    - 0.12
+    - 0.16
+    - 0.26
+    nightGlow: 1
+    ambientFloorCut: 0.75
+    wind: 0.6
+    fireflies: 1
+    dust: 0
+    pondRings: 0.25
+    audioBirds: 0
+    audioCrickets: 1
+    audioFrogs: 0.9
+    audioInsects: 0
+    audioWind: 0.3
+    audioPond: 1
+  interactionPoints:
+  - id: origin_pondbank.interact_drink_01
+    habitatId: origin_pondbank
+    kind: drink
+    x: -4.9
+    y: 0
+    z: -2.55
+    yaw: 0
+    targetX: -4.9
+    targetY: 0.05
+    targetZ: -1.75
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: drink
+    feedback: ripple_small
+    sfx: SFX_Drink_Lap
+  - id: origin_pondbank.interact_drink_02
+    habitatId: origin_pondbank
+    kind: drink
+    x: -4.6
+    y: 0
+    z: 1.7
+    yaw: 172.41
+    targetX: -4.5
+    targetY: 0.05
+    targetZ: 0.95
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: drink
+    feedback: ripple_small
+    sfx: SFX_Drink_Lap
+  - id: origin_pondbank.interact_splash_01
+    habitatId: origin_pondbank
+    kind: splash
+    x: -3.5
+    y: 0
+    z: -2.2
+    yaw: -10.3
+    targetX: -3.7
+    targetY: 0.05
+    targetZ: -1.1
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    requiresSwim: 1
+    requiresFly: 0
+    medium: 
+    animationHint: splash
+    feedback: splash
+    sfx: SFX_Splash_Small
+  - id: origin_pondbank.interact_watch_glow_01
+    habitatId: origin_pondbank
+    kind: watch_glow
+    x: -6.3
+    y: 0
+    z: 1.9
+    yaw: 29.74
+    targetX: -5.9
+    targetY: 0.3
+    targetZ: 2.6
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: look
+    feedback: fireflies_gather
+    sfx: SFX_Rune_Chime
+  - id: origin_meadow.interact_inspect_rune_01
+    habitatId: origin_meadow
+    kind: inspect_rune
+    x: -1.6
+    y: 0
+    z: 3
+    yaw: -15.26
+    targetX: -1.9
+    targetY: 1
+    targetZ: 4.1
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: inspect
+    feedback: rune_sparkle
+    sfx: SFX_Rune_Chime
+  - id: origin_meadow.interact_inspect_rune_02
+    habitatId: origin_meadow
+    kind: inspect_rune
+    x: 1.6
+    y: 0
+    z: 2.9
+    yaw: 15.26
+    targetX: 1.9
+    targetY: 1
+    targetZ: 4
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: inspect
+    feedback: rune_sparkle
+    sfx: SFX_Rune_Chime
+  - id: origin_meadow.interact_sniff_flowers_01
+    habitatId: origin_meadow
+    kind: sniff_flowers
+    x: -1
+    y: 0
+    z: -2.7
+    yaw: 180
+    targetX: -1
+    targetY: 0.2
+    targetZ: -3.4
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: sniff
+    feedback: petal_puff
+    sfx: SFX_Flower_Rustle
+  - id: origin_meadow.interact_sniff_flowers_02
+    habitatId: origin_meadow
+    kind: sniff_flowers
+    x: 1.5
+    y: 0
+    z: -2.6
+    yaw: 156.8
+    targetX: 1.8
+    targetY: 0.2
+    targetZ: -3.3
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: sniff
+    feedback: petal_puff
+    sfx: SFX_Flower_Rustle
+  - id: origin_meadow.interact_stargaze_01
+    habitatId: origin_meadow
+    kind: stargaze
+    x: 0.4
+    y: 0
+    z: 1.1
+    yaw: 0
+    targetX: 0.4
+    targetY: 6
+    targetZ: 4
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: look_up
+    feedback: fireflies_gather
+    sfx: 
+  - id: origin_meadow.interact_rest_01
+    habitatId: origin_meadow
+    kind: rest
+    x: 0.3
+    y: 0
+    z: -3.9
+    yaw: 180
+    targetX: 0.3
+    targetY: 0
+    targetZ: -4.9
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: rest
+    feedback: none
+    sfx: SFX_Leaves_Rustle
+  - id: origin_warm_rocks.interact_bask_01
+    habitatId: origin_warm_rocks
+    kind: bask
+    x: 4.8
+    y: 0
+    z: -0.8
+    yaw: -8.13
+    targetX: 4.6
+    targetY: 0.44
+    targetZ: 0.6
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: bask
+    feedback: heat_motes
+    sfx: SFX_Rock_Warm_Settle
+  - id: origin_warm_rocks.interact_bask_02
+    habitatId: origin_warm_rocks
+    kind: bask
+    x: 4.8
+    y: 0
+    z: -2.6
+    yaw: 135
+    targetX: 5.6
+    targetY: 0.38
+    targetZ: -3.4
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: bask
+    feedback: heat_motes
+    sfx: SFX_Rock_Warm_Settle
+  - id: origin_warm_rocks.interact_bask_03
+    habitatId: origin_warm_rocks
+    kind: bask
+    x: 5.6
+    y: 0
+    z: 1.7
+    yaw: 26.57
+    targetX: 6.2
+    targetY: 1.2
+    targetZ: 2.9
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: bask
+    feedback: heat_motes
+    sfx: SFX_Rock_Warm_Settle
+  - id: origin_warm_rocks.interact_dig_01
+    habitatId: origin_warm_rocks
+    kind: dig
+    x: 3.3
+    y: 0
+    z: 3.4
+    yaw: 170.54
+    targetX: 3.4
+    targetY: 0
+    targetZ: 2.8
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: dig
+    feedback: dust_puff
+    sfx: SFX_Leaves_Rustle
+  - id: origin_warm_rocks.interact_inspect_statue_01
+    habitatId: origin_warm_rocks
+    kind: inspect_statue
+    x: 5.2
+    y: 0
+    z: 4.2
+    yaw: 16.39
+    targetX: 5.7
+    targetY: 1.6
+    targetZ: 5.9
+    radius: 0.6
+    capacity: 1
+    preferredPhases:
+    - dawn
+    - day
+    - dusk
+    - night
+    requiresSwim: 0
+    requiresFly: 0
+    medium: 
+    animationHint: inspect
+    feedback: rune_sparkle
+    sfx: SFX_Rune_Chime
+  pond:
+    center:
+    - -4.9
+    - 0.06
+    - -0.4
+    radii:
+    - 2.3
+    - 1.55
+    swimRadii:
+    - 2
+    - 1.3
+  particleVolumes:
+  - id: fireflies
+    channel: 
+    center:
+    - -1.5
+    - 1
+    - 0
+    size:
+    - 12
+    - 1.4
+    - 9
+    maxParticles: 36
+    lifetime:
+    - 5
+    - 8
+  - id: fireflies_pond
+    channel: 
+    center:
+    - -4.9
+    - 0.7
+    - -0.4
+    size:
+    - 5
+    - 0.8
+    - 3.6
+    maxParticles: 14
+    lifetime:
+    - 4
+    - 7
+  - id: dust
+    channel: 
+    center:
+    - 0
+    - 1.9
+    - 0.5
+    size:
+    - 15
+    - 3
+    - 11
+    maxParticles: 48
+    lifetime:
+    - 6
+    - 10
+  - id: pond_rings
+    channel: 
+    center:
+    - -4.9
+    - 0.07
+    - -0.4
+    size:
+    - 3.2
+    - 0
+    - 2.08
+    maxParticles: 8
+    lifetime:
+    - 1.6
+    - 2.4
+  audioLoops:
+  - id: birds
+    clip: AMB_Day_Meadow_Loop
+    weightKey: audioBirds
+    emitterId: 
+  - id: crickets
+    clip: AMB_Night_Crickets_Loop
+    weightKey: audioCrickets
+    emitterId: 
+  - id: wind
+    clip: AMB_Wind_Loop
+    weightKey: audioWind
+    emitterId: 
+  - id: pond
+    clip: AMB_Water_Pond_Loop
+    weightKey: audioPond
+    emitterId: origin_pondbank
+  - id: frogs
+    clip: AMB_Night_Frogs_Loop
+    weightKey: audioFrogs
+    emitterId: origin_pondbank
+  - id: insects
+    clip: AMB_Warm_Rocks_Insects_Loop
+    weightKey: audioInsects
+    emitterId: origin_warm_rocks
+  audioEmitters:
+  - id: origin_pondbank
+    x: -4.9
+    y: 0
+    z: -0.4
+    innerRadius: 3
+    outerRadius: 11
+  - id: origin_warm_rocks
+    x: 5
+    y: 0
+    z: 0.2
+    innerRadius: 2.5
+    outerRadius: 10
+  oneShots:
+  - SFX_Drink_Lap
+  - SFX_Flower_Rustle
+  - SFX_Leaves_Rustle
+  - SFX_Rock_Warm_Settle
+  - SFX_Rune_Chime
+  - SFX_Splash_Small
+  fog:
+    mode: 
+    start: 0
+    end: 0
+  fx: []
