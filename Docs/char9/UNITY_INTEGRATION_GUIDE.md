@@ -21,4 +21,4 @@ Theo `Assets/Dravio/Character/PRODUCTION_ASSETS.md`: chạy `batch_import.py` tr
 
 ## 4. Giới hạn khi chơi Alpha
 
-Animation chưa đạt QA: tránh cận cảnh Sleep/Rest/Bask/Run/Eat. Không đổi logic game theo animation.
+Emberling (`EmberlingRefinedGLB.fbx`): đạt QA trong Blender từ CHAR.9b (5 clip hợp đồng), Unity chưa kiểm — xem `Docs/char9b/CHAR9B_EMBERLING_REPORT.md` §4. 15 loài khác: animation chưa đạt QA, tránh cận cảnh Sleep/Rest/Bask/Run/Eat. Không đổi logic game theo animation.
