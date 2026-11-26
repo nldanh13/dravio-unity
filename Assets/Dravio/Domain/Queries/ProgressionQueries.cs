@@ -133,6 +133,11 @@ namespace Dravio.Domain.Queries
         public int? NextMilestoneAt { get; internal set; }
         public int NextMilestoneBonusEach { get; internal set; }
         public string NextMilestoneRewardId { get; internal set; }
+        /// <summary>U2.13: loài của trứng thưởng ở mốc kế tiếp (Aurorawing ở chuyến sky_cloud thứ 15), null nếu mốc không có trứng.</summary>
+        public string NextMilestoneEggSpeciesId { get; internal set; }
+        /// <summary>U2.13: vật liệu tuyến có thể cho (rỗng khi bảng thưởng chưa duyệt).</summary>
+        public IReadOnlyList<string> Materials { get; internal set; }
+        public long DurationMs { get; internal set; }
     }
 
     /// <summary>U2.11: quan hệ của một cá thể với các cá thể khác trong kho, độ quen giảm dần.</summary>
@@ -334,6 +339,7 @@ namespace Dravio.Domain.Queries
                 {
                     RouteId = r.Id, Open = Expedition.Expeditions.RouteOpen(s, r), RewardsDefined = r.RewardsDefined, Claimed = Exploration.Claimed(s, r.Id),
                     NextMilestoneAt = next?.Claims, NextMilestoneBonusEach = next?.BonusEach ?? 0, NextMilestoneRewardId = next?.RewardId,
+                    NextMilestoneEggSpeciesId = next?.EggSpeciesId, Materials = r.Materials, DurationMs = r.DurationMs,
                 });
             }
             return o;

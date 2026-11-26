@@ -73,6 +73,11 @@ namespace Dravio.Domain.Tests.Simulation
         public bool RunExpeditions;
         /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
         public ResearchPacing Pacing;
+        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, tức tuyến tắt).</summary>
+        public SkyCloudBalance Sky;
+        /// <summary>U2.13: biến thể Live với một bảng sky_cloud (chỉ mô phỏng).</summary>
+        public static EconomyVariant LiveWithSky(SkyCloudBalance sky) =>
+            new EconomyVariant { Name = "live+" + sky.Id, BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky };
         public static readonly EconomyVariant Baseline = new EconomyVariant();
         /// <summary>Có mua nâng cấp, KHÔNG có dự án Sanctuary (để thấy riêng tác dụng của E5).</summary>
         public static readonly EconomyVariant NoProjects = new EconomyVariant { Name = "no-projects", BuyUpgrades = true };
@@ -118,6 +123,11 @@ namespace Dravio.Domain.Tests.Simulation
         /// <summary>Giá dự án Sanctuary kế tiếp (G), 0 khi đã xây đủ.</summary>
         public long NextProjectCostG;
         public long Wood, Seed, Crystal, Coral;
+        // U2.13
+        public long Stardust;
+        /// <summary>Chuyến đã nhận theo tuyến.</summary>
+        public int ForestClaims, ReefClaims, SkyClaims;
+        public bool OwnsAurorawing, Codex16;
     }
 
     public sealed class RunResult
@@ -129,6 +139,9 @@ namespace Dravio.Domain.Tests.Simulation
         public Dictionary<string, double?> ZoneUnlockHours = new Dictionary<string, double?> { ["ocean"] = null, ["sky"] = null };
         /// <summary>U2.11: giờ nhận từng nhiệm vụ (lệnh completeQuest thật).</summary>
         public Dictionary<string, double> QuestHours = new Dictionary<string, double>();
+        /// <summary>U2.13: giờ trứng Aurorawing được trao (grantedRewards) và giờ nở / nhận vào kho; null nếu chưa.</summary>
+        public double? AurorawingGrantedHours, AurorawingOwnedHours, Codex16Hours;
+        public int AurorawingGrants;
     }
 
     /// <summary>
@@ -212,10 +225,17 @@ namespace Dravio.Domain.Tests.Simulation
                         _result.QuestHours[qr.QuestId] = (_now - Start) / 3_600_000.0;
                     }
                     if (e is ExplorationMilestoneReached em) _milestoneMaterials += em.Bonus.Sum(kv => (long)kv.Value);
+                    if (e is RewardEggGranted rg && rg.RewardId == SkyCloudBalance.AurorawingEggRewardId)
+                    {
+                        _result.AurorawingGrants++;
+                        _result.AurorawingGrantedHours = _result.AurorawingGrantedHours ?? (_now - Start) / 3_600_000.0;
+                    }
                     if (e is DragonHatched dh && !dh.Tutorial && r.State.FindDragon(dh.DragonUid)?.Origin == DragonOrigin.Breed) _bred++;
                 }
                 _s = r.State;
                 if (_s.Player.Gold.Micro < 0) throw new InvalidOperationException("negative gold");
+                if (_result.AurorawingOwnedHours == null && _s.Dragons.Any(d => d.SpeciesId == SkyCloudBalance.AurorawingSpeciesId)) _result.AurorawingOwnedHours = (_now - Start) / 3_600_000.0;
+                if (_result.Codex16Hours == null && _s.UnlockedAchievements.Contains("ACH_CODEX_16")) _result.Codex16Hours = (_now - Start) / 3_600_000.0;
             }
             AfterCommand?.Invoke(_s, _now);
             return r;
@@ -224,6 +244,11 @@ namespace Dravio.Domain.Tests.Simulation
         private string Rid() => "sim-" + (++_rid);
 
         public RunResult Run(double[] horizonsHours)
+        {
+            using (SkyCloudBalance.Use(_variant.Sky ?? SkyCloudBalance.Production)) return RunCore(horizonsHours);
+        }
+
+        private RunResult RunCore(double[] horizonsHours)
         {
             double maxH = horizonsHours.Max();
             var marks = new SortedSet<double>(horizonsHours);
@@ -309,7 +334,10 @@ namespace Dravio.Domain.Tests.Simulation
                 sn.ClosePairs = PairsAtLeast(RelationTier.Close);
                 sn.NextProjectCostG = SanctuaryProjectCatalog.CostG(_s.SanctuaryProjectsBuilt) ?? 0;
                 long Inv(string m) => _s.Player.Inventory.TryGetValue(m, out long v) ? v : 0;
-                sn.Wood = Inv("wood"); sn.Seed = Inv("seed"); sn.Crystal = Inv("crystal"); sn.Coral = Inv("coral");
+                sn.Wood = Inv("wood"); sn.Seed = Inv("seed"); sn.Crystal = Inv("crystal"); sn.Coral = Inv("coral"); sn.Stardust = Inv(SkyCloudBalance.MaterialId);
+                sn.ForestClaims = Exploration.Claimed(_s, "origin_forest"); sn.ReefClaims = Exploration.Claimed(_s, "ocean_reef"); sn.SkyClaims = Exploration.Claimed(_s, SkyCloudBalance.RouteId);
+                sn.OwnsAurorawing = _s.Dragons.Any(d => d.SpeciesId == SkyCloudBalance.AurorawingSpeciesId && d.Location.Kind != LocationKind.Released);
+                sn.Codex16 = _s.UnlockedAchievements.Contains("ACH_CODEX_16");
             }
             if (_policy == Policy.Researcher || _policy == Policy.Guided || _policy == Policy.Casual)
             {
