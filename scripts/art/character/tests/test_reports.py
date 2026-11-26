@@ -87,6 +87,19 @@ class Reports(unittest.TestCase):
         self.assertIn('Không phải số đo trên thiết bị', md)
         self.assertIn('| 30 |', md)
 
+    def test_capability_matrix_follows_canonical_clips_and_marks_models(self):
+        rows = {r['species']: r for r in json.loads((self.out / 'capability-matrix.json').read_text(encoding='utf-8'))}
+        self.assertEqual(len(rows), 16)
+        self.assertTrue(rows['zephyr']['capabilities']['Perch'] and rows['zephyr']['capabilities']['Air'])
+        self.assertFalse(rows['sparkwing']['capabilities']['Perch'], 'no perching feet stated')
+        self.assertFalse(rows['frostfin']['capabilities']['Ground'], 'water dweller')
+        self.assertTrue(rows['frostfin']['capabilities']['Water rest'] and not rows['frostfin']['capabilities']['Surface'], 'gill breather')
+        self.assertEqual(rows['emberling']['models']['Baby'], 'SAMPLE')
+        self.assertIn('static', rows['magma']['models']['Adult'])
+        self.assertIsNone(rows['gaia']['models']['Adult'])
+        self.assertIn('| magma |', (self.out / 'capability-matrix.md').read_text(encoding='utf-8'))
+        self.assertIn('Sinh cơ học', (self.out / 'motion-report.md').read_text(encoding='utf-8'))
+
     def test_refuses_out_equal_work_and_missing_assets(self):
         with self.assertRaises(SystemExit):
             br.main([str(self.work), str(self.work)])

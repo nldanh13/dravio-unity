@@ -18,6 +18,47 @@ namespace Dravio.Character
         /// <summary>In-place ground speed (m/s) a clip was authored for (rig.json clips.*.groundSpeed).</summary>
         [Serializable]
         public sealed class ClipSpeed { public string clip; public float groundSpeed; }
+        /// <summary>
+        /// U1-CHAR.7 motion metadata of a model (import-manifest.json "motion", from rig.json and anim_qa.py). Metres,
+        /// degrees per second; 0 = not applicable or not measured. Speeds of in-place swim/fly clips are pipeline
+        /// defaults (body lengths per cycle) until the art director confirms them.
+        /// </summary>
+        [Serializable]
+        public sealed class MotionInfo
+        {
+            public float bodyLength, bodyWidth, bodyHeight;
+            /// <summary>Visual root height relative to the Fly pose at the end of TakeOff / start of Land.</summary>
+            public float takeOffRootOffset, landRootOffset;
+            public float maxTurnGround, maxTurnWater, maxTurnAir;
+            /// <summary>Largest animated extents per medium (envelope for Environment integration).</summary>
+            public float groundHeight, groundLength, groundWidth, swimVerticalExtent, swimWidth, flightSpan, flightVerticalExtent;
+            public int transitionsChecked;
+            public float transitionMaxDeg;
+            /// <summary>U1-CHAR.8: normalized times of motion events inside the transition clips (0 = none authored).</summary>
+            public float takeOffLiftOff, landTouchDown, waterEnterContact, waterExitLeave;
+            /// <summary>U1-CHAR.8: for surface swimmers, the waterline height above the root (m) and how far the head
+            /// centre stays above it. The Sanctuary places the water surface; 0 = not a surface swimmer.</summary>
+            public float surfaceWaterline, headAboveWater;
+
+            /// <summary>Normalized event time of a transition clip (0 when the clip has none).</summary>
+            public float EventTime(DragonInteraction clip)
+            {
+                switch (clip)
+                {
+                    case DragonInteraction.TakeOff: return takeOffLiftOff;
+                    case DragonInteraction.Land: return landTouchDown;
+                    case DragonInteraction.WaterEnter: return waterEnterContact;
+                    case DragonInteraction.WaterExit: return waterExitLeave;
+                    default: return 0f;
+                }
+            }
+
+            public float MaxTurn(DragonMotionMode m)
+            {
+                return m == DragonMotionMode.Water ? maxTurnWater : m == DragonMotionMode.Air ? maxTurnAir : maxTurnGround;
+            }
+        }
+
         /// <summary>Length in seconds of a clip (rig.json frame range / fps). U1-CHAR.6: used for every one-shot.</summary>
         [Serializable]
         public sealed class ClipLength { public string clip; public float seconds; }
@@ -43,6 +84,9 @@ namespace Dravio.Character
             /// <summary>U1-CHAR.6: seconds of every clip (filled by the importer). Older entries have none and fall back
             /// to eatSeconds / happySeconds.</summary>
             public ClipLength[] clipLengths = Array.Empty<ClipLength>();
+            /// <summary>U1-CHAR.7 motion metadata. Unity serialises it as an instance even when absent: all zero (bodyLength 0)
+            /// means unknown - static models and pre-U1-CHAR.7 entries.</summary>
+            public MotionInfo motion;
             /// <summary>anim_qa.py result: PASS / PASS_WITH_WARNINGS, and one line per warning ("Sleep: deformation ...").</summary>
             public string animQaStatus;
             public string[] animQaWarnings = Array.Empty<string>();

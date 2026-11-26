@@ -1,8 +1,36 @@
 # U2.10 — Economy Simulation 7 / 30 / 90 ngày
 
 > Quyết định và phần chờ duyệt: [ADR 0204](../adr/0204-u2-10-research-social-progression.md) mục D (E1–E6) và R11.
-> **Trạng thái:** chỉ là mô phỏng và đề xuất. **Không** đổi catalog, giá, phí hay luật production. Biến thể `proposed` chỉ có trong mã test (`EconomyVariant.ProposedFull`).
+> **Trạng thái:** mục 1–8 là mô phỏng **trước khi duyệt** (PR #46, biến thể `proposed` dùng "quỹ ảo"). Từ ADR 0205, E1, E2, E5 và R11 là luật thật; kết quả trên luật thật ở **mục 0**.
 > **Nguồn:** `EconomySimulator` (U2.7), catalog G0. GDD 3.1 không có trong repo, nên mọi mục tiêu cân bằng là đề xuất.
+
+## 0. Sau khi bật luật thật (ADR 0205)
+
+Simulator chạy trên dispatcher thật: Starter 150 G, tối đa 5 gói/ngày, lệnh `buildSanctuaryProject`, nhật ký đêm khi quyết toán offline. Hai biến thể hành vi:
+
+- `no-projects`: người chơi mua nâng cấp nhưng không xây dự án.
+- `live`: mua nâng cấp, xây dự án khi số dư ≥ 1,2 × giá và đủ vật liệu, gửi thám hiểm Khởi Nguyên khi thiếu gỗ hoặc hạt giống.
+
+Đã chạy **50 seed × 6 kiểu người chơi × 3 lịch × 2 biến thể × 90 ngày** (45 phút, 4 luồng). Bảng đầy đủ: [`sim/live-50-seeds.md`](sim/live-50-seeds.md).
+
+| Người chơi (3 × 10 phút/ngày, trung vị 90 ngày) | Số dư no-projects | Số dư live | Tiêu / nguồn | Ngày thu nhập đang giữ | Dự án | Gỗ + hạt đã dùng |
+|---|---|---|---|---|---|---|
+| Relaxed | 14,95 M | 2,37 M | 0,19 → 0,87 | 72 → 11 | 23 | 126 |
+| Collector | 20,91 M | 2,67 M | 0,23 → 0,88 | 70 → 11 | 24 | 136 |
+| Breeder | 16,12 M | 2,56 M | 0,21 → 0,88 | 71 → 11 | 23,5 | 131 |
+| Researcher | 23,46 M | 3,16 M | 0,14 → 0,88 | 78 → 11 | 25 | 146 |
+| StarterTrader | 3,15 M | 3,34 M | 0,27 | 66 | 2 | 0 |
+| BreedTrader | 4,31 M | 3,94 M | 0,21 → 0,23 | 71 → 69 | 2 | 0 |
+
+Kết luận:
+
+- **E5 làm việc của nó.** Với người chơi thường, lượng vàng tiêu đi tăng từ khoảng 20 % lên khoảng 88 % lượng vàng kiếm được. Số dư sau 90 ngày giảm từ 15–23 M xuống 2–3 M, tức chỉ còn khoảng 11 ngày thu nhập thay vì 70–78 ngày.
+- **Vật liệu có chỗ tiêu.** Mỗi người chơi thường dùng 116–146 gỗ + hạt giống cho dự án trong 90 ngày. Hạt giống là thứ giới hạn nhịp xây dự án; nếu người chơi không đi thám hiểm Khởi Nguyên thì sẽ dừng ở dự án thứ 2.
+- **E1 + E2 chặn vòng mua–bán.** StarterTrader bán được 68–72 k G trong 90 ngày, so với 1,88 M G trước U2.10 (PR #46, 60 phút/ngày). Hai kiểu "trader" không đi thám hiểm nên chỉ xây 2 dự án.
+- **Không làm chậm sưu tầm.** Số loài và ô Codex của `live` bằng `no-projects` (chênh ≤ 1,5 ô).
+- **Nhịp đầu game không đổi.** Số dư 7 ngày giảm nhẹ ở người chơi thường (Starter đắt hơn 50 G), vẫn 36–69 k G.
+
+Mô phỏng 1 000 seed cho `live` (lịch 3 × 10 phút/ngày, 6 kiểu người chơi) đang chạy; kết quả sẽ thêm vào [`sim/live-1000-seeds.md`](sim/live-1000-seeds.md).
 
 ## 1. Phương pháp
 
@@ -135,7 +163,8 @@ Vật liệu vẫn chỉ tích lũy (Researcher giữ vài trăm đơn vị sau 
 cd Assets/Dravio/Tests/Domain/DotNet~
 # Bảng EV và nâng cấp
 DRAVIO_U210_EV_OUT=/tmp/ev.md dotnet test --filter "FullyQualifiedName~Write_u210_analytic_tables"
-# Báo cáo một kiểu người chơi (20 seed, khoảng 1–3 phút mỗi kiểu)
+# Báo cáo một kiểu người chơi (20 seed; seed chạy song song, kết quả không đổi theo số luồng)
+# Lọc thêm: DRAVIO_SIM_VARIANTS=no-projects,live  DRAVIO_SIM_SCHEDULES="3 × 10 phút/ngày"
 DRAVIO_U210_SIM_OUT=/tmp/Researcher.md DRAVIO_SIM_SEEDS=20 DRAVIO_SIM_POLICIES=Researcher \
   dotnet test --filter "FullyQualifiedName~Write_u210_economy_report"
 ```

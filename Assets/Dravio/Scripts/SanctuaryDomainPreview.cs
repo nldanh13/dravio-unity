@@ -32,8 +32,16 @@ namespace Dravio
         [SerializeField] private SanctuaryLocationData locations;
         [SerializeField] private Text saveStatus, tutorialStatus, rosterStatus, guideNotice;
         [SerializeField] private Text hatcheryStatus, parentsStatus, hatcheryNotice;
+        [SerializeField] private Text projectStatus;
+        [SerializeField] private Button projectBuild,standardStarter;
+        public void ConfigureEconomy(Text status,Button build,Button starter){projectStatus=status;projectBuild=build;standardStarter=starter;}
         [SerializeField] private Text managementSummary,managementWorld,managementCodex,managementMaterials,managementExpedition,managementFeedback;
         [SerializeField] private Button unlockOceanButton,unlockSkyButton,claimExpeditionButton;
+        [SerializeField] private Text expeditionRouteText,expeditionDragonText;
+        [SerializeField] private Button nextExpeditionRoute,nextExpeditionDragon,startExpedition;
+        private string expeditionRouteId,expeditionDragonUid;
+        public void ConfigureExpedition(Text route,Text dragon,Button nextRoute,Button nextDragon,Button start)
+        {expeditionRouteText=route;expeditionDragonText=dragon;nextExpeditionRoute=nextRoute;nextExpeditionDragon=nextDragon;startExpedition=start;}
         [SerializeField] private Text[] upgradeStatus;
         [SerializeField] private Button[] upgradeButtons;
         [SerializeField] private Text healthStatus,careCaseStatus,carePlanStatus;
@@ -59,7 +67,9 @@ namespace Dravio
         private string messageEn="",messageVi="";
         public bool HasFood => state!=null && foodId!=null && state.Food.Drops.Any(d=>d.Id==foodId);
         public Vector3 FoodPosition => fruit!=null?fruit.transform.position:spawn;
-        private bool CanSend => state!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
+        private bool worldSwitching;
+        public void SetWorldSwitching(bool value){worldSwitching=value;Refresh();}
+        private bool CanSend => !worldSwitching && state!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
         public bool CanInteract => CanSend && state.FindDragon(uid)!=null;
 
         public void Configure(Text goldLabel,Text progressLabel,Text noticeLabel,GameObject fruitVisual)
@@ -147,6 +157,8 @@ namespace Dravio
             foreach(var e in events)
             {
                 if(e is OfflineReceiptCreated offline)SetMessage("Offline: +"+GoldText(offline.GoldMicro)+" G","Offline: +"+GoldText(offline.GoldMicro)+" G");
+                else if(e is ExpeditionReady)SetMessage("Expedition returned; claim materials.","Rồng đã về; hãy nhận vật liệu.");
+                else if(e is NightJournalWritten journal)SetMessage("Night journal: "+journal.Findings.Count+" findings.","Nhật ký đêm: "+journal.Findings.Count+" phát hiện.");
                 else if(e is AchievementUnlocked achievement)SetMessage("Achievement: +"+GoldText(achievement.RewardGoldMicro)+" G","Thành tựu: +"+GoldText(achievement.RewardGoldMicro)+" G");
                 else if(e is FoodExpired expired && expired.FoodId==foodId)SetMessage("Food expired.","Thức ăn đã hết hạn.");
             }
@@ -320,7 +332,9 @@ namespace Dravio
                 nest=egg.Status==EggStatus.Ready?(vi?"Trứng đã sẵn sàng nhận":"Egg ready to claim"):
                     (vi?"Đang ấp: ":"Incubating: ")+TimeSpan.FromMilliseconds(left).ToString(@"hh\:mm\:ss");
             }
-            hatcheryStatus.text=pending+"\n"+nest;
+            var economy=ProgressionQueries.SanctuaryEconomy(state,state.Clock.LastProcessedAtMs);
+            hatcheryStatus.text=pending+"\n"+nest+"\n"+(vi?"Starter còn hôm nay: ":"Starter left today: ")+economy.StarterPacksLeftToday+"/"+economy.StarterDailyLimit;
+            if(standardStarter!=null)standardStarter.interactable=CanSend && persistentMode && economy.StarterPacksLeftToday>0 && state.PendingPack==null;
             if(parentsStatus==null)return;
             var adults=AdultCandidates();
             if(!adults.Any(d=>d.Uid==parentA))parentA=null;
@@ -337,9 +351,70 @@ namespace Dravio
         }
 
         // All mutations use the existing session and the canonical Domain command bus.
+        public void BuildSanctuaryProject()
+        {
+            if(!persistentMode || !CanSend)return;
+            var economy=ProgressionQueries.SanctuaryEconomy(state,state.Clock.LastProcessedAtMs);
+            if(economy.NextProjectBlockedBy!=null || !economy.NextProjectCostGoldMicro.HasValue)return;
+            GuideCommand(id=>new BuildSanctuaryProjectCommand(id),"Project recorded; decoration art pending.","Đã ghi nhận dự án; hình ảnh trang trí chưa có.");
+        }
         public void UnlockOcean(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"ocean"),"Ocean unlocked.","Đã mở Thủy Vực.");}
         public void UnlockSky(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"sky"),"Sky unlocked.","Đã mở Thiên Giới.");}
-        public void ClaimExpeditionReward(){if(persistentMode)GuideCommand(id=>new ClaimExpeditionCommand(id),"Expedition reward claimed.","Đã nhận thưởng thám hiểm.");}
+        public void ClaimExpeditionReward()
+        {
+            if(persistentMode && CanSend && ExpeditionPresentation.CanClaim(state))
+                GuideCommand(id=>new ClaimExpeditionCommand(id),"Expedition reward claimed.","Đã nhận thưởng thám hiểm.");
+        }
+        public void NextExpeditionRoute()
+        {
+            if(!CanSend||!persistentMode)return;
+            var options=Ecosystem.ExpeditionOptions(state);
+            expeditionRouteId=ResearchDiscoveryView.Next(options.Select(r=>r.RouteId),expeditionRouteId);
+            RefreshManagement();
+        }
+        public void NextExpeditionDragon()
+        {
+            if(!CanSend||!persistentMode)return;
+            var route=ExpeditionPresentation.Route(state,expeditionRouteId);
+            if(route==null)return;
+            expeditionDragonUid=ResearchDiscoveryView.Next(route.Candidates.Select(c=>c.DragonUid),expeditionDragonUid);
+            RefreshManagement();
+        }
+        public void StartSelectedExpedition()
+        {
+            if(!CanSend||!persistentMode)return;
+            string route=expeditionRouteId,dragon=expeditionDragonUid;
+            if(!ExpeditionPresentation.CanStart(state,route,dragon,out string reason))
+            {SetMessage(ExpeditionPresentation.Reason(reason,false),ExpeditionPresentation.Reason(reason,true));RefreshManagement();return;}
+            GuideCommand(id=>new StartExpeditionCommand(id,route,dragon),
+                "Expedition started; dragon returns automatically, rewards require claim.",
+                "Đã khởi hành; rồng tự trở về, phần thưởng cần nhận.");
+        }
+        void RefreshExpedition(bool ready)
+        {
+            if(expeditionRouteText==null)return;
+            nextExpeditionRoute.interactable=nextExpeditionDragon.interactable=startExpedition.interactable=false;
+            if(state==null){expeditionRouteText.text=expeditionDragonText.text="—";return;}
+            var options=Ecosystem.ExpeditionOptions(state);
+            if(expeditionRouteId==null)expeditionRouteId=options.FirstOrDefault()?.RouteId;
+            var route=options.FirstOrDefault(r=>r.RouteId==expeditionRouteId);
+            if(route==null){expeditionRouteText.text=expeditionDragonText.text="—";nextExpeditionRoute.interactable=ready&&options.Count>0;return;}
+            if(expeditionDragonUid==null)expeditionDragonUid=route.Candidates.FirstOrDefault()?.DragonUid;
+            var dragon=state.FindDragon(expeditionDragonUid);
+            var candidate=route.Candidates.FirstOrDefault(c=>c.DragonUid==expeditionDragonUid);
+            bool eligible=ExpeditionPresentation.CanStart(state,route.RouteId,expeditionDragonUid,out string reason);
+            expeditionRouteText.text=(vi?route.NameVi:route.RouteId)+" · "+ZoneName(route.ZoneId)+
+                "\n"+ExpeditionPresentation.Remaining(route.DurationMs)+" · "+route.Requirement+
+                "\n"+(route.Materials.Count==0?(vi?"Bảng thưởng chưa duyệt":"Reward table unavailable"):
+                    (vi?"Vật liệu có thể nhận: ":"Possible materials: ")+string.Join(", ",route.Materials)+" · "+route.MinQty+"–"+route.MaxQty)+
+                "\n"+(route.Blocked.HasValue?ExpeditionPresentation.Reason(route.Blocked.Value.ToWire(),vi):(vi?"Tuyến khả dụng":"Route available"));
+            expeditionDragonText.text=(dragon==null||candidate==null?(vi?"Chưa chọn rồng hợp lệ":"No valid dragon selected"):
+                dragon.SpeciesId+" · "+Lifecycle.StageOf(dragon)+"\nUID: "+dragon.Uid)+
+                "\n"+ExpeditionPresentation.Reason(reason,vi);
+            nextExpeditionRoute.interactable=ready&&options.Count>1;
+            nextExpeditionDragon.interactable=ready&&(route.Candidates.Count>1||(candidate==null&&route.Candidates.Count>0));
+            startExpedition.interactable=ready&&eligible;
+        }
         public void BuySanctuaryUpgrade(string upgradeId)
         {
             if(persistentMode)GuideCommand(id=>new BuyUpgradeCommand(id,upgradeId),"Upgrade purchased.","Đã mua nâng cấp.");
@@ -481,8 +556,21 @@ namespace Dravio
             unlockSkyButton.interactable=false;
             claimExpeditionButton.interactable=false;
             foreach(var button in upgradeButtons)button.interactable=false;
+            if(projectBuild!=null)projectBuild.interactable=false;
+            RefreshExpedition(ready);
             if(state==null)return;
 
+            if(projectStatus!=null)
+            {
+                var e=ProgressionQueries.SanctuaryEconomy(state,state.Clock.LastProcessedAtMs);
+                projectStatus.text=(vi?"Dự án trang trí: ":"Decorative projects: ")+e.ProjectsBuilt+"/"+e.ProjectsMax+
+                    "\n"+(e.NextProjectCostGoldMicro.HasValue?(vi?"Giá tiếp theo: ":"Next cost: ")+GoldText(e.NextProjectCostGoldMicro.Value)+" G":"—")+
+                    "\n"+(e.NextProjectMaterialEach>0?e.NextProjectMaterialEach+" × "+string.Join(", ",e.NextProjectMaterialIds):"")+
+                    "\n"+(vi?"Thiếu vật liệu: ":"Missing materials: ")+string.Join(", ",ExpeditionPresentation.ProjectShortfalls(state,e).Select(m=>m.Key+" × "+m.Value))+
+                    "\n"+(e.NextProjectBlockedBy??"")+
+                    "\n"+(vi?"Hình ảnh trang trí chưa triển khai.":"Decoration art not implemented.");
+                if(projectBuild!=null)projectBuild.interactable=ready && e.NextProjectCostGoldMicro.HasValue && e.NextProjectBlockedBy==null;
+            }
             var summary=Ecosystem.Summary(state);
             managementSummary.text=(vi?"Rồng: ":"Dragons: ")+summary.Living+
                 "\n"+(vi?"Sản xuất: ":"Producing: ")+summary.Producing+"/"+summary.ProductionBudget+
@@ -516,9 +604,10 @@ namespace Dravio
             else
             {
                 long left=Math.Max(0,job.FinishAtMs-state.Clock.LastProcessedAtMs);
-                managementExpedition.text=job.RouteId+"\n"+(job.Status==ExpeditionStatus.Ready?
-                    (vi?"Có thể nhận thưởng":"Ready to claim"):TimeSpan.FromMilliseconds(left).ToString(@"hh\:mm\:ss"));
-                claimExpeditionButton.interactable=ready && job.Status==ExpeditionStatus.Ready;
+                managementExpedition.text=job.RouteId+"\nUID: "+job.DragonUid+"\n"+(job.Status==ExpeditionStatus.Ready?
+                    (vi?"Rồng đã về · Có thể nhận thưởng":"Dragon returned · Ready to claim")+"\n"+string.Join(", ",job.Rewards.Select(m=>m.Key+" × "+m.Value)):
+                    (vi?"Đang đi · Tạm ngừng sinh vàng":"Away · No gold production")+"\n"+ExpeditionPresentation.Remaining(left));
+                claimExpeditionButton.interactable=ready && ExpeditionPresentation.CanClaim(state);
             }
             managementMaterials.text=string.Join("\n",Ecosystem.Materials(state).Select(m=>
                 (vi?m.NameVi:m.MaterialId)+": "+m.Quantity+(m.Active?"":(vi?" (chưa kích hoạt)":" (inactive)"))));
@@ -585,6 +674,7 @@ namespace Dravio
             string code=e?.WireCode??"unknown";
             switch(code)
             {
+                case "pack-daily-limit":SetMessage("Daily Starter limit reached (UTC).","Đã hết lượt Starter hôm nay (UTC).");break;
                 case "pet-cooldown":SetMessage("Pet cooldown: 30 seconds.","Vuốt ve: chờ đủ 30 giây.");break;
                 case "feed-cooldown":SetMessage("Eating cooldown: 8 seconds.","Ăn: chờ đủ 8 giây.");break;
                 case "food-too-fast":SetMessage("Please wait before dropping food.","Chờ trước khi thả thêm thức ăn.");break;

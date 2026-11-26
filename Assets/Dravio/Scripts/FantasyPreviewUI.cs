@@ -21,6 +21,7 @@ namespace Dravio
         [SerializeField] private Copy[] translations;
         [SerializeField] private DragonCarePreview care;
         private bool vi=true, collapsed;
+        public bool Vietnamese=>vi;
         private int page;
         private int lastW=-1,lastH=-1;
         private Rect lastSafe;

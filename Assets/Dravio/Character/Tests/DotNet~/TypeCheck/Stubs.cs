@@ -1,5 +1,5 @@
-// Hand-written UnityEngine surface for the type-check only (not Unity, no behaviour). DragonFootGrounding is
-// stubbed too because its IK maths uses far more engine API; it is covered by the Unity EditMode tests.
+// Hand-written UnityEngine surface for the type-check only (not Unity, no behaviour). U1-CHAR.8: DragonFootGrounding
+// is type-checked too (its IK behaviour is covered by the Unity EditMode tests).
 using System;
 using System.Collections.Generic;
 
@@ -37,9 +37,22 @@ namespace UnityEngine
         public Quaternion rotation { get; set; }
         public Vector3 up { get { return default(Vector3); } }
         public Vector3 right { get { return default(Vector3); } }
+        public Vector3 forward { get { return default(Vector3); } }
+        public void RotateAround(Vector3 point, Vector3 axis, float angle) { }
         public Vector3 InverseTransformDirection(Vector3 d) { return d; }
         public void SetParent(Transform p, bool worldPositionStays) { }
         public void SetPositionAndRotation(Vector3 p, Quaternion r) { }
+        public Vector3 lossyScale { get { return default(Vector3); } }
+        public Vector3 InverseTransformPoint(Vector3 p) { return p; }
+        public bool IsChildOf(Transform t) { return false; }
+    }
+    public struct LayerMask { public static implicit operator LayerMask(int v) { return default(LayerMask); } public static implicit operator int(LayerMask m) { return 0; } }
+    public enum QueryTriggerInteraction { UseGlobal, Ignore, Collide }
+    public class Collider : Component { }
+    public struct RaycastHit { public Collider collider { get { return null; } } public float distance { get { return 0f; } } public Vector3 point { get { return default(Vector3); } } }
+    public static class Physics
+    {
+        public static int RaycastNonAlloc(Vector3 o, Vector3 d, RaycastHit[] hits, float max, int mask, QueryTriggerInteraction q) { return 0; }
     }
     public struct Vector3
     {
@@ -48,6 +61,17 @@ namespace UnityEngine
         public static Vector3 zero { get { return new Vector3(0, 0, 0); } }
         public static float Distance(Vector3 a, Vector3 b) { return 0f; }
         public static Vector3 operator -(Vector3 a, Vector3 b) { return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z); }
+        public static Vector3 operator +(Vector3 a, Vector3 b) { return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z); }
+        public static Vector3 operator *(float k, Vector3 a) { return new Vector3(k * a.x, k * a.y, k * a.z); }
+        public static Vector3 operator *(Vector3 a, float k) { return new Vector3(k * a.x, k * a.y, k * a.z); }
+        public static Vector3 operator -(Vector3 a) { return new Vector3(-a.x, -a.y, -a.z); }
+        public static Vector3 operator /(Vector3 a, float k) { return new Vector3(a.x / k, a.y / k, a.z / k); }
+        public static float Dot(Vector3 a, Vector3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+        public static Vector3 Cross(Vector3 a, Vector3 b) { return default(Vector3); }
+        public float magnitude { get { return 0f; } }
+        public float sqrMagnitude { get { return 0f; } }
+        public Vector3 normalized { get { return this; } }
+        public void Normalize() { }
     }
     public struct Quaternion
     {
@@ -55,6 +79,7 @@ namespace UnityEngine
         public static Quaternion identity { get { return new Quaternion { w = 1 }; } }
         public static Quaternion AngleAxis(float deg, Vector3 axis) { return identity; }
         public static Quaternion operator *(Quaternion a, Quaternion b) { return a; }
+        public static Quaternion FromToRotation(Vector3 a, Vector3 b) { return identity; }
     }
     public struct Color { public float r, g, b, a; public Color(float r, float g, float b, float a = 1f) { this.r = r; this.g = g; this.b = b; this.a = a; } public static Color white { get { return new Color(1, 1, 1); } } }
     public struct Bounds
@@ -75,12 +100,16 @@ namespace UnityEngine
         public void SetFloat(int id, float v) { }
         public void Update(float dt) { }
         public void Rebind() { }
+        public void Play(int stateHash, int layer, float normalizedTime) { }
+        public AnimatorStateInfo GetCurrentAnimatorStateInfo(int layer) { return default(AnimatorStateInfo); }
         public AnimatorControllerParameter[] parameters { get { return new AnimatorControllerParameter[0]; } }
         public static int StringToHash(string s) { return 0; }
     }
+    public struct AnimatorStateInfo { public int shortNameHash { get { return 0; } } public int fullPathHash { get { return 0; } } public float normalizedTime { get { return 0f; } } }
     public class Renderer : Component
     {
         public Bounds bounds { get { return default(Bounds); } }
+        public bool enabled { get; set; }
         public void SetPropertyBlock(MaterialPropertyBlock b) { }
     }
     public sealed class MaterialPropertyBlock
@@ -102,6 +131,14 @@ namespace UnityEngine
         public static float Min(float a, float b) { return a < b ? a : b; }
         public static float Max(float a, float b) { return a > b ? a : b; }
         public static float Clamp01(float v) { return v < 0f ? 0f : (v > 1f ? 1f : v); }
+        public static float Abs(float v) { return v < 0f ? -v : v; }
+        public static float Sqrt(float v) { return (float)System.Math.Sqrt(v); }
+        public static float Floor(float v) { return (float)System.Math.Floor(v); }
+        public static float Lerp(float a, float b, float t) { return a + (b - a) * t; }
+        public static float Exp(float v) { return (float)System.Math.Exp(v); }
+        public static float Clamp(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
+        public static float Acos(float v) { return (float)System.Math.Acos(v); }
+        public const float Rad2Deg = 57.29578f;
     }
     [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName, fileName; }
     [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent : Attribute { }
@@ -119,14 +156,4 @@ namespace UnityEngine
     }
     public enum AnimatorControllerParameterType { Float = 1, Int = 3, Bool = 4, Trigger = 9 }
     public sealed class AnimatorControllerParameter { public string name; public int nameHash; public AnimatorControllerParameterType type; }
-}
-
-namespace Dravio.Character
-{
-    // stand-in for the real MonoBehaviour (Runtime/DragonFootGrounding.cs), same members as used by DragonVisualInstance
-    public sealed class DragonFootGrounding : UnityEngine.MonoBehaviour
-    {
-        public void Configure(DragonVisualCatalog.IkChain[] chains) { }
-        public static bool AppliesTo(DragonLocomotion l, DragonInteraction i) { return true; }
-    }
 }

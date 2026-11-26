@@ -1,6 +1,6 @@
 # scripts/art/character — U1-CHAR character asset tools
 
-Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), `TEST_REPORT_U5.md` (rig v3, SAMPLE before/after, reports), `TEST_REPORT_U6.md` (behaviour clips, planner, performance). Full process, budgets and naming: `Assets/Dravio/Character/README.md`; batch import, archetypes and the living-dragon runtime: `Assets/Dravio/Character/LIVING_DRAGONS.md` (Vietnamese).
+Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), `TEST_REPORT_U5.md` (rig v3, SAMPLE before/after, reports), `TEST_REPORT_U6.md` (behaviour clips, planner, performance), `TEST_REPORT_U7.md` (advanced motion: water/air/perch/burrow, motion contract). Full process, budgets and naming: `Assets/Dravio/Character/README.md`; batch import, archetypes and the living-dragon runtime: `Assets/Dravio/Character/LIVING_DRAGONS.md` (Vietnamese).
 
 | Script | Needs | Purpose |
 |---|---|---|
@@ -20,6 +20,7 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `run_u4_local.ps1` | Windows, Blender, Python | Local U1-CHAR.4 run on your own GLBs: QA of the old rig, v2 batch, before/after report, source hash check |
 | `run_u5_local.ps1` | Windows, Blender, Python (+ Unity optional) | Local U1-CHAR.5 run on your own GLBs: QA of the U4 rig, v3 batch, before/after, `build_character_reports.py`, optional Unity batch import + EditMode tests, source hash check |
 | `run_u6_local.ps1` | Windows, Blender, Python (+ Unity optional) | Local U1-CHAR.6 run: QA of the U5 rig, v4 batch (behaviour clips), before/after, reports, optional Unity import + EditMode tests |
+| `run_u7_local.ps1` | Windows, Blender, Python (+ Unity, .NET optional) | Local U1-CHAR.7 run on 01_emberling .. 07_sparkwing: QA of the U6 rig, v5 batch (motion clips, transition + envelope QA), before/after, reports (capability matrix, motion report), optional .NET tests/benchmark and Unity import + EditMode tests |
 | `build_character_reports.py` | Python only | Per-model QA pages, prefab catalog (md/json), animation report (clips vs biology), static performance budget; labels SAMPLE vs real |
 | `build_prop.py` | Blender | Static environment prop: pivot, LODs (prop profiles), simple collider, size metadata; never rigged |
 | `batch_import.py` | Blender | Batch: source folder check, filename (+ aliases) -> species/stage or prop category, per-species/per-file overrides, cache on source + pipeline + config hashes, full chain incl. animation QA, Unity staging + `import-manifest.json` (approved assets never re-delivered), report |

@@ -87,6 +87,16 @@ namespace Dravio.Character.Editor
                 if (group == null) group = instance.AddComponent<LODGroup>();
                 group.fadeMode = LODFadeMode.None;
                 group.SetLODs(lods.ToArray());
+                // U1-CHAR.8 mobile skinning: fewer bone influences on the smaller LODs (LOD0 4, LOD1 2, further 1)
+                for (int i = 0; i < lods.Count; i++)
+                    foreach (var r in lods[i].renderers)
+                    {
+                        var smr = r as SkinnedMeshRenderer;
+                        if (smr == null) continue;
+                        int bones = UpdateRatePolicy.SkinBonesForLod(i);
+                        smr.quality = bones >= 4 ? SkinQuality.Bone4 : (bones == 2 ? SkinQuality.Bone2 : SkinQuality.Bone1);
+                        smr.updateWhenOffscreen = false;
+                    }
                 group.RecalculateBounds();
                 Directory.CreateDirectory(PrefabFolder);
                 bool ok;

@@ -97,3 +97,11 @@ Khi có `intent`, mỗi rồng có một `DragonBehaviorPlanner` chọn clip mà
 
 Gọi `sync.Sync(frames, deltaSeconds)` để timer chạy đúng. Hợp đồng đầy đủ: [CHARACTER_BEHAVIOR_API.md](CHARACTER_BEHAVIOR_API.md). Bảng clip và ánh xạ: [ANIMATION_CATALOG.md](ANIMATION_CATALOG.md).
 
+## 7. Môi trường và chuyển tiếp (U1-CHAR.7)
+
+Trước khi đổi môi trường, gọi `sync.ReadinessFor(uid, mode)`. Sau mỗi `Sync`, đọc `sync.MotionStatusOf(uid)` để biết:
+- `canTranslate`: có được dịch chuyển rồng không;
+- `rootOffsetToApply`: độ cao cần cộng/trừ trong frame này;
+- `visible`: rồng có đang hiện không.
+
+Chi tiết: [MOTION_API.md](MOTION_API.md).

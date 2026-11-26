@@ -2,6 +2,9 @@ using System;
 
 namespace Dravio.Character
 {
+    /// <summary>U1-CHAR.8: procedural layers allowed for one dragon this frame.</summary>
+    public struct DragonDetail { public bool layers, blink; }
+
     /// <summary>
     /// How often a dragon's Animator is evaluated. Visible and near: every frame. Visible but far: every
     /// <see cref="farInterval"/> frames. Off-screen: every <see cref="offscreenInterval"/> frames (time is
@@ -15,6 +18,24 @@ namespace Dravio.Character
         public int farInterval = 2;
         public int offscreenInterval = 8;
         public float cullDistance = 80f;
+        /// <summary>U1-CHAR.8 mobile: procedural layers (shaper, head look, expression) only up to this distance.</summary>
+        public float detailDistance = 12f;
+        /// <summary>U1-CHAR.8 mobile: eyelid blinks only up to this distance (a blink is a few pixels further away).</summary>
+        public float blinkDistance = 6f;
+
+        /// <summary>Which LateUpdate layers run for a dragon evaluated at <paramref name="interval"/> and distance.</summary>
+        public DragonDetail DetailFor(int interval, float distance)
+        {
+            bool full = interval == 1;
+            return new DragonDetail
+            {
+                layers = full && distance <= detailDistance,
+                blink = full && distance <= Math.Min(blinkDistance, detailDistance),
+            };
+        }
+
+        /// <summary>Bone influences per vertex for LOD level (mobile skinning cost): LOD0 4, LOD1 2, further 1.</summary>
+        public static int SkinBonesForLod(int lodIndex) { return lodIndex <= 0 ? 4 : (lodIndex == 1 ? 2 : 1); }
 
         public int IntervalFor(bool visible, float distance)
         {

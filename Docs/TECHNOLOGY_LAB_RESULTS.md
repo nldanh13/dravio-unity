@@ -1,0 +1,109 @@
+# Technology Lab — measured baseline and TL.8 optimization
+
+## Verified baseline
+
+Source: [CI 45739636249](https://github.com/nldanh13/dravio-unity/actions/runs/45739636249), commit 22746972. Integration 59 tests passed on Linux and Windows; same routed-crowd counts on both. Numbers are synthetic simulation on authored JSON, not measured game FPS.
+
+| Requested / valid | Stop arrivals | Steering arrivals | Stop stalled agent ticks | Steering stalled agent ticks | Steering sampled min gap |
+|---|---:|---:|---:|---:|---:|
+| 5 / 5 | 4 | 5 | 336 | 0 | .1351m |
+| 15 / 14 | 0 | 14 | 4543 | 0 | .0250m |
+| 30 / 30 | 0 | 16 | 11568 | 167 | .0250m |
+
+Same static A* paths, .55m/s, 400 ticks at .05s. One skipped endpoint at 15 requested. Not a full replay of U5.3.6 runtime replan or animation. Thirty residents still incomplete at 20 seconds. Min gap sampled; separate swept collision tests passed for synthetic scenarios.
+
+| Habitat / medium | .45m successful directed pairs | .30m successful directed pairs |
+|---|---:|---:|
+| Origin pond bank ground | 4/12 | 6/12 |
+| Origin meadow ground | 20/20 | 20/20 |
+| Origin warm rocks ground | 6/12 | 7/12 |
+| Ocean swim (3 habitats) | 46/46 | 46/46 |
+| Sky air | 12/12 | 12/12 |
+
+Zero dense unsafe edges and zero budget failures reported in these grid sweeps. A failed search does not establish physical disconnection. The 3D authored endpoints are all direct; this dataset alone does not justify a new volumetric library.
+
+Synthetic crossing 30: stop-only 0/30, predictive 30/30; Ubuntu CPU 27.11ms vs 816.64ms for 400 ticks. These are one-run aggregate managed timings, not a device or production budget.
+
+## TL.8 experiment
+
+- Opt-in broad-phase candidate: build conservative neighbor lists once per tick. Relative motion over .8s cannot reduce center separation by more than sum of max speeds × horizon. Include radii, margin, scoring gap and epsilon. Preserve ascending neighbor order. Actual swept safety checks unchanged. Compare all-agent and filtered solver positions each tick, final velocities and metrics, exact replay plus reduced swept pair-check count; CPU timing diagnostic only. Still O(n²) pair construction; no spatial hash, ORCA or claim of improved real Unity performance.
+- Adaptive lattice candidate: try .45/.30/.20m with aggregate budget 2048 nodes, first attempt gets half budget. Same geometry and obstacle clearance; never loosen margin. Dense .025m segment validation before accepting each route; reject unsafe result and retry where possible. Report rescued, regressed, rejected and aggregate expanded nodes. Coarse and fine may both fail; no unchecked fallback or new geometry.
+- Both candidates are editor/test-only. Default lab solver remains all-agent reference; production A* and resident controller unchanged. Need review of latest CI results, real body clearance, Unity profile and complete baseline runtime replay before promotion.
+
+Run `dotnet test "Assets/Dravio/Tests/Integration~/Dravio.LivingIntegration.Tests.csproj" --logger "console;verbosity=detailed"` and look for LAB BROAD / LAB ADAPT. The Authored Route Benchmark editor menu also outputs adaptive comparison.
+
+## TL.8 verified results
+
+Source: [CI 45740007121](https://github.com/nldanh13/dravio-unity/actions/runs/45740007121), commit 2c6fc288, 70 Integration tests, Windows/Linux green.
+
+| Synthetic case | Original swept checks | Broad phase checks | Original CPU ms / 400 ticks | Broad phase CPU ms / 400 ticks |
+|---|---:|---:|---:|---:|
+| Head-on 2 | 11616 | 4704 | 5.56 | 3.92 |
+| Crossing 5 | 182400 | 71040 | 39.42 | 20.63 |
+| Crossing 30 | 9817207 | 3707484 | 1602.02 | 685.96 |
+| Obstacle 30 | 9359493 | 2859035 | 1579.02 | 599.50 |
+| Mixed groups 15 | 2386101 | 1100164 | 420.18 | 220.69 |
+
+Exact trajectory/metric equivalence in tested replay. CPU timings are diagnostic, not Unity frame or Android budget.
+
+Adaptive A* rescued 4 pond bank and 6 warm rocks directed routes: Origin 30/44 -> 40/44, no regression/dense rejection, max expanded 605 among pond bank pairs. Ocean 46/46 and Sky 12/12 unchanged. Additional CPU cost argues for fallback only, not unconditional use. Four pond bank pairs remain unresolved.
+
+## TL.9 crowd coordination
+
+- Independent exclusive goal-lease queue, FIFO timestamp then UID tie-break, expiry and eligibility cancellation, one claim per UID. Duplicate requests cannot extend the lease. This is a tested prototype, NOT connected to gameplay food/point ownership or the existing Domain allocation. 
+- RecoveryFollower preserves the exact assigned goal, detects lack of waypoint progress over 40 ticks (2s at .05s), tries a dense-validated adaptive reroute around current resident discs, at most one attempt per tick / 768 expanded nodes per attempt. Goal occupied -> defer search; failure retains existing route. No teleport, goal reassignment or reduced separation.
+- Routed crowd comparison uses same initial placements and routes, broad phase in both steering variants; 400 and 800 ticks. Reports actual arrivals, stopped agent ticks, safety gap, replan attempts/acceptance/failure and nodes. Tests assert swept safety, speed bound, immutable goal and budget, not superiority. Recovery need not solve every crowd.
+- Unity: Dravio > Technology Lab > Crowd Recovery Benchmark.
+
+## TL.10 actual-controller baseline collection
+
+The real LivingSanctuaryPresentation has opt-in UNITY_EDITOR-only instrumentation; no production movement algorithm change. In Play Mode on the existing OriginMultiMediumWorld scene, select the GameObject with LivingSanctuaryPresentation, open component context menu:
+1. Technology Lab/Start controller trace
+2. Play the same scripted scenario with 2+ eligible dragon models (observe, explore, feed, rest, move/storage as needed). Captures at most 1200 ready controller frames.
+3. Technology Lab/Stop and report trace
+4. Technology Lab/Export trace CSV before exiting Play Mode. Select your output location. No automatic file writes, no UID/save content in trace.
+
+Records per-frame projected resident count, motion attempts/arrival calls (not unique dragons), moving count, dynamic step blocks (includes geometry rejection), route plans/failures, clip substitutions, minimum sampled center separation, motion-loop and Sync CPU p95. No complete frame timing, no mesh collision proof, no GC capture, no Android measurement. Trace sampling overhead is outside motion/Sync timing but can affect overall frame rate. Use Unity Profiler separately for whole-frame and allocations. The actual-controller baseline is not yet measured and does not replay candidate trajectories. A later opt-in candidate A/B run must use matching saves, scene, actions and motion contracts before promotion.
+
+TL.9/10 CI status should be checked on GitHub; actual Unity execution remains pending.
+
+## TL.9/10 verified code CI
+
+[CI 45740436608](https://github.com/nldanh13/dravio-unity/actions/runs/45740436608): 77 Integration tests. Same routed crowd after 800 ticks: 5/5 unchanged, 14/14 unchanged, 30-agent arrivals 18 -> 20; stopped agent ticks 634 -> 598, min sampled gap .0250m. At 400 ticks, 30-agent arrivals 16 -> 18. Recovery is a modest improvement, not a high-density solution. Actual-controller Unity trace still not collected.
+
+## TL.11 opt-in food perception/action gate
+
+Unity Editor only. Inspector on LivingSanctuaryPresentation: Experimental Food Perception (off by default); leave Shared Food Allocation off. Mode is latched at FoodSpawned for that marker, so toggling perception mid-drop cannot bypass the request gate. Selected UID stays the owner of an experimental marker even if selection/shared allocation changes. No effect in player builds. No schema, Domain or Character change.
+
+A single local food marker is sensed within 3m when its same-habitat ground segment is navigable. This is a conservative geometry proxy, not physics LOS, not new biological senses. Two-second canonical-clock memory can guide approach but never authorize consumption while occluded. Require live valid food, original UID, eligibility, no gameplay health Rest, <= .55m reach, <= 15-degree facing, and Idle/None in the last synced visual instance. The existing canonical policy and Send remain the authority. Only one request for the experimental marker; a rejected request is not retried automatically; food may expire. Accepted FoodConsumed drives existing Eat intent. Gate cleared on marker removal; no memory persisted. No social/point perception integration yet.
+
+Local acceptance: play copied save; enable inspector option before feeding; confirm selected UID receives one accepted request after turning/waking, selection change doesn't redirect food, storage/expiry/occlusion cannot lead to stale consume, and normal behavior is unchanged when disabled. Inspect TL.11 in profile/Console; collect TL.10 trace in identical scenario with gate off/on. Pure gate tests cover range/reach, sight, memory expiry, wrong identity, cooldown/eligibility (as input), time rollback and repeated request. They do not compile or run the MonoBehaviour in Unity. If a rig cannot show Idle/None reliably, no experimental consume; investigate with CHAR.7 rather than weakening the gate.
+
+TL.12 contact/IK promotion remains dependent on real GLB and CHAR.7 rig readiness. No external animation library or rig override introduced in TL.11.
+
+## TL.11 verified
+
+CI [45740845790](https://github.com/nldanh13/dravio-unity/actions/runs/45740845790) passed at 4bb6809c. The opt-in food gate remains editor-only and requires Unity acceptance. Pure gate tests are not evidence of actual animation readiness or gameplay execution.
+
+## TL.12 actual rig contact diagnostics
+
+Existing CHAR.6 Rig v4 already implements DragonFootGrounding (two-bone IK), head look, blink and an Animation Lab. Do not add a second bone writer. Dravio > Technology Lab > Rig Contact Review observes the existing lab instance without changing its rig, clips, physics, prefab or save. The Character AI remains owner of deformation/IK and CHAR.7.
+
+Local steps:
+1. Import local actual catalog and run Dravio > Character > Animation Lab, Play. Choose a rigged catalog entry and a ground clip (Idle, Walk, Run, Rest, Sleep, Bask as supported).
+2. Open Rig Contact Review. Find active Animation Lab. Assign the scene's Ground transform explicitly; Uneven Ground root comes from the lab. Set Uneven Ground and Foot IK in the existing Animation Lab. Leave the chosen clip/terrain/IK mode unchanged for the capture.
+3. Start capture; sample up to 600 rendered frames, export CSV. Repeat with the same clip, playback speed, terrain, sample-time coverage and ray reach with IK switched off/on. Do not compare different clips/models/surface settings. Save label and CSV together.
+4. Report valid/missing foot rays, near-ground samples, foot-bone penetration proxy (>2cm below selected collider), maximum negative anchor gap, mean absolute near-ground gap and count of valid support planes. Support plane needs at least three noncollinear anchors within 4cm of sampled ground; candidate pitch/roll combined limit 18 degrees and offset 0.12m. These are diagnostic assumptions, not anatomy-approved limits.
+5. Review video/skeleton and real skin weights. Bone pivot is not foot sole, near-ground is not an authored plant curve, and the in-place clip cannot by itself measure world-space foot slide. A read-only candidate plane is not applied to the rig. No automated comparison of matched clips/frames, no mesh penetration certification, no phone performance claim. Probe uses raycast allocations and Editor update snapshots, not a production foot IK benchmark.
+
+The tool refuses ambiguous catalog entries, missing/nonunique/nonhierarchical IK bones, unsupported non-ground locomotion and mismatched configured chain counts. Explicit ground-only ray filtering excludes the dragon. Capture stops if clip, instance, IK mode or terrain toggle changes. Real GLB/Unity execution still pending; head, tail, wing and body pose modifications remain CHAR.7/local QA work.
+
+## TL.13 candidate runtime trial: Adaptive Ground Routing
+
+On LivingSanctuaryPresentation in the Editor only, Experimental Adaptive Ground Routing defaults OFF. Original controller still searches .45m with 768 expanded node limit. On an Unreachable/BudgetExceeded result only, optional fallback tries .30m and .20m (384 nodes each), same actual geometry and dynamic separation predicate, dense .025m edge recheck and exact goal. No reattempt for invalid endpoints, no change to successful original route, no unchecked paths. Combined node ceiling 1536 per route-planning frame when enabled, versus 768 before; CPU is not bounded by node count alone. This is a more conservative budget than TL.8's 2048 node experiment, so prior benchmark totals must not be presented as runtime fallback results.
+
+Tests use a narrow synthetic corridor, blocked map, unchanged success, exact goal/dense segment checks and the authored Origin spawn pairs with the actual 768+768 budget. No runtime steering/recovery integration, only the fallback route candidate. No player-build code path, no game rule/save changes.
+
+A/B: restore identical disposable save and restart Play Mode for each run (cached routes must not carry across trials). First use default baseline; collect TL.10 trace, repeat with only Experimental Adaptive Ground Routing enabled. Leave TL.11 food experiment and shared allocation unchanged/off. Use identical scenario, visual catalog, scene, seed/actions and observation window. Trace records adaptive_attempts/adaptive_rescues and labels suggested CSV filename with mode; changing mode mid-recording stops capture. Compare route failures/rescues, arrival calls, dynamic blocks, sampled center gap and motion CPU p95, plus actual Profiler whole-frame CPU/GC. Do not promote if clearance/animation regressions or CPU spikes worsen. No Unity A/B collected remotely.
+
+TL.13 is a production-controller **trial**, not production approval. Predictive steering needs coordinated swept trajectories plus turn/motion readiness and actual clearance tests before replacing the existing sequential movement. Keep draft and previous branches intact.
