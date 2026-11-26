@@ -12,6 +12,7 @@ namespace Dravio.Domain.Tests.Support
         private static Dictionary<string, object> _cached;
         private static Dictionary<string, object> _world;
         private static Dictionary<string, object> _progress;
+        private static Dictionary<string, object> _genetics;
 
         public static Dictionary<string, object> Root => _cached ?? (_cached = (Dictionary<string, object>)MiniJson.Parse(File.ReadAllText(Locate())));
 
@@ -20,6 +21,9 @@ namespace Dravio.Domain.Tests.Support
 
         /// <summary>Golden U2.4 (tutorial, Starter pack, achievements).</summary>
         public static Dictionary<string, object> Progress => _progress ?? (_progress = (Dictionary<string, object>)MiniJson.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(Locate()), "ts-progress-golden-b33ec7a.json"))));
+
+        /// <summary>Golden U2.5: hàm thuần di truyền / lai / biến thể / roll gói của TS.</summary>
+        public static Dictionary<string, object> Genetics => _genetics ?? (_genetics = (Dictionary<string, object>)MiniJson.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(Locate()), "ts-genetics-golden-b33ec7a.json"))));
 
         public static List<object> List(string key) => (List<object>)Root[key];
 

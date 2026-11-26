@@ -8,19 +8,27 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v4, trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v9 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6) + packDaily / sanctuaryProjectsBuilt / research (U2.10) + completedSideQuests / expeditionsClaimed / relations (U2.11)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
     /// </summary>
     public static class GameStateJson
     {
-        /// <summary>Khóa GameState của schema v4 (STATE_KEYS trong saveFile.ts).</summary>
+        /// <summary>Khóa GameState: STATE_KEYS của saveFile.ts (schema v4) + khóa chỉ có ở bản Unity (v5–v8).</summary>
         public static readonly IReadOnlyList<string> StateKeys = Array.AsReadOnly(new[]
         {
             "schemaVersion", "contentVersion", "saveId", "revision", "goldMicro", "goldRemainder", "totalGoldEarnedMicro",
             "dragons", "zones", "productionDragonIds", "inventory", "upgrades", "food", "processedRequestIds", "pityCount",
             "stats", "settings", "clock", "offlineReceipt", "discoveries", "tutorial", "pendingPack", "unlockedAchievements", "claimedAchievements",
+            // v5 (U2.5), v6 (U2.7), v7 (U2.8), chỉ có ở bản Unity
+            "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
+            // v8 (U2.6), chỉ có ở bản Unity
+            "healthCases", "disasters", "hazard",
+            // v9 (U2.10), chỉ có ở bản Unity
+            "packDaily", "sanctuaryProjectsBuilt", "research",
+            // v10 (U2.11), chỉ có ở bản Unity
+            "completedSideQuests", "expeditionsClaimed", "relations",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -28,7 +36,7 @@ namespace Dravio.Persistence.Schema
         {
             "uid", "speciesId", "nickname", "genotype", "mutation", "xpSec", "locked", "location", "hatchedAtMs", "personality",
             "bond", "bondDay", "bondDaily", "lastFeedXpAtMs", "lastPetAtMs", "parentIds", "grandparentIds", "generation",
-            "ancestry", "origin", "activity", "breedCooldownUntilMs",
+            "ancestry", "origin", "activity", "breedCooldownUntilMs", "vitals",
         });
 
         // ---------------- GameState → JSON ----------------
@@ -77,7 +85,35 @@ namespace Dravio.Persistence.Schema
                 .Set("profilesViewed", Arr(t.ProfilesViewed)).Set("starterPackUsed", JsonValue.From(t.StarterPackUsed)));
             o.Set("pendingPack", s.PendingPack == null ? JsonValue.Null : PendingPackToJson(s.PendingPack));
             o.Set("unlockedAchievements", Arr(s.UnlockedAchievements));
+            o.Set("breedingNest", s.BreedingNest == null ? JsonValue.Null : NestToJson(s.BreedingNest));
+            var codex = new JsonObject();
+            foreach (CodexEntry e in s.Codex)
+            {
+                var muts = new JsonArray(); foreach (MutationType m in e.DiscoveredMutations) muts.Add(S(m.ToWire()));
+                var stages = new JsonArray(); foreach (GrowthStage gst in e.ObservedStages) stages.Add(S(gst.ToWire()));
+                codex.Set(e.SpeciesId, new JsonObject().Set("discoveredMutations", muts).Set("totalHatched", N(e.TotalHatched)).Set("observedStages", stages));
+            }
+            o.Set("codex", codex);
+            if (s.Expedition == null) o.Set("expedition", JsonValue.Null);
+            else
+            {
+                ExpeditionJob j = s.Expedition;
+                var rewards = new JsonObject();
+                foreach (var kv in j.Rewards) rewards.Set(kv.Key, N(kv.Value));
+                o.Set("expedition", new JsonObject().Set("id", S(j.Id)).Set("routeId", S(j.RouteId)).Set("dragonUid", S(j.DragonUid))
+                    .Set("startedAtMs", N(j.StartedAtMs)).Set("finishAtMs", N(j.FinishAtMs)).Set("rewards", rewards).Set("status", S(j.Status.ToWire())));
+            }
+            o.Set("completedQuests", Arr(s.CompletedQuests));
+            o.Set("grantedRewards", Arr(s.GrantedRewards));
+            var queue = new JsonArray();
+            foreach (QueuedEgg q in s.RewardQueue)
+                queue.Add(new JsonObject().Set("rewardId", S(q.RewardId)).Set("speciesId", S(q.SpeciesId))
+                    .Set("mutation", S(Dravio.Domain.WireNames.ToWire(q.Mutation))).Set("queuedAtMs", N(q.QueuedAtMs)));
+            o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
+            HealthToJson(s, o);
+            if (s.SchemaVersion >= 9) U210ToJson(s, o);
+            if (s.SchemaVersion >= 10) U211ToJson(s, o);
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
             GameStats st = p.Stats;
@@ -99,6 +135,125 @@ namespace Dravio.Persistence.Schema
             return o;
         }
 
+        // ---------------- U2.6 (schema v8) ----------------
+
+        private static JsonObject VitalsToJson(Vitals v) =>
+            new JsonObject().Set("health", N(v.Health)).Set("energy", N(v.Energy)).Set("comfort", N(v.Comfort)).Set("mobility", N(v.Mobility)).Set("hydration", N(v.Hydration));
+
+        private static void HealthToJson(GameState s, JsonObject o)
+        {
+            var cases = new JsonArray();
+            foreach (HealthCase c in s.HealthCases)
+            {
+                var co = new JsonObject().Set("caseId", S(c.CaseId)).Set("dragonId", S(c.DragonId));
+                if (c.EventId != null) co.Set("eventId", S(c.EventId));
+                co.Set("cause", S(c.Cause.ToWire())).Set("site", S(c.Site.ToWire())).Set("severity", S(c.Severity.ToWire())).Set("symptoms", Arr(c.Symptoms))
+                    .Set("assessed", JsonValue.From(c.Assessed));
+                if (c.CarePlanId != null) co.Set("carePlanId", S(c.CarePlanId));
+                co.Set("createdAtMs", N(c.CreatedAtMs)).Set("startedAtMs", N(c.StartedAtMs)).Set("durationMs", N(c.DurationMs)).Set("finishAtMs", N(c.FinishAtMs))
+                    .Set("nextReviewAtMs", N(c.NextReviewAtMs)).Set("phase", S(c.Phase.ToWire())).Set("progress", N(c.Progress))
+                    .Set("reviewed", JsonValue.From(c.Reviewed)).Set("status", S(c.Status.ToWire()));
+                cases.Add(co);
+            }
+            o.Set("healthCases", cases);
+            var evs = new JsonArray();
+            foreach (DisasterState ev in s.Disasters)
+            {
+                var sh = new JsonArray();
+                foreach (ShelteredDragon x in ev.Sheltered)
+                    sh.Add(new JsonObject().Set("uid", S(x.Uid)).Set("habitatId", S(x.HabitatId)).Set("producing", JsonValue.From(x.Producing)).Set("auto", JsonValue.From(x.Auto)));
+                evs.Add(new JsonObject().Set("id", S(ev.Id)).Set("hazard", S(ev.Hazard.ToWire())).Set("zoneId", S(ev.ZoneId)).Set("severity", S(ev.Severity.ToWire()))
+                    .Set("phase", S(ev.Phase.ToWire())).Set("createdAtMs", N(ev.CreatedAtMs)).Set("forecastProgressMs", N(ev.ForecastProgressMs))
+                    .Set("struckAtMs", N(ev.StruckAtMs)).Set("caseIds", Arr(ev.CaseIds)).Set("sheltered", sh));
+            }
+            o.Set("disasters", evs);
+            var cd = new JsonObject();
+            foreach (var kv in s.Hazard.CooldownUntilMs) cd.Set(kv.Key, N(kv.Value));
+            o.Set("hazard", new JsonObject().Set("foregroundMs", N(s.Hazard.ForegroundMs)).Set("checksDone", N(s.Hazard.ChecksDone)).Set("cooldownUntilMs", cd));
+        }
+
+        private static Vitals VitalsFromJson(JsonValue v, string path, List<string> errors)
+        {
+            if (v == null) return null; // trước v8 (đã qua migration thì luôn có); validator v8 báo thiếu
+            var r = new Reader(new List<string>());
+            if (!(v is JsonObject o)) { errors.Add(path + ".vitals: out of range"); return null; }
+            var vit = new Vitals
+            {
+                Health = r.IntOr(o, "health", "x", -1), Energy = r.IntOr(o, "energy", "x", -1), Comfort = r.IntOr(o, "comfort", "x", -1),
+                Mobility = r.IntOr(o, "mobility", "x", -1), Hydration = r.IntOr(o, "hydration", "x", -1),
+            };
+            if (r.Errors.Count > 0) errors.Add(path + ".vitals: out of range");
+            return vit;
+        }
+
+        private static void HealthFromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            s.HealthCases = null;
+            if (o.Get("healthCases") is JsonArray ca)
+            {
+                var r = new Reader(new List<string>());
+                s.HealthCases = new List<HealthCase>();
+                foreach (JsonValue cv in ca)
+                {
+                    if (!(cv is JsonObject c)) { r.Errors.Add("x"); continue; }
+                    s.HealthCases.Add(new HealthCase
+                    {
+                        CaseId = r.Str(c, "caseId", "x"), DragonId = r.Str(c, "dragonId", "x"), EventId = r.OptStr(c, "eventId", "x"),
+                        Cause = r.Enum(c, "cause", "x", HazardId.Wildfire), Site = r.Enum(c, "site", "x", InjurySite.SkinScale), Severity = r.Enum(c, "severity", "x", CaseSeverity.Mild),
+                        Symptoms = r.StrList(c, "symptoms", "x"), Assessed = r.Bool(c, "assessed", "x"), CarePlanId = r.OptStr(c, "carePlanId", "x"),
+                        CreatedAtMs = r.LongOr(c, "createdAtMs", "x", -1), StartedAtMs = r.LongOr(c, "startedAtMs", "x", -1), DurationMs = r.LongOr(c, "durationMs", "x", -1),
+                        FinishAtMs = r.LongOr(c, "finishAtMs", "x", -1), NextReviewAtMs = r.LongOr(c, "nextReviewAtMs", "x", -1),
+                        Phase = r.Enum(c, "phase", "x", CasePhase.Stabilize), Progress = r.IntOr(c, "progress", "x", -1), Reviewed = r.Bool(c, "reviewed", "x"),
+                        Status = r.Enum(c, "status", "x", CaseStatus.Queued),
+                    });
+                }
+                if (r.Errors.Count > 0) errors.Add("healthCases: invalid");
+            }
+            else errors.Add("healthCases: invalid");
+
+            s.Disasters = null;
+            if (o.Get("disasters") is JsonArray da)
+            {
+                var r = new Reader(new List<string>());
+                s.Disasters = new List<DisasterState>();
+                foreach (JsonValue dv in da)
+                {
+                    if (!(dv is JsonObject d)) { r.Errors.Add("x"); continue; }
+                    var ev = new DisasterState
+                    {
+                        Id = r.Str(d, "id", "x"), Hazard = r.Enum(d, "hazard", "x", HazardId.Wildfire), ZoneId = r.Str(d, "zoneId", "x"),
+                        Severity = r.Enum(d, "severity", "x", CaseSeverity.Mild), Phase = r.Enum(d, "phase", "x", DisasterPhase.Forecast),
+                        CreatedAtMs = r.LongOr(d, "createdAtMs", "x", -1), ForecastProgressMs = r.LongOr(d, "forecastProgressMs", "x", -1),
+                        StruckAtMs = r.LongOr(d, "struckAtMs", "x", -1), CaseIds = r.StrList(d, "caseIds", "x"), Sheltered = new List<ShelteredDragon>(),
+                    };
+                    if (d.Get("sheltered") is JsonArray sa)
+                        foreach (JsonValue sv in sa)
+                        {
+                            if (!(sv is JsonObject so)) { r.Errors.Add("x"); continue; }
+                            ev.Sheltered.Add(new ShelteredDragon { Uid = r.Str(so, "uid", "x"), HabitatId = r.Str(so, "habitatId", "x"), Producing = r.Bool(so, "producing", "x"), Auto = r.Bool(so, "auto", "x") });
+                        }
+                    else r.Errors.Add("x");
+                    s.Disasters.Add(ev);
+                }
+                if (r.Errors.Count > 0) errors.Add("disasters: invalid");
+            }
+            else errors.Add("disasters: invalid");
+
+            s.Hazard = null;
+            if (o.Get("hazard") is JsonObject h && h.Get("cooldownUntilMs") is JsonObject cd)
+            {
+                var r = new Reader(new List<string>());
+                s.Hazard = new HazardState { ForegroundMs = r.LongOr(h, "foregroundMs", "x", -1), ChecksDone = r.LongOr(h, "checksDone", "x", -1) };
+                foreach (var kv in cd)
+                {
+                    if (Reader.AsSafeLong(kv.Value, out long v)) s.Hazard.CooldownUntilMs.Add(new KeyValuePair<string, long>(kv.Key, v));
+                    else r.Errors.Add("x");
+                }
+                if (r.Errors.Count > 0) errors.Add("hazard: invalid");
+            }
+            else errors.Add("hazard: invalid");
+        }
+
         private static JsonObject GenotypeToJson(Genotype g)
         {
             var o = new JsonObject();
@@ -109,6 +264,11 @@ namespace Dravio.Persistence.Schema
         private static JsonObject PendingPackToJson(PendingPack p) =>
             new JsonObject().Set("id", S(p.Id)).Set("packId", S(p.PackId)).Set("speciesId", S(p.SpeciesId)).Set("genotype", GenotypeToJson(p.Genotype))
                 .Set("mutation", S(p.Mutation.ToWire())).Set("createdAtMs", N(p.CreatedAtMs)).Set("tutorial", JsonValue.From(p.Tutorial));
+
+        private static JsonObject NestToJson(BreedingEgg e) =>
+            new JsonObject().Set("id", S(e.Id)).Set("parentIds", Arr(e.ParentIds)).Set("speciesId", S(e.SpeciesId)).Set("genotype", GenotypeToJson(e.Genotype))
+                .Set("mutation", S(e.Mutation.ToWire())).Set("createdAtMs", N(e.CreatedAtMs)).Set("finishAtMs", N(e.FinishAtMs)).Set("durationMs", N(e.DurationMs))
+                .Set("tapReducedMs", N(e.TapReducedMs)).Set("lastTapAtMs", N(e.LastTapAtMs)).Set("status", S(e.Status.ToWire()));
 
         public static JsonObject DragonToJson(DragonState d)
         {
@@ -128,6 +288,7 @@ namespace Dravio.Persistence.Schema
             if (d.GrandparentIds != null) o.Set("grandparentIds", Arr(d.GrandparentIds));
             o.Set("generation", N(d.Generation)).Set("ancestry", S(d.Ancestry.ToWire())).Set("origin", S(d.Origin.ToWire()))
                 .Set("activity", S(d.Activity.ToWire())).Set("breedCooldownUntilMs", N(d.BreedCooldownUntilMs));
+            if (d.Vitals != null) o.Set("vitals", VitalsToJson(d.Vitals));
             if (d.RegistryRef != null) o.Set("registryRef", S(d.RegistryRef));
             return o;
         }
@@ -327,7 +488,224 @@ namespace Dravio.Persistence.Schema
 
             s.UnlockedAchievements = r.StrList(o, "unlockedAchievements", "unlockedAchievements: invalid");
             s.ClaimedAchievements = r.StrList(o, "claimedAchievements", "claimedAchievements: invalid");
+
+            JsonValue nv = o.Get("breedingNest");
+            if (nv is JsonObject no)
+            {
+                var nr = new Reader(new List<string>());
+                List<string> parents = no.Get("parentIds") is JsonArray ? nr.StrList(no, "parentIds", "x") : null;
+                s.BreedingNest = new BreedingEgg
+                {
+                    Id = nr.Str(no, "id", "x"), ParentIds = parents?.ToArray(), SpeciesId = nr.Str(no, "speciesId", "x"),
+                    Genotype = GenotypeFromJson(no.Get("genotype"), nr), Mutation = nr.Enum(no, "mutation", "x", MutationType.Normal),
+                    CreatedAtMs = nr.LongOr(no, "createdAtMs", "x", -1), FinishAtMs = nr.LongOr(no, "finishAtMs", "x", -1),
+                    DurationMs = nr.LongOr(no, "durationMs", "x", -1), TapReducedMs = nr.LongOr(no, "tapReducedMs", "x", -1),
+                    LastTapAtMs = nr.LongOr(no, "lastTapAtMs", "x", -1),
+                    Status = nr.Enum(no, "status", "x", EggStatus.Incubating),
+                };
+                if (parents == null) nr.Errors.Add("parentIds");
+                if (nr.Errors.Count > 0) errors.Add("breedingNest: invalid");
+            }
+            else if (!(nv is JsonNull)) errors.Add("breedingNest: invalid");
+
+            if (o.Get("codex") is JsonObject co)
+            {
+                var cr = new Reader(new List<string>());
+                s.Codex = new List<CodexEntry>();
+                foreach (var kv in co)
+                {
+                    if (!(kv.Value is JsonObject eo)) { cr.Errors.Add("x"); continue; }
+                    var e = new CodexEntry { SpeciesId = kv.Key, TotalHatched = cr.LongOr(eo, "totalHatched", "x", -1) };
+                    foreach (string m in cr.StrList(eo, "discoveredMutations", "x") ?? new List<string>())
+                        if (WireNames.TryParse(m, out MutationType mt)) e.DiscoveredMutations.Add(mt); else cr.Errors.Add("x");
+                    foreach (string stw in cr.StrList(eo, "observedStages", "x") ?? new List<string>())
+                        if (WireNames.TryParse(stw, out GrowthStage gs)) e.ObservedStages.Add(gs); else cr.Errors.Add("x");
+                    s.Codex.Add(e);
+                }
+                if (cr.Errors.Count > 0) errors.Add("codex: invalid");
+            }
+            else { s.Codex = null; errors.Add("codex: invalid"); }
+
+            JsonValue ev = o.Get("expedition");
+            if (ev is JsonObject eo2)
+            {
+                var er = new Reader(new List<string>());
+                var job = new ExpeditionJob
+                {
+                    Id = er.Str(eo2, "id", "x"), RouteId = er.Str(eo2, "routeId", "x"), DragonUid = er.Str(eo2, "dragonUid", "x"),
+                    StartedAtMs = er.LongOr(eo2, "startedAtMs", "x", -1), FinishAtMs = er.LongOr(eo2, "finishAtMs", "x", -1),
+                    Status = er.Enum(eo2, "status", "x", ExpeditionStatus.InProgress),
+                };
+                if (eo2.Get("rewards") is JsonObject ro2)
+                    foreach (var kv in ro2)
+                    {
+                        if (kv.Value is JsonNumber n && GameStateJson.Reader.AsSafeLong(n, out long v) && v > 0 && v <= int.MaxValue) job.Rewards.Add(new KeyValuePair<string, int>(kv.Key, (int)v));
+                        else er.Errors.Add("x");
+                    }
+                else er.Errors.Add("x");
+                s.Expedition = job;
+                if (er.Errors.Count > 0) errors.Add("expedition: invalid");
+            }
+            else if (!(ev is JsonNull)) errors.Add("expedition: invalid");
+
+            var qr = new Reader(new List<string>());
+            s.CompletedQuests = qr.StrList(o, "completedQuests", "x") ?? new List<string>();
+            s.GrantedRewards = qr.StrList(o, "grantedRewards", "x") ?? new List<string>();
+            if (qr.Errors.Count > 0) errors.Add("worldUnlock: invalid");
+            s.RewardQueue = new List<QueuedEgg>();
+            if (o.Get("rewardQueue") is JsonArray rq)
+            {
+                var rr = new Reader(new List<string>());
+                foreach (JsonValue qv in rq)
+                {
+                    if (!(qv is JsonObject qo)) { rr.Errors.Add("x"); continue; }
+                    s.RewardQueue.Add(new QueuedEgg
+                    {
+                        RewardId = rr.Str(qo, "rewardId", "x"), SpeciesId = rr.Str(qo, "speciesId", "x"),
+                        Mutation = rr.Enum(qo, "mutation", "x", MutationType.Normal), QueuedAtMs = rr.LongOr(qo, "queuedAtMs", "x", -1),
+                    });
+                }
+                if (rr.Errors.Count > 0) errors.Add("rewardQueue: invalid");
+            }
+            else errors.Add("rewardQueue: invalid");
+            HealthFromJson(o, s, errors);
+            if (s.SchemaVersion >= 9) U210FromJson(o, s, errors);
+            if (s.SchemaVersion >= 10) U211FromJson(o, s, errors);
             return s;
+        }
+
+        // ---------------- v10 (U2.11): nhiệm vụ phụ, bộ đếm thám hiểm, quan hệ ----------------
+
+        private static void U211ToJson(GameState s, JsonObject o)
+        {
+            o.Set("completedSideQuests", Arr(s.CompletedSideQuests));
+            var claimed = new JsonObject();
+            if (s.ExpeditionsClaimed != null) foreach (var kv in s.ExpeditionsClaimed) claimed.Set(kv.Key, N(kv.Value));
+            o.Set("expeditionsClaimed", claimed);
+            // Ghi bản đã làm sạch (như khi nạp), giống sổ nghiên cứu.
+            Dravio.Domain.Behavior.RelationLogSnapshot snap = (s.Relations ?? new Dravio.Domain.Behavior.RelationLog()).ToSnapshot();
+            if (s.Dragons != null) snap = Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s);
+            var pairs = new JsonArray();
+            foreach (var p in snap.Pairs) pairs.Add(new JsonObject().Set("a", S(p.A)).Set("b", S(p.B)).Set("sharedMs", N(p.SharedMs)));
+            o.Set("relations", new JsonObject().Set("pairs", pairs));
+        }
+
+        private static void U211FromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            s.CompletedSideQuests = new Reader(errors).StrList(o, "completedSideQuests", "completedSideQuests: invalid") ?? new List<string>();
+            s.ExpeditionsClaimed = new SortedDictionary<string, int>(StringComparer.Ordinal);
+            if (o.Get("expeditionsClaimed") is JsonObject ec)
+            {
+                foreach (var kv in ec)
+                    if (Reader.AsSafeLong(kv.Value, out long n) && n >= 0 && n <= int.MaxValue) s.ExpeditionsClaimed[kv.Key] = (int)n;
+                    else { errors.Add("expeditionsClaimed: invalid"); break; }
+            }
+            else errors.Add("expeditionsClaimed: invalid");
+            // Quan hệ chỉ trình diễn: khối hỏng hay mục lạ bị BỎ khi nạp, không làm hỏng save.
+            s.Relations = new Dravio.Domain.Behavior.RelationLog();
+            if (s.Dragons == null || !(o.Get("relations") is JsonObject ro) || !(ro.Get("pairs") is JsonArray pa)) return;
+            var snap = new Dravio.Domain.Behavior.RelationLogSnapshot();
+            foreach (JsonValue x in pa)
+            {
+                if (!(x is JsonObject e) || !(e.Get("a") is JsonString a) || !(e.Get("b") is JsonString b) || !Reader.AsSafeLong(e.Get("sharedMs"), out long ms)) continue;
+                snap.Pairs.Add(new Dravio.Domain.Behavior.RelationLogSnapshot.Pair { A = a.Value, B = b.Value, SharedMs = ms });
+            }
+            s.Relations = Dravio.Domain.Behavior.RelationLog.FromSnapshot(Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s));
+        }
+
+        // ---------------- v9 (U2.10): giới hạn gói theo ngày, dự án Sanctuary, sổ nghiên cứu ----------------
+
+        private static void U210ToJson(GameState s, JsonObject o)
+        {
+            PackDailyState pd = s.PackDaily ?? new PackDailyState();
+            o.Set("packDaily", new JsonObject().Set("day", pd.Day == null ? JsonValue.Null : S(pd.Day)).Set("starterBought", N(pd.StarterBought)));
+            o.Set("sanctuaryProjectsBuilt", N(s.SanctuaryProjectsBuilt));
+            // Ghi bản đã làm sạch (như khi nạp): save ghi ra luôn đọc lại được, kể cả nếu sổ nghiên cứu lệch state ở đâu đó.
+            Dravio.Domain.Behavior.ResearchLogSnapshot snap = (s.Research ?? new Dravio.Domain.Behavior.ResearchLog()).ToSnapshot();
+            if (s.Dragons != null && s.Codex != null) snap = Dravio.Domain.Behavior.ResearchSchemaDraft.Sanitize(snap, s);
+            o.Set("research", ResearchToJson(snap));
+        }
+
+        private static JsonObject ResearchToJson(Dravio.Domain.Behavior.ResearchLogSnapshot snap)
+        {
+            var species = new JsonArray();
+            foreach (var e in snap.Species)
+            {
+                var fbd = new JsonObject();
+                foreach (var kv in e.FindingsByDay) fbd.Set(kv.Key, N(kv.Value));
+                species.Add(new JsonObject().Set("speciesId", S(e.SpeciesId)).Set("behaviors", Arr(e.Behaviors)).Set("phases", Arr(e.Phases))
+                    .Set("habitats", Arr(e.Habitats)).Set("days", Arr(e.Days)).Set("findingsByDay", fbd));
+            }
+            var inds = new JsonArray();
+            foreach (var e in snap.Individuals)
+                inds.Add(new JsonObject().Set("uid", S(e.Uid)).Set("speciesId", S(e.SpeciesId)).Set("observations", N(e.Observations))
+                    .Set("seenInFavoriteHabitat", JsonValue.From(e.SeenInFavoriteHabitat)).Set("seenFeeding", JsonValue.From(e.SeenFeeding))
+                    .Set("lastObservedAtMs", N(e.LastObservedAtMs)).Set("activePhases", Arr(e.ActivePhases)).Set("restPhases", Arr(e.RestPhases))
+                    .Set("revealed", Arr(e.Revealed)));
+            return new JsonObject().Set("species", species).Set("individuals", inds);
+        }
+
+        private static void U210FromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            var r = new Reader(new List<string>());
+            s.PackDaily = null;
+            if (o.Get("packDaily") is JsonObject pd)
+            {
+                JsonValue day = pd.Get("day");
+                s.PackDaily = new PackDailyState { Day = day is JsonString ds ? ds.Value : null, StarterBought = r.IntOr(pd, "starterBought", "x", -1) };
+                if (!(day is JsonString) && !(day is JsonNull)) r.Errors.Add("x");
+            }
+            else r.Errors.Add("x");
+            if (r.Errors.Count > 0) errors.Add("packDaily: invalid");
+            s.SanctuaryProjectsBuilt = new Reader(errors).IntOr(o, "sanctuaryProjectsBuilt", "sanctuaryProjectsBuilt: out of range", -1);
+            // Sổ nghiên cứu không chạm vàng, rồng hay vật liệu: khối hỏng hoặc mục không hợp lệ bị BỎ khi nạp, không làm hỏng save (ADR 0204 R8).
+            s.Research = new Dravio.Domain.Behavior.ResearchLog();
+            if (s.Dragons == null || s.Codex == null) return;
+            Dravio.Domain.Behavior.ResearchLogSnapshot snap = ResearchFromJson(o.Get("research"));
+            if (snap == null) return;
+            s.Research = Dravio.Domain.Behavior.ResearchLog.FromSnapshot(Dravio.Domain.Behavior.ResearchSchemaDraft.Sanitize(snap, s));
+        }
+
+        private static Dravio.Domain.Behavior.ResearchLogSnapshot ResearchFromJson(JsonValue v)
+        {
+            if (!(v is JsonObject o) || !(o.Get("species") is JsonArray sa) || !(o.Get("individuals") is JsonArray ia)) return null;
+            var snap = new Dravio.Domain.Behavior.ResearchLogSnapshot();
+            var r = new Reader(new List<string>());
+            foreach (JsonValue x in sa)
+            {
+                if (!(x is JsonObject e)) continue;
+                var se = new Dravio.Domain.Behavior.ResearchLogSnapshot.SpeciesEntry
+                {
+                    SpeciesId = e.Get("speciesId") is JsonString sp ? sp.Value : null,
+                    Behaviors = r.StrList(e, "behaviors", "x") ?? new List<string>(),
+                    Phases = r.StrList(e, "phases", "x") ?? new List<string>(),
+                    Habitats = r.StrList(e, "habitats", "x") ?? new List<string>(),
+                    Days = r.StrList(e, "days", "x") ?? new List<string>(),
+                };
+                if (e.Get("findingsByDay") is JsonObject f)
+                    foreach (var kv in f)
+                        if (Reader.AsSafeLong(kv.Value, out long n) && n >= 0 && n <= int.MaxValue) se.FindingsByDay.Add(new KeyValuePair<string, int>(kv.Key, (int)n));
+                snap.Species.Add(se);
+            }
+            foreach (JsonValue x in ia)
+            {
+                if (!(x is JsonObject e)) continue;
+                var ir = new Reader(new List<string>());
+                var ie = new Dravio.Domain.Behavior.ResearchLogSnapshot.IndividualEntry
+                {
+                    Uid = e.Get("uid") is JsonString u ? u.Value : null,
+                    SpeciesId = e.Get("speciesId") is JsonString sp ? sp.Value : null,
+                    Observations = ir.IntOr(e, "observations", "x", -1),
+                    SeenInFavoriteHabitat = e.Get("seenInFavoriteHabitat") is JsonBool b1 && b1.Value,
+                    SeenFeeding = e.Get("seenFeeding") is JsonBool b2 && b2.Value,
+                    LastObservedAtMs = ir.LongOr(e, "lastObservedAtMs", "x", 0),
+                    ActivePhases = ir.StrList(e, "activePhases", "x") ?? new List<string>(),
+                    RestPhases = ir.StrList(e, "restPhases", "x") ?? new List<string>(),
+                    Revealed = ir.StrList(e, "revealed", "x") ?? new List<string>(),
+                };
+                if (ir.Errors.Count == 0) snap.Individuals.Add(ie);
+            }
+            return snap;
         }
 
         private static Genotype GenotypeFromJson(JsonValue v, Reader r)
@@ -376,6 +754,7 @@ namespace Dravio.Persistence.Schema
             else if (!(parents is JsonNull)) errors.Add(path + ".parentIds: invalid");
             if (d.Get("grandparentIds") is JsonArray gp) dragon.GrandparentIds = r.AnyList(d, "grandparentIds");
             dragon.Location = LocationFromJson(d.Get("location"), path, errors);
+            dragon.Vitals = VitalsFromJson(d.Get("vitals"), path, errors);
             return dragon;
         }
 

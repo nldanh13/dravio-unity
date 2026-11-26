@@ -1,0 +1,278 @@
+[
+  {
+    "species": "droplet",
+    "stage": "Baby",
+    "name": "DRG_droplet_Baby",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "quadruped",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Walk",
+      "Run",
+      "Swim"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": 28,
+    "height_m": 0.9006,
+    "textures": [
+      "DRG_droplet_Baby_MetallicSmoothness.png",
+      "DRG_droplet_Baby_Normal.png",
+      "DRG_droplet_Baby_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_droplet_Baby_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_droplet_Baby.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_quadruped.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_droplet_Baby.overrideController"
+  },
+  {
+    "species": "emberling",
+    "stage": "Baby",
+    "name": "DRG_emberling_Baby",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "quadruped",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Walk",
+      "Run"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": 26,
+    "height_m": 0.9,
+    "textures": [
+      "DRG_emberling_Baby_MetallicSmoothness.png",
+      "DRG_emberling_Baby_Normal.png",
+      "DRG_emberling_Baby_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_emberling_Baby_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_emberling_Baby.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_quadruped.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_emberling_Baby.overrideController"
+  },
+  {
+    "species": "frostfin",
+    "stage": "Juvenile",
+    "name": "DRG_frostfin_Juvenile",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "aquatic",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Swim"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": 17,
+    "height_m": 0.3994,
+    "textures": [
+      "DRG_frostfin_Juvenile_MetallicSmoothness.png",
+      "DRG_frostfin_Juvenile_Normal.png",
+      "DRG_frostfin_Juvenile_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_frostfin_Juvenile_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_frostfin_Juvenile.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_aquatic.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_frostfin_Juvenile.overrideController"
+  },
+  {
+    "species": "leviathan",
+    "stage": "Adult",
+    "name": "DRG_leviathan_Adult",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "serpentine",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Swim"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      23998,
+      10000,
+      4000
+    ],
+    "bones": 19,
+    "height_m": 0.337,
+    "textures": [
+      "DRG_leviathan_Adult_MetallicSmoothness.png",
+      "DRG_leviathan_Adult_Normal.png",
+      "DRG_leviathan_Adult_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_leviathan_Adult_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_leviathan_Adult.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_serpentine.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_leviathan_Adult.overrideController"
+  },
+  {
+    "species": "magma",
+    "stage": "Baby",
+    "name": "DRG_magma_Baby",
+    "evidence": "SAMPLE",
+    "rigged": false,
+    "archetype": null,
+    "clips": [],
+    "animQa": null,
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": null,
+    "height_m": null,
+    "textures": [
+      "DRG_magma_Baby_MetallicSmoothness.png",
+      "DRG_magma_Baby_Normal.png",
+      "DRG_magma_Baby_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_magma_Baby_LODs_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_magma_Baby.mat"
+  },
+  {
+    "species": "sprout",
+    "stage": "Baby",
+    "name": "DRG_sprout_Baby",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "quadruped",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Walk",
+      "Run",
+      "Burrow"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": 26,
+    "height_m": 1.0109,
+    "textures": [
+      "DRG_sprout_Baby_MetallicSmoothness.png",
+      "DRG_sprout_Baby_Normal.png",
+      "DRG_sprout_Baby_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_sprout_Baby_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_sprout_Baby.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_quadruped.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_sprout_Baby.overrideController"
+  },
+  {
+    "species": "steamdrake",
+    "stage": "Juvenile",
+    "name": "DRG_steamdrake_Juvenile",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "serpentine",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Walk",
+      "Run",
+      "Swim"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      23998,
+      10000,
+      4000
+    ],
+    "bones": 31,
+    "height_m": 0.4179,
+    "textures": [
+      "DRG_steamdrake_Juvenile_MetallicSmoothness.png",
+      "DRG_steamdrake_Juvenile_Normal.png",
+      "DRG_steamdrake_Juvenile_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_steamdrake_Juvenile_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_steamdrake_Juvenile.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_serpentine.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_steamdrake_Juvenile.overrideController"
+  },
+  {
+    "species": "zephyr",
+    "stage": "Unstaged",
+    "name": "DRG_zephyr_Unstaged",
+    "evidence": "SAMPLE",
+    "rigged": true,
+    "archetype": "winged",
+    "clips": [
+      "Idle",
+      "Eat",
+      "Sleep",
+      "Happy",
+      "Walk",
+      "Run",
+      "Fly",
+      "TakeOff",
+      "Glide",
+      "Land"
+    ],
+    "animQa": "PASS",
+    "animQaWarnings": 0,
+    "lodTriangles": [
+      24000,
+      10000,
+      4000
+    ],
+    "bones": 32,
+    "height_m": 0.9007,
+    "textures": [
+      "DRG_zephyr_Unstaged_MetallicSmoothness.png",
+      "DRG_zephyr_Unstaged_Normal.png",
+      "DRG_zephyr_Unstaged_BaseColor.png"
+    ],
+    "validation": "PASS",
+    "prefab": "Assets/Dravio/Character/Prefabs/DRG_zephyr_Unstaged_Rigged_LODGroup.prefab",
+    "material": "Assets/Dravio/Character/Materials/DRG_zephyr_Unstaged.mat",
+    "baseController": "Assets/Dravio/Character/Animation/DragonBase_winged.controller",
+    "overrideController": "Assets/Dravio/Character/Animation/Overrides/DRG_zephyr_Unstaged.overrideController"
+  }
+]

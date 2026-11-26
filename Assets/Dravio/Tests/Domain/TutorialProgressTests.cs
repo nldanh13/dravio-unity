@@ -288,10 +288,11 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
-        public void Rewards_match_GDD_appendix_F_and_only_two_rules_are_implemented()
+        public void Rewards_match_GDD_appendix_F_all_twelve_rules_are_implemented_two_with_TS_parity()
         {
             Assert.That(ProgressCatalog.AchievementIds.Select(ProgressCatalog.AchievementRewardG), Is.EqualTo(new long[] { 50, 100, 150, 100, 300, 1000, 2000, 300, 2500, 1000, 2000, 3000 }));
-            Assert.That(Achievements.Implemented, Is.EqualTo(new[] { "ACH_FIRST_HATCH", "ACH_FIRST_ADULT" }));
+            Assert.That(Achievements.Implemented, Is.EqualTo(ProgressCatalog.AchievementIds));
+            Assert.That(Achievements.TsImplemented, Is.EqualTo(new[] { "ACH_FIRST_HATCH", "ACH_FIRST_ADULT" }));
         }
 
         // ---- Schema v4 validation ----

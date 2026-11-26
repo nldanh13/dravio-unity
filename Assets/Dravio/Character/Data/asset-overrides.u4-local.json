@@ -1,0 +1,18 @@
+{
+  "_comment": "Local U1-CHAR.4 run (run_u4_local.ps1). limbCount \"auto\" = rig droplet/zephyr/steamdrake only when the mesh measurement is unambiguous (2 or 4 feet, high confidence); otherwise the batch report states the measurement and the rig is refused. These are not GDD values: replace \"auto\" with the art director's number once confirmed. Leave yawOffset null unless a model faces the wrong way (the report then shows a facing warning).",
+  "species": {
+    "droplet": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "zephyr": {
+      "limbCount": "auto",
+      "yawOffset": null
+    },
+    "steamdrake": {
+      "limbCount": "auto",
+      "yawOffset": null
+    }
+  },
+  "files": {}
+}

@@ -34,7 +34,10 @@ namespace Dravio.Domain.Tests
             Assert.That((d.Location.Kind, d.Location.ZoneId, d.Location.HabitatId), Is.EqualTo((LocationKind.Zone, "origin", "origin_meadow")));
             Assert.That(state.ProductionDragonIds, Is.EqualTo(new[] { d.Uid }));
             Assert.That(state.Zones.Select(z => z.Id + ":" + z.Unlocked + ":" + z.Capacity), Is.EqualTo(new[] { "origin:True:5", "ocean:False:5", "sky:False:5" }));
-            Assert.That(state.SchemaVersion, Is.EqualTo(4));
+            Assert.That(state.SchemaVersion, Is.EqualTo(10), "U2.11: schema v10 (thêm completedSideQuests, expeditionsClaimed, relations)");
+            Assert.That(state.Expedition, Is.Null);
+            Assert.That(state.Codex.Select(e => e.SpeciesId + ":" + string.Join(",", e.DiscoveredMutations) + ":" + e.TotalHatched), Is.EqualTo(new[] { "emberling:Normal:0" }), "Emberling khởi đầu là khám phá, không phải lần nở");
+            Assert.That(state.BreedingNest, Is.Null);
             Assert.That(state.ContentVersion, Is.EqualTo("g0-1.0"));
             Assert.That(state.Tutorial.Status, Is.EqualTo(TutorialStatus.Active));
             Assert.That(d.Uid, Does.Match("^d_[0-9a-f]{16}$"));

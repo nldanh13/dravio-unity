@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Dravio.Domain.Core
 {
     /// <summary>
@@ -194,5 +196,156 @@ namespace Dravio.Domain.Core
         public TutorialStatusChanged(TutorialStatus status) { Status = status; }
         public override string Type => "tutorialStatusChanged";
         public TutorialStatus Status { get; }
+    }
+
+    // ---- U2.5: tổ ấp (implementation mới, không có ở TS b33ec7a) ----
+
+    /// <summary>Bắt đầu lai: phí đã trừ, kết quả đã roll và lưu trong tổ (không công bố loài/biến thể trước khi nở).</summary>
+    public sealed class BreedStarted : DomainEvent
+    {
+        public BreedStarted(string eggId, string parentA, string parentB, long feeGoldMicro, long finishAtMs) { EggId = eggId; ParentA = parentA; ParentB = parentB; FeeGoldMicro = feeGoldMicro; FinishAtMs = finishAtMs; }
+        public override string Type => "breedStarted";
+        public string EggId { get; }
+        public string ParentA { get; }
+        public string ParentB { get; }
+        public long FeeGoldMicro { get; }
+        public long FinishAtMs { get; }
+    }
+
+    public sealed class EggTapped : DomainEvent
+    {
+        public EggTapped(string eggId, long reducedMs, long finishAtMs) { EggId = eggId; ReducedMs = reducedMs; FinishAtMs = finishAtMs; }
+        public override string Type => "eggTapped";
+        public string EggId { get; }
+        public long ReducedMs { get; }
+        public long FinishAtMs { get; }
+    }
+
+    /// <summary>Ấp xong: bố mẹ được giải phóng và vào cooldown 10 phút, kể cả khi trứng còn chờ nhận do kho đầy.</summary>
+    public sealed class EggReady : DomainEvent
+    {
+        public EggReady(string eggId, long atMs) { EggId = eggId; AtMs = atMs; }
+        public override string Type => "eggReady";
+        public string EggId { get; }
+        public long AtMs { get; }
+    }
+
+    // ---- U2.7: khu bảo tồn (implementation mới) ----
+
+    public sealed class DragonSold : DomainEvent
+    {
+        public DragonSold(string dragonUid, string speciesId, long priceGoldMicro) { DragonUid = dragonUid; SpeciesId = speciesId; PriceGoldMicro = priceGoldMicro; }
+        public override string Type => "dragonSold";
+        public string DragonUid { get; }
+        public string SpeciesId { get; }
+        /// <summary>Cộng vào goldMicro, KHÔNG vào totalGoldEarnedMicro (GDD Phụ lục F).</summary>
+        public long PriceGoldMicro { get; }
+    }
+
+    public sealed class DragonLockChanged : DomainEvent
+    {
+        public DragonLockChanged(string dragonUid, bool locked) { DragonUid = dragonUid; Locked = locked; }
+        public override string Type => "dragonLockChanged";
+        public string DragonUid { get; }
+        public bool Locked { get; }
+    }
+
+    public sealed class UpgradeBought : DomainEvent
+    {
+        public UpgradeBought(string upgradeId, int level, long costGoldMicro) { UpgradeId = upgradeId; Level = level; CostGoldMicro = costGoldMicro; }
+        public override string Type => "upgradeBought";
+        public string UpgradeId { get; }
+        /// <summary>Cấp mới sau khi mua.</summary>
+        public int Level { get; }
+        public long CostGoldMicro { get; }
+    }
+
+    public sealed class DecorationBought : DomainEvent
+    {
+        public DecorationBought(string zoneId, string decorationId, long priceGoldMicro) { ZoneId = zoneId; DecorationId = decorationId; PriceGoldMicro = priceGoldMicro; }
+        public override string Type => "decorationBought";
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public long PriceGoldMicro { get; }
+    }
+
+    public sealed class DecorationToggled : DomainEvent
+    {
+        public DecorationToggled(string zoneId, string decorationId, bool active) { ZoneId = zoneId; DecorationId = decorationId; Active = active; }
+        public override string Type => "decorationToggled";
+        public string ZoneId { get; }
+        public string DecorationId { get; }
+        public bool Active { get; }
+    }
+
+    /// <summary>Ô Bách khoa mới (loài × biến thể) được ghi nhận.</summary>
+    public sealed class CodexDiscovered : DomainEvent
+    {
+        public CodexDiscovered(string speciesId, MutationType mutation) { SpeciesId = speciesId; Mutation = mutation; }
+        public override string Type => "codexDiscovered";
+        public string SpeciesId { get; }
+        public MutationType Mutation { get; }
+    }
+
+    // ---- U2.8: thế giới và thám hiểm (implementation mới) ----
+
+    public sealed class ZoneUnlocked : DomainEvent
+    {
+        public ZoneUnlocked(string zoneId) { ZoneId = zoneId; }
+        public override string Type => "zoneUnlocked";
+        public string ZoneId { get; }
+    }
+
+    public sealed class ExpeditionStarted : DomainEvent
+    {
+        public ExpeditionStarted(string expeditionId, string routeId, string dragonUid, long finishAtMs) { ExpeditionId = expeditionId; RouteId = routeId; DragonUid = dragonUid; FinishAtMs = finishAtMs; }
+        public override string Type => "expeditionStarted";
+        public string ExpeditionId { get; }
+        public string RouteId { get; }
+        public string DragonUid { get; }
+        public long FinishAtMs { get; }
+    }
+
+    /// <summary>Chuyến đi xong (kể cả offline): rồng về idle đúng tại finishAtMs; thưởng chờ nhận.</summary>
+    public sealed class ExpeditionReady : DomainEvent
+    {
+        public ExpeditionReady(string expeditionId, long atMs) { ExpeditionId = expeditionId; AtMs = atMs; }
+        public override string Type => "expeditionReady";
+        public string ExpeditionId { get; }
+        public long AtMs { get; }
+    }
+
+    public sealed class ExpeditionClaimed : DomainEvent
+    {
+        public ExpeditionClaimed(string expeditionId, IReadOnlyList<KeyValuePair<string, int>> rewards) { ExpeditionId = expeditionId; Rewards = rewards; }
+        public override string Type => "expeditionClaimed";
+        public string ExpeditionId { get; }
+        /// <summary>Vật liệu → số lượng đã cộng vào inventory.</summary>
+        public IReadOnlyList<KeyValuePair<string, int>> Rewards { get; }
+    }
+
+    public sealed class QuestCompleted : DomainEvent
+    {
+        public QuestCompleted(string questId) { QuestId = questId; }
+        public override string Type => "questCompleted";
+        public string QuestId { get; }
+    }
+
+    /// <summary>Trứng thưởng cố định đã cấp. Delivered = true nếu đã vào pendingPack ngay; false nếu đang chờ (kho đầy hoặc có trứng chờ nhận).</summary>
+    public sealed class RewardEggGranted : DomainEvent
+    {
+        public RewardEggGranted(string rewardId, string speciesId, bool delivered) { RewardId = rewardId; SpeciesId = speciesId; Delivered = delivered; }
+        public override string Type => "rewardEggGranted";
+        public string RewardId { get; }
+        public string SpeciesId { get; }
+        public bool Delivered { get; }
+    }
+
+    public sealed class RewardEggDelivered : DomainEvent
+    {
+        public RewardEggDelivered(string rewardId, string packId) { RewardId = rewardId; PackId = packId; }
+        public override string Type => "rewardEggDelivered";
+        public string RewardId { get; }
+        public string PackId { get; }
     }
 }
