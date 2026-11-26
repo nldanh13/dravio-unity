@@ -104,6 +104,14 @@ namespace Dravio.Tests
             Assert.That(s.Revision,Is.EqualTo(rev));
             Assert.That(s.Research.IsEmpty,Is.True);
         }
+        [Test] public void CareFeedbackShowsActualEaterAndObservationCooldown()
+        {
+            Assert.That(ResearchDiscoveryView.FoodFeedback("emberling","123456789",8,false),
+                Does.Contain("emberling #123456").And.Contain("+8 XP"));
+            var opportunity=new ObservationOpportunity {Availability="observation-cooldown",CooldownRemainingMs=1001};
+            Assert.That(ResearchDiscoveryView.ObservationFeedback(opportunity,false),Does.Contain("2 s"));
+            Assert.That(ResearchDiscoveryView.ObservationFeedback(null,true),Does.Contain("chưa thể quan sát"));
+        }
         [Test] public void CanonicalJourneyShowsTutorialAndNextWorld()
         {
             var s=New();var j=ProgressionQueries.Journey(s);

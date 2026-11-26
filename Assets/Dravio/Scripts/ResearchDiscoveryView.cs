@@ -18,6 +18,18 @@ namespace Dravio
                 .Where(o=>o.ZoneId==zone && ConnectedWorldPolicy.InView(state,state.FindDragon(o.Uid),zone)&&live(o.Uid)).ToList();
         }
         public static bool CanRecord(ObservationOpportunity o)=>o!=null&&o.Availability=="ok";
+        public static string ObservationFeedback(ObservationOpportunity opportunity,bool vi)
+        {
+            if(opportunity==null)return vi?"Rồng chưa thể quan sát tại đây.":"Dragon is not observable here.";
+            if(opportunity.Availability=="observation-cooldown")
+                return (vi?"Quan sát lại sau ":"Observe again in ")+Math.Max(0,Math.Ceiling(opportunity.CooldownRemainingMs/1000d))+" s.";
+            return Hint(opportunity.HintKey,vi);
+        }
+        public static string FoodFeedback(string speciesId,string uid,int xpGainedSec,bool vi)
+        {
+            string name=string.IsNullOrEmpty(speciesId)?uid:speciesId+" #"+(uid??"").Substring(0,Math.Min(6,(uid??"").Length));
+            return (vi?"Rồng đã ăn: ":"Food consumed by: ")+name+" · +"+xpGainedSec+" XP";
+        }
         public static string KeepOrFirst(IEnumerable<string> ids,string current)
         {
             var list=ids.ToArray();return list.Contains(current,StringComparer.Ordinal)?current:list.FirstOrDefault();

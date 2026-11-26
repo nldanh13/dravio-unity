@@ -1015,7 +1015,11 @@ namespace Dravio
             var point=r.position+r.rotation*Vector3.forward*.4f;
             foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
             foodRequestedUid=d.Uid;feedPending=true;
-            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId));}
+            try
+            {
+                if(Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId))&&foodId!=null)
+                    Message("Food placed: "+diet+" · waiting for consumption.","Đã thả thức ăn: "+diet+" · đang chờ rồng ăn.");
+            }
             finally{feedPending=false;foodRequestedUid=null;}
         }
         void Consume()
@@ -1045,8 +1049,8 @@ namespace Dravio
                 Debug.Log("TL.11 food request "+lastFoodGateOutcome);
             }
 #endif
-            if(accepted)Message("Food consumed: "+who,"Rồng đã ăn: "+who);
-            else consumeAfter=Time.unscaledTime+1f; // original retry only; experimental gate permits one request per marker.
+            // Successful consumption feedback comes only from the canonical event.
+            if(!accepted)consumeAfter=Time.unscaledTime+1f; // original retry only; experimental gate permits one request per marker.
         }
         void ClearFood()
         {
@@ -1072,7 +1076,15 @@ namespace Dravio
                     if(fruit!=null){fruit.transform.position=foodPoint+Vector3.up*.12f;fruit.SetActive(true);}
                 }
                 else if(e is FoodConsumed consumed)
-                {if(consumed.FoodId==foodId)ClearFood();} // Eat intent is derived from the accepted Domain event's timestamp.
+                {
+                    if(consumed.FoodId==foodId)
+                    {
+                        var eater=State?.FindDragon(consumed.DragonUid);
+                        ClearFood();
+                        Message(ResearchDiscoveryView.FoodFeedback(eater?.SpeciesId,consumed.DragonUid,consumed.XpGainedSec,false),
+                            ResearchDiscoveryView.FoodFeedback(eater?.SpeciesId,consumed.DragonUid,consumed.XpGainedSec,true));
+                    }
+                } // Eat intent is derived from the accepted Domain event's timestamp.
                 else if(e is DragonPetted p && residents.TryGetValue(p.DragonUid,out var r)&&!r.Spatial)
                 {
                     if(Social!=null&&Social.Contains(p.DragonUid))StopSocial("pet-event");
@@ -1084,7 +1096,8 @@ namespace Dravio
                     if(foodUid==trip.DragonUid)ClearFood(); // visual marker only; canonical food expires normally
                     if(selected==trip.DragonUid)StopFollow();
                 }
-                else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
+                else if(e is FoodExpired expired && expired.FoodId==foodId)
+                {ClearFood();Message("Food expired before consumption.","Thức ăn đã hết hạn trước khi rồng ăn.");}
             }
         }
         void ToggleSleep()
@@ -1106,11 +1119,24 @@ namespace Dravio
         }
         public bool TryRecordVisibleResearch(string uid)
         {
-            if(!Ready||string.IsNullOrEmpty(uid)||!ResearchDiscoveryView.CanRecord(
-                VisibleResearchOpportunities().FirstOrDefault(o=>o.Uid==uid)))return false;
-            bool accepted=Send(id=>new ObserveDragonCommand(id,uid,CurrentPhase()));
-            if(accepted)Message("Observation recorded.","Đã ghi quan sát nghiên cứu.");
-            return accepted;
+            if(!Ready||string.IsNullOrEmpty(uid))return false;
+            var opportunity=VisibleResearchOpportunities().FirstOrDefault(o=>o.Uid==uid);
+            if(!ResearchDiscoveryView.CanRecord(opportunity))
+            {
+                Message(ResearchDiscoveryView.ObservationFeedback(opportunity,false),
+                    ResearchDiscoveryView.ObservationFeedback(opportunity,true));
+                return false;
+            }
+            bool recorded=false;
+            void Capture(IReadOnlyList<DomainEvent> events){recorded|=events.Any(e=>e is DragonObserved);}
+            var current=session;
+            current.DomainEvents+=Capture;
+            bool accepted;
+            try{accepted=Send(id=>new ObserveDragonCommand(id,uid,CurrentPhase()));}
+            finally{current.DomainEvents-=Capture;}
+            if(accepted&&recorded)Message("Observation recorded.","Đã ghi quan sát nghiên cứu.");
+            else if(accepted)Message("Observation not recorded; refresh and try again.","Chưa ghi quan sát; kiểm tra và thử lại.");
+            return accepted&&recorded;
         }
         void ResearchObserve(){if(Selected!=null)TryRecordVisibleResearch(Selected.Uid);}
         void Observe()
