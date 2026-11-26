@@ -1,0 +1,92 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "model": "<work>/assets/PRP_02_tree_blossom_sky/PRP_02_tree_blossom_sky_Prop.fbx",
+  "errors": 0,
+  "warnings": 10,
+  "items": [
+    {
+      "level": "pass",
+      "code": "COLLIDER_MESH",
+      "message": "PRP_02_tree_blossom_sky_Collider: 1000 tris (collision only)",
+      "mesh": "PRP_02_tree_blossom_sky_Collider"
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD0 10000 tris within 4000-12000",
+      "lod": 0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD1 4000 tris within 1500-5000",
+      "lod": 1
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD2 1200 tris within 400-1500",
+      "lod": 2
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "PRP_02_tree_blossom_sky_LOD0: 4928 UV faces (49.28%) flipped_faces > 1.0%",
+      "mesh": "PRP_02_tree_blossom_sky_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "PRP_02_tree_blossom_sky_LOD0: 1199 loose vertices",
+      "mesh": "PRP_02_tree_blossom_sky_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "PRP_02_tree_blossom_sky_LOD0: 11186 non-manifold/boundary edges after weld",
+      "mesh": "PRP_02_tree_blossom_sky_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "PRP_02_tree_blossom_sky_LOD1: 1908 UV faces (47.70%) flipped_faces > 1.0%",
+      "mesh": "PRP_02_tree_blossom_sky_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "PRP_02_tree_blossom_sky_LOD1: 6154 loose vertices",
+      "mesh": "PRP_02_tree_blossom_sky_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "PRP_02_tree_blossom_sky_LOD1: 4722 non-manifold/boundary edges after weld",
+      "mesh": "PRP_02_tree_blossom_sky_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "PRP_02_tree_blossom_sky_LOD2: 549 UV faces (45.75%) flipped_faces > 1.0%",
+      "mesh": "PRP_02_tree_blossom_sky_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "PRP_02_tree_blossom_sky_LOD2: 6874 loose vertices",
+      "mesh": "PRP_02_tree_blossom_sky_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "PRP_02_tree_blossom_sky_LOD2: 1720 non-manifold/boundary edges after weld",
+      "mesh": "PRP_02_tree_blossom_sky_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "TEXTURE_SIZE",
+      "message": "Image_0: 2048x2048 > recommended 1024"
+    }
+  ],
+  "note": "Structural/numeric gate only; visual, Unity import and device checks are separate."
+}

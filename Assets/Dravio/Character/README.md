@@ -81,3 +81,4 @@ Xem `SPECIES_MORPHOLOGY.md` (tự sinh bởi `build_species_spec.py`, có `--che
 - Mẫu phong cách và catalog prefab 20 công trình Sanctuary: [`../Environment/SANCTUARY_PREFABS.md`](../Environment/SANCTUARY_PREFABS.md).
 - Báo cáo kiểm thử, hiệu năng, phần nào chạy thật: `scripts/art/character/TEST_REPORT_CHAR8.md`.
 - Dữ liệu: nhóm prop `egg` trong `Data/character-budgets.json`; `Data/asset-overrides.char8-local.json` (u7-local + Aurorawing `limbCount: "auto"`, chiều cao trứng đề xuất).
+- **Production (16 GLB thật, ArtSource):** tích hợp Unity [`PRODUCTION_ASSETS.md`](PRODUCTION_ASSETS.md); QA `scripts/art/character/TEST_REPORT_CHAR8_PRODUCTION.md`. Rig được cả 16, animation chưa đạt QA ở các clip gập chân (chưa nghiệm thu).
