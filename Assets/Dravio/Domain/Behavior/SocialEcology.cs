@@ -208,6 +208,28 @@ namespace Dravio.Domain.Behavior
 
         private static bool IsParentOf(DragonState p, DragonState c) => c.ParentIds != null && Array.IndexOf(c.ParentIds, p.Uid) >= 0;
 
+        /// <summary>
+        /// U2.12 (hiệu năng, cùng kết quả): chỉ độ quen của <see cref="Relation(GameState, DragonState, DragonState)"/>, không tính hồ sơ xã hội
+        /// (băm tính cách). Bậc quan hệ chỉ phụ thuộc độ quen, nên nhiệm vụ <c>relationPairs</c> dùng hàm này cho O(n²) cặp.
+        /// </summary>
+        public static int Familiarity(GameState s, DragonState a, DragonState b)
+        {
+            int kin = 0;
+            if (IsParentOf(a, b) || IsParentOf(b, a)) kin = 60;
+            else if (a.ParentIds != null && b.ParentIds != null)
+            {
+                int shared = 0;
+                foreach (string p in a.ParentIds) if (Array.IndexOf(b.ParentIds, p) >= 0) shared++;
+                kin = shared >= 2 ? 50 : shared == 1 ? 30 : 0;
+            }
+            if (kin == 0 && ((a.GrandparentIds != null && a.GrandparentIds.Contains(b.Uid)) || (b.GrandparentIds != null && b.GrandparentIds.Contains(a.Uid)))) kin = 30;
+            int fam = kin;
+            if (SameHabitat(a, b)) fam += 20;
+            if (a.SpeciesId == b.SpeciesId) fam += 10;
+            fam += RelationRules.TimePoints(s?.Relations?.SharedMs(a.Uid, b.Uid) ?? 0);
+            return Clamp(fam);
+        }
+
         /// <summary>Độ quen dẫn xuất (S4): cha mẹ–con 60, anh chị em ruột 50, cùng cha hoặc mẹ 30, ông bà 30; cùng chỗ +20, cùng loài +10.</summary>
         public static SocialRelation Relation(DragonState a, DragonState b) => Relation(null, a, b);
 

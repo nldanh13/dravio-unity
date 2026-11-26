@@ -27,6 +27,31 @@ namespace Dravio.Domain.Tests
     {
         private static readonly Schedule ThreeSessions = EconomySimulationTests.Schedules[1];
 
+        // ================================================================== hiệu năng (cùng kết quả)
+
+        [Test]
+        public void Fast_familiarity_matches_full_relation_on_a_long_simulated_save()
+        {
+            // SocialEcology.Familiarity (dùng cho yêu cầu nhiệm vụ relationPairs, O(n²)) phải trùng Relation(...).Familiarity trên mọi cặp.
+            var sim = new EconomySimulator(Policy.Guided, ThreeSessions, 2, EconomyVariant.Live);
+            sim.Run(new double[] { 24 * 20 });
+            GameState s = sim.State;
+            var kept = s.Dragons.Where(d => d.Location.Kind != LocationKind.Released).ToList();
+            Assert.That(kept.Count, Is.GreaterThan(10));
+            int pairs = 0, kin = 0, timed = 0;
+            for (int i = 0; i < kept.Count; i++)
+                for (int j = i + 1; j < kept.Count; j++)
+                {
+                    SocialRelation full = SocialEcology.Relation(s, kept[i], kept[j]);
+                    Assert.That(SocialEcology.Familiarity(s, kept[i], kept[j]), Is.EqualTo(full.Familiarity), kept[i].Uid + "/" + kept[j].Uid);
+                    pairs++;
+                    if (full.Sources.Contains(FamiliaritySource.ParentChild) || full.Sources.Contains(FamiliaritySource.Siblings)) kin++;
+                    if (full.SharedMs > 0) timed++;
+                }
+            Assert.That(pairs, Is.GreaterThan(50));
+            Assert.That(timed, Is.GreaterThan(0), "có cặp có thời gian sống chung");
+        }
+
         // ================================================================== kiểm toán tĩnh
 
         [Test]

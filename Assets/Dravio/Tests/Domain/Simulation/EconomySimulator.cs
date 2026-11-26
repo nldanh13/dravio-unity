@@ -329,7 +329,7 @@ namespace Dravio.Domain.Tests.Simulation
             int n = 0;
             for (int i = 0; i < kept.Count; i++)
                 for (int j = i + 1; j < kept.Count; j++)
-                    if (SocialEcology.Relation(_s, kept[i], kept[j]).Tier >= tier) n++;
+                    if (RelationRules.TierOf(SocialEcology.Familiarity(_s, kept[i], kept[j])) >= tier) n++;
             return n;
         }
 
