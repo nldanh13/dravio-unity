@@ -29,6 +29,8 @@ Rules (each result cites the canonical field it comes from):
                 Perch <- "fly" and silhouette "chân đậu" (perching feet stated); flyers without it get none
                 DigPrep, BurrowEnter, BurrowEmerge <- "burrow" (all above ground: the Sanctuary hides the
                   model while underground; nothing is moved through the ground)
+              social clip (U1-CHAR.8), appended last:
+                Nuzzle <- every species (head and neck reach forward and rub: affiliative contact in pair acts)
   limbCount   from the silhouette text only ("bốn chân"); otherwise null and the rig step requires an
               explicit artist/GDD value in asset-overrides.json - never guessed.
   features    silhouette keywords copied verbatim as attachment/VFX hints (no geometry is invented).
@@ -48,6 +50,7 @@ LOCO_CLIPS = {'walk': ['Walk', 'Run'], 'swim': ['Swim'], 'fly': ['Fly'], 'burrow
 BEHAVIOUR_CLIPS = ['Rest', 'Wake', 'LookAround', 'Curious']
 GROUND_BEHAVIOUR_CLIPS = {'walk': ['Drink', 'Stretch', 'Bask']}
 MOTION_CLIPS = ['Greet']
+SOCIAL_CLIPS = ['Nuzzle']
 # Silhouette keyword -> feature tag. Only words that literally appear in a silhouette are used.
 FEATURE_WORDS = [
     ('đuôi lửa', 'flame_tail'), ('sừng', 'horns'), ('mào', 'crest'), ('mai', 'shell'),
@@ -113,6 +116,7 @@ def classify(s):
         clips.append('Perch')
     if 'burrow' in loc:
         clips += ['DigPrep', 'BurrowEnter', 'BurrowEmerge']
+    clips += SOCIAL_CLIPS
     feats = [{'tag': tag, 'word': w} for w, tag in FEATURE_WORDS if has_word(sil, w)]
     needs = []
     walks = 'walk' in loc
@@ -138,7 +142,7 @@ def build():
         'clipNames': ['Idle', 'Walk', 'Run', 'Eat', 'Sleep', 'Happy', 'Swim', 'Fly', 'Burrow',
                       'Rest', 'Wake', 'LookAround', 'Curious', 'Drink', 'Stretch', 'Bask',
                       'Greet', 'SwimIdle', 'SwimRest', 'SwimSurface', 'WaterEnter', 'WaterExit', 'Perch',
-                      'DigPrep', 'BurrowEnter', 'BurrowEmerge'],
+                      'DigPrep', 'BurrowEnter', 'BurrowEmerge', 'Nuzzle'],
         'templates': TEMPLATES,
         'species': species,
     }

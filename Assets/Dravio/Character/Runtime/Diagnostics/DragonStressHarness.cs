@@ -27,6 +27,8 @@ namespace Dravio.Character.Diagnostics
         public bool quitWhenDone;
         [Tooltip("U1-CHAR.6: drive the dragons through SanctuaryDragonSync with behaviour intents, personalities and a look target (the camera) instead of raw locomotion")]
         public bool behaviourIntents;
+        [Tooltip("U1-CHAR.8 (with behaviourIntents): pair the dragons two by two and cycle pair acts every 10 s; the second of each pair walks to the act's spacing")]
+        public bool socialPairs;
 
         [Serializable] public sealed class Result
         {
@@ -36,6 +38,7 @@ namespace Dravio.Character.Diagnostics
             public long totalUsedMemoryMB, gcUsedMemoryMB, systemUsedMemoryMB;
             public int poolCreated, poolReused, poolDestroyed;
             public bool behaviourIntents; public int oneShotsStarted, substitutions;
+            public bool socialPairs; public int pairsActing;
         }
         [Serializable] public sealed class Report
         {
@@ -56,6 +59,8 @@ namespace Dravio.Character.Diagnostics
         private readonly List<SanctuaryDragonFrame> _frames = new List<SanctuaryDragonFrame>();
         private readonly Dictionary<string, SanctuaryDragonFrame> _sim = new Dictionary<string, SanctuaryDragonFrame>();
         private int _oneShots, _subs;
+        private float _socialClock;
+        private static readonly DragonSocialAct[] Acts = { DragonSocialAct.Greet, DragonSocialAct.Play, DragonSocialAct.RestTogether, DragonSocialAct.Nuzzle, DragonSocialAct.Nurture };
         private static readonly DragonBehaviorIntent[] Arrived = { DragonBehaviorIntent.Idle, DragonBehaviorIntent.Rest, DragonBehaviorIntent.Bask,
             DragonBehaviorIntent.Curious, DragonBehaviorIntent.LookAround, DragonBehaviorIntent.Drink, DragonBehaviorIntent.Eat, DragonBehaviorIntent.Sleep,
             DragonBehaviorIntent.Greet };
@@ -140,7 +145,8 @@ namespace Dravio.Character.Diagnostics
                     totalUsedMemoryMB = totalMem.LastValue / (1024 * 1024), gcUsedMemoryMB = gcMem.LastValue / (1024 * 1024),
                     systemUsedMemoryMB = sysMem.LastValue / (1024 * 1024),
                     poolCreated = manager.PoolCreated, poolReused = manager.PoolReused, poolDestroyed = manager.PoolDestroyed,
-                    behaviourIntents = behaviourIntents, oneShotsStarted = _oneShots, substitutions = _subs
+                    behaviourIntents = behaviourIntents, oneShotsStarted = _oneShots, substitutions = _subs,
+                    socialPairs = socialPairs, pairsActing = CountActing(),
                 });
             }
         }
@@ -201,9 +207,12 @@ namespace Dravio.Character.Diagnostics
         {
             var cam = Camera.main;
             _frames.Clear();
-            foreach (var uid in _uids)
+            _socialClock += dt;
+            for (int index = 0; index < _uids.Count; index++)
             {
+                string uid = _uids[index];
                 var f = _sim[uid];
+                if (socialPairs && (index ^ 1) < _uids.Count) { Pair(ref f, index, dt); _sim[uid] = f; _frames.Add(f); continue; }
                 var to = _targets[uid] - f.position; to.y = 0f;
                 var status = _sync.MotionStatusOf(uid);
                 if (status.rootOffsetToApply != 0f) f.position += Vector3.up * status.rootOffsetToApply;
@@ -238,6 +247,35 @@ namespace Dravio.Character.Diagnostics
             }
             var r = _sync.Sync(_frames, dt);
             _oneShots += r.triggered; _subs += r.substituted;
+        }
+
+        /// <summary>U1-CHAR.8 synthetic pair: both name each other with the current act; the second walks to the act's spacing.</summary>
+        private void Pair(ref SanctuaryDragonFrame f, int index, float dt)
+        {
+            string partner = _uids[index ^ 1];
+            var other = _sim[partner];
+            f.partnerUid = partner;
+            f.social = Acts[(int)(_socialClock / 10f) % Acts.Length];
+            var st = _sync.SocialStatusOf(f.uid);
+            var to = other.position - f.position; to.y = 0f;
+            f.speed = 0f; f.turnRateDegPerSec = 0f; f.hasLookTarget = false;
+            f.intent = DragonBehaviorIntent.Idle;
+            if (index % 2 == 1 && st.phase == DragonSocialPhase.OutOfRange && st.desiredSpacing > 0f && _sync.MotionStatusOf(f.uid).canTranslate)
+            {
+                float gap = to.magnitude - st.desiredSpacing;
+                f.intent = DragonBehaviorIntent.Walk;
+                f.speed = 1.2f;
+                if (to.sqrMagnitude > 1e-4f) f.rotation = Quaternion.LookRotation(to.normalized);
+                f.position += to.normalized * Mathf.Sign(gap) * Mathf.Min(Mathf.Abs(gap), f.speed * dt);
+            }
+            else if (st.faceEachOther && to.sqrMagnitude > 1e-4f) f.rotation = Quaternion.RotateTowards(f.rotation, Quaternion.LookRotation(to.normalized), 120f * dt);
+        }
+
+        private int CountActing()
+        {
+            int n = 0;
+            if (_sync != null) foreach (var uid in _uids) if (_sync.SocialStatusOf(uid).phase == DragonSocialPhase.Acting) n++;
+            return n / 2;
         }
 
         private void Drive()

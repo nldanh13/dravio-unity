@@ -80,6 +80,19 @@ class MotionMetadata(unittest.TestCase):
         self.assertTrue(all(not isinstance(v, (dict, list)) for v in m.values()), 'JsonUtility reads no dictionaries')
         self.assertIsNone(bi.motion_block(None, qa), 'static model: no motion block')
 
+    def test_events_and_waterline_are_flat_fields(self):
+        rig = {'motion': {'body': {}, 'events': {'TakeOff.liftOff': 0.32, 'Land.touchDown': 0.6, 'WaterEnter.contact': 0.5},
+                          'water': {'surfaceWaterline_m': 0.58, 'headAboveWater_m': 0.15}}}
+        m = bi.motion_block(rig, {})
+        self.assertEqual((m['takeOffLiftOff'], m['landTouchDown'], m['waterEnterContact'], m['waterExitLeave']), (0.32, 0.6, 0.5, 0.0))
+        self.assertEqual((m['surfaceWaterline'], m['headAboveWater']), (0.58, 0.15))
+
+
+class SocialClips(unittest.TestCase):
+    def test_nuzzle_for_every_species_and_last(self):
+        for s in ba.build()['species']:
+            self.assertEqual(s['clips'][-1], 'Nuzzle', s['id'] + ': appended last so older frame ranges stay put')
+
 
 if __name__ == '__main__':
     unittest.main()

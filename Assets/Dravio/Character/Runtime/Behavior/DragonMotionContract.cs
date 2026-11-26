@@ -73,6 +73,29 @@ namespace Dravio.Character
         /// catalog's motion metadata; 0 when unknown).</summary>
         public float rootOffsetToApply;
         public DragonMotionCapabilities capabilities;
+        /// <summary>U1-CHAR.8: event reached inside a transition clip this frame (VFX/audio cue), or None.</summary>
+        public DragonMotionEvent motionEvent;
+    }
+
+    /// <summary>U1-CHAR.8 cue points of the transition clips (authored times exported by the pipeline).</summary>
+    public enum DragonMotionEvent { None = 0, LiftOff, TouchDown, WaterContact, WaterLeave }
+
+    public static class DragonMotionEvents
+    {
+        public static DragonMotionEvent For(DragonInteraction clip)
+        {
+            switch (clip)
+            {
+                case DragonInteraction.TakeOff: return DragonMotionEvent.LiftOff;
+                case DragonInteraction.Land: return DragonMotionEvent.TouchDown;
+                case DragonInteraction.WaterEnter: return DragonMotionEvent.WaterContact;
+                case DragonInteraction.WaterExit: return DragonMotionEvent.WaterLeave;
+                default: return DragonMotionEvent.None;
+            }
+        }
+
+        /// <summary>True when progress moved over <paramref name="eventTime"/> this tick (from exclusive, to inclusive).</summary>
+        public static bool Crossed(float eventTime, float from, float to) { return eventTime > 0f && from < eventTime && to >= eventTime; }
     }
 
     /// <summary>
@@ -138,6 +161,38 @@ namespace Dravio.Character
             }
         }
 
+        /// <summary>U1-CHAR.8 tail wag of bone <paramref name="index"/> of <paramref name="count"/> (root first): a wave
+        /// travelling to the tip (0.6 rad lag per bone) whose amplitude grows to <paramref name="amplitudeDeg"/> at the tip.</summary>
+        public static float TailWagDeg(float amplitudeDeg, float phase01, int index, int count)
+        {
+            if (count <= 0) return 0f;
+            float share = (index + 1f) / count;
+            // per-bone share of the tip angle: the rotations add up along the chain
+            float perBone = amplitudeDeg * share / (0.5f * (count + 1));
+            return perBone * (float)Math.Sin(2.0 * Math.PI * phase01 - 0.6 * index);
+        }
+
         private static float Clamp(float v, float lim) { return v < -lim ? -lim : (v > lim ? lim : v); }
+    }
+
+    /// <summary>
+    /// U1-CHAR.8 terrain alignment: tilts the body with the ground under the feet. Fore/hind and left/right are the
+    /// mean ground offsets (m, + = higher) under those feet relative to the root plane; the body follows a share of the
+    /// slope (the legs take the rest, as foot IK does), clamped. Head level is kept by the head look/stabilisation.
+    /// </summary>
+    public static class TerrainAlignSolver
+    {
+        public const float DefaultShare = 0.6f, MaxPitchDeg = 20f, MaxRollDeg = 12f;
+
+        /// <param name="span">Fore-to-hind foot distance (m); <paramref name="track"/>: left-to-right (m).</param>
+        public static void Compute(float fore, float hind, float left, float right, float span, float track, float share,
+                                   out float pitchDeg, out float rollDeg)
+        {
+            share = share < 0f ? 0f : (share > 1f ? 1f : share);
+            pitchDeg = span > 1e-3f ? share * (float)(Math.Atan2(fore - hind, span) * 180.0 / Math.PI) : 0f;
+            rollDeg = track > 1e-3f ? share * (float)(Math.Atan2(left - right, track) * 180.0 / Math.PI) : 0f;
+            pitchDeg = pitchDeg < -MaxPitchDeg ? -MaxPitchDeg : (pitchDeg > MaxPitchDeg ? MaxPitchDeg : pitchDeg);
+            rollDeg = rollDeg < -MaxRollDeg ? -MaxRollDeg : (rollDeg > MaxRollDeg ? MaxRollDeg : rollDeg);
+        }
     }
 }

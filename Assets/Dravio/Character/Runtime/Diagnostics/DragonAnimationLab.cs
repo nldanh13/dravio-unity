@@ -55,6 +55,7 @@ namespace Dravio.Character.Diagnostics
         private string _behaviourLog = "";
         private float _labTurn, _labClimb;
         private DragonMotionShaper _shaper;
+        private DragonExpression _labExpression = DragonExpression.Neutral;
         private Renderer[] _renderers = new Renderer[0];
         private DragonBehaviorOutput _lastOut;
 
@@ -195,6 +196,10 @@ namespace Dravio.Character.Diagnostics
                     _shaper.enabled = true;
                     _shaper.SetInput(o.mode, _labTurn, _labClimb, 1f, e.motion != null ? e.motion.MaxTurn(o.mode) : 0f);
                     _shaper.TailCarriage = _planner.Presentation.tailCarriage;
+                    // U1-CHAR.8 expression preview: the chosen expression, or the one the running clip implies
+                    var ex = _labExpression != DragonExpression.Neutral ? _labExpression
+                        : DragonExpressionSolver.FromContext(_planner.ActiveAction, _planner.Shown, _style);
+                    _shaper.SetExpressionState(DragonExpressionSolver.For(ex, _planner.Presentation.tailCarriage));
                 }
             }
             if (o.trigger != DragonInteraction.None) _behaviourLog = "start " + o.trigger + (o.note != null ? " | " + o.note : "");
@@ -406,6 +411,17 @@ namespace Dravio.Character.Diagnostics
                         var c2 = _planner.Capabilities;
                         GUILayout.Label("Can: ground " + c2.ground + ", water " + c2.water + ", air " + c2.air + ", perch " + c2.perch + ", underground " + c2.underground);
                     }
+                    GUILayout.Label("Expression (U1-CHAR.8; Neutral = from the clip): " + (_shaper != null ? _shaper.Expression.ToString() : "no shaper"));
+                    var exprs = (DragonExpression[])System.Enum.GetValues(typeof(DragonExpression));
+                    for (int i = 0; i < exprs.Length; i += 3)
+                    {
+                        GUILayout.BeginHorizontal();
+                        for (int k = i; k < Mathf.Min(i + 3, exprs.Length); k++)
+                            if (GUILayout.Toggle(_labExpression == exprs[k], exprs[k].ToString(), "Button")) _labExpression = exprs[k];
+                        GUILayout.EndHorizontal();
+                    }
+                    if (_grounding != null && _grounding.enabled)
+                        GUILayout.Label("Terrain tilt: pitch " + _grounding.BodyPitch.ToString("0.0") + " deg, roll " + _grounding.BodyRoll.ToString("0.0") + " deg");
                     GUILayout.Label("Turn rate " + _labTurn.ToString("0") + " deg/s" + (_shaper == null ? " (no DragonMotionShaper on prefab)" : ""));
                     _labTurn = GUILayout.HorizontalSlider(_labTurn, -180f, 180f);
                     GUILayout.Label("Vertical speed " + _labClimb.ToString("0.0") + " m/s");

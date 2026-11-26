@@ -153,6 +153,7 @@ def catalog(recs):
              'archetype': (rec['rig'] or {}).get('archetype'), 'clips': list(((rec['rig'] or {}).get('clips') or {}).keys()),
              'animQa': q.get('status'), 'animQaWarnings': len(q.get('warnings') or []),
              'lodTriangles': [x['triangles'] for x in (rec['lods'] or {}).get('lods') or []],
+             'animationData': (rec['rig'] or {}).get('animationData'),
              'bones': ((rec['rig'] or {}).get('skin') or {}).get('bones'), 'height_m': (rec['rig'] or {}).get('height_m'),
              'textures': list(((rec['prepare'] or {}).get('texture_set') or {}).values()), 'validation': (rec['validation'] or {}).get('status')}
         e.update(unity_paths(rec))
@@ -227,6 +228,16 @@ def performance_md(rows, policy=None):
                 draws += k
             evals += k / interval
         L.append(f'| {n} | {tris:,.0f} | {draws:.0f} | {evals:.1f} | {evals * bones:,.0f} | ≤ {n * 0.2:.0f} |')
+    # U1-CHAR.8 mobile: animation data and per-LOD skinning
+    data = [(e['name'], e.get('animationData')) for e in rig if e.get('animationData')]
+    if data:
+        L += ['', '## Dữ liệu animation và skinning (U1-CHAR.8, mobile)', '',
+              'Kích thước khi bake (trước khi Unity giảm keyframe), với 4 float quaternion mỗi bone và vị trí chỉ ở bone Root. '
+              'Importer đặt nén `Optimal` (sai số 0,5) cho lần import đầu. Skinning: LOD0 4 bone/đỉnh, LOD1 2, LOD2 1. '
+              'Shaper, head look và biểu cảm chỉ chạy ≤ 12 m; chớp mắt ≤ 6 m.', '',
+              '| Model | Khung | Bone | Float/khung | MB khi bake |', '|---|---|---|---|---|']
+        for name, d in data:
+            L.append(f"| {name} | {d['frames']} | {d['bones']} | {d['floatsPerFrame']} | {d['bakedMB']:.3f} |")
     L += ['', 'Đo thật: mở `Scenes/DragonStress.unity` (menu **Dravio ▸ Character ▸ Create Stress Test Scene**) trên thiết bị, ghi FPS, `EvaluatedLastFrame`, '
           '`VisibleLastFrame`, `PoolCreated/Reused/Destroyed` của `DragonVisualManager` và Profiler (Animator.Update, SkinnedMesh) cho 5/15/30 rồng.', '']
     return '\n'.join(L)

@@ -34,6 +34,24 @@ namespace Dravio.Character
             public float groundHeight, groundLength, groundWidth, swimVerticalExtent, swimWidth, flightSpan, flightVerticalExtent;
             public int transitionsChecked;
             public float transitionMaxDeg;
+            /// <summary>U1-CHAR.8: normalized times of motion events inside the transition clips (0 = none authored).</summary>
+            public float takeOffLiftOff, landTouchDown, waterEnterContact, waterExitLeave;
+            /// <summary>U1-CHAR.8: for surface swimmers, the waterline height above the root (m) and how far the head
+            /// centre stays above it. The Sanctuary places the water surface; 0 = not a surface swimmer.</summary>
+            public float surfaceWaterline, headAboveWater;
+
+            /// <summary>Normalized event time of a transition clip (0 when the clip has none).</summary>
+            public float EventTime(DragonInteraction clip)
+            {
+                switch (clip)
+                {
+                    case DragonInteraction.TakeOff: return takeOffLiftOff;
+                    case DragonInteraction.Land: return landTouchDown;
+                    case DragonInteraction.WaterEnter: return waterEnterContact;
+                    case DragonInteraction.WaterExit: return waterExitLeave;
+                    default: return 0f;
+                }
+            }
 
             public float MaxTurn(DragonMotionMode m)
             {
