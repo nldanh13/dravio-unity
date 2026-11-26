@@ -19,6 +19,11 @@
     <Compile Include="LivingResidentPolicyTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/SteeringLab.cs" />
     <Compile Include="SteeringLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/AuthoredRouteBenchmark.cs" />
+    <Compile Include="AuthoredNavigationLabTests.cs" />
+    <None Include="../../Environment/Data/OriginSanctuaryLocations.json" Link="LabMaps/OriginSanctuaryLocations.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Environment/Zones/Ocean/Data/OceanLocations.json" Link="LabMaps/OceanLocations.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Environment/Zones/Sky/Data/SkyLocations.json" Link="LabMaps/SkyLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
