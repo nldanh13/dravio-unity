@@ -232,6 +232,68 @@ def performance_md(rows, policy=None):
     return '\n'.join(L)
 
 
+MOTION_COLS = (('Ground', lambda c: any(x in c for x in ('Walk', 'Idle')) and not ('Swim' in c and 'Walk' not in c)),
+               ('Water', lambda c: 'Swim' in c), ('Water rest', lambda c: 'SwimRest' in c), ('Surface', lambda c: 'SwimSurface' in c),
+               ('Water entry/exit', lambda c: 'WaterEnter' in c and 'WaterExit' in c), ('Air', lambda c: 'Fly' in c),
+               ('Perch', lambda c: 'Perch' in c), ('Underground', lambda c: 'Burrow' in c and 'BurrowEnter' in c), ('Greet', lambda c: 'Greet' in c))
+
+
+def capability_rows(arch, recs):
+    """Species x stage x capability (U1-CHAR.7). Capabilities come from the canonical clip set (the same for every
+    stage of a species); the stage columns say which model exists (SAMPLE / real / none -> catalog fallback)."""
+    rows = []
+    for s in arch['species']:
+        clips = set(s['clips'])
+        caps = {name: bool(f(clips)) for name, f in MOTION_COLS}
+        models = {}
+        for st in ALL_STAGES + ('Unstaged',):
+            r = next((x for x in recs if x['species'] == s['id'] and x['stage'] == st), None)
+            models[st] = None if r is None else (r['evidence'] + ('' if r['rigged'] else ', static'))
+        rows.append({'species': s['id'], 'locomotion': s['locomotion'], 'capabilities': caps, 'models': models,
+                     'requiresInput': s.get('requiresInput', [])})
+    return rows
+
+
+def capability_md(rows):
+    L = ['# Species × Stage × Capability Matrix (U1-CHAR.7)', '',
+         'Khả năng lấy từ bộ clip canonical (`dragon-archetypes.json`), giống nhau ở mọi stage của một loài; runtime đọc đúng clip '
+         'của model đang hiện (`DragonMotionCapabilities.From`). Cột stage cho biết model nào đang có; ô trống = catalog dùng stage khác '
+         '(có cảnh báo). Model SAMPLE không phải asset thật.', '',
+         '| Loài | Locomotion | ' + ' | '.join(n for n, _ in MOTION_COLS) + ' | Baby | Juvenile | Adult | Unstaged | Thiếu dữ liệu |',
+         '|---|---|' + '---|' * len(MOTION_COLS) + '---|---|---|---|---|']
+    for r in rows:
+        L.append(f"| {r['species']} | {', '.join(r['locomotion'])} | " + ' | '.join('✓' if r['capabilities'][n] else '—' for n, _ in MOTION_COLS)
+                 + ' | ' + ' | '.join(r['models'][st] or '' for st in ALL_STAGES + ('Unstaged',)) + f" | {', '.join(r['requiresInput']) or '—'} |")
+    L += ['', 'Loài chỉ bơi (Frostfin, Leviathan) có cột Ground là —: mọi hành vi của chúng diễn ra trong nước.', '']
+    return '\n'.join(L)
+
+
+def motion_md(recs):
+    L = ['# Motion metadata và chuyển tiếp (U1-CHAR.7)', '',
+         'Cho Environment/Sanctuary: kích thước thân, tốc độ authored, độ lệch root khi cất/hạ cánh, khoảng không cần cho từng môi trường, '
+         'và kết quả kiểm chuyển tiếp (ngưỡng khép vòng: ≤ 0,5°).', '',
+         '| Model | Bằng chứng | Thân D×R×C (m) | Swim / Fly m/s | TakeOff / Land root (m) | Nước: cao × rộng (m) | Bay: sải (m) | Chuyển tiếp (max °) |',
+         '|---|---|---|---|---|---|---|---|']
+    for rec in recs:
+        if not rec['rigged']:
+            continue
+        m = (rec['rig'] or {}).get('motion') or {}
+        b = m.get('body', {})
+        off = m.get('rootOffsets_m', {})
+        cl = (rec['rig'] or {}).get('clips') or {}
+        env = (rec['qa'] or {}).get('motionEnvelope') or {}
+        tr = (rec['qa'] or {}).get('transitions') or []
+        sp = lambda c: fmt(cl[c]['groundSpeed'], 2) if c in cl and cl[c].get('groundSpeed') else '—'  # noqa: E731
+        L.append(f"| {rec['name']} | {rec['evidence']} | {fmt(b.get('length_m'), 2)}×{fmt(b.get('width_m'), 2)}×{fmt(b.get('height_m'), 2)} | "
+                 f"{sp('Swim')} / {sp('Fly')} | {fmt(off.get('TakeOff.end'), 3) if off.get('TakeOff.end') is not None else '—'} / "
+                 f"{fmt(off.get('Land.start'), 3) if off.get('Land.start') is not None else '—'} | "
+                 f"{fmt(env.get('swimVerticalExtent_m'), 2)} × {fmt(env.get('swimWidth_m'), 2)} | {fmt(env.get('flightSpan_m'), 2)} | "
+                 f"{len(tr)} ({fmt(max((x['poseErrorDeg'] for x in tr), default=None))}) |")
+    L += ['', 'Tốc độ Swim/Fly: clip tại chỗ, tốc độ danh nghĩa = số thân mỗi chu kỳ (`rig-profiles.json` ▸ `motionDefaults`), '
+          '**mặc định pipeline, chờ art director xác nhận**. Giới hạn quay mỗi môi trường cũng từ `motionDefaults`.', '']
+    return '\n'.join(L)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('work_dir', type=Path)
@@ -251,6 +313,10 @@ def main(argv=None):
     (a.out_dir / 'prefab-catalog.json').write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding='utf-8')
     (a.out_dir / 'prefab-catalog.md').write_text(catalog_md(rows, [s['id'] for s in arch['species']]), encoding='utf-8')
     (a.out_dir / 'animation-report.md').write_text(animation_md(recs, arch), encoding='utf-8')
+    caps = capability_rows(arch, recs)
+    (a.out_dir / 'capability-matrix.json').write_text(json.dumps(caps, indent=2, ensure_ascii=False), encoding='utf-8')
+    (a.out_dir / 'capability-matrix.md').write_text(capability_md(caps), encoding='utf-8')
+    (a.out_dir / 'motion-report.md').write_text(motion_md(recs), encoding='utf-8')
     (a.out_dir / 'performance-budget.md').write_text(performance_md(rows), encoding='utf-8')
     print(f'{len(recs)} dragon(s): {sum(r["evidence"] == "SAMPLE" for r in recs)} SAMPLE, {sum(r["evidence"] != "SAMPLE" for r in recs)} real -> {a.out_dir}')
     return 0

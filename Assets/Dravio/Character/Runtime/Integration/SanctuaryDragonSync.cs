@@ -34,6 +34,10 @@ namespace Dravio.Character.Integration
         /// <summary>World point the head should follow (player, food, another dragon), when hasLookTarget.</summary>
         public bool hasLookTarget;
         public Vector3 lookTarget;
+
+        // ---- U1-CHAR.7 (optional) ----
+        /// <summary>Vertical speed (m/s, + = climbing) of the simulation, for pitch in water and in the air.</summary>
+        public float verticalSpeed;
     }
 
     /// <summary>The part of <see cref="DragonVisualManager"/> the sync drives (an interface so it is testable).</summary>
@@ -63,6 +67,22 @@ namespace Dravio.Character.Integration
         void SetLook(string uid, bool active, Vector3 worldTarget, float weight, float hold);
     }
 
+    /// <summary>
+    /// Optional extension for the U1-CHAR.7 motion contract. Targets without it still get intents (the planner
+    /// runs); the model is then never hidden underground and no motion shaping or root offsets are available.
+    /// </summary>
+    public interface IDragonMotionTarget : IDragonBehaviorTarget
+    {
+        /// <summary>Catalog motion metadata of the dragon's model (null when unknown).</summary>
+        DragonVisualCatalog.MotionInfo MotionInfoOf(string uid);
+        /// <summary>Hide/show the model without despawning it (underground).</summary>
+        void SetHidden(string uid, bool hidden);
+        /// <summary>Procedural shaping input: medium, signed turn rate (deg/s), vertical and forward speed (m/s).</summary>
+        void SetMotionShape(string uid, DragonMotionMode mode, float turnRateDegPerSec, float verticalSpeed, float speed);
+        /// <summary>Expression layer: tail carriage (-1 tucked .. +1 high, from the personality) and ear-fin perk (0..1).</summary>
+        void SetExpression(string uid, float tailCarriage, float earPerk);
+    }
+
     /// <summary>Counts of one <see cref="SanctuaryDragonSync.Sync"/> call (for logs and the performance report).</summary>
     public struct SanctuarySyncReport
     {
@@ -90,6 +110,8 @@ namespace Dravio.Character.Integration
 
         private readonly IDragonVisualTarget _target;
         private readonly IDragonBehaviorTarget _behavior;
+        private readonly IDragonMotionTarget _motion;
+        private readonly Dictionary<string, DragonMotionStatus> _status = new Dictionary<string, DragonMotionStatus>(StringComparer.Ordinal);
         private readonly Dictionary<string, DragonBehaviorPlanner> _planners = new Dictionary<string, DragonBehaviorPlanner>(StringComparer.Ordinal);
         private readonly Dictionary<string, DragonPersonalityStyle> _styles = new Dictionary<string, DragonPersonalityStyle>(StringComparer.Ordinal);
         private readonly HashSet<string> _behaving = new HashSet<string>(StringComparer.Ordinal);
@@ -103,6 +125,37 @@ namespace Dravio.Character.Integration
             if (target == null) throw new ArgumentNullException("target");
             _target = target;
             _behavior = target as IDragonBehaviorTarget;
+            _motion = target as IDragonMotionTarget;
+        }
+
+        /// <summary>
+        /// U1-CHAR.7: medium, transition, whether the Sanctuary may move the dragon now, visibility and the root offset to
+        /// apply this frame. Updated by every Sync for dragons with an intent; legacy-path dragons report live, Ground,
+        /// canTranslate true.
+        /// </summary>
+        public DragonMotionStatus MotionStatusOf(string uid)
+        {
+            DragonMotionStatus s;
+            if (uid != null && _status.TryGetValue(uid, out s)) return s;
+            return new DragonMotionStatus { live = IsShown(uid), canTranslate = true, visible = IsShown(uid) };
+        }
+
+        /// <summary>U1-CHAR.7: can the dragon start going into <paramref name="mode"/> now (checked before sending the intent).</summary>
+        public DragonMotionReadiness ReadinessFor(string uid, DragonMotionMode mode)
+        {
+            if (!IsShown(uid)) return DragonMotionReadiness.NotLive;
+            DragonBehaviorPlanner p;
+            if (_planners.TryGetValue(uid, out p)) return p.ReadinessFor(mode);
+            var map = _behavior != null ? _behavior.ClipsOf(uid) : null;
+            if (map == null) return mode == DragonMotionMode.Ground ? DragonMotionReadiness.Ready : DragonMotionReadiness.Unsupported;
+            return DragonMotionCapabilities.From(map).Supports(mode) ? DragonMotionReadiness.Ready : DragonMotionReadiness.Unsupported;
+        }
+
+        /// <summary>U1-CHAR.7: what the dragon's current model can show (species x stage), from its clips.</summary>
+        public DragonMotionCapabilities CapabilitiesOf(string uid)
+        {
+            var map = _behavior != null && IsShown(uid) ? _behavior.ClipsOf(uid) : null;
+            return DragonMotionCapabilities.From(map);
         }
 
         /// <summary>The last note of a dragon's planner (substitutions, dropped reactions), for logs and the Lab.</summary>
@@ -191,7 +244,16 @@ namespace Dravio.Character.Integration
         {
             if (_behavior == null || f.intent == DragonBehaviorIntent.None)
             {
-                if (_behaving.Remove(f.uid)) { _behavior.SetTempo(f.uid, 1f); _behavior.SetLook(f.uid, false, default(Vector3), 0f, 1f); }
+                if (_behaving.Remove(f.uid))
+                {
+                    _behavior.SetTempo(f.uid, 1f); _behavior.SetLook(f.uid, false, default(Vector3), 0f, 1f);
+                    if (_motion != null)
+                    {
+                        _motion.SetHidden(f.uid, false); _motion.SetMotionShape(f.uid, DragonMotionMode.Ground, 0f, 0f, 0f);
+                        _motion.SetExpression(f.uid, 0f, 0f);
+                    }
+                }
+                _status.Remove(f.uid);
                 _planners.Remove(f.uid);
                 return false;
             }
@@ -201,6 +263,8 @@ namespace Dravio.Character.Integration
             {
                 p = CreatePlanner(f.uid, f.personality);
                 if (p == null) return false;
+                DragonMotionStatus prev;
+                if (_status.TryGetValue(f.uid, out prev)) p.RestoreMode(prev.mode); // grown into a new model: same medium
             }
             else if (_styles.TryGetValue(f.uid, out style) && style != f.personality)
             {
@@ -215,6 +279,27 @@ namespace Dravio.Character.Integration
             if (o.trigger != DragonInteraction.None && _target.Trigger(f.uid, o.trigger)) report.triggered++;
             if (o.substituted) report.substituted++;
             if (o.note != null) _notes[f.uid] = o.note;
+            float offset = 0f;
+            if (_motion != null)
+            {
+                var info = _motion.MotionInfoOf(f.uid);
+                if (info != null)
+                {
+                    if (o.completed == DragonInteraction.TakeOff) offset += info.takeOffRootOffset;
+                    if (o.trigger == DragonInteraction.Land) offset -= info.landRootOffset;
+                }
+                _motion.SetHidden(f.uid, !o.visible);
+                _motion.SetMotionShape(f.uid, o.mode, f.turnRateDegPerSec, f.verticalSpeed, f.speed);
+                var a = p.ActiveAction;
+                _motion.SetExpression(f.uid, p.Presentation.tailCarriage,
+                    a == DragonInteraction.Curious || a == DragonInteraction.Greet || a == DragonInteraction.LookAround ? 1f : 0f);
+            }
+            _status[f.uid] = new DragonMotionStatus
+            {
+                live = true, mode = o.mode, targetMode = o.targetMode, transition = o.transition, completed = o.completed,
+                canTranslate = o.canTranslate, actionPlaying = o.actionPlaying, visible = o.visible, rootOffsetToApply = offset,
+                capabilities = p.Capabilities,
+            };
             _behavior.SetTempo(f.uid, o.tempo);
             _behavior.SetLook(f.uid, f.hasLookTarget && o.headLookAllowed, f.lookTarget, p.Presentation.headLookWeight, p.Presentation.headLookHold);
             return true;
@@ -234,7 +319,7 @@ namespace Dravio.Character.Integration
 
         private void DropBehavior(string uid)
         {
-            _planners.Remove(uid); _styles.Remove(uid); _behaving.Remove(uid); _notes.Remove(uid);
+            _planners.Remove(uid); _styles.Remove(uid); _behaving.Remove(uid); _notes.Remove(uid); _status.Remove(uid);
         }
 
         /// <summary>Despawns everything this sync showed (scene unload).</summary>
@@ -242,7 +327,7 @@ namespace Dravio.Character.Integration
         {
             foreach (var uid in _shown.Keys) _target.Despawn(uid);
             _shown.Clear();
-            _planners.Clear(); _styles.Clear(); _behaving.Clear(); _notes.Clear();
+            _planners.Clear(); _styles.Clear(); _behaving.Clear(); _notes.Clear(); _status.Clear();
         }
 
         private void Forget(string uid)

@@ -17,7 +17,7 @@ namespace Dravio.Character
     /// No Domain, Persistence, HUD or scene dependency.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class DragonVisualManager : MonoBehaviour, IDragonBehaviorTarget
+    public sealed class DragonVisualManager : MonoBehaviour, IDragonMotionTarget
     {
         public DragonVisualCatalog catalog;
         [Tooltip("Optional. Empty or missing = no genotype/variant visual changes (none are defined in the GDD yet)")]
@@ -168,6 +168,29 @@ namespace Dravio.Character
         {
             DragonVisualInstance i;
             if (TryGet(uid, out i)) i.SetLook(active, worldTarget, weight, hold);
+        }
+
+        // ---- U1-CHAR.7 motion contract (IDragonMotionTarget) ----
+        public DragonVisualCatalog.MotionInfo MotionInfoOf(string uid)
+        {
+            DragonVisualInstance i;
+            return TryGet(uid, out i) && i.Entry != null ? i.Entry.motion : null;
+        }
+
+        public void SetHidden(string uid, bool hidden) { DragonVisualInstance i; if (TryGet(uid, out i)) i.SetHidden(hidden); }
+
+        public void SetMotionShape(string uid, DragonMotionMode mode, float turnRateDegPerSec, float verticalSpeed, float speed)
+        {
+            DragonVisualInstance i;
+            if (!TryGet(uid, out i)) return;
+            var info = i.Entry != null ? i.Entry.motion : null;
+            i.SetMotionShape(mode, turnRateDegPerSec, verticalSpeed, speed, info != null ? info.MaxTurn(mode) : 0f);
+        }
+
+        public void SetExpression(string uid, float tailCarriage, float earPerk)
+        {
+            DragonVisualInstance i;
+            if (TryGet(uid, out i)) i.SetExpression(tailCarriage, earPerk);
         }
         bool IDragonVisualTarget.SetStage(string uid, DragonVisualStage stage) { return SetStage(uid, stage) != null; }
 

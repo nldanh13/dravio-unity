@@ -38,6 +38,10 @@ namespace Dravio.Character
         private DragonHeadLook _headLook;
         private DragonBlink _blink;
         private bool _lookActive;
+        // U1-CHAR.7
+        private DragonMotionShaper _shaper;
+        private bool _hidden;
+        public bool Hidden { get { return _hidden; } }
 
         /// <summary>Clips of the shown model (what the behaviour planner may use).</summary>
         public DragonAnimationMap Clips { get { return _map; } }
@@ -52,6 +56,7 @@ namespace Dravio.Character
             _renderers = GetComponentsInChildren<Renderer>(true);
             _grounding = GetComponent<DragonFootGrounding>();
             _headLook = GetComponent<DragonHeadLook>();
+            _shaper = GetComponent<DragonMotionShaper>();
             _blink = GetComponent<DragonBlink>();
             if (_animator != null)
             {
@@ -140,7 +145,14 @@ namespace Dravio.Character
             if (_grounding != null)
                 _grounding.enabled = footIk && interval == 1 && DragonFootGrounding.AppliesTo(ShownLocomotion, CurrentInteraction);
             // look-at and blink only on full-rate (near, visible) dragons; both are layered after the Animator
-            if (_headLook != null) _headLook.enabled = _lookActive && interval == 1;
+            if (_headLook != null) _headLook.enabled = _lookActive && interval == 1 && !_hidden;
+            if (_shaper != null) _shaper.enabled = interval == 1 && !_hidden;
+            if (_hidden)
+            {
+                if (_animator != null) _animator.enabled = false; // underground: nothing to evaluate
+                if (_grounding != null) _grounding.enabled = false;
+                return false;
+            }
             if (_blink != null)
             {
                 _blink.enabled = _blink.HasShape && interval == 1;
@@ -217,8 +229,32 @@ namespace Dravio.Character
             return _headLook != null;
         }
 
+        /// <summary>Underground (U1-CHAR.7): renderers off, Animator not evaluated; the instance stays live and pooled
+        /// state is kept so BurrowEmerge plays at the same place.</summary>
+        internal void SetHidden(bool hidden)
+        {
+            if (hidden == _hidden) return;
+            _hidden = hidden;
+            if (_renderers != null) foreach (var r in _renderers) if (r != null) r.enabled = !hidden;
+            if (!hidden && _animator != null) _animator.enabled = true;
+        }
+
+        internal void SetMotionShape(DragonMotionMode mode, float turnRate, float verticalSpeed, float speed, float maxTurn)
+        {
+            if (_shaper != null) _shaper.SetInput(mode, turnRate, verticalSpeed, speed, maxTurn);
+        }
+
+        internal void SetExpression(float tailCarriage, float earPerk)
+        {
+            if (_shaper == null) return;
+            _shaper.TailCarriage = tailCarriage;
+            _shaper.EarPerk = earPerk;
+        }
+
         internal void ResetForPool()
         {
+            SetHidden(false);
+            if (_shaper != null) _shaper.ResetPose();
             SetTempo(1f);
             SetLook(false, Vector3.zero, 0f, 1f);
             if (_headLook != null) _headLook.ResetPose();

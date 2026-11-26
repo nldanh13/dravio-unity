@@ -48,6 +48,11 @@ namespace Dravio.Character
             // lying states fall back to the nearest lying clip the species has, never to another ability
             if (requested == DragonLocomotion.Bask && Has(DragonLocomotion.Rest)) return DragonLocomotion.Rest;
             if ((requested == DragonLocomotion.Bask || requested == DragonLocomotion.Rest) && Has(DragonLocomotion.Sleep)) return DragonLocomotion.Sleep;
+            // U1-CHAR.7: water states fall back within the swimming ability, Glide to flapping (same ability)
+            if (requested == DragonLocomotion.SwimRest && Has(DragonLocomotion.SwimIdle)) return DragonLocomotion.SwimIdle;
+            if ((requested == DragonLocomotion.SwimIdle || requested == DragonLocomotion.SwimRest || requested == DragonLocomotion.SwimSurface)
+                && Has(DragonLocomotion.Swim)) return DragonLocomotion.Swim;
+            if (requested == DragonLocomotion.Glide && Has(DragonLocomotion.Fly)) return DragonLocomotion.Fly;
             return DragonLocomotion.Idle;
         }
 
