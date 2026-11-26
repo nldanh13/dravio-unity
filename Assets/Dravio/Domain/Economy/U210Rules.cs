@@ -26,7 +26,7 @@ namespace Dravio.Domain.Economy
         }
     }
 
-    /// <summary>U2.10 E5 (ADR 0204, đã duyệt): dự án Sanctuary. Tự nguyện, chỉ thẩm mỹ, không tăng sản xuất.</summary>
+    /// <summary>U2.10 E5 (ADR 0204, đã duyệt): dự án Sanctuary. Tự nguyện, chỉ thẩm mỹ, không tăng sản xuất. U2.13: vật liệu theo thế giới (ADR 0208).</summary>
     public static class SanctuaryProjects
     {
         public static DomainErrorCode? Check(GameState s)
@@ -35,9 +35,9 @@ namespace Dravio.Domain.Economy
             long? cost = SanctuaryProjectCatalog.CostG(n);
             if (cost == null) return DomainErrorCode.ProjectsMaxed;
             if (s.Player.Gold < MicroGold.FromWholeGold(cost.Value)) return DomainErrorCode.NotEnoughGold;
-            int each = SanctuaryProjectCatalog.MaterialEach(n);
-            foreach (string m in SanctuaryProjectCatalog.MaterialIds)
-                if ((s.Player.Inventory.TryGetValue(m, out long have) ? have : 0) < each) return DomainErrorCode.NotEnoughMaterials;
+            ProjectMaterials mats = SanctuaryProjectCatalog.Materials(s, n);
+            foreach (string m in mats.Ids)
+                if ((s.Player.Inventory.TryGetValue(m, out long have) ? have : 0) < mats.Each) return DomainErrorCode.NotEnoughMaterials;
             return null;
         }
 
@@ -47,11 +47,11 @@ namespace Dravio.Domain.Economy
             if (err != null) return err;
             int n = s.SanctuaryProjectsBuilt;
             MicroGold cost = MicroGold.FromWholeGold(SanctuaryProjectCatalog.CostG(n).Value);
-            int each = SanctuaryProjectCatalog.MaterialEach(n);
+            ProjectMaterials mats = SanctuaryProjectCatalog.Materials(s, n);
             s.Player.Gold = s.Player.Gold - cost;
-            if (each > 0) foreach (string m in SanctuaryProjectCatalog.MaterialIds) s.Player.Inventory[m] -= each;
+            if (mats.Each > 0) foreach (string m in mats.Ids) s.Player.Inventory[m] -= mats.Each;
             s.SanctuaryProjectsBuilt = n + 1;
-            events.Add(new SanctuaryProjectBuilt(n, cost.Micro, each));
+            events.Add(new SanctuaryProjectBuilt(n, cost.Micro, mats.Each, mats.Ids));
             return null;
         }
     }

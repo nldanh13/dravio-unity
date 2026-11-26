@@ -71,13 +71,30 @@ namespace Dravio.Domain.Queries
         public int ProjectsMax { get; internal set; }
         /// <summary>null khi đã xây đủ.</summary>
         public long? NextProjectCostGoldMicro { get; internal set; }
-        /// <summary>Số gỗ và số hạt giống (mỗi loại) dự án tiếp theo cần.</summary>
+        /// <summary>Số đơn vị MỖI vật liệu trong <see cref="NextProjectMaterialIds"/> dự án tiếp theo cần (U2.13: theo thế giới, bụi sao gấp đôi).</summary>
         public int NextProjectMaterialEach { get; internal set; }
+        /// <summary>U2.13: vật liệu của dự án tiếp theo, động theo thế giới (wood/seed, crystal/coral, stardust).</summary>
         public IReadOnlyList<string> NextProjectMaterialIds { get; internal set; }
+        /// <summary>U2.13: vật liệu dự án tiếp theo kèm số đang có, để UI vẽ thanh chi phí.</summary>
+        public IReadOnlyList<MaterialNeed> NextProjectMaterials { get; internal set; }
+        /// <summary>U2.13: thế giới cung cấp vật liệu cho dự án tiếp theo (null khi đã xây đủ).</summary>
+        public string NextProjectMaterialZoneId { get; internal set; }
+        /// <summary>U2.13: true = thế giới của công trình chưa mở / chưa có nguồn, dùng vật liệu thế giới thấp hơn.</summary>
+        public bool NextProjectMaterialFallback { get; internal set; }
         /// <summary>null = xây được; ngược lại mã lỗi wire (not-enough-gold, not-enough-materials, projects-maxed).</summary>
         public string NextProjectBlockedBy { get; internal set; }
         /// <summary>U2.11: nội dung trang trí của dự án kế tiếp (null khi đã xây đủ).</summary>
         public SanctuaryProjectDef NextProject { get; internal set; }
+    }
+
+    /// <summary>U2.13: một dòng chi phí vật liệu (cần / đang có).</summary>
+    public sealed class MaterialNeed
+    {
+        public string MaterialId { get; internal set; }
+        public int Required { get; internal set; }
+        public long Have { get; internal set; }
+        public long Missing => System.Math.Max(0, Required - Have);
+        public string NameKey => "material." + MaterialId + ".name";
     }
 
     /// <summary>U2.11: thưởng đã nhận (dẫn xuất, không lưu riêng).</summary>
@@ -147,6 +164,20 @@ namespace Dravio.Domain.Queries
         public IReadOnlyList<SocialRelation> Relations { get; internal set; }
     }
 
+    /// <summary>U2.13: chi phí một dự án Sanctuary (vàng + vật liệu theo thế giới).</summary>
+    public sealed class SanctuaryProjectCostView
+    {
+        public int Index { get; internal set; }
+        public string ProjectId { get; internal set; }
+        public string ProjectZoneId { get; internal set; }
+        public bool Built { get; internal set; }
+        public long CostGoldMicro { get; internal set; }
+        public IReadOnlyList<string> MaterialIds { get; internal set; }
+        public int MaterialEach { get; internal set; }
+        public string MaterialZoneId { get; internal set; }
+        public bool Fallback { get; internal set; }
+    }
+
     /// <summary>U2.11: một dự án Sanctuary (đã xây hoặc kế tiếp) kèm nội dung hiển thị.</summary>
     public sealed class SanctuaryProjectView
     {
@@ -171,14 +202,18 @@ namespace Dravio.Domain.Queries
             int n = s.SanctuaryProjectsBuilt;
             long? cost = SanctuaryProjectCatalog.CostG(n);
             DomainErrorCode? blocked = Economy.SanctuaryProjects.Check(s);
+            ProjectMaterials mats = cost == null ? null : SanctuaryProjectCatalog.Materials(s, n);
             return new SanctuaryEconomyDto
             {
                 StarterPacksLeftToday = PackDailyLimit.StarterLeftToday(s, nowMs), StarterDailyLimit = PackCatalog.StarterDailyLimit,
                 StarterPriceGoldMicro = MicroGold.FromWholeGold(PackCatalog.Get("starter").PriceG).Micro,
                 ProjectsBuilt = n, ProjectsMax = SanctuaryProjectCatalog.Max,
                 NextProjectCostGoldMicro = cost == null ? (long?)null : MicroGold.FromWholeGold(cost.Value).Micro,
-                NextProjectMaterialEach = cost == null ? 0 : SanctuaryProjectCatalog.MaterialEach(n),
-                NextProjectMaterialIds = SanctuaryProjectCatalog.MaterialIds,
+                NextProjectMaterialEach = mats == null ? 0 : mats.Each,
+                NextProjectMaterialIds = mats == null ? SanctuaryProjectCatalog.MaterialIds : mats.Ids,
+                NextProjectMaterials = Needs(s, mats),
+                NextProjectMaterialZoneId = mats?.SourceZoneId,
+                NextProjectMaterialFallback = mats?.Fallback ?? false,
                 NextProjectBlockedBy = blocked == null ? null : WireNames.ToWire(blocked.Value),
                 NextProject = SanctuaryProjectContent.Get(n),
             };
@@ -357,6 +392,35 @@ namespace Dravio.Domain.Queries
         }
 
         /// <summary>Dự án đã xây (thứ tự xây) và dự án kế tiếp (Built = false), kèm nội dung hiển thị.</summary>
+        private static List<MaterialNeed> Needs(GameState s, ProjectMaterials mats)
+        {
+            var o = new List<MaterialNeed>();
+            if (mats == null || mats.Each == 0) return o;
+            foreach (string m in mats.Ids)
+                o.Add(new MaterialNeed { MaterialId = m, Required = mats.Each, Have = s.Player.Inventory.TryGetValue(m, out long have) ? have : 0 });
+            return o;
+        }
+
+        /// <summary>
+        /// U2.13: bảng chi phí của mọi dự án (0 … Max−1) trên save hiện tại: giá vàng (không đổi) và vật liệu theo thế giới. Chi phí của dự án chưa
+        /// xây có thể đổi khi mở thế giới mới (lùi → đúng vật liệu thế giới); dự án đã xây giữ nguyên, không tính lại.
+        /// </summary>
+        public static List<SanctuaryProjectCostView> SanctuaryProjectCosts(GameState s)
+        {
+            var o = new List<SanctuaryProjectCostView>();
+            for (int i = 0; i < SanctuaryProjectCatalog.Max; i++)
+            {
+                ProjectMaterials m = SanctuaryProjectCatalog.Materials(s, i);
+                o.Add(new SanctuaryProjectCostView
+                {
+                    Index = i, ProjectId = SanctuaryProjectContent.Get(i).Id, ProjectZoneId = m.ProjectZoneId, Built = i < s.SanctuaryProjectsBuilt,
+                    CostGoldMicro = MicroGold.FromWholeGold(SanctuaryProjectCatalog.CostG(i).Value).Micro,
+                    MaterialIds = m.Ids, MaterialEach = m.Each, MaterialZoneId = m.SourceZoneId, Fallback = m.Fallback,
+                });
+            }
+            return o;
+        }
+
         public static List<SanctuaryProjectView> SanctuaryProjects(GameState s)
         {
             var o = new List<SanctuaryProjectView>();
