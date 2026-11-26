@@ -32,6 +32,9 @@ namespace Dravio.Character
         public bool actionPlaying;
         /// <summary>False while underground (the model is hidden; the Sanctuary shows its own soil VFX at VFX_Ground).</summary>
         public bool visible;
+        /// <summary>U1-CHAR.8: one-shot advanced this tick and its normalized progress before and after (motion events).</summary>
+        public DragonInteraction progressAction;
+        public float progressFrom, progressTo;
     }
 
     /// <summary>
@@ -63,7 +66,7 @@ namespace Dravio.Character
         public DragonBehaviorIntent LastIntent { get; private set; }
         public float IdleSeconds { get; private set; }
         public float NextVariationAt { get; private set; }
-        private float _gap;
+        private float _gap, _actionTotal;
         private DragonReaction _pending;
         // substitution note, rebuilt only when the situation changes (no per-frame string garbage)
         private DragonBehaviorIntent _noteIntent = (DragonBehaviorIntent)(-1);
@@ -81,6 +84,12 @@ namespace Dravio.Character
         private DragonMotionMode _runningModeAfter;
         private bool _runningIsTransition;
         public DragonMotionCapabilities Capabilities { get; private set; }
+        // U1-CHAR.8: one-shot cued by the social coordinator (plays on the next settled Update)
+        private DragonInteraction _cue;
+        /// <summary>True after the last Update when nothing runs and the medium is settled (a cue would start at once).</summary>
+        public bool Settled { get; private set; }
+        /// <summary>One-shot cued but not started yet.</summary>
+        public DragonInteraction PendingCue { get { return _cue; } }
 
         /// <param name="clipSeconds">Length of a one-shot clip in seconds (from the catalog); &lt;= 0 means unknown (1 s is used).</param>
         public DragonBehaviorPlanner(DragonAnimationMap clips, Func<DragonInteraction, float> clipSeconds, DragonPersonalityPresentation presentation, uint seed)
@@ -126,6 +135,11 @@ namespace Dravio.Character
             NextVariationAt = Math.Min(NextVariationAt, NextInterval());
         }
 
+        /// <summary>U1-CHAR.8: plays <paramref name="clip"/> on the next Update in which the dragon is settled and nothing
+        /// runs (the social coordinator calls it on both dragons in the same tick for a synchronized start). A clip the
+        /// model lacks is dropped and reported. A later cue replaces one not started yet.</summary>
+        public void Cue(DragonInteraction clip) { _cue = clip; }
+
         /// <summary>Queues a player-interaction response; it plays on the next Update that can show it.</summary>
         public void React(DragonReaction reaction) { if (reaction != DragonReaction.None) _pending = reaction; }
 
@@ -135,7 +149,10 @@ namespace Dravio.Character
             var o = new DragonBehaviorOutput { tempo = _p.tempo, speed = 0f, visible = true };
             if (ActiveAction != DragonInteraction.None)
             {
+                o.progressAction = ActiveAction;
+                o.progressFrom = _actionTotal > 0f ? 1f - ActionRemaining / _actionTotal : 0f;
                 ActionRemaining -= dt;
+                o.progressTo = _actionTotal > 0f ? Math.Min(1f, 1f - Math.Max(0f, ActionRemaining) / _actionTotal) : 1f;
                 if (ActionRemaining <= 0f)
                 {
                     if (_runningIsTransition) { Mode = _runningModeAfter; o.completed = ActiveAction; _runningIsTransition = false; }
@@ -150,6 +167,14 @@ namespace Dravio.Character
             DragonInteraction repeat;
             DragonMotionMode wantMode;
             Map(intent, out wanted, out repeat, out wantMode);
+            if (intent == DragonBehaviorIntent.Social)
+            {
+                // hold the idle of the medium the dragon is in; the coordinator cues the one-shots
+                wantMode = Mode;
+                wanted = Mode == DragonMotionMode.Water ? DragonLocomotion.SwimIdle
+                    : Mode == DragonMotionMode.Perched ? DragonLocomotion.Perch
+                    : Mode == DragonMotionMode.Air ? DragonLocomotion.Fly : DragonLocomotion.Idle;
+            }
             if (!Capabilities.ground && wantMode == DragonMotionMode.Ground) wantMode = DragonMotionMode.Water; // water dwellers: every behaviour happens in the water
             bool cannot = !Capabilities.Supports(wantMode);
             if (cannot)
@@ -234,6 +259,14 @@ namespace Dravio.Character
                 }
             }
 
+            if (ActiveAction == DragonInteraction.None && _cue != DragonInteraction.None && settled)
+            {
+                var c = _cue;
+                _cue = DragonInteraction.None;
+                if (_clips.CanPlay(c)) Start(c, ref o);
+                else { o.note = "cue " + c + ": no clip"; o.substituted = true; }
+            }
+
             if (ActiveAction == DragonInteraction.None && repeat != DragonInteraction.None && _gap <= 0f && settled)
                 Start(repeat, ref o);
 
@@ -260,6 +293,7 @@ namespace Dravio.Character
             o.canTranslate = !(_runningIsTransition || ActiveAction == DragonInteraction.Wake || _chainIndex < _chainCount);
             o.actionPlaying = ActiveAction != DragonInteraction.None;
             o.visible = Mode != DragonMotionMode.Underground || ActiveAction == DragonInteraction.BurrowEmerge;
+            Settled = settled && ActiveAction == DragonInteraction.None && target != DragonLocomotion.Sleep;
             return o;
         }
 
@@ -268,6 +302,7 @@ namespace Dravio.Character
             float s = _seconds(a);
             ActiveAction = a;
             ActionRemaining = (s > 0f ? s : 1f) / Math.Max(0.1f, o.tempo);
+            _actionTotal = ActionRemaining;
             o.trigger = a;
         }
 

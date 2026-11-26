@@ -18,8 +18,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../Runtime/DragonAnimationMap.cs;../../Runtime/DragonVisualCatalog.cs;../../Runtime/DragonVisualTypes.cs;../../Runtime/KeyedPool.cs;../../Runtime/UpdateRatePolicy.cs;../../Runtime/PhenotypeProfile.cs;../../Runtime/DragonVisualRoster.cs;../../Runtime/Integration/*.cs;../../Runtime/Behavior/DragonBehaviorPlanner.cs;../../Runtime/Behavior/DragonBehaviorMath.cs;../../Runtime/Behavior/DragonPersonalityPresentation.cs;../../Runtime/Behavior/DragonMotionContract.cs" />
-    <Compile Include="../LivingDragonRuntimeTests.cs;../SanctuaryIntegrationTests.cs;../BehaviorTests.cs;../MotionTests.cs" />
+    <Compile Include="../../Runtime/DragonAnimationMap.cs;../../Runtime/DragonVisualCatalog.cs;../../Runtime/DragonVisualTypes.cs;../../Runtime/KeyedPool.cs;../../Runtime/UpdateRatePolicy.cs;../../Runtime/PhenotypeProfile.cs;../../Runtime/DragonVisualRoster.cs;../../Runtime/Integration/*.cs;../../Runtime/Behavior/DragonBehaviorPlanner.cs;../../Runtime/Behavior/DragonBehaviorMath.cs;../../Runtime/Behavior/DragonPersonalityPresentation.cs;../../Runtime/Behavior/DragonMotionContract.cs;../../Runtime/Behavior/DragonExpressionSolver.cs" />
+    <Compile Include="../LivingDragonRuntimeTests.cs;../SanctuaryIntegrationTests.cs;../BehaviorTests.cs;../MotionTests.cs;../SocialTests.cs" />
     <Compile Include="Stubs/*.cs" />
   </ItemGroup>
   <ItemGroup>

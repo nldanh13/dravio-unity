@@ -38,6 +38,12 @@ namespace Dravio.Character.Integration
         // ---- U1-CHAR.7 (optional) ----
         /// <summary>Vertical speed (m/s, + = climbing) of the simulation, for pitch in water and in the air.</summary>
         public float verticalSpeed;
+
+        // ---- U1-CHAR.8 (optional) ----
+        /// <summary>Pair act with <see cref="partnerUid"/>. Shown only when BOTH frames name each other with the same act;
+        /// the Sanctuary decides who meets whom, places them (SocialStatusOf.desiredSpacing) and ends it (None).</summary>
+        public DragonSocialAct social;
+        public string partnerUid;
     }
 
     /// <summary>The part of <see cref="DragonVisualManager"/> the sync drives (an interface so it is testable).</summary>
@@ -83,6 +89,20 @@ namespace Dravio.Character.Integration
         void SetExpression(string uid, float tailCarriage, float earPerk);
     }
 
+    /// <summary>
+    /// Optional extension for U1-CHAR.8 pair acts and expressions. Without it pair acts still run (head position is
+    /// estimated from the body size, no phase sync) and only tail carriage and ear perk are shown.
+    /// </summary>
+    public interface IDragonSocialTarget : IDragonMotionTarget
+    {
+        /// <summary>World position of the Head bone (false when not live or no Head bone).</summary>
+        bool TryGetHeadPosition(string uid, out Vector3 position);
+        /// <summary>Plays the follower's current looping state from the leader's normalized time (same clip only).</summary>
+        void SyncPhase(string followerUid, string leaderUid);
+        /// <summary>Full expression layer (tail wag and carriage, ear fins, head tilt, neck).</summary>
+        void SetExpressionState(string uid, DragonExpressionState state);
+    }
+
     /// <summary>Counts of one <see cref="SanctuaryDragonSync.Sync"/> call (for logs and the performance report).</summary>
     public struct SanctuarySyncReport
     {
@@ -111,6 +131,11 @@ namespace Dravio.Character.Integration
         private readonly IDragonVisualTarget _target;
         private readonly IDragonBehaviorTarget _behavior;
         private readonly IDragonMotionTarget _motion;
+        private readonly IDragonSocialTarget _socialTarget;
+        private readonly DragonSocialCoordinator _social = new DragonSocialCoordinator();
+        private readonly HashSet<string> _socialUids = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, SanctuaryDragonFrame> _socialFrames = new Dictionary<string, SanctuaryDragonFrame>(StringComparer.Ordinal);
+        private readonly SocialWorld _world;
         private readonly Dictionary<string, DragonMotionStatus> _status = new Dictionary<string, DragonMotionStatus>(StringComparer.Ordinal);
         private readonly Dictionary<string, DragonBehaviorPlanner> _planners = new Dictionary<string, DragonBehaviorPlanner>(StringComparer.Ordinal);
         private readonly Dictionary<string, DragonPersonalityStyle> _styles = new Dictionary<string, DragonPersonalityStyle>(StringComparer.Ordinal);
@@ -126,6 +151,44 @@ namespace Dravio.Character.Integration
             _target = target;
             _behavior = target as IDragonBehaviorTarget;
             _motion = target as IDragonMotionTarget;
+            _socialTarget = target as IDragonSocialTarget;
+            _world = new SocialWorld(this);
+        }
+
+        /// <summary>U1-CHAR.8: pair-act state of a dragon (phase, role, spacing the Sanctuary should place the pair at).</summary>
+        public DragonSocialStatus SocialStatusOf(string uid)
+        {
+            DragonSocialStatus s;
+            return _social.TryStatus(uid, out s) ? s : new DragonSocialStatus();
+        }
+
+        private sealed class SocialWorld : IDragonSocialWorld
+        {
+            private readonly SanctuaryDragonSync _s;
+            public SocialWorld(SanctuaryDragonSync s) { _s = s; }
+            public bool TryFrame(string uid, out SanctuaryDragonFrame frame) { return _s._socialFrames.TryGetValue(uid, out frame); }
+            public DragonBehaviorPlanner PlannerOf(string uid) { return _s.PlannerOf(uid); }
+            public DragonAnimationMap ClipsOf(string uid) { return _s._behavior != null ? _s._behavior.ClipsOf(uid) : null; }
+            public DragonVisualCatalog.MotionInfo MotionInfoOf(string uid) { return _s._motion != null ? _s._motion.MotionInfoOf(uid) : null; }
+            public void SyncPhase(string follower, string leader) { if (_s._socialTarget != null) _s._socialTarget.SyncPhase(follower, leader); }
+            public Vector3 HeadOf(string uid, SanctuaryDragonFrame f)
+            {
+                Vector3 p;
+                if (_s._socialTarget != null && _s._socialTarget.TryGetHeadPosition(uid, out p)) return p;
+                return EstimateHead(f, MotionInfoOf(uid));
+            }
+        }
+
+        /// <summary>Head estimate without a Head bone: 0.8 of the body height up and 0.45 of its length forward of the root.</summary>
+        public static Vector3 EstimateHead(SanctuaryDragonFrame f, DragonVisualCatalog.MotionInfo info)
+        {
+            float h = info != null && info.bodyHeight > 0f ? 0.8f * info.bodyHeight : 1f;
+            float l = info != null && info.bodyLength > 0f ? 0.45f * info.bodyLength : 0f;
+            var q = f.rotation;
+            if (q.x == 0f && q.y == 0f && q.z == 0f && q.w == 0f) q.w = 1f;
+            // forward = q * (0, 0, 1)
+            float fx = 2f * (q.x * q.z + q.w * q.y), fy = 2f * (q.y * q.z - q.w * q.x), fz = 1f - 2f * (q.x * q.x + q.y * q.y);
+            return new Vector3(f.position.x + fx * l, f.position.y + h + fy * l, f.position.z + fz * l);
         }
 
         /// <summary>
@@ -177,6 +240,16 @@ namespace Dravio.Character.Integration
             var report = new SanctuarySyncReport();
             _seen.Clear();
             _visibleNow.Clear();
+            // U1-CHAR.8: pair acts are planned first, from both frames of each pair and the planners' last state
+            _socialUids.Clear(); _socialFrames.Clear();
+            if (frames != null && _behavior != null)
+                for (int i = 0; i < frames.Count; i++)
+                {
+                    var f = frames[i];
+                    if (f.social == DragonSocialAct.None || !f.visible || string.IsNullOrEmpty(f.uid) || _socialFrames.ContainsKey(f.uid)) continue;
+                    _socialFrames[f.uid] = f; _socialUids.Add(f.uid);
+                }
+            if (_socialUids.Count > 0 || _social.HasState) _social.Plan(deltaSeconds, _socialUids, _world);
             if (frames != null)
                 for (int i = 0; i < frames.Count; i++)
                 {
@@ -242,6 +315,10 @@ namespace Dravio.Character.Integration
         /// <summary>Intent path: planner -> state + one-shot + tempo + look. False = legacy path (caller applies the state).</summary>
         private bool Behave(SanctuaryDragonFrame f, DragonVisualState state, float dt, ref SanctuarySyncReport report)
         {
+            DragonSocialDirective sd = default(DragonSocialDirective);
+            bool social = _behavior != null && _social.TryDirective(f.uid, out sd);
+            if (social && sd.intent != DragonBehaviorIntent.None) f.intent = sd.intent;
+            else if (social && f.intent == DragonBehaviorIntent.None) f.intent = DragonBehaviorIntent.Idle; // a pair act needs the planner
             if (_behavior == null || f.intent == DragonBehaviorIntent.None)
             {
                 if (_behaving.Remove(f.uid))
@@ -280,26 +357,41 @@ namespace Dravio.Character.Integration
             if (o.substituted) report.substituted++;
             if (o.note != null) _notes[f.uid] = o.note;
             float offset = 0f;
+            var motionEvent = DragonMotionEvent.None;
             if (_motion != null)
             {
                 var info = _motion.MotionInfoOf(f.uid);
                 if (info != null)
                 {
+                    if (o.progressAction != DragonInteraction.None && DragonMotionEvents.Crossed(info.EventTime(o.progressAction), o.progressFrom, o.progressTo))
+                        motionEvent = DragonMotionEvents.For(o.progressAction);
                     if (o.completed == DragonInteraction.TakeOff) offset += info.takeOffRootOffset;
                     if (o.trigger == DragonInteraction.Land) offset -= info.landRootOffset;
                 }
                 _motion.SetHidden(f.uid, !o.visible);
                 _motion.SetMotionShape(f.uid, o.mode, f.turnRateDegPerSec, f.verticalSpeed, f.speed);
                 var a = p.ActiveAction;
-                _motion.SetExpression(f.uid, p.Presentation.tailCarriage,
-                    a == DragonInteraction.Curious || a == DragonInteraction.Greet || a == DragonInteraction.LookAround ? 1f : 0f);
+                if (_socialTarget != null)
+                {
+                    var e = social ? sd.expression : DragonExpressionSolver.FromContext(a, o.locomotion, f.personality);
+                    _socialTarget.SetExpressionState(f.uid, DragonExpressionSolver.For(e, p.Presentation.tailCarriage));
+                }
+                else
+                    _motion.SetExpression(f.uid, p.Presentation.tailCarriage,
+                        a == DragonInteraction.Curious || a == DragonInteraction.Greet || a == DragonInteraction.LookAround ? 1f : 0f);
             }
             _status[f.uid] = new DragonMotionStatus
             {
                 live = true, mode = o.mode, targetMode = o.targetMode, transition = o.transition, completed = o.completed,
                 canTranslate = o.canTranslate, actionPlaying = o.actionPlaying, visible = o.visible, rootOffsetToApply = offset,
-                capabilities = p.Capabilities,
+                capabilities = p.Capabilities, motionEvent = motionEvent,
             };
+            if (social && sd.look)
+            {
+                _behavior.SetTempo(f.uid, o.tempo * (sd.tempoScale > 0f ? sd.tempoScale : 1f));
+                _behavior.SetLook(f.uid, o.headLookAllowed, sd.lookTarget, sd.lookWeight, sd.lookHold);
+                return true;
+            }
             _behavior.SetTempo(f.uid, o.tempo);
             _behavior.SetLook(f.uid, f.hasLookTarget && o.headLookAllowed, f.lookTarget, p.Presentation.headLookWeight, p.Presentation.headLookHold);
             return true;
@@ -328,6 +420,7 @@ namespace Dravio.Character.Integration
             foreach (var uid in _shown.Keys) _target.Despawn(uid);
             _shown.Clear();
             _planners.Clear(); _styles.Clear(); _behaving.Clear(); _notes.Clear(); _status.Clear();
+            _social.Clear(); _socialUids.Clear(); _socialFrames.Clear();
         }
 
         private void Forget(string uid)

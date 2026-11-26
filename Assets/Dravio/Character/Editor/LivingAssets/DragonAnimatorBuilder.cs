@@ -27,7 +27,8 @@ namespace Dravio.Character.Editor
         private static readonly string[] Locomotion = { "Idle", "Walk", "Run", "Swim", "Fly", "Burrow", "Sleep", "Rest", "Bask",
                                                         "SwimIdle", "SwimRest", "SwimSurface", "Perch", "Glide" };
         private static readonly string[] Actions = { "", "Eat", "Happy", "Drink", "Wake", "Stretch", "LookAround", "Curious",
-                                                     "Greet", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge" };
+                                                     "Greet", "TakeOff", "Land", "WaterEnter", "WaterExit", "DigPrep", "BurrowEnter", "BurrowEmerge",
+                                                     "Nuzzle" /* U1-CHAR.8 */ };
         private static readonly HashSet<string> MovingStates = new HashSet<string> { "Walk", "Run", "Swim", "Fly", "Burrow", "SwimSurface", "Glide" };
         /// <summary>U1-CHAR.7 medium transitions: their ends are authored to match the neighbouring clips exactly
         /// (anim_qa transitions), so a short blend is enough and a long one would smear the match.</summary>

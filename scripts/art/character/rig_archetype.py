@@ -41,14 +41,14 @@ from mathutils import Matrix, Vector  # noqa: E402
 REPO = Path(__file__).resolve().parents[3]
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
-RIG_VERSION = 6  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips; 5 = U1-CHAR.7 advanced motion; 6 = U1-CHAR.7b biomechanics (Froude cadence, Strouhal speeds, leg-driven take-off, landing flare)
+RIG_VERSION = 7  # 7 = U1-CHAR.8 Nuzzle, motion events, surface waterline; 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips; 5 = U1-CHAR.7 advanced motion; 6 = U1-CHAR.7b biomechanics (Froude cadence, Strouhal speeds, leg-driven take-off, landing flare)
 FPS = 30
 BASE_FRAMES = {'Idle': 120, 'Eat': 60, 'Sleep': 120, 'Happy': 45, 'Swim': 48, 'Burrow': 60,
                'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40,
                # U1-CHAR.6 behaviour clips
                'Rest': 120, 'Bask': 120, 'Wake': 60, 'LookAround': 90, 'Curious': 75, 'Drink': 75, 'Stretch': 90,
                # U1-CHAR.7 advanced motion clips
-               'Greet': 60, 'SwimIdle': 72, 'SwimRest': 120, 'SwimSurface': 48, 'WaterEnter': 60, 'WaterExit': 60,
+               'Nuzzle': 75, 'Greet': 60, 'SwimIdle': 72, 'SwimRest': 120, 'SwimSurface': 48, 'WaterEnter': 60, 'WaterExit': 60,
                'Perch': 120, 'DigPrep': 45, 'BurrowEnter': 60, 'BurrowEmerge': 60}
 LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide', 'Rest', 'Bask',
            'SwimIdle', 'SwimRest', 'SwimSurface', 'Perch'}
@@ -56,6 +56,10 @@ LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide', 'Re
 NO_GROUND = {'Swim', 'Fly', 'Glide', 'SwimIdle', 'SwimRest', 'SwimSurface', 'WaterEnter', 'WaterExit'}
 # clips whose ends are other clips' authored poses (U1-CHAR.6/7): no clearance rescale/lift of their own, so
 # the chain stays continuous; anim_qa measures their ground contact and transitions instead
+# U1-CHAR.8 authored event times (normalized clip time): Land touches down at the end of the braking approach;
+# WaterEnter/Exit cross the waterline at the middle of their blend (ease 0.5). TakeOff lift-off is measured.
+LAND_TOUCHDOWN_T = 0.6
+WATER_CROSS_T = 0.5
 CHAINED = {'Wake', 'TakeOff', 'Land', 'WaterEnter', 'WaterExit', 'DigPrep', 'BurrowEnter', 'BurrowEmerge'}
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 _QA = json.loads(BUDGETS.read_text(encoding='utf-8')).get('animationQa', {})
@@ -947,6 +951,16 @@ class Animator:
             mul('Head', 'X', -cfg.get('noseForward', 0.1) * k)
             mul('Head', 'Y', cfg.get('tilt', 0.1) * k * math.sin(tau * t))
             tail_wave(cfg.get('tailWag', 0.14) * k, 3.0)
+        elif clip == 'Nuzzle':
+            # affiliative head contact (U1-CHAR.8): the neck reaches forward and down toward the partner's head
+            # (the runtime's head look aims it), the head rubs side to side twice, eyes soft; then back
+            cfg = pr.get('nuzzle', {})
+            k = math.sin(math.pi * t) ** 2
+            mul('Neck', 'X', cfg.get('reach', 0.2) * k)
+            mul('Head', 'X', -cfg.get('noseForward', 0.12) * k)
+            mul('Head', 'Z', cfg.get('rub', 0.12) * k * math.sin(2 * tau * t))
+            mul('Chest', 'X', cfg.get('lean', 0.04) * k)
+            tail_wave(cfg.get('tailWag', 0.08) * k, 1.5)
         elif clip == 'Perch':
             # perched (zephyr/blossom: "chân đậu"): a slight crouch on planted feet, wings folded within the
             # measured downstroke limit, tail hanging, slow breathing and a small look around
@@ -1144,8 +1158,8 @@ class Animator:
                         tuck(min(1.0, 2.0 * u))
             else:  # Land
                 drop = pr.get('land', {}).get('dropH', 0.4) * h
-                if t < 0.6:
-                    u = t / 0.6
+                if t < LAND_TOUCHDOWN_T:
+                    u = t / LAND_TOUCHDOWN_T
                     root.z += drop * (1 - u) * (1 - u)
                     wings(0.6, -0.2 * u)  # flare
                     # pitch-up braking before touch-down (U1-CHAR.7b; raptors/pigeons tilt up ~17 deg), level at contact
@@ -1154,8 +1168,8 @@ class Animator:
                         root_rot = rot('X', -fp * math.sin(math.pi * u))
                     tuck(max(0.0, 1.0 - 1.6 * u))
                 else:
-                    u = (t - 0.6) / 0.4
-                    root.z -= 0.06 * h * math.sin(math.pi * u)
+                    u = (t - LAND_TOUCHDOWN_T) / (1.0 - LAND_TOUCHDOWN_T)
+                    root.z -= 0.06 * h * math.sin(math.pi * u)  # legs flex at contact to absorb the landing
                     wings(0.6 * (1 - u), 0.0)
                     fk_legs = False
                     for k in self.leg:
@@ -1344,7 +1358,10 @@ class Animator:
                 cons[k].append(feet is not None and bool(contacts.get(k, False)))
             for pb in self.P:
                 pb.keyframe_insert('rotation_quaternion', frame=f, group=pb.name)
-                pb.keyframe_insert('location', frame=f, group=pb.name)
+                if pb.name == 'Root':
+                    # U1-CHAR.8 mobile: only the Root bone translates (every other bone is posed by rotation), so
+                    # location is keyed on Root alone: 3 fewer curves per bone in the FBX and in memory
+                    pb.keyframe_insert('location', frame=f, group=pb.name)
         return cons, worst_ik
 
     def _clearance(self, mod, start, n):
@@ -1568,7 +1585,23 @@ def main():
                                    'maxTurnRateDegPerSec': max_turn['air'], 'source': 'coordinated turn tan(bank) = V w / g'}
     if 'TakeOff' in ranges:
         anim.biomech['TakeOff'] = anim.launch_share()
-    motion = {'body': body, 'rootOffsets_m': root_offsets,
+    events = {}
+    if 'TakeOff' in ranges and anim.biomech.get('TakeOff', {}).get('liftOffT') is not None:
+        events['TakeOff.liftOff'] = anim.biomech['TakeOff']['liftOffT']
+    if 'Land' in ranges:
+        events['Land.touchDown'] = LAND_TOUCHDOWN_T
+    if 'WaterEnter' in ranges:
+        events['WaterEnter.contact'] = WATER_CROSS_T
+    if 'WaterExit' in ranges:
+        events['WaterExit.leave'] = WATER_CROSS_T
+    water = {}
+    lm = an.landmarks
+    if 'SwimSurface' in ranges and lm.get('chest') is not None and lm.get('headCenter') is not None:
+        # an air breather swims with the spine line at the surface and head and neck out (paddling quadrupeds)
+        water = {'surfaceWaterline_m': round(float(lm['chest'][2]), 4),
+                 'headAboveWater_m': round(float(lm['headCenter'][2] - lm['chest'][2]), 4),
+                 'source': 'rest landmarks: chest (spine line) at the waterline, head above'}
+    motion = {'body': body, 'rootOffsets_m': root_offsets, 'events': events, 'water': water,
               'maxTurnRateDegPerSec': max_turn, 'biomechanics': anim.biomech,
               'speedSource': 'Walk/Run: planted-foot speed (period from the Froude relation where the profile opts in); '
                              'Swim/SwimSurface/Fly: Strouhal 0.3 on the measured stroke tip (fallback: body lengths per cycle '
@@ -1604,6 +1637,10 @@ def main():
               'bones': [b.name for b in arm.data.bones], 'deformBones': [b.name for b in arm.data.bones if b.name not in anchors],
               'anchors': anchors, 'ikChains': ik, 'clips': ranges, 'contacts': anim.contacts, 'groundClearanceLift_m': anim.clearance,
               'motion': motion,
+              # U1-CHAR.8 mobile: baked animation size before Unity's keyframe reduction (rotation 4 + Root location 3 floats)
+              'animationData': {'frames': sum(r['end'] - r['start'] + 1 for r in ranges.values()), 'bones': len(arm.data.bones),
+                                'floatsPerFrame': 4 * len(arm.data.bones) + 3,
+                                'bakedMB': round(sum(r['end'] - r['start'] + 1 for r in ranges.values()) * (4 * len(arm.data.bones) + 3) * 4 / 1e6, 3)},
               'bind': bind_rep, 'skin': cc.skin_stats(obj), 'deformation': deform, 'deformationLimits': DEFORM_LIMITS,
               'deformationOk': all(v['ok'] for v in deform.values()),
               'landmarks': an.summary(), 'profile': prof, 'ikResidualMax': round(anim.ik_residual, 5),
