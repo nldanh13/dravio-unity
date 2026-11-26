@@ -15,11 +15,13 @@ namespace Dravio
         public readonly float MinDistance;
         public SocialPresentationPhase Phase { get; private set; }=SocialPresentationPhase.Approach;
         public long InteractionEnd { get; private set; }
+        long lastTick;
         public bool Terminal=>Phase==SocialPresentationPhase.Finished||Phase==SocialPresentationPhase.Cancelled;
         public bool Contains(string uid)=>uid==A||uid==B;
         public string Partner(string uid)=>uid==A?B:uid==B?A:null;
         internal SocialPresentationLease(SocialInteractionCandidate c,long now)
         {
+            lastTick=now;
             A=c.InitiatorUid;B=c.PartnerUid;Zone=c.ZoneId;Habitat=c.HabitatId;Kind=c.Kind;
             CandidateStart=c.StartedAtMs;CandidateEnd=c.UntilMs;Deadline=Math.Min(c.UntilMs,now+12000);
             MinDistance=Math.Max(.55f,c.MinDistanceDm/10f);
@@ -31,7 +33,8 @@ namespace Dravio
         public void Tick(long now,bool eligible,bool arrived,bool facing,bool motionReady,bool spacing)
         {
             if(Terminal)return;
-            if(!eligible||!spacing||now>=Deadline){Cancel();return;}
+            if(now<lastTick||!eligible||!spacing||now>=Deadline){Cancel();return;}
+            lastTick=now;
             if(Phase==SocialPresentationPhase.Interact)
             {
                 if(!arrived){Cancel();return;}
@@ -47,14 +50,16 @@ namespace Dravio
     public sealed class SocialPresentationScheduler
     {
         readonly HashSet<string> attempted=new HashSet<string>(StringComparer.Ordinal);
-        long epoch=long.MinValue;
+        long epoch=long.MinValue,lastNow=long.MinValue;
         public SocialPresentationLease Active { get; private set; }
         public bool TryBegin(SocialInteractionCandidate c,long now,bool eligible)
         {
+            if(now<lastNow)return false;lastNow=now;
             long e=now/SocialRules.EpochMs;
             if(e!=epoch){attempted.Clear();epoch=e;}
             if(Active!=null||!eligible||c==null||c.AffectsGameplay||c.Role!=BehaviorRole.Presentation||
-                c.Kind==SocialInteractionKind.KeepDistance||string.IsNullOrEmpty(c.InitiatorUid)||
+                (c.Kind!=SocialInteractionKind.PlayTogether&&c.Kind!=SocialInteractionKind.RestTogether&&c.Kind!=SocialInteractionKind.CuriousApproach)||
+                c.MinDistanceDm<=0||string.IsNullOrEmpty(c.InitiatorUid)||
                 string.IsNullOrEmpty(c.PartnerUid)||c.InitiatorUid==c.PartnerUid||
                 string.IsNullOrEmpty(c.ZoneId)||string.IsNullOrEmpty(c.HabitatId)||
                 now<c.StartedAtMs||c.UntilMs-now<3000||

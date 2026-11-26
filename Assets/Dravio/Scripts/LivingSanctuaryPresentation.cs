@@ -516,6 +516,7 @@ namespace Dravio
                 IsFoodTarget(r)||r.decision.Behavior==DragonBehavior.Sleep||r.decision.Behavior==DragonBehavior.SeekFood||
                 r.decision.Behavior==DragonBehavior.Eat||!manager.TryGet(r.uid,out var live)||
                 live.Clips==null||live.Entry==null||live.Entry.animQaStatus!="PASS"||
+                (live.Entry.stage!=r.stage&&live.Entry.stage!=DragonVisualStage.Unstaged)||
                 !Presentable(State.FindDragon(r.uid)))return false;
             if(kind==SocialInteractionKind.PlayTogether)return live.Clips.CanPlay(DragonInteraction.Happy);
             if(kind==SocialInteractionKind.RestTogether)return live.Clips.Has(DragonLocomotion.Rest);
@@ -1072,7 +1073,11 @@ namespace Dravio
                 }
                 else if(e is FoodConsumed consumed)
                 {if(consumed.FoodId==foodId)ClearFood();} // Eat intent is derived from the accepted Domain event's timestamp.
-                else if(e is DragonPetted p && residents.TryGetValue(p.DragonUid,out var r)&&!r.Spatial)sync.React(p.DragonUid,DragonReaction.Petted);
+                else if(e is DragonPetted p && residents.TryGetValue(p.DragonUid,out var r)&&!r.Spatial)
+                {
+                    if(Social!=null&&Social.Contains(p.DragonUid))StopSocial("pet-event");
+                    sync.React(p.DragonUid,DragonReaction.Petted);
+                }
                 else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
             }
         }
@@ -1254,7 +1259,7 @@ namespace Dravio
             if(candidate!=null)
             {
                 string partner=candidate.InitiatorUid==d.Uid?candidate.PartnerUid:candidate.InitiatorUid;
-                // Only a display hint. Never initiate animation, approach or a gameplay command.
+                // Candidate remains a read-only hint; opt-in scheduler may render it but never sends a command.
                 profile.text+="\n"+(vi?"Gợi ý xã hội: ":"Social candidate: ")+candidate.Kind+
                     (string.IsNullOrEmpty(partner)?"":" · "+(State.FindDragon(partner)?.SpeciesId??"—"));
             }
