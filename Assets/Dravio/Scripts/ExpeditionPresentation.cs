@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Linq;
 using Dravio.Domain;
 using Dravio.Domain.Core;
+using Dravio.Domain.Catalog;
+using Dravio.Domain.Progression;
 using Dravio.Domain.Queries;
 using Dravio.Domain.Expedition;
 
@@ -35,13 +37,77 @@ namespace Dravio
         {
             var missing=new List<KeyValuePair<string,long>>();
             if(state==null||quote==null||!quote.NextProjectCostGoldMicro.HasValue||quote.NextProjectMaterialEach<=0)return missing;
-            foreach(var id in quote.NextProjectMaterialIds)
-            {
-                long stock=state.Player.Inventory.TryGetValue(id,out var n)?n:0;
-                long deficit=Math.Max(0,(long)quote.NextProjectMaterialEach-stock);
-                if(deficit>0)missing.Add(new KeyValuePair<string,long>(id,deficit));
-            }
+            foreach(var need in quote.NextProjectMaterials)
+                if(need.Missing>0)missing.Add(new KeyValuePair<string,long>(need.MaterialId,need.Missing));
             return missing;
+        }
+        public static string ProjectName(SanctuaryProjectDef project,bool vi)
+        {
+            if(project==null)return "—";
+            if(vi)return project.NameVi;
+            if(project.Id.StartsWith("vista_",StringComparison.Ordinal))
+                return "Landscape expansion "+project.Id.Split('_').Last();
+            return project.Id switch
+            {
+                "origin_mossy_steps"=>"Mossy stone steps","origin_lantern_row"=>"Stone lantern path",
+                "origin_meadow_arbor"=>"Meadow arbor","origin_trail_shrine"=>"Trail shrine",
+                "origin_lily_pond"=>"Lily pond","origin_rune_circle"=>"Rune circle",
+                "origin_ancient_gate"=>"Ancient gate","origin_elder_statue"=>"Elder dragon statue",
+                "ocean_tide_pools"=>"Tide pools","ocean_coral_arch"=>"Coral arch",
+                "ocean_shell_path"=>"Shell path","ocean_kelp_garden"=>"Kelp garden",
+                "ocean_glow_buoys"=>"Glowing buoys","ocean_sunken_shrine"=>"Sunken shrine",
+                "sky_cloud_bridge"=>"Cloud bridge","sky_cloud_garden"=>"Cloud garden",
+                "sky_wind_chimes"=>"Wind chimes","sky_falling_spring"=>"Falling spring",
+                "sky_star_observatory"=>"Star observatory","sky_aurora_spire"=>"Aurora spire",
+                _=>project.Id
+            };
+        }
+        public static string ProjectZone(string id,bool vi)=>id switch
+        {
+            "origin"=>vi?"Khởi Nguyên":"Origin","ocean"=>vi?"Thủy Vực":"Ocean",
+            "sky"=>vi?"Thiên Giới":"Sky",_=>id??"—"
+        };
+        public static string ProjectBlock(string code,bool vi)=>code switch
+        {
+            null=>vi?"Đủ điều kiện xây":"Ready to build",
+            "not-enough-gold"=>vi?"Chưa đủ vàng":"Not enough gold",
+            "not-enough-materials"=>vi?"Chưa đủ vật liệu":"Not enough materials",
+            "projects-maxed"=>vi?"Đã xây đủ dự án":"All projects built",
+            _=>code
+        };
+        public static string ProjectSummary(GameState state,SanctuaryEconomyDto quote,bool vi)
+        {
+            if(state==null||quote==null)return "—";
+            var lines=new List<string>{(vi?"Dự án Sanctuary: ":"Sanctuary projects: ")+quote.ProjectsBuilt+"/"+quote.ProjectsMax};
+            if(quote.NextProject==null||!quote.NextProjectCostGoldMicro.HasValue)
+            {
+                lines.Add(vi?"Đã hoàn thành toàn bộ dự án.":"All projects completed.");
+                return string.Join("\n",lines);
+            }
+            var next=quote.NextProject;
+            var view=ProgressionQueries.SanctuaryProjects(state).FirstOrDefault(p=>!p.Built);
+            lines.Add((vi?"Tiếp theo: ":"Next: ")+ProjectName(next,vi)+" · "+ProjectZone(next.ZoneId,vi));
+            if(view!=null && view.DisplayZoneId!=next.ZoneId)
+                lines.Add((vi?"Vị trí tạm thời: ":"Temporary display world: ")+ProjectZone(view.DisplayZoneId,vi));
+            if(view!=null && view.StyleVariant)
+                lines.Add(vi?"Đã mở mẫu trang trí.":"Decorative blueprint unlocked.");
+            lines.Add((vi?"Vàng: ":"Gold: ")+(quote.NextProjectCostGoldMicro.Value/(decimal)MicroGold.MicroPerGold).ToString("0.##",CultureInfo.InvariantCulture)+" G");
+            foreach(var need in quote.NextProjectMaterials)
+                lines.Add(MaterialName(need.MaterialId,vi)+": "+need.Have+"/"+need.Required+
+                    (need.Missing>0?(vi?" · Thiếu ":" · Missing ")+need.Missing:""));
+            if(quote.NextProjectMaterials.Count==0)lines.Add(vi?"Không cần vật liệu.":"No materials required.");
+            else if(quote.NextProjectMaterialFallback)
+                lines.Add((vi?"Nguồn vật liệu thay thế: ":"Fallback material source: ")+ProjectZone(quote.NextProjectMaterialZoneId,vi)+
+                    (vi?" (thế giới đích chưa mở hoặc chưa có nguồn).":" (target locked or source unavailable)."));
+            var deficits=quote.NextProjectMaterials.Where(n=>n.Missing>0).Select(n=>n.MaterialId).ToArray();
+            if(deficits.Length>0)
+            {
+                var routes=ProgressionQueries.ExplorationRoutes(state).Where(r=>r.Open&&r.RewardsDefined&&r.Materials.Any(deficits.Contains)).Select(r=>r.RouteId).ToArray();
+                if(routes.Length>0)lines.Add((vi?"Tuyến tìm vật liệu: ":"Material routes: ")+string.Join(", ",routes));
+            }
+            lines.Add(ProjectBlock(quote.NextProjectBlockedBy,vi));
+            lines.Add(vi?"Chỉ trang trí; không tăng sản xuất. Hình ảnh tùy tài nguyên đã tích hợp.":"Cosmetic only; no production bonus. Visuals depend on integrated assets.");
+            return string.Join("\n",lines);
         }
         public static string MaterialName(string id,bool vi)
         {

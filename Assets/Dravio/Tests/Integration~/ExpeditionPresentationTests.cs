@@ -91,6 +91,34 @@ namespace Dravio.Tests
             Assert.That(s.SanctuaryProjectsBuilt,Is.EqualTo(2));
             Assert.That(result.State.ProductionDragonIds,Is.EqualTo(s.ProductionDragonIds));
         }
+        [Test] public void ProjectSummaryUsesCanonicalWorldFallbackAndMaterialNeeds()
+        {
+            // Fixture selects a late project to test presentation without replaying all earlier purchases.
+            var s=New();s.SanctuaryProjectsBuilt=8;var rev=s.Revision;
+            var q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(q.NextProject.Id,Is.EqualTo("ocean_tide_pools"));
+            Assert.That(q.NextProjectMaterialFallback,Is.True);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),
+                Does.Contain("Tide pools").And.Contain("Fallback material source: Origin").And.Contain("wood").And.Contain("origin_forest"));
+            s.FindZone("ocean").Unlocked=true;
+            q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(q.NextProjectMaterialFallback,Is.False);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("crystal").And.Contain("coral").And.Not.Contain("Fallback material source"));
+            Assert.That(ExpeditionPresentation.ProjectShortfalls(s,q).Select(x=>x.Key),Is.EqualTo(new[]{"crystal","coral"}));
+            Assert.That(s.Revision,Is.EqualTo(rev));
+        }
+        [Test] public void ProjectSummaryHandlesSkyFallbackAndMax()
+        {
+            var s=New();s.FindZone("ocean").Unlocked=true;s.FindZone("sky").Unlocked=true;
+            s.SanctuaryProjectsBuilt=14;
+            var q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("Cloud bridge").And.Contain("Fallback material source: Ocean"));
+            Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Not.Contain("stardust"));
+            s.SanctuaryProjectsBuilt=60;
+            q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("60/60").And.Contain("All projects completed"));
+            Assert.That(ExpeditionPresentation.ProjectShortfalls(s,q),Is.Empty);
+        }
         [Test] public void SkyProgressShowsLockedEggMilestoneWithoutClaimPermission()
         {
             var s=New();

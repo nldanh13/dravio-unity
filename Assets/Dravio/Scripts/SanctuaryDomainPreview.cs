@@ -359,8 +359,19 @@ namespace Dravio
         {
             if(!persistentMode || !CanSend)return;
             var economy=ProgressionQueries.SanctuaryEconomy(state,state.Clock.LastProcessedAtMs);
-            if(economy.NextProjectBlockedBy!=null || !economy.NextProjectCostGoldMicro.HasValue)return;
-            GuideCommand(id=>new BuildSanctuaryProjectCommand(id),"Project recorded; decoration art pending.","Đã ghi nhận dự án; hình ảnh trang trí chưa có.");
+            if(economy.NextProjectBlockedBy!=null || !economy.NextProjectCostGoldMicro.HasValue || economy.NextProject==null)
+            {
+                SetMessage(ExpeditionPresentation.ProjectBlock(economy.NextProjectBlockedBy,false),
+                    ExpeditionPresentation.ProjectBlock(economy.NextProjectBlockedBy,true));RefreshManagement();return;
+            }
+            int before=economy.ProjectsBuilt;var project=economy.NextProject;
+            var events=Send(id=>new BuildSanctuaryProjectCommand(id));
+            if(events==null)return;
+            if(state==null||state.SanctuaryProjectsBuilt!=before+1)
+            {SetMessage("Project was not recorded. Refresh and try again.","Chưa ghi nhận dự án. Hãy kiểm tra và thử lại.");return;}
+            string en=ExpeditionPresentation.ProjectName(project,false),vn=ExpeditionPresentation.ProjectName(project,true);
+            SetMessage("Project recorded: "+en+(Session.SaveError?" · Save failed.":""),
+                "Đã ghi nhận: "+vn+(Session.SaveError?" · Lỗi lưu.":""));
         }
         public void UnlockOcean(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"ocean"),"Ocean unlocked.","Đã mở Thủy Vực.");}
         public void UnlockSky(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"sky"),"Sky unlocked.","Đã mở Thiên Giới.");}
@@ -569,12 +580,7 @@ namespace Dravio
             if(projectStatus!=null)
             {
                 var e=ProgressionQueries.SanctuaryEconomy(state,state.Clock.LastProcessedAtMs);
-                projectStatus.text=(vi?"Dự án trang trí: ":"Decorative projects: ")+e.ProjectsBuilt+"/"+e.ProjectsMax+
-                    "\n"+(e.NextProjectCostGoldMicro.HasValue?(vi?"Giá tiếp theo: ":"Next cost: ")+GoldText(e.NextProjectCostGoldMicro.Value)+" G":"—")+
-                    "\n"+(e.NextProjectMaterialEach>0?e.NextProjectMaterialEach+" × "+string.Join(", ",e.NextProjectMaterialIds):"")+
-                    "\n"+(vi?"Thiếu vật liệu: ":"Missing materials: ")+string.Join(", ",ExpeditionPresentation.ProjectShortfalls(state,e).Select(m=>m.Key+" × "+m.Value))+
-                    "\n"+(e.NextProjectBlockedBy??"")+
-                    "\n"+(vi?"Hình ảnh trang trí chưa triển khai.":"Decoration art not implemented.");
+                projectStatus.text=ExpeditionPresentation.ProjectSummary(state,e,vi);
                 if(projectBuild!=null)projectBuild.interactable=ready && e.NextProjectCostGoldMicro.HasValue && e.NextProjectBlockedBy==null;
             }
             var summary=Ecosystem.Summary(state);

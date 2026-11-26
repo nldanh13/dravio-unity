@@ -233,7 +233,7 @@ namespace Dravio.Editor
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
-                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,190,false);
+                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,350,false);
                 projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
                 projectBuild.interactable=false;
                 Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
@@ -262,7 +262,7 @@ namespace Dravio.Editor
                 Label(ui,management,"Capacity upgrade increases the production budget, not physical habitat slots.","Nâng cấp sức chứa tăng ngân sách sản xuất, không tăng chỗ ở vật lý.",14,Muted,TextAnchor.MiddleLeft,66);
                 Label(ui,management,"Expedition","Thám hiểm",18,Gold,TextAnchor.MiddleLeft,36);
                 managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,160,false);
-                expeditionRouteText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,155,false);
+                expeditionRouteText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,290,false);
                 nextExpeditionRoute=Button(ui,management,"Next route","Tuyến tiếp theo",46);
                 expeditionDragonText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,125,false);
                 nextExpeditionDragon=Button(ui,management,"Next expedition dragon","Rồng thám hiểm tiếp theo",46);
