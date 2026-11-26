@@ -116,7 +116,10 @@ namespace Dravio
             if(load==null){feedback="Load failed / Không tải được scene";RestoreOrigin();yield break;}
             yield return load;
             remote=SceneManager.GetSceneByPath(ConnectedWorldPolicy.ScenePath(zone));
-            if(!CanEnter(zone)||!TryBind(remote,zone))
+            bool bound=false;
+            try{bound=CanEnter(zone)&&TryBind(remote,zone);}
+            catch(Exception e){Debug.LogException(e);}
+            if(!bound)
             {
                 feedback="World validation failed / Scene không hợp lệ";
                 if(remote.IsValid() && remote.isLoaded)
@@ -151,14 +154,18 @@ namespace Dravio
         }
         void RestoreOrigin()
         {
-            SceneManager.SetActiveScene(shell);
-            for(int i=0;i<originEnvironmentRoots.Length;i++)if(originEnvironmentRoots[i]!=null)originEnvironmentRoots[i].SetActive(rootStates[i]);
-            var env=LivingEnvironment.Active;
-            if(env!=null && env.timeOfDay!=null)env.timeOfDay.SetHour(hour);
-            current=ConnectedWorldPolicy.Origin;
-            if(env==null||!presentation.BindWorldView(env.locations,env.interactions,Camera.main))
-            {feedback="Origin binding failed / Không thể khôi phục Khởi Nguyên";configured=false;}
-            Finish();
+            try
+            {
+                SceneManager.SetActiveScene(shell);
+                for(int i=0;i<originEnvironmentRoots.Length;i++)if(originEnvironmentRoots[i]!=null)originEnvironmentRoots[i].SetActive(rootStates[i]);
+                var env=LivingEnvironment.Active;
+                if(env!=null && env.timeOfDay!=null)env.timeOfDay.SetHour(hour);
+                current=ConnectedWorldPolicy.Origin;
+                if(env==null||!presentation.BindWorldView(env.locations,env.interactions,Camera.main))
+                {feedback="Origin binding failed / Không thể khôi phục Khởi Nguyên";configured=false;}
+            }
+            catch(Exception e){Debug.LogException(e);configured=false;feedback="Origin restore failed / Lỗi khôi phục";}
+            finally{Finish();}
         }
         void Finish(){switching=false;adapter.SetWorldSwitching(false);Refresh();}
     }
