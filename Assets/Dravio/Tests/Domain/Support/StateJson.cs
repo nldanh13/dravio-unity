@@ -55,6 +55,7 @@ namespace Dravio.Domain.Tests.Support
                 var x = Obj();
                 x["id"] = f.Id; x["dietId"] = f.DietId.ToWire(); x["zoneId"] = f.ZoneId; x["habitatId"] = f.HabitatId;
                 x["spawnedAtMs"] = N(f.SpawnedAtMs); x["expiresAtMs"] = N(f.ExpiresAtMs);
+                if (f.TargetDragonUid != null) x["targetDragonUid"] = f.TargetDragonUid; // U2.15: chỉ khi có, golden TS giữ nguyên
                 drops.Add(x);
             }
             fo["drops"] = drops;
@@ -239,7 +240,8 @@ namespace Dravio.Domain.Tests.Support
             var food = (Dictionary<string, object>)o["food"];
             s.Food = new FoodState { LastSpawnAtMs = food["lastSpawnAtMs"] == null ? (long?)null : L(food["lastSpawnAtMs"]) };
             foreach (Dictionary<string, object> f in (List<object>)food["drops"])
-                s.Food.Drops.Add(new FoodDrop { Id = (string)f["id"], DietId = E<DietId>(f["dietId"]), ZoneId = (string)f["zoneId"], HabitatId = (string)f["habitatId"], SpawnedAtMs = L(f["spawnedAtMs"]), ExpiresAtMs = L(f["expiresAtMs"]) });
+                s.Food.Drops.Add(new FoodDrop { Id = (string)f["id"], DietId = E<DietId>(f["dietId"]), ZoneId = (string)f["zoneId"], HabitatId = (string)f["habitatId"], SpawnedAtMs = L(f["spawnedAtMs"]), ExpiresAtMs = L(f["expiresAtMs"]),
+                    TargetDragonUid = f.TryGetValue("targetDragonUid", out object tu) ? tu as string : null });
             s.ProcessedRequestIds = Strs(o["processedRequestIds"]);
             var c = (Dictionary<string, object>)o["clock"];
             s.Clock = new ClockState(L(c["lastProcessedAtMs"]), L(c["highWaterAtMs"]));
@@ -309,9 +311,13 @@ namespace Dravio.Domain.Tests.Support
                 case TimeAdvanced t: o["fromMs"] = N(t.FromMs); o["toMs"] = N(t.ToMs); o["elapsedMs"] = N(t.ElapsedMs); o["mode"] = t.Mode.ToWire(); o["goldMicro"] = N(t.GoldMicro); break;
                 case StageChanged x: o["dragonUid"] = x.DragonUid; o["from"] = x.From.ToWire(); o["to"] = x.To.ToWire(); break;
                 case OfflineReceiptCreated x: o["receiptId"] = x.ReceiptId; o["goldMicro"] = N(x.GoldMicro); o["elapsedMs"] = N(x.ElapsedMs); break;
-                case FoodSpawned x: o["foodId"] = x.FoodId; o["dietId"] = x.DietId.ToWire(); o["zoneId"] = x.ZoneId; o["habitatId"] = x.HabitatId; o["expiresAtMs"] = N(x.ExpiresAtMs); break;
+                case FoodSpawned x: o["foodId"] = x.FoodId; o["dietId"] = x.DietId.ToWire(); o["zoneId"] = x.ZoneId; o["habitatId"] = x.HabitatId; o["expiresAtMs"] = N(x.ExpiresAtMs);
+                    if (x.TargetDragonUid != null) o["targetDragonUid"] = x.TargetDragonUid; // U2.15: chỉ khi có (golden TS không có trường này)
+                    break;
                 case FoodExpired x: o["foodId"] = x.FoodId; break;
-                case FoodConsumed x: o["foodId"] = x.FoodId; o["dragonUid"] = x.DragonUid; o["xpGainedSec"] = (double)x.XpGainedSec; break;
+                case FoodConsumed x: o["foodId"] = x.FoodId; o["dragonUid"] = x.DragonUid; o["xpGainedSec"] = (double)x.XpGainedSec;
+                    if (x.TargetDragonUid != null) o["targetDragonUid"] = x.TargetDragonUid;
+                    break;
                 case BondChanged x: o["dragonUid"] = x.DragonUid; o["from"] = (double)x.From; o["to"] = (double)x.To; o["source"] = x.Source.ToWire(); break;
                 case DragonPetted x: o["dragonUid"] = x.DragonUid; break;
                 case DragonRenamed x: o["dragonUid"] = x.DragonUid; o["nickname"] = x.Nickname; break;
@@ -360,7 +366,7 @@ namespace Dravio.Domain.Tests.Support
                 case "advanceTime":
                     return WireNames.TryParse(Get(c, "mode") as string, out AdvanceMode m) ? new AdvanceTimeCommand(rid, m) : null;
                 case "feed":
-                    return WireNames.TryParse(Get(c, "dietId") as string, out DietId diet) ? new FeedCommand(rid, diet, Get(c, "zoneId") as string, Get(c, "habitatId") as string) : null;
+                    return WireNames.TryParse(Get(c, "dietId") as string, out DietId diet) ? new FeedCommand(rid, diet, Get(c, "zoneId") as string, Get(c, "habitatId") as string, Get(c, "targetDragonUid") as string) : null;
                 case "consumeFood": return new ConsumeFoodCommand(rid, Get(c, "foodId") as string, Get(c, "dragonUid") as string);
                 case "pet": return new PetCommand(rid, Get(c, "dragonUid") as string);
                 case "renameDragon": return new RenameDragonCommand(rid, Get(c, "dragonUid") as string, Get(c, "nickname") as string);

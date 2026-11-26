@@ -45,6 +45,11 @@ namespace Dravio.Domain
         public string HabitatId { get; set; }
         public long SpawnedAtMs { get; set; }
         public long ExpiresAtMs { get; set; }
+        /// <summary>
+        /// U2.15 (luật cho ăn B): rồng được chọn khi thả (<see cref="Core.FeedCommand.TargetDragonUid"/>), null = luật A.
+        /// Chỉ trong bộ nhớ: save không lưu phần ăn đang rơi (ADR 0004 #10) nên Schema v10 không đổi.
+        /// </summary>
+        public string TargetDragonUid { get; set; }
 
         public FoodDrop Clone() => (FoodDrop)MemberwiseClone();
     }
