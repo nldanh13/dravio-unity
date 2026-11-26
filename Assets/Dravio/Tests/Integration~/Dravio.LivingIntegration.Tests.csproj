@@ -27,6 +27,8 @@
     <Compile Include="RoutedCrowdLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/CrowdCoordinationLab.cs" />
     <Compile Include="CrowdCoordinationLabTests.cs" />
+    <Compile Include="../../Scripts/ControllerFrameTrace.cs" />
+    <Compile Include="ControllerFrameTraceTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/CreatureTechniqueLab.cs" />
     <Compile Include="CreatureTechniqueLabTests.cs" />
     <None Include="../../Environment/Data/OriginSanctuaryLocations.json" Link="LabMaps/OriginSanctuaryLocations.json" CopyToOutputDirectory="PreserveNewest" />

@@ -68,6 +68,10 @@ namespace Dravio
         SanctuaryNavigationSurface navigation;
         int routeBudget;
         int plannedRoutes,failedRoutes;
+#if UNITY_EDITOR
+        ControllerFrameTrace controllerTrace;
+        int traceAttempts,traceArrivals,traceBlocked;
+#endif
         [SerializeField] bool drawSelectedRoute=true;
         EnvironmentInteractions interactions;
         BehaviorPhase phase=BehaviorPhase.Day;
@@ -303,8 +307,16 @@ namespace Dravio
         }
         bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
         {
+#if UNITY_EDITOR
+            if(controllerTrace!=null && controllerTrace.Recording)traceAttempts++;
+#endif
             speed=0f;turnRate=0f;
-            if((target-r.position).sqrMagnitude<.0036f && ClearPoint(target,r.habitat,r.uid)){ResetRoute(r);return true;}
+            if((target-r.position).sqrMagnitude<.0036f && ClearPoint(target,r.habitat,r.uid)){
+#if UNITY_EDITOR
+                if(controllerTrace!=null && controllerTrace.Recording)traceArrivals++;
+#endif
+                ResetRoute(r);return true;
+            }
             if(!r.walking){r.routeFailed=true;r.routeState="no-walk-clip";return false;}
             if(manager.TryGet(r.uid,out var live) &&
                 (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
@@ -314,7 +326,12 @@ namespace Dravio
                 r.routeIndex++;
             if(r.routeIndex>=points.Count)
             {
-                if(ClearPoint(target,r.habitat,r.uid)){ResetRoute(r);return true;}
+                if(ClearPoint(target,r.habitat,r.uid)){
+#if UNITY_EDITOR
+                if(controllerTrace!=null && controllerTrace.Recording)traceArrivals++;
+#endif
+                ResetRoute(r);return true;
+            }
                 r.route=null;r.routeIndex=0;r.routeState="dynamic-goal-block";r.retryAt=Time.unscaledTime+.45f;return false;
             }
             var waypoint=SanctuaryNavigationSurface.Vector(points[r.routeIndex]);
@@ -325,6 +342,9 @@ namespace Dravio
             {
                 // Stop, never slide through a moving resident. Replan after a short cooldown.
                 r.route=null;r.routeIndex=0;r.routeState="dynamic-block";r.routeFailed=false;
+#if UNITY_EDITOR
+                if(controllerTrace!=null && controllerTrace.Recording)traceBlocked++;
+#endif
                 r.retryAt=Time.unscaledTime+.45f;return false;
             }
             var old=r.rotation;var heading=Quaternion.LookRotation(delta);
@@ -332,7 +352,12 @@ namespace Dravio
             if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
             if(Quaternion.Angle(r.rotation,heading)<15f)
             {speed=dt>0f?Vector3.Distance(r.position,next)/dt:0f;r.position=next;}
-            if((target-r.position).sqrMagnitude<.0036f){ResetRoute(r);return true;}
+            if((target-r.position).sqrMagnitude<.0036f){
+#if UNITY_EDITOR
+                if(controllerTrace!=null && controllerTrace.Recording)traceArrivals++;
+#endif
+                ResetRoute(r);return true;
+            }
             return false;
         }
         void OnDrawGizmos()
@@ -450,22 +475,74 @@ namespace Dravio
             if(!ready)return;
             RefreshDecisions();
             float dt=Mathf.Min(Time.deltaTime,.1f);
+#if UNITY_EDITOR
+            bool tracing=controllerTrace!=null && controllerTrace.Recording;
+            long traceStart=tracing?System.Diagnostics.Stopwatch.GetTimestamp():0L;
+            int tracePlansBefore=plannedRoutes,traceFailsBefore=failedRoutes,traceMoving=0;
+            traceAttempts=traceArrivals=traceBlocked=0;
+#endif
             frames.Clear();
             routeBudget=1; // bounded work per rendered frame, even with many residents
             foreach(var r in residents.Values)
             {
                 var intent=GroundIntent(r,dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget);
                 r.shownIntent=intent;
+#if UNITY_EDITOR
+                if(tracing && speed>0f)traceMoving++;
+#endif
                 frames.Add(new SanctuaryDragonFrame{uid=r.uid,speciesId=r.species,variantId=r.variant,stage=r.stage,
                     genotype=r.genotype,visible=true,position=r.position,rotation=r.rotation,intent=intent,
                     personality=r.personality,speed=speed,turnRateDegPerSec=turnRate,hasLookTarget=look,lookTarget=lookTarget});
             }
+#if UNITY_EDITOR
+            long traceSyncStart=tracing?System.Diagnostics.Stopwatch.GetTimestamp():0L;
+#endif
             var report=sync.Sync(frames,dt);substitutions=report.substituted;
+#if UNITY_EDITOR
+            if(tracing)
+            {
+                long traceEnd=System.Diagnostics.Stopwatch.GetTimestamp();
+                double scale=1000.0/System.Diagnostics.Stopwatch.Frequency;
+                float min=float.PositiveInfinity;
+                for(int i=0;i<frames.Count;i++)
+                for(int j=0;j<i;j++)min=Mathf.Min(min,Vector3.Distance(frames[i].position,frames[j].position));
+                controllerTrace.Add(new ControllerFrameSample(dt,frames.Count,traceMoving,traceAttempts,traceArrivals,
+                    traceBlocked,plannedRoutes-tracePlansBefore,failedRoutes-traceFailsBefore,
+                    report.substituted,float.IsInfinity(min)?-1:min,
+                    (traceSyncStart-traceStart)*scale,(traceEnd-traceSyncStart)*scale));
+            }
+#endif
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
             if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)
             {consumeAfter=Time.unscaledTime+.2f;Consume();}
             ReadSelection();
         }
+
+#if UNITY_EDITOR
+        [ContextMenu("Technology Lab/Start controller trace")]
+        void StartControllerTrace()
+        {
+            if(!Application.isPlaying){Debug.LogWarning("Controller trace requires Play Mode.");return;}
+            controllerTrace=new ControllerFrameTrace(1200);
+            Debug.Log("Dravio TL.10: recording up to 1200 ready controller frames. Stop/export before leaving Play Mode.");
+        }
+        [ContextMenu("Technology Lab/Stop and report trace")]
+        void StopControllerTrace()
+        {
+            if(controllerTrace==null)return;
+            controllerTrace.Stop();Debug.Log(controllerTrace.Summary());
+        }
+        [ContextMenu("Technology Lab/Export trace CSV")]
+        void ExportControllerTrace()
+        {
+            if(controllerTrace==null || controllerTrace.Count==0){Debug.LogWarning("No controller trace.");return;}
+            controllerTrace.Stop();
+            string path=UnityEditor.EditorUtility.SaveFilePanel("Export controller trace","",
+                "dravio-controller-trace","csv");
+            if(!string.IsNullOrEmpty(path))System.IO.File.WriteAllText(path,controllerTrace.Csv());
+            Debug.Log(controllerTrace.Summary());
+        }
+#endif
 
         void ReadSelection()
         {
