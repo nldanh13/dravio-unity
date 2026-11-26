@@ -130,6 +130,8 @@ namespace Dravio.Editor
             var upgradeStatus=new List<Text>();
             var upgradeButtons=new List<Button>();
             Button unlockOcean=null,unlockSky=null,claimExpedition=null;
+            Text expeditionRouteText=null,expeditionDragonText=null;
+            Button nextExpeditionRoute=null,nextExpeditionDragon=null,startExpedition=null;
             Text hatcheryStatus=null,parentsStatus=null,hatcheryFeedback=null;
             Button standard=null,elemental=null,mystic=null,astral=null,packMeadow=null,packStorage=null,selectA=null,selectB=null,breed=null,tap=null,breedMeadow=null,breedStorage=null;
             Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
@@ -231,7 +233,7 @@ namespace Dravio.Editor
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
-                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,150,false);
+                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,190,false);
                 projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
                 projectBuild.interactable=false;
                 Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
@@ -259,9 +261,15 @@ namespace Dravio.Editor
                 }
                 Label(ui,management,"Capacity upgrade increases the production budget, not physical habitat slots.","Nâng cấp sức chứa tăng ngân sách sản xuất, không tăng chỗ ở vật lý.",14,Muted,TextAnchor.MiddleLeft,66);
                 Label(ui,management,"Expedition","Thám hiểm",18,Gold,TextAnchor.MiddleLeft,36);
-                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,105,false);
+                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,160,false);
+                expeditionRouteText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,155,false);
+                nextExpeditionRoute=Button(ui,management,"Next route","Tuyến tiếp theo",46);
+                expeditionDragonText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,125,false);
+                nextExpeditionDragon=Button(ui,management,"Next expedition dragon","Rồng thám hiểm tiếp theo",46);
+                startExpedition=Button(ui,management,"Depart","Khởi hành",46);
+                nextExpeditionRoute.interactable=nextExpeditionDragon.interactable=startExpedition.interactable=false;
                 claimExpedition=Button(ui,management,"Claim expedition rewards","Nhận thưởng thám hiểm",46);
-                Label(ui,management,"Starting expeditions is deferred until health checks and living-dragon presentation are integrated.","Chưa mở nút khởi hành cho đến khi tích hợp kiểm tra sức khỏe và hiển thị rồng.",14,Muted,TextAnchor.MiddleLeft,80);
+                Label(ui,management,"One expedition slot. The adult must meet health and route requirements. Away dragons do not produce gold; claim materials after return.","Một ô thám hiểm. Rồng trưởng thành cần đủ sức khỏe và phù hợp tuyến. Rồng đi xa không sinh vàng; nhận vật liệu khi trở về.",14,Muted,TextAnchor.MiddleLeft,100);
                 Label(ui,management,"Materials","Vật liệu",18,Gold,TextAnchor.MiddleLeft,36);
                 managementMaterials=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,130,false);
                 Label(ui,management,"Codex","Bách khoa",18,Gold,TextAnchor.MiddleLeft,36);
@@ -344,6 +352,10 @@ namespace Dravio.Editor
                         upgradeStatus.ToArray(),upgradeButtons.ToArray());
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockOcean.onClick,session.UnlockOcean);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockSky.onClick,session.UnlockSky);
+                    session.ConfigureExpedition(expeditionRouteText,expeditionDragonText,nextExpeditionRoute,nextExpeditionDragon,startExpedition);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionRoute.onClick,session.NextExpeditionRoute);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionDragon.onClick,session.NextExpeditionDragon);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(startExpedition.onClick,session.StartSelectedExpedition);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(claimExpedition.onClick,session.ClaimExpeditionReward);
                     for(int i=0;i<upgradeButtons.Count;i++)
                         UnityEditor.Events.UnityEventTools.AddStringPersistentListener(upgradeButtons[i].onClick,session.BuySanctuaryUpgrade,EconomyTables.Upgrades[i].Id);
