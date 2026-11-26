@@ -1,0 +1,436 @@
+{
+  "version": "1.1-draft",
+  "base_commit": "85b843c3157c7d312fd993dbd27c8369493c2c47",
+  "style": "Cute Stylized 3D / Premium Casual Fantasy",
+  "assets": [
+    {
+      "id": "icon_rest",
+      "path": "Icons/Functions/icon_rest.png",
+      "width": 65,
+      "height": 65,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1451,
+        242,
+        1529,
+        302
+      ],
+      "sha256": "e1f65a60fc02df83dbcbe976aed601c520b2974b7ce2497a80c2fefa6f17f946",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "icon_day",
+      "path": "Icons/Functions/icon_day.png",
+      "width": 66,
+      "height": 66,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1080,
+        304,
+        1151,
+        367
+      ],
+      "sha256": "d13eedd517d9b51424af5ca6d69d539ed0ff1ae27bf07223aada3fc24257f81e",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "icon_night",
+      "path": "Icons/Functions/icon_night.png",
+      "width": 62,
+      "height": 62,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1161,
+        304,
+        1229,
+        367
+      ],
+      "sha256": "51fcc812378e3b28d299e5c3f02f0f76adadd2eea74f92a5ab18ed8f70a9a42c",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "icon_upgrade",
+      "path": "Icons/Functions/icon_upgrade.png",
+      "width": 60,
+      "height": 60,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1381,
+        238,
+        1450,
+        302
+      ],
+      "sha256": "10ce4ad55334330add22634755b8b7637cdb1843daa68e4ee77ad1679c3bfbaa",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "icon_temperature",
+      "path": "Icons/Functions/icon_temperature.png",
+      "width": 67,
+      "height": 67,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1389,
+        305,
+        1445,
+        372
+      ],
+      "sha256": "fb551cc7a2962410e04b76486d8ec0acea2d2c21af3c960a7c77f39e416e46e7",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "item_mystic",
+      "path": "Icons/Items/item_mystic.png",
+      "width": 86,
+      "height": 86,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1076,
+        784,
+        1168,
+        874
+      ],
+      "sha256": "44792a85ddb0cc43795ec3b55b53672e9c28572937f953fcd187540001cc64ab",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "item_astral",
+      "path": "Icons/Items/item_astral.png",
+      "width": 88,
+      "height": 88,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1169,
+        784,
+        1253,
+        874
+      ],
+      "sha256": "b9e7cbb36da9f8a69a98a688c8ce19cf3358bcc9376adec0a26edc08c8cb9995",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "item_aether",
+      "path": "Icons/Items/item_aether.png",
+      "width": 84,
+      "height": 84,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1253,
+        786,
+        1323,
+        875
+      ],
+      "sha256": "a289a46a32cfedc19fe6265c944c9242aac9ecfc62cef7c1b9cea52a30a93f2a",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "item_aquatic",
+      "path": "Icons/Items/item_aquatic.png",
+      "width": 78,
+      "height": 78,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1322,
+        784,
+        1392,
+        875
+      ],
+      "sha256": "154bfcb149731d32f51820415abae8962faa8a398d221d01dc6f12ba278a70de",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "item_stardust",
+      "path": "Icons/Items/item_stardust.png",
+      "width": 61,
+      "height": 61,
+      "type": "icon",
+      "source_sheet": 2,
+      "source_crop": [
+        1392,
+        806,
+        1455,
+        866
+      ],
+      "sha256": "f60ac8831e21a33ea8f9d576699bb0101285a25b8248b749f11fb2ba7ff5b147",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_frame",
+      "path": "Bars/ui_bar_frame.png",
+      "width": 188,
+      "height": 35,
+      "type": "frame",
+      "source_sheet": 1,
+      "source_crop": [
+        19,
+        891,
+        208,
+        931
+      ],
+      "sha256": "1fa39ec5559d5acfcebc06219e6a29aef14c0d660fc3d871eaadebef3ea43969",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_fill_health",
+      "path": "Bars/ui_bar_fill_health.png",
+      "width": 75,
+      "height": 26,
+      "type": "fill",
+      "source_sheet": 2,
+      "source_crop": [
+        323,
+        601,
+        402,
+        628
+      ],
+      "sha256": "70b5ff2f40dfda259cf9c4845956ea5a69cedb83bf198a90ac7f52dcec7e3228",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_fill_energy",
+      "path": "Bars/ui_bar_fill_energy.png",
+      "width": 75,
+      "height": 26,
+      "type": "fill",
+      "source_sheet": 2,
+      "source_crop": [
+        323,
+        632,
+        402,
+        658
+      ],
+      "sha256": "38848cd48c9804ab546c9cdd6d9c692ddd04ea9ded673c15ad43012b2703fec8",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_fill_hunger",
+      "path": "Bars/ui_bar_fill_hunger.png",
+      "width": 76,
+      "height": 26,
+      "type": "fill",
+      "source_sheet": 2,
+      "source_crop": [
+        323,
+        662,
+        402,
+        689
+      ],
+      "sha256": "838bbda8e211d772b0cf5717e74b85dd70eb32b9aeb28ad57ab1cf532d00fda6",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_fill_bond",
+      "path": "Bars/ui_bar_fill_bond.png",
+      "width": 76,
+      "height": 26,
+      "type": "fill",
+      "source_sheet": 2,
+      "source_crop": [
+        323,
+        696,
+        402,
+        723
+      ],
+      "sha256": "7ecc9b5dd5caf21ad521e3f2d5b037df40924cca8a4fd55d3a739607c11eb59a",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_bar_fill_water",
+      "path": "Bars/ui_bar_fill_water.png",
+      "width": 76,
+      "height": 25,
+      "type": "fill",
+      "source_sheet": 2,
+      "source_crop": [
+        323,
+        727,
+        402,
+        754
+      ],
+      "sha256": "8715d89206e2e04d8dc368831a3302927963d7d7fc433088fba058e7629cdfeb",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_corner_top_left",
+      "path": "Decor/ui_corner_top_left.png",
+      "width": 51,
+      "height": 50,
+      "type": "decor",
+      "source_sheet": 1,
+      "source_crop": [
+        1036,
+        881,
+        1094,
+        939
+      ],
+      "sha256": "e2494b9eaa9a3ac10350aa639094c624430f32c99447bfd8a7b093cc7384f60a",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_corner_top_right",
+      "path": "Decor/ui_corner_top_right.png",
+      "width": 51,
+      "height": 50,
+      "type": "decor",
+      "source_sheet": 1,
+      "source_crop": [
+        1094,
+        881,
+        1149,
+        938
+      ],
+      "sha256": "feacba6107f8cbc668b33031be593bb8ea2c96dd2e185d14ceafa40b6c133414",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_corner_bottom_left",
+      "path": "Decor/ui_corner_bottom_left.png",
+      "width": 51,
+      "height": 50,
+      "type": "decor",
+      "source_sheet": 1,
+      "source_crop": [
+        1036,
+        881,
+        1094,
+        939
+      ],
+      "sha256": "4df35a7a7c047f6ffd4026827018204416835ba544750dcc9b5e0a3a8167acdd",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": "flip_vertical"
+    },
+    {
+      "id": "ui_corner_bottom_right",
+      "path": "Decor/ui_corner_bottom_right.png",
+      "width": 54,
+      "height": 51,
+      "type": "decor",
+      "source_sheet": 1,
+      "source_crop": [
+        1094,
+        941,
+        1150,
+        1000
+      ],
+      "sha256": "44e6cc11b1e478a8ebe9f3370a2af2a9a3e58809c6b8aa8f2a08ee57bd49e8d4",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_edge_horizontal",
+      "path": "Decor/ui_edge_horizontal.png",
+      "width": 145,
+      "height": 22,
+      "type": "edge",
+      "source_sheet": 1,
+      "source_crop": [
+        1181,
+        889,
+        1335,
+        915
+      ],
+      "sha256": "168d67d93d39a8929962f459e8e54ea6641059f785df68d742f7cd316648c450",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_edge_vertical",
+      "path": "Decor/ui_edge_vertical.png",
+      "width": 22,
+      "height": 145,
+      "type": "edge",
+      "source_sheet": 1,
+      "source_crop": [
+        1181,
+        889,
+        1335,
+        915
+      ],
+      "sha256": "1f41322cc75ef71808ac9ea52096c73b64c59513d9188600e0c2f0d14416ed9c",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": "rotate_90"
+    },
+    {
+      "id": "ui_divider_ornament",
+      "path": "Decor/ui_divider_ornament.png",
+      "width": 153,
+      "height": 32,
+      "type": "divider",
+      "source_sheet": 1,
+      "source_crop": [
+        986,
+        207,
+        1146,
+        240
+      ],
+      "sha256": "0aeef4aec4c951c9a969fbec953e6bdee28432c59198bb3b641adfc2569dd9bc",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": null
+    },
+    {
+      "id": "ui_frame_portrait_hollow",
+      "path": "Frames/ui_frame_portrait_hollow.png",
+      "width": 115,
+      "height": 103,
+      "type": "portrait",
+      "source_sheet": 1,
+      "source_crop": [
+        1136,
+        744,
+        1260,
+        850
+      ],
+      "sha256": "4ec933be18b3e19b1fc24b0ae576ce88268b0af73c7be7781d41e337281341f9",
+      "status": "draft_needs_visual_QA",
+      "derived_transform": "interior_alpha_removed"
+    }
+  ],
+  "counts": {
+    "total": 24,
+    "function_icons": 5,
+    "item_icons": 5,
+    "progress_layers": 6,
+    "decor": 7,
+    "portrait": 1
+  },
+  "notes": [
+    "Generated reference sheets contain labels and marketing text; do not treat them as actual asset counts or transparent ready-to-import atlases.",
+    "Native crops only, approximate alpha matte; no artificial enlargement.",
+    "Bar frame and fills are independent but are different source sizes; Unity must align the inner track and use a mask or Filled image.",
+    "Do not tile the decorated edges without testing seams."
+  ],
+  "missing_or_unresolved": [
+    "portrait_alpha_QA",
+    "tabs_without_rail_verified",
+    "high_resolution_master_assets",
+    "visual_QA_and_borders",
+    "Unity_runtime_QA"
+  ]
+}
