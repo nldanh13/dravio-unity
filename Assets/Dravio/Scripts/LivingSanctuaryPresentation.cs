@@ -95,6 +95,10 @@ namespace Dravio
         bool decisionsDirty=true;
         long decisionDeadline;
         int substitutions;
+        GameState progressionState;
+        ProgressionOverviewDto progression;
+        readonly Dictionary<string,ResearchProfileDto> researchProfiles=new(StringComparer.Ordinal);
+        List<SocialInteractionCandidate> socialCandidates=new();
         string foodRequestedUid;
         bool feedPending;
         GameSession session;
@@ -294,6 +298,8 @@ namespace Dravio
             if(!decisionsDirty && current==phase && now<decisionDeadline)return;
             phase=current;decisionsDirty=false;decisionDeadline=now+1000;
             var all=BehaviorQueries.All(State,now,phase);
+            // Same canonical decision cadence; no social candidate writes or rewards.
+            socialCandidates=ProgressionQueries.SocialInteractionCandidates(State,now,phase);
             foreach(var d in all)
             {
                 if(!residents.TryGetValue(d.Uid,out var r))continue;
@@ -331,12 +337,20 @@ namespace Dravio
             r.point=best;r.target=best.Position;r.hasTarget=true;r.usedPoint=false;ResetRoute(r);
             return true;
         }
+        bool GroundMotionReady(Resident r)
+        {
+            var st=sync.MotionStatusOf(r.uid);
+            return U54MotionPolicy.MayMove(st.live,st.visible,st.mode==DragonMotionMode.Ground,st.canTranslate,st.actionPlaying) &&
+                manager.TryGet(r.uid,out var live) && live.ShownLocomotion!=DragonLocomotion.Sleep && live.CurrentInteraction==DragonInteraction.None;
+        }
+        static float SignedTurn(Quaternion old,Quaternion next,float dt)=>dt>0f?Mathf.DeltaAngle(old.eulerAngles.y,next.eulerAngles.y)/dt:0f;
         bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
         {
 #if UNITY_EDITOR
             if(controllerTrace!=null && controllerTrace.Recording)traceAttempts++;
 #endif
             speed=0f;turnRate=0f;
+            if(!GroundMotionReady(r))return false;
             if((target-r.position).sqrMagnitude<.0036f && ClearPoint(target,r.habitat,r.uid)){
 #if UNITY_EDITOR
                 if(controllerTrace!=null && controllerTrace.Recording)traceArrivals++;
@@ -344,8 +358,6 @@ namespace Dravio
                 ResetRoute(r);return true;
             }
             if(!r.walking){r.routeFailed=true;r.routeState="no-walk-clip";return false;}
-            if(manager.TryGet(r.uid,out var live) &&
-                (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
             if(!EnsureRoute(r,target))return false;
             var points=r.route.Waypoints;
             while(r.routeIndex<points.Count && (SanctuaryNavigationSurface.Vector(points[r.routeIndex])-r.position).sqrMagnitude<.0036f)
@@ -375,7 +387,7 @@ namespace Dravio
             }
             var old=r.rotation;var heading=Quaternion.LookRotation(delta);
             r.rotation=Quaternion.RotateTowards(old,heading,180f*dt);
-            if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+            turnRate=SignedTurn(old,r.rotation,dt);
             if(Quaternion.Angle(r.rotation,heading)<15f)
             {speed=dt>0f?Vector3.Distance(r.position,next)/dt:0f;r.position=next;}
             if((target-r.position).sqrMagnitude<.0036f){
@@ -404,7 +416,7 @@ namespace Dravio
             var delta=foodPoint-r.position;delta.y=0;
             return delta.sqrMagnitude<.0001f || Vector3.Angle(r.rotation*Vector3.forward,delta)<=FoodActionPresentationGate.FacingDegrees;
         }
-        bool FoodMotionReady(Resident r)=>manager.TryGet(r.uid,out var live) &&
+        bool FoodMotionReady(Resident r)=>GroundMotionReady(r) && manager.TryGet(r.uid,out var live) &&
             live.ShownLocomotion==DragonLocomotion.Idle && live.CurrentInteraction==DragonInteraction.None;
         bool FoodPerceptionEligible(Resident r)
         {
@@ -436,11 +448,11 @@ namespace Dravio
                 return speed>0?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
             }
             var delta=foodPoint-r.position;delta.y=0;
-            if(delta.sqrMagnitude>.0001f)
+            if(delta.sqrMagnitude>.0001f && GroundMotionReady(r))
             {
                 var old=r.rotation;
                 r.rotation=Quaternion.RotateTowards(old,Quaternion.LookRotation(delta),180f*dt);
-                if(dt>0)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+                turnRate=SignedTurn(old,r.rotation,dt);
             }
             foodGate.Presentation(true,FoodFacing(r),FoodMotionReady(r));
             return DragonBehaviorIntent.Idle;
@@ -480,7 +492,11 @@ namespace Dravio
                 // Do not animate movement in a medium without an authored volume and a certified transition.
                 var medium=behavior==DragonBehavior.Swim?NavigationMedium.Swim:
                     behavior==DragonBehavior.Fly?NavigationMedium.Air:NavigationMedium.Burrow;
-                r.fallback=medium==NavigationMedium.Burrow?"burrow-transition-not-certified":
+                var motionMode=behavior==DragonBehavior.Swim?DragonMotionMode.Water:
+                    behavior==DragonBehavior.Fly?DragonMotionMode.Air:DragonMotionMode.Underground;
+                var readiness=sync.ReadinessFor(r.uid,motionMode);
+                r.fallback=readiness==DragonMotionReadiness.Unsupported?"model-medium-unsupported":
+                    medium==NavigationMedium.Burrow?"burrow-transition-not-certified":
                     navigation.HasAuthoredVolume(r.habitat,medium)?"medium-transition-not-certified":"no-authored-3d-volume";
                 return DragonBehaviorIntent.Rest;
             }
@@ -506,9 +522,10 @@ namespace Dravio
                     return DragonBehaviorIntent.Idle;
                 }
                 if(!arrived)return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+                if(!GroundMotionReady(r))return DragonBehaviorIntent.Idle;
                 var old=r.rotation;
                 r.rotation=Quaternion.RotateTowards(old,r.point.Rotation,180f*dt);
-                if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+                turnRate=SignedTurn(old,r.rotation,dt);
                 look=true;lookTarget=r.point.Target;
                 if(Quaternion.Angle(r.rotation,r.point.Rotation)>15f)return DragonBehaviorIntent.Idle;
                 if(!r.usedPoint){r.usedPoint=true;interactions.NotifyUsed(r.point.id,r.occupant);}
@@ -696,7 +713,7 @@ namespace Dravio
             if(drop==null){ClearFood();return;}
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
-            if(!AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,SharedAllocationForMarker))return;
+            if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,SharedAllocationForMarker))return;
             var idToEat=foodId;var who=foodUid;
 #if UNITY_EDITOR
             if(UseFoodGate && !foodGate.TryRequest(who,idToEat,r.habitat,NowMs,drop.ExpiresAtMs,
@@ -862,6 +879,15 @@ namespace Dravio
                     "\n"+(vi?"Đường đi: ":"Route: ")+r.routeState+" · "+(r.route==null?0:Math.Max(0,r.route.Waypoints.Count-r.routeIndex))+" wp";
             }
             else status.text=vi?messageVi:messageEn;
+            AppendProgression(d);
+            if(r!=null && sync.IsShown(r.uid))
+            {
+                var st=sync.MotionStatusOf(r.uid);var caps=sync.CapabilitiesOf(r.uid);
+                profile.text+="\n"+(vi?"Rig / môi trường: ":"Rig / medium: ")+st.mode+" · "+st.transition+
+                    "\n"+(vi?"Khả năng model: ":"Model capabilities: ")+
+                    (caps.ground?"Ground ":"")+(caps.water?"Water ":"")+(caps.air?"Air ":"")+(caps.perch?"Perch ":"")+(caps.underground?"Burrow":"")+
+                    "\n"+(vi?"Được dịch chuyển: ":"Motion unlocked: ")+GroundMotionReady(r);
+            }
             profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
                 "\n"+(vi?"Lượt tìm đường / lỗi: ":"Routes planned / failed: ")+plannedRoutes+"/"+failedRoutes;
 #if UNITY_EDITOR
@@ -869,6 +895,39 @@ namespace Dravio
 #endif
             if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
+        }
+        void AppendProgression(DragonState d)
+        {
+            if(!ReferenceEquals(progressionState,State) || progression==null)
+            {
+                progressionState=State;progression=ProgressionQueries.Overview(State);
+                researchProfiles.Clear();
+            }
+            if(!researchProfiles.TryGetValue(d.SpeciesId,out var research))
+            {research=ProgressionQueries.ResearchProfile(State,d.SpeciesId);researchProfiles[d.SpeciesId]=research;}
+            var social=ProgressionQueries.SocialProfile(State,d.Uid);
+            var rule=progression.Rules;
+            profile.text+="\n"+(vi?"Nghiên cứu: ":"Research: ")+research.Species.Tier+
+                " · "+(rule.ResearchPacingEnabled?(vi?"đang áp dụng":"active"):(vi?"chưa áp dụng tiến độ mới":"new pacing off"))+
+                "\n"+(vi?"Codex: ":"Codex: ")+progression.CodexCells+"/"+progression.CodexCellsTotal+
+                " · "+(vi?"Sinh cảnh: ":"Habitats: ")+progression.UnlockedHabitats+"/"+progression.TotalHabitats+
+                "\n"+(vi?"Thế giới mở: ":"Unlocked realms: ")+string.Join(", ",progression.UnlockedZones);
+            if(social!=null)
+                profile.text+="\n"+(vi?"Xã hội (đề xuất): ":"Social (proposal): ")+social.Style+" · "+social.Sociability+"/100 · "+
+                    (social.PersonalSpaceDm/10f).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+" m";
+            var candidate=socialCandidates.FirstOrDefault(c=>(c.InitiatorUid==d.Uid||c.PartnerUid==d.Uid) &&
+                c.UntilMs>NowMs && !c.AffectsGameplay && c.Role==BehaviorRole.Presentation);
+            if(candidate!=null)
+            {
+                string partner=candidate.InitiatorUid==d.Uid?candidate.PartnerUid:candidate.InitiatorUid;
+                // Only a display hint. Never initiate animation, approach or a gameplay command.
+                profile.text+="\n"+(vi?"Gợi ý xã hội: ":"Social candidate: ")+candidate.Kind+
+                    (string.IsNullOrEmpty(partner)?"":" · "+(State.FindDragon(partner)?.SpeciesId??"—"));
+            }
+            profile.text+="\n"+(vi?"Nhiệm vụ đề xuất (chưa mở hoàn thành): ":"Quest proposals (completion disabled): ")+
+                progression.QuestsCompleted+" / "+(progression.QuestsCompleted+progression.QuestsReady+progression.QuestsInProgress+progression.QuestsLocked)+
+                "\n"+(vi?"Mục tiêu gợi ý: ":"Suggested goals: ")+string.Join(", ",progression.SuggestedGoals)+
+                "\n"+(vi?"Luật xã hội mới / nhiệm vụ: ":"New social / quest rules: ")+rule.SocialGameplayEffectsEnabled+" / "+rule.QuestCompletionEnabled;
         }
         string BehaviorLabel(DragonBehavior? b)=>!vi?b?.ToString()??"—":b switch {
             DragonBehavior.Idle=>"Thư giãn",DragonBehavior.Rest=>"Nghỉ ngơi",DragonBehavior.Sleep=>"Ngủ",

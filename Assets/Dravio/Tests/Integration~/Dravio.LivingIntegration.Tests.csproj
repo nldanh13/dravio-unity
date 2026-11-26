@@ -17,6 +17,8 @@
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
     <Compile Include="SanctuaryRoutePlannerTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/U54MotionPolicy.cs" />
+    <Compile Include="U54IntegrationPolicyTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/SteeringLab.cs" />
     <Compile Include="SteeringLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/AuthoredRouteBenchmark.cs" />
