@@ -1078,6 +1078,12 @@ namespace Dravio
                     if(Social!=null&&Social.Contains(p.DragonUid))StopSocial("pet-event");
                     sync.React(p.DragonUid,DragonReaction.Petted);
                 }
+                else if(e is ExpeditionStarted trip)
+                {
+                    if(Social!=null&&Social.Contains(trip.DragonUid))StopSocial("expedition-start");
+                    if(foodUid==trip.DragonUid)ClearFood(); // visual marker only; canonical food expires normally
+                    if(selected==trip.DragonUid)StopFollow();
+                }
                 else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
             }
         }
@@ -1092,11 +1098,21 @@ namespace Dravio
                 Message(r.manualRestUntil>0?"Doze request (visual)":"Automatic behavior",r.manualRestUntil>0?"Nghỉ ngắn (hoạt ảnh)":"Tự sinh hoạt");
             }
         }
-        void ResearchObserve()
+        public List<ObservationOpportunity> VisibleResearchOpportunities()
         {
-            var d=Selected;if(d==null || !residents.ContainsKey(d.Uid))return;
-            if(Send(id=>new ObserveDragonCommand(id,d.Uid,CurrentPhase())))Message("Observation recorded.","Đã ghi quan sát nghiên cứu.");
+            if(!Ready)return new List<ObservationOpportunity>();
+            return ResearchDiscoveryView.LocalOpportunities(State,NowMs,CurrentPhase(),ViewZone,
+                uid=>residents.ContainsKey(uid)&&sync!=null&&sync.IsShown(uid)&&manager.IsLive(uid));
         }
+        public bool TryRecordVisibleResearch(string uid)
+        {
+            if(!Ready||string.IsNullOrEmpty(uid)||!ResearchDiscoveryView.CanRecord(
+                VisibleResearchOpportunities().FirstOrDefault(o=>o.Uid==uid)))return false;
+            bool accepted=Send(id=>new ObserveDragonCommand(id,uid,CurrentPhase()));
+            if(accepted)Message("Observation recorded.","Đã ghi quan sát nghiên cứu.");
+            return accepted;
+        }
+        void ResearchObserve(){if(Selected!=null)TryRecordVisibleResearch(Selected.Uid);}
         void Observe()
         {
             var d=Selected;if(d==null || !residents.ContainsKey(d.Uid))return;
