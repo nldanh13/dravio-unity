@@ -391,7 +391,6 @@ namespace Dravio.Domain.Queries
             return new RelationsDto { Uid = uid, Relations = list };
         }
 
-        /// <summary>Dự án đã xây (thứ tự xây) và dự án kế tiếp (Built = false), kèm nội dung hiển thị.</summary>
         private static List<MaterialNeed> Needs(GameState s, ProjectMaterials mats)
         {
             var o = new List<MaterialNeed>();
@@ -421,6 +420,7 @@ namespace Dravio.Domain.Queries
             return o;
         }
 
+        /// <summary>Dự án đã xây (thứ tự xây) và dự án kế tiếp (Built = false), kèm nội dung hiển thị.</summary>
         public static List<SanctuaryProjectView> SanctuaryProjects(GameState s)
         {
             var o = new List<SanctuaryProjectView>();

@@ -43,7 +43,7 @@ namespace Dravio.Domain.Catalog
         public static int MaterialEach(int n) => n < FirstMaterialProject ? 0 : 1 + n / 5;
 
         /// <summary>
-        /// U2.13 (ADR 0208, đã duyệt "vật liệu theo thế giới"): vật liệu và số lượng của dự án thứ n trên save <paramref name="s"/>, theo
+        /// U2.13 (ADR 0209, đã duyệt "vật liệu theo thế giới"): vật liệu và số lượng của dự án thứ n trên save <paramref name="s"/>, theo
         /// <see cref="SanctuaryMaterialRules.Current"/> (game thật: <see cref="SanctuaryMaterialRules.PerWorld"/>).
         /// </summary>
         public static ProjectMaterials Materials(GameState s, int n) => SanctuaryMaterialRules.Current.For(s, n);
@@ -79,7 +79,7 @@ namespace Dravio.Domain.Catalog
     }
 
     /// <summary>
-    /// U2.13 (ADR 0208) — luật vật liệu dự án Sanctuary. Đã duyệt: Khởi Nguyên gỗ + hạt giống, Thủy Vực pha lê + san hô, Thiên Giới bụi sao (một loại,
+    /// U2.13 (ADR 0209) — luật vật liệu dự án Sanctuary. Đã duyệt: Khởi Nguyên gỗ + hạt giống, Thủy Vực pha lê + san hô, Thiên Giới bụi sao (một loại,
     /// gấp đôi số lượng để tổng đơn vị không đổi; chỉ khi bảng sky_cloud được duyệt). Giá vàng, số dự án tối đa, công thức số lượng giữ nguyên.
     /// Không bế tắc: vật liệu của thế giới chưa mở / chưa có tuyến cho vật liệu đó lùi về thế giới thấp hơn (sky → ocean → origin; Khởi Nguyên luôn
     /// có tuyến rừng). Save chỉ lưu số dự án đã xây, nên không cần migration; dự án đã xây không bị tính lại.
