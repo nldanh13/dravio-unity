@@ -42,6 +42,10 @@ namespace Dravio.Platform.Unity
                 enabled=false;return;
             }
             _activeHost=this;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Alpha baseline: explicit battery-conscious cap; measured on target devices before adding quality tiers.
+            Application.targetFrameRate = 30;
+#endif
             string dir = SaveDirectory;
             FileWriterLock writerLock = FileWriterLock.TryAcquire(dir);
             ISaveStore store;
