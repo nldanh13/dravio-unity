@@ -6,7 +6,8 @@
         "UnityEditor.TestRunner",
         "Dravio.Domain",
         "Dravio.Persistence",
-        "Dravio.Platform"
+        "Dravio.Platform",
+        "Dravio.Domain.Tests"
     ],
     "includePlatforms": [
         "Editor"

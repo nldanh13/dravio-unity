@@ -366,5 +366,13 @@ namespace Dravio.Domain.Queries
             }
             return o;
         }
+
+        // ---------------- U2.12 (ADR 0207) — chỉ đọc ----------------
+
+        /// <summary>Bước còn lại tới thế giới kế tiếp (điều kiện unlockZone + chuỗi nhiệm vụ cổng), kèm nhiệm vụ phụ nhận được ngay.</summary>
+        public static JourneyDto Journey(GameState s) => JourneyGuide.Build(s);
+
+        /// <summary>Kiểm toán tĩnh catalog: mọi nhiệm vụ / thế giới đạt được từ save mới (không phụ thuộc state). Dùng cho công cụ nội dung và test.</summary>
+        public static ProgressionAuditReport AuditCatalog() => ProgressionAudit.Run();
     }
 }

@@ -7,6 +7,7 @@ using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.Economy;
 using Dravio.Domain.Progression;
+using Dravio.Domain.Queries;
 using Dravio.Domain.Sanctuary;
 using Dravio.Domain.World;
 
@@ -40,6 +41,17 @@ namespace Dravio.Domain.Tests.Simulation
         /// thám hiểm tuyến mở bằng rồng Adult không sinh vàng; U2.11: nhận nhiệm vụ bằng lệnh completeQuest thật rồi gửi unlockZone thật.
         /// </summary>
         Researcher,
+        /// <summary>
+        /// U2.12 — người chơi theo hướng dẫn hành trình (<see cref="ProgressionQueries.Journey"/>): như Researcher, cộng thêm: tiếp tục hướng dẫn nếu đã bỏ qua,
+        /// mua thêm gói (trong giới hạn E1) khi hướng dẫn báo thiếu loài, đặt rồng theo yêu cầu nhiệm vụ (Adult biết bơi / bay, cư dân Thủy Vực / Thiên Giới),
+        /// và lai một cặp rồi để con ở cùng microhabitat với bố mẹ (nhiệm vụ Thân thiết). Chỉ dùng lệnh thật.
+        /// </summary>
+        Guided,
+        /// <summary>
+        /// U2.12 — người chơi nhẹ nhàng có hướng dẫn: như Relaxed (1 gói/ngày), nhưng làm theo các bước rẻ của hướng dẫn hành trình: xem hồ sơ, cho ăn
+        /// một lần mỗi phiên, quan sát đàn một lần đầu phiên, gửi thám hiểm, nhận nhiệm vụ, mở thế giới. Không quan sát liên tục, không lai.
+        /// </summary>
+        Casual,
     }
 
     /// <summary>
@@ -93,6 +105,19 @@ namespace Dravio.Domain.Tests.Simulation
         /// <summary>Số cặp rồng (chưa thả) ở bậc Friend trở lên.</summary>
         public int FriendPairs;
         public int TitlesEarned;
+        // U2.12 — hệ sinh thái
+        /// <summary>Cư dân (rồng ở sinh cảnh) theo thế giới: origin, ocean, sky.</summary>
+        public int OriginResidents, OceanResidents, SkyResidents;
+        /// <summary>Cư dân ở microhabitat suitability Good (≥ 80).</summary>
+        public int GoodResidents;
+        /// <summary>Số loài khác nhau đang sống ở sinh cảnh.</summary>
+        public int ResidentSpecies;
+        public int StorageDragons;
+        /// <summary>Số cặp bậc Thân (≥ 80).</summary>
+        public int ClosePairs;
+        /// <summary>Giá dự án Sanctuary kế tiếp (G), 0 khi đã xây đủ.</summary>
+        public long NextProjectCostG;
+        public long Wood, Seed, Crystal, Coral;
     }
 
     public sealed class RunResult
@@ -272,7 +297,21 @@ namespace Dravio.Domain.Tests.Simulation
                 ExpeditionsClaimed = _s.ExpeditionsClaimed.Values.Sum(), TitlesEarned = Exploration.Titles(_s).Count(t => t.Earned),
                 FriendPairs = FriendPairs(),
             };
-            if (_policy == Policy.Researcher)
+            {
+                Snapshot sn = _result.At[h];
+                var res = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone).ToList();
+                sn.OriginResidents = res.Count(d => d.Location.ZoneId == "origin");
+                sn.OceanResidents = res.Count(d => d.Location.ZoneId == "ocean");
+                sn.SkyResidents = res.Count(d => d.Location.ZoneId == "sky");
+                sn.GoodResidents = res.Count(d => Dravio.Domain.Biology.Suitability.TierOf(Dravio.Domain.Biology.Suitability.ForSpecies(d.SpeciesId, d.Location.HabitatId)) == Dravio.Domain.Biology.SuitabilityTier.Good);
+                sn.ResidentSpecies = res.Select(d => d.SpeciesId).Distinct().Count();
+                sn.StorageDragons = _s.Dragons.Count(d => d.Location.Kind == LocationKind.Storage);
+                sn.ClosePairs = PairsAtLeast(RelationTier.Close);
+                sn.NextProjectCostG = SanctuaryProjectCatalog.CostG(_s.SanctuaryProjectsBuilt) ?? 0;
+                long Inv(string m) => _s.Player.Inventory.TryGetValue(m, out long v) ? v : 0;
+                sn.Wood = Inv("wood"); sn.Seed = Inv("seed"); sn.Crystal = Inv("crystal"); sn.Coral = Inv("coral");
+            }
+            if (_policy == Policy.Researcher || _policy == Policy.Guided || _policy == Policy.Casual)
             {
                 Dictionary<ResearchTier, int> tiers = ResearchProgress.TierCounts(_s, Research, Pacing);
                 Snapshot sn = _result.At[h];
@@ -282,13 +321,15 @@ namespace Dravio.Domain.Tests.Simulation
             }
         }
 
-        private int FriendPairs()
+        private int FriendPairs() => PairsAtLeast(RelationTier.Friend);
+
+        private int PairsAtLeast(RelationTier tier)
         {
             var kept = _s.Dragons.Where(d => d.Location.Kind != LocationKind.Released).ToList();
             int n = 0;
             for (int i = 0; i < kept.Count; i++)
                 for (int j = i + 1; j < kept.Count; j++)
-                    if (SocialEcology.Relation(_s, kept[i], kept[j]).Tier >= RelationTier.Friend) n++;
+                    if (RelationRules.TierOf(SocialEcology.Familiarity(_s, kept[i], kept[j])) >= tier) n++;
             return n;
         }
 
@@ -338,12 +379,21 @@ namespace Dravio.Domain.Tests.Simulation
         private void ArrangeProducers()
         {
             if (_s.PendingPack != null) Do(new ClaimPackCommand(Rid(), MoveTarget.Storage));
-            if (_s.BreedingNest != null && (_s.BreedingNest.Status == EggStatus.Ready || _s.BreedingNest.FinishAtMs <= _now)) Do(new ClaimBreedCommand(Rid(), MoveTarget.Storage));
+            // U2.12: Guided tự nhận trứng lai vào sinh cảnh của bố/mẹ (BreedForFamily).
+            if (_policy != Policy.Guided && _s.BreedingNest != null && (_s.BreedingNest.Status == EggStatus.Ready || _s.BreedingNest.FinishAtMs <= _now)) Do(new ClaimBreedCommand(Rid(), MoveTarget.Storage));
             for (int guard = 0; guard < 10; guard++)
             {
                 var inZone = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone).ToList();
                 var candidates = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Storage && d.Activity == DragonActivity.Idle)
                     .OrderByDescending(Rate).ToList();
+                // U2.12 (tối ưu, cùng kết quả): Khởi Nguyên đầy và rồng kho tốt nhất không hơn rồng yếu nhất có thể nhường chỗ → vòng dưới chắc chắn dừng,
+                // nên không cần quét PlacementOptions của cả kho (kho vài trăm rồng sau 365 ngày).
+                if (candidates.Count == 0) break;
+                if (Zones.ZoneOccupancy(_s, "origin") >= 5)
+                {
+                    DragonState weakest = inZone.Where(d => d.Activity == DragonActivity.Idle && !_pinned.Contains(d.Uid)).OrderBy(Rate).FirstOrDefault();
+                    if (weakest == null || Rate(weakest) >= Rate(candidates[0])) break;
+                }
                 DragonState best = candidates.FirstOrDefault(d => Zones.PlacementOptions(_s, d).Any(o => o.Blocked == null || o.Blocked == DomainErrorCode.ZoneFull));
                 if (best == null) break;
                 if (Zones.ZoneOccupancy(_s, "origin") >= 5)
@@ -394,6 +444,17 @@ namespace Dravio.Domain.Tests.Simulation
                     DailyPack();
                     PlaceForResearch();
                     ResearchActions();
+                    break;
+                case Policy.Guided:
+                    DailyPack();
+                    GuidedActions();
+                    PlaceForResearch();
+                    ResearchActions();
+                    BreedForFamily();
+                    break;
+                case Policy.Casual:
+                    DailyPack();
+                    CasualActions();
                     break;
             }
             ArrangeProducers();
@@ -502,9 +563,14 @@ namespace Dravio.Domain.Tests.Simulation
             if (!_fedThisSession)
             {
                 DragonState eater = _s.Dragons.FirstOrDefault(d => d.Location.Kind == LocationKind.Zone && d.Activity == DragonActivity.Idle);
+                // U2.12 Guided: cho ăn loài chưa được ghi "tìm ăn / ăn" trước (Ethology cần cả hai), xoay vòng theo thứ tự catalog.
+                if (_policy == Policy.Guided)
+                    eater = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && d.Activity == DragonActivity.Idle)
+                        .OrderBy(d => Observed(d.SpeciesId).Contains(DragonBehavior.Eat) && Observed(d.SpeciesId).Contains(DragonBehavior.SeekFood) ? 1 : 0)
+                        .ThenBy(d => SpeciesOrder(d.SpeciesId)).FirstOrDefault() ?? eater;
                 if (eater != null)
                 {
-                    DietId diet = SpeciesCatalog.GetBiology(eater.SpeciesId).DietIds[0];
+                    DietId diet = _policy == Policy.Guided ? TargetDiet(eater) : SpeciesCatalog.GetBiology(eater.SpeciesId).DietIds[0];
                     DispatchResult fr = Do(new FeedCommand(Rid(), diet, eater.Location.ZoneId, eater.Location.HabitatId));
                     if (fr.Ok)
                     {
@@ -516,6 +582,7 @@ namespace Dravio.Domain.Tests.Simulation
                             if (_sessions % 2 == 0) ObserveAll();
                             Dictionary<string, string> assign = BehaviorEngine.AssignFood(_s, drop.ZoneId, drop.HabitatId, _now);
                             string uid = assign.FirstOrDefault(kv => kv.Value == drop.Id).Key ?? eater.Uid;
+                            if (_policy == Policy.Guided) uid = eater.Uid;
                             Do(new ConsumeFoodCommand(Rid(), drop.Id, uid));
                         }
                     }
@@ -564,6 +631,229 @@ namespace Dravio.Domain.Tests.Simulation
                 if (_s.FindZone(rule.ZoneId)?.Unlocked == false && WorldExpansion.MissingRequirements(_s, rule.ZoneId).Count == 0 &&
                     Do(new UnlockZoneCommand(Rid(), rule.ZoneId)).Ok)
                     _result.ZoneUnlockHours[rule.ZoneId] = (_now - Start) / 3_600_000.0;
+        }
+
+        // ---------------------------------------------------------------- U2.12: người chơi theo hướng dẫn hành trình
+
+        private bool _extraPackThisSession;
+
+        private IReadOnlyList<DragonBehavior> Observed(string speciesId) => ResearchProgress.Species(_s, speciesId, Research, Pacing).ObservedBehaviors;
+
+        /// <summary>
+        /// Guided: loại thức ăn để chính rồng mục tiêu được giao phần ăn (AssignFood ưu tiên rồng thích loại đó, rồi UID nhỏ): chọn loại mà không rồng nào
+        /// khác cùng microhabitat (UID nhỏ hơn hoặc thích loại đó) ăn được; không có thì loại đầu tiên. Người chơi thật làm vậy khi đã biết khẩu vị.
+        /// </summary>
+        private DietId TargetDiet(DragonState target)
+        {
+            IReadOnlyList<DietId> diets = SpeciesCatalog.GetBiology(target.SpeciesId).DietIds;
+            var rivals = _s.Dragons.Where(d => d.Uid != target.Uid && d.Location.Kind == LocationKind.Zone && d.Location.HabitatId == target.Location.HabitatId && d.Activity == DragonActivity.Idle).ToList();
+            foreach (DietId diet in diets)
+                if (!rivals.Any(d => SpeciesCatalog.GetBiology(d.SpeciesId).DietIds.Contains(diet) &&
+                        (string.CompareOrdinal(d.Uid, target.Uid) < 0 || PersonalityProfiles.Of(d).FavoriteDiet == diet)))
+                    return diet;
+            DietId fav = PersonalityProfiles.Of(target).FavoriteDiet;
+            return diets.Contains(fav) ? fav : diets[0];
+        }
+
+        private static int SpeciesOrder(string id)
+        {
+            for (int i = 0; i < SpeciesCatalog.All.Count; i++) if (SpeciesCatalog.All[i].Id == id) return i;
+            return int.MaxValue;
+        }
+        /// <summary>Cặp bố mẹ và con dành cho nhiệm vụ Thân thiết (Guided).</summary>
+        private string _familyParent, _familyChild;
+
+        /// <summary>Số bước hướng dẫn đã làm theo (để test kiểm hướng dẫn thật sự được dùng).</summary>
+        public int GuideStepsFollowed { get; private set; }
+
+        private static bool IsAdult(DragonState d) => EconomyRates.GrowthStageOf(d.XpSec, SpeciesCatalog.Get(d.SpeciesId)) == GrowthStage.Adult;
+
+        /// <summary>Đặt rồng vào microhabitat tốt nhất (lọc realm), nhường chỗ bằng rồng sinh vàng thấp nhất không ghim nếu thế giới đầy. Ghim rồng đã đặt.</summary>
+        private bool PlacePinned(DragonState d, Realm? realm)
+        {
+            if (d == null || d.Activity != DragonActivity.Idle) return false;
+            bool InRealm(PlacementCheck o) => !realm.HasValue || (HabitatCatalog.TryGet(o.HabitatId, out HabitatProfile hp) && hp.Realm == realm.Value);
+            var options = Zones.PlacementOptions(_s, d).Where(o => InRealm(o) && (o.Blocked == null || o.Blocked == DomainErrorCode.ZoneFull))
+                .OrderByDescending(o => o.Result.Score).ToList();
+            PlacementCheck spot = options.FirstOrDefault(o => o.Blocked == null);
+            if (spot == null && options.Count > 0)
+            {
+                string zone = options[0].ZoneId;
+                DragonState worst = _s.Dragons.Where(x => x.Location.Kind == LocationKind.Zone && x.Location.ZoneId == zone && x.Activity == DragonActivity.Idle && !_pinned.Contains(x.Uid))
+                    .OrderBy(Rate).FirstOrDefault();
+                if (worst != null && Do(new MoveDragonCommand(Rid(), worst.Uid, MoveTarget.Storage)).Ok)
+                    spot = Zones.PlacementOptions(_s, _s.FindDragon(d.Uid)).Where(o => InRealm(o) && o.Blocked == null).OrderByDescending(o => o.Result.Score).FirstOrDefault();
+            }
+            if (spot == null || !Do(new MoveDragonCommand(Rid(), d.Uid, MoveTarget.Zone(spot.ZoneId, spot.HabitatId))).Ok) return false;
+            _pinned.Add(d.Uid);
+            return true;
+        }
+
+        /// <summary>Làm theo các bước của <see cref="ProgressionQueries.Journey"/> (mỗi 10 phút trong phiên và đầu phiên).</summary>
+        private void GuidedActions()
+        {
+            if (_tickInSession == 0) _extraPackThisSession = false;
+            if (_tickInSession % 20 != 0) return;
+            JourneyDto j = ProgressionQueries.Journey(_s);
+            foreach (JourneyStep st in j.Steps)
+            {
+                switch (st.Code)
+                {
+                    case JourneyStepCode.ResumeTutorial:
+                        if (Do(new SetTutorialStatusCommand(Rid(), TutorialStatus.Active)).Ok) GuideStepsFollowed++;
+                        break;
+                    case JourneyStepCode.SurveyHabitat when st.Ready:
+                        if (Do(new SurveyHabitatCommand(Rid(), st.Target)).Ok) GuideStepsFollowed++;
+                        break;
+                    case JourneyStepCode.UnlockHabitat when st.Ready:
+                        if (Do(new UnlockHabitatCommand(Rid(), st.Target)).Ok) GuideStepsFollowed++;
+                        break;
+                    case JourneyStepCode.QuestRequirement when st.Requirement == QuestRequirementKind.AdultWithLocomotion:
+                    {
+                        QuestRequirementDef def = QuestProposals.Get(st.QuestId).Requirements.First(r => r.Kind == QuestRequirementKind.AdultWithLocomotion);
+                        DragonState c = st.Candidates.Select(uid => _s.FindDragon(uid)).FirstOrDefault(d => d != null && d.Location.Kind == LocationKind.Storage);
+                        if (c != null && PlacePinned(c, def.Realm)) GuideStepsFollowed++;
+                        else if (st.Candidates.Count == 0) ExtraPack();
+                        break;
+                    }
+                    case JourneyStepCode.QuestRequirement when st.Detail == "need-species":
+                        ExtraPack();
+                        break;
+                }
+            }
+            // Tập tính chỉ có ở một số microhabitat (vd tắm nắng cần nơi trên cạn, không lạnh): chuyển rồng ghim sang sinh cảnh khác của loài khi còn thiếu.
+            foreach (DragonState d in _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && d.Activity == DragonActivity.Idle).ToList())
+            {
+                IReadOnlyList<DragonBehavior> seen = Observed(d.SpeciesId);
+                SpeciesBiology bio = SpeciesCatalog.GetBiology(d.SpeciesId);
+                HabitatCatalog.TryGet(d.Location.HabitatId, out HabitatProfile here);
+                var missingHere = Dravio.Domain.Behavior.Research.ObservableBehaviors(d.SpeciesId).Where(b => !seen.Contains(b) && !BehaviorCatalog.Allowed(bio, here, b)).ToList();
+                if (missingHere.Count == 0) continue;
+                PlacementCheck spot = Zones.PlacementOptions(_s, d).Where(o => o.Blocked == null && HabitatCatalog.TryGet(o.HabitatId, out HabitatProfile hp)
+                    && missingHere.Any(b => BehaviorCatalog.Allowed(bio, hp, b))).OrderByDescending(o => o.Result.Score).FirstOrDefault();
+                if (spot != null && Do(new MoveDragonCommand(Rid(), d.Uid, MoveTarget.Zone(spot.ZoneId, spot.HabitatId))).Ok) { _pinned.Add(d.Uid); GuideStepsFollowed++; }
+            }
+            // Cư dân Thủy Vực / Thiên Giới cho nhiệm vụ bảo tồn: lấp sinh cảnh realm đó bằng rồng có suitability Good.
+            foreach (QuestStatusView v in QuestProposals.Evaluate(_s, Research, Pacing).Where(v => v.State == QuestState.InProgress))
+                foreach (QuestRequirementStatus r in v.Requirements.Where(r => r.State == RequirementState.Unmet && r.Def.Kind == QuestRequirementKind.ResidentsThriving && r.Def.Realm.HasValue))
+                {
+                    Realm realm = r.Def.Realm.Value;
+                    DragonState c = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Storage && d.Activity == DragonActivity.Idle)
+                        .FirstOrDefault(d => Zones.PlacementOptions(_s, d).Any(o => o.Blocked == null && HabitatCatalog.TryGet(o.HabitatId, out HabitatProfile hp) && hp.Realm == realm
+                            && Dravio.Domain.Biology.Suitability.TierOf(o.Result) == Dravio.Domain.Biology.SuitabilityTier.Good));
+                    if (c != null && PlacePinned(c, realm)) GuideStepsFollowed++;
+                }
+            // Nhiệm vụ ghi chép theo realm (Tide Journal, Sky Chronicle): đưa một loài chưa được ghi chép ở realm đó vào sinh cảnh của nó.
+            foreach (QuestStatusView v in QuestProposals.Evaluate(_s, Research, Pacing).Where(v => v.State == QuestState.InProgress))
+                foreach (QuestRequirementStatus r in v.Requirements.Where(r => r.State == RequirementState.Unmet && r.Def.Kind == QuestRequirementKind.SpeciesRecordedInRealm))
+                {
+                    Realm realm = r.Def.Realm.Value;
+                    var recorded = new HashSet<string>(Research.AllSpecies.Where(x => ResearchProgress.Species(_s, x.SpeciesId, Research, Pacing).ObservedHabitats
+                        .Any(h => HabitatCatalog.TryGet(h, out HabitatProfile hp) && hp.Realm == realm)).Select(x => x.SpeciesId));
+                    var inRealm = new HashSet<string>(_s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && HabitatCatalog.TryGet(d.Location.HabitatId, out HabitatProfile hp) && hp.Realm == realm).Select(d => d.SpeciesId));
+                    DragonState c = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Storage && d.Activity == DragonActivity.Idle && !recorded.Contains(d.SpeciesId) && !inRealm.Contains(d.SpeciesId))
+                        .FirstOrDefault(d => Zones.PlacementOptions(_s, d).Any(o => (o.Blocked == null || o.Blocked == DomainErrorCode.ZoneFull) && HabitatCatalog.TryGet(o.HabitatId, out HabitatProfile hp) && hp.Realm == realm));
+                    if (c != null && PlacePinned(c, realm)) GuideStepsFollowed++;
+                    else if (c == null) ExtraPack();
+                }
+        }
+
+        /// <summary>Gói thêm khi hướng dẫn báo thiếu loài (tối đa một gói thêm mỗi phiên, vẫn trong giới hạn Starter E1).</summary>
+        private void ExtraPack()
+        {
+            if (_extraPackThisSession || _s.PendingPack != null) return;
+            _extraPackThisSession = true;
+            if (BuyBestPack()) GuideStepsFollowed++;
+        }
+
+        /// <summary>
+        /// Nhiệm vụ Thân thiết: khi đã nhận First Friends, lai cặp Adult rẻ nhất cùng loài với một rồng đang ở sinh cảnh, nhận trứng thẳng vào microhabitat
+        /// của bố/mẹ (lệnh claimBreed với đích là sinh cảnh), ghim cả hai.
+        /// </summary>
+        private void BreedForFamily()
+        {
+            if (!QuestProposals.IsCompleted(_s, "Q_SOCIAL_FIRST_FRIENDS") || QuestProposals.IsCompleted(_s, "Q_SOCIAL_CLOSE_BOND")) return;
+            if (_familyChild != null)
+            {
+                DragonState parent = _s.FindDragon(_familyParent), child = _s.FindDragon(_familyChild);
+                if (parent == null || child == null || parent.Location.Kind == LocationKind.Released || child.Location.Kind == LocationKind.Released) { _familyChild = null; return; }
+                if (parent.Location.Kind != LocationKind.Zone) PlacePinned(parent, null);
+                parent = _s.FindDragon(_familyParent);
+                if (parent.Location.Kind == LocationKind.Zone && (child.Location.Kind != LocationKind.Zone || child.Location.HabitatId != parent.Location.HabitatId) && child.Activity == DragonActivity.Idle
+                    && Do(new MoveDragonCommand(Rid(), child.Uid, MoveTarget.Zone(parent.Location.ZoneId, parent.Location.HabitatId))).Ok)
+                    _pinned.Add(child.Uid);
+                return;
+            }
+            if (_s.BreedingNest != null)
+            {
+                if (_familyParent == null) return;
+                DragonState p = _s.FindDragon(_familyParent);
+                if (_s.BreedingNest.Status == EggStatus.Ready || _s.BreedingNest.FinishAtMs <= _now)
+                {
+                    MoveTarget target = p != null && p.Location.Kind == LocationKind.Zone ? MoveTarget.Zone(p.Location.ZoneId, p.Location.HabitatId) : MoveTarget.Storage;
+                    DispatchResult r = Do(new ClaimBreedCommand(Rid(), target));
+                    if (!r.Ok && target.Kind == LocationKind.Zone) r = Do(new ClaimBreedCommand(Rid(), MoveTarget.Storage));
+                    DragonHatched h = r.Ok ? r.Events.OfType<DragonHatched>().FirstOrDefault() : null;
+                    if (h != null) { _familyChild = h.DragonUid; _pinned.Add(h.DragonUid); GuideStepsFollowed++; }
+                }
+                else if (_s.BreedingNest.Status == EggStatus.Incubating) Do(new TapEggCommand(Rid()));
+                return;
+            }
+            var adults = _s.Dragons.Where(d => d.Location.Kind != LocationKind.Released && d.Activity == DragonActivity.Idle && IsAdult(d)).ToList();
+            foreach (DragonState a in adults.Where(d => d.Location.Kind == LocationKind.Zone).OrderBy(d => d.Uid, StringComparer.Ordinal))
+                foreach (DragonState b in adults.Where(d => d.Uid != a.Uid && d.SpeciesId == a.SpeciesId).OrderBy(d => d.Uid, StringComparer.Ordinal))
+                {
+                    if (BreedingRules.CheckBreed(a, b, _now) != null) continue;
+                    long fee = BreedingRules.BreedFeeG(SpeciesCatalog.Get(a.SpeciesId), SpeciesCatalog.Get(b.SpeciesId));
+                    if (!CanAfford(fee)) continue;
+                    if (Do(new StartBreedCommand(Rid(), a.Uid, b.Uid)).Ok) { _familyParent = a.Uid; _pinned.Add(a.Uid); GuideStepsFollowed++; }
+                    return;
+                }
+        }
+
+        /// <summary>Người chơi nhẹ nhàng: các bước rẻ của hướng dẫn, một lần quan sát đầu phiên, một bữa ăn mỗi phiên.</summary>
+        private void CasualActions()
+        {
+            if (_tickInSession == 0)
+            {
+                JourneyDto j = ProgressionQueries.Journey(_s);
+                foreach (JourneyStep st in j.Steps)
+                {
+                    if (st.Code == JourneyStepCode.ResumeTutorial && Do(new SetTutorialStatusCommand(Rid(), TutorialStatus.Active)).Ok) GuideStepsFollowed++;
+                    if (st.Code == JourneyStepCode.SurveyHabitat && st.Ready && Do(new SurveyHabitatCommand(Rid(), st.Target)).Ok) GuideStepsFollowed++;
+                    if (st.Code == JourneyStepCode.UnlockHabitat && st.Ready && Do(new UnlockHabitatCommand(Rid(), st.Target)).Ok) GuideStepsFollowed++;
+                    if (st.Code == JourneyStepCode.QuestRequirement && st.Requirement == QuestRequirementKind.ResearchTier)
+                        foreach (string sp in st.Candidates)
+                            if (!_s.Tutorial.ProfilesViewed.Contains(sp) && Do(new ViewBiologyProfileCommand(Rid(), sp)).Ok) GuideStepsFollowed++;
+                    if (st.Code == JourneyStepCode.QuestRequirement && st.Requirement == QuestRequirementKind.AdultWithLocomotion)
+                    {
+                        QuestRequirementDef def = QuestProposals.Get(st.QuestId).Requirements.First(r => r.Kind == QuestRequirementKind.AdultWithLocomotion);
+                        DragonState c = st.Candidates.Select(uid => _s.FindDragon(uid)).FirstOrDefault(d => d != null && d.Location.Kind == LocationKind.Storage);
+                        if (c != null && PlacePinned(c, def.Realm)) GuideStepsFollowed++;
+                    }
+                }
+                ObserveAll();
+            }
+            // Bữa ăn sau 1 phút (hồi quan sát 30 s của lần quan sát đầu phiên đã hết). Phiên chẵn quan sát lúc tìm ăn, phiên lẻ lúc ăn — như Researcher.
+            if (!_fedThisSession && _tickInSession >= 2)
+            {
+                // Mỗi phiên cho một rồng khác ăn (xoay vòng theo UID), chọn loại thức ăn để đúng rồng đó được ăn.
+                var zone = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && d.Activity == DragonActivity.Idle).OrderBy(d => d.Uid, StringComparer.Ordinal).ToList();
+                DragonState eater = zone.Count == 0 ? null : zone[_sessions % zone.Count];
+                if (eater != null && Do(new FeedCommand(Rid(), TargetDiet(eater), eater.Location.ZoneId, eater.Location.HabitatId)).Ok)
+                {
+                    _fedThisSession = true;
+                    FoodDrop drop = _s.Food.Drops.LastOrDefault();
+                    if (drop != null)
+                    {
+                        if (_sessions % 2 == 0) ObserveAll();
+                        Do(new ConsumeFoodCommand(Rid(), drop.Id, eater.Uid));
+                        if (_sessions % 2 == 1) ObserveAll();
+                    }
+                }
+            }
+            RunExpedition();
+            if (_tickInSession % 20 == 0) ResearchQuests();
         }
 
         /// <summary>Bán mọi rồng Adult trong kho (không sinh vàng) trừ hai bố mẹ dự phòng mỗi nhóm; giữ nguyên 5 rồng trong khu.</summary>
