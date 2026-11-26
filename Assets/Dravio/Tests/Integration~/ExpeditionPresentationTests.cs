@@ -67,6 +67,25 @@ namespace Dravio.Tests
             s.Player.Inventory["seed"]=1;
             Assert.That(ExpeditionPresentation.ProjectShortfalls(s,ProgressionQueries.SanctuaryEconomy(s,Now)),Is.Empty);
         }
+        [Test] public void ProjectQuoteAndCanonicalPurchaseAgree()
+        {
+            // Explicit economic fixture, not a way to award resources in the player UI.
+            var s=Adult();s.Player.Gold=MicroGold.FromWholeGold(100000);
+            s.SanctuaryProjectsBuilt=2;s.Player.Inventory["wood"]=1;s.Player.Inventory["seed"]=1;
+            var quote=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(quote.NextProjectBlockedBy,Is.Null);
+            Assert.That(ExpeditionPresentation.ProjectShortfalls(s,quote),Is.Empty);
+            var result=CommandDispatcher.Dispatch(s,new BuildSanctuaryProjectCommand("project"),new FixedClock(Now));
+            Assert.That(result.Ok,Is.True,result.Error?.ToString());
+            var ev=result.Events.OfType<SanctuaryProjectBuilt>().Single();
+            Assert.That(ev.CostGoldMicro,Is.EqualTo(quote.NextProjectCostGoldMicro.Value));
+            Assert.That(ev.MaterialEach,Is.EqualTo(quote.NextProjectMaterialEach));
+            Assert.That(result.State.SanctuaryProjectsBuilt,Is.EqualTo(3));
+            Assert.That(result.State.Player.Inventory["wood"],Is.Zero);
+            Assert.That(result.State.Player.Inventory["seed"],Is.Zero);
+            Assert.That(s.SanctuaryProjectsBuilt,Is.EqualTo(2));
+            Assert.That(result.State.ProductionDragonIds,Is.EqualTo(s.ProductionDragonIds));
+        }
         [TestCase(0L,"00:00:00")]
         [TestCase(1L,"00:00:01")]
         [TestCase(900000L,"00:15:00")]
