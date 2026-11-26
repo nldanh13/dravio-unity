@@ -14,6 +14,8 @@
     <Compile Include="../../Scripts/LivingResidentPolicy.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
+    <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
+    <Compile Include="SanctuaryRoutePlannerTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />

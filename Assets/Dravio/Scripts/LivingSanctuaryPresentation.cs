@@ -11,6 +11,7 @@ using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.Queries;
 using Dravio.EnvironmentArt;
+using Dravio.Navigation;
 using Dravio.Platform;
 using Dravio.Platform.Unity;
 using UnityEngine;
@@ -21,7 +22,7 @@ using UnityEngine.UI;
 namespace Dravio
 {
     // Presentation only. GameSession remains the sole writer of canonical state.
-    // U5.3 ground slice. Domain decisions are read-only; only validated food commands mutate state.
+    // U5.3.6: cached bounded ground routes; no cross-habitat or unapproved medium transitions.
     public sealed class LivingSanctuaryPresentation : MonoBehaviour
     {
         [SerializeField] DravioSessionHost host;
@@ -50,6 +51,13 @@ namespace Dravio
             public DragonBehaviorIntent shownIntent;
             public string fallback;
             public long manualRestUntil;
+            public RouteResult route;
+            public Vector3 routeGoal;
+            public int routeIndex;
+            public float retryAt,blockedUntil;
+            public string blockedPoint;
+            public bool routeFailed;
+            public string routeState="—";
         }
         readonly Dictionary<string,Resident> residents=new(StringComparer.Ordinal);
         readonly Dictionary<string,string> unavailable=new(StringComparer.Ordinal);
@@ -57,6 +65,10 @@ namespace Dravio
         readonly List<RaycastResult> uiHits=new();
         readonly List<string> removals=new();
         SanctuaryDragonSync sync;
+        SanctuaryNavigationSurface navigation;
+        int routeBudget;
+        int plannedRoutes,failedRoutes;
+        [SerializeField] bool drawSelectedRoute=true;
         EnvironmentInteractions interactions;
         BehaviorPhase phase=BehaviorPhase.Day;
         int nextOccupant=1;
@@ -98,6 +110,7 @@ namespace Dravio
                 manager.catalog.entries.Any(e=>e!=null && e.speciesId=="emberling" && e.prefab!=null);
             if(!active){FallbackText();return;}
             sync=new SanctuaryDragonSync(manager);
+            navigation=new SanctuaryNavigationSurface(locations);
             focus=Application.isFocused;
             adapter.EnableLivingPresentation();
             legacy.enabled=false; // Awake precedes the legacy Start, so no duplicate button or movement handlers.
@@ -145,15 +158,35 @@ namespace Dravio
         bool Presentable(DragonState d)=>LivingResidentPolicy.InOriginView(State,d);
         bool ClearPoint(Vector3 point,string habitat,string except)
         {
-            if(!locations.IsWalkable(point,habitat))return false;
+            if(navigation==null || !navigation.Clear(point,habitat,NavigationMedium.Ground))return false;
+            return Separated(point,except);
+        }
+        bool Separated(Vector3 point,string except)
+        {
             foreach(var other in residents.Values)
                 if(other.uid!=except && (other.position-point).sqrMagnitude<.55f*.55f)return false;
             return true;
         }
         bool Segment(Vector3 from,Vector3 to,string habitat)
+            =>navigation!=null && navigation.Segment(from,to,habitat,NavigationMedium.Ground);
+
+        void ResetRoute(Resident r)
         {
-            int n=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(from,to)/.15f));
-            for(int i=0;i<=n;i++)if(!locations.IsWalkable(Vector3.Lerp(from,to,(float)i/n),habitat))return false;
+            r.route=null;r.routeIndex=0;r.routeFailed=false;r.retryAt=0f;r.routeState="—";
+        }
+        bool EnsureRoute(Resident r,Vector3 goal)
+        {
+            if((goal-r.routeGoal).sqrMagnitude>.0004f)
+            {ResetRoute(r);r.routeGoal=goal;}
+            if(r.route!=null && r.route.Success)return true;
+            if(Time.unscaledTime<r.retryAt || routeBudget<=0)return false;
+            routeBudget--;plannedRoutes++;
+            // Dynamic residents are obstacles at plan time; final step rechecks current positions.
+            r.route=navigation.Plan(r.position,goal,r.habitat,NavigationMedium.Ground,
+                point=>Separated(point,r.uid));
+            r.routeIndex=0;r.routeState=r.route.Status.ToString();
+            r.routeFailed=!r.route.Success;
+            if(r.routeFailed){failedRoutes++;r.retryAt=Time.unscaledTime+1f;return false;}
             return true;
         }
 
@@ -223,7 +256,7 @@ namespace Dravio
         void ReleasePoint(Resident r)
         {
             if(r.point!=null && interactions!=null)interactions.Release(r.point.id,r.occupant);
-            r.point=null;r.usedPoint=false;r.hasTarget=false;r.rest=0f;
+            r.point=null;r.usedPoint=false;r.hasTarget=false;r.rest=0f;ResetRoute(r);
         }
         void RefreshDecisions()
         {
@@ -259,32 +292,56 @@ namespace Dravio
                 if(p==null || p.habitatId!=r.habitat || p.requiresSwim || p.requiresFly ||
                     (!string.IsNullOrEmpty(p.medium) && p.medium!="ground") ||
                     !AutonomousPresentationPolicy.PointMatches(behavior,p.kind) || !interactions.IsFree(p.id) ||
-                    !ClearPoint(p.Position,r.habitat,r.uid) || !Segment(r.position,p.Position,r.habitat))continue;
+                    !ClearPoint(p.Position,r.habitat,r.uid) || (p.id==r.blockedPoint && Time.unscaledTime<r.blockedUntil))continue;
                 float distance=Vector3.Distance(r.position,p.Position)-
                     (p.Prefers((Dravio.EnvironmentArt.DayPhase)phase) ? .5f : 0f);
                 if(distance<score){best=p;score=distance;}
             }
             if(best==null || !interactions.TryReserve(best.id,r.occupant))return false;
-            r.point=best;r.target=best.Position;r.hasTarget=true;r.usedPoint=false;
+            r.point=best;r.target=best.Position;r.hasTarget=true;r.usedPoint=false;ResetRoute(r);
             return true;
         }
-        bool GroundStepClear(Resident r,Vector3 target,float dt)=>
-            Segment(r.position,target,r.habitat) && ClearPoint(Vector3.MoveTowards(r.position,target,.55f*dt),r.habitat,r.uid);
         bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
         {
             speed=0f;turnRate=0f;
-            Vector3 delta=target-r.position;delta.y=0;
-            if(delta.sqrMagnitude<.01f)return true;
-            if(!r.walking || !GroundStepClear(r,target,dt))return false;
-            // Stop translation while waking. Idle intent lets the planner finish its authored Wake.
-            if(manager.TryGet(r.uid,out var live) && (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
-            var next=Vector3.MoveTowards(r.position,target,.55f*dt);
-            if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat))return false;
+            if((target-r.position).sqrMagnitude<.0036f){ResetRoute(r);return true;}
+            if(!r.walking){r.routeFailed=true;r.routeState="no-walk-clip";return false;}
+            if(manager.TryGet(r.uid,out var live) &&
+                (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
+            if(!EnsureRoute(r,target))return false;
+            var points=r.route.Waypoints;
+            while(r.routeIndex<points.Count && (SanctuaryNavigationSurface.Vector(points[r.routeIndex])-r.position).sqrMagnitude<.0036f)
+                r.routeIndex++;
+            if(r.routeIndex>=points.Count){ResetRoute(r);return true;}
+            var waypoint=SanctuaryNavigationSurface.Vector(points[r.routeIndex]);
+            var delta=waypoint-r.position;delta.y=0f;
+            if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
+            var next=Vector3.MoveTowards(r.position,waypoint,.55f*dt);
+            if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat))
+            {
+                // Stop, never slide through a moving resident. Replan after a short cooldown.
+                r.route=null;r.routeIndex=0;r.routeState="dynamic-block";r.routeFailed=false;
+                r.retryAt=Time.unscaledTime+.45f;return false;
+            }
             var old=r.rotation;var heading=Quaternion.LookRotation(delta);
             r.rotation=Quaternion.RotateTowards(old,heading,180f*dt);
             if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
-            if(Quaternion.Angle(r.rotation,heading)<15f){r.position=next;speed=.55f;}
-            return (r.position-target).sqrMagnitude<.01f;
+            if(Quaternion.Angle(r.rotation,heading)<15f)
+            {speed=dt>0f?Vector3.Distance(r.position,next)/dt:0f;r.position=next;}
+            if((target-r.position).sqrMagnitude<.0036f){ResetRoute(r);return true;}
+            return false;
+        }
+        void OnDrawGizmos()
+        {
+            if(!Application.isPlaying || !drawSelectedRoute || selected==null ||
+                !residents.TryGetValue(selected,out var r) || r.route==null || !r.route.Success)return;
+            Gizmos.color=Color.cyan;var previous=r.position;
+            for(int i=r.routeIndex;i<r.route.Waypoints.Count;i++)
+            {
+                var point=SanctuaryNavigationSurface.Vector(r.route.Waypoints[i]);
+                Gizmos.DrawLine(previous+Vector3.up*.05f,point+Vector3.up*.05f);
+                Gizmos.DrawWireSphere(point+Vector3.up*.05f,.07f);previous=point;
+            }
         }
         DragonBehaviorIntent GroundIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
         {
@@ -300,7 +357,7 @@ namespace Dravio
                     if((r.position-foodPoint).sqrMagnitude>.55f*.55f)
                     {
                         MoveToward(r,foodPoint,dt,out speed,out turnRate);
-                        if(speed==0f)r.fallback="food-path";
+                        if(speed==0f)r.fallback="food-path: "+r.routeState;
                         return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
                     }
                     return DragonBehaviorIntent.Idle;
@@ -328,9 +385,13 @@ namespace Dravio
             }
             if(r.point!=null)
             {
-                if(!GroundStepClear(r,r.point.Position,dt) || !ClearPoint(r.point.Position,r.habitat,r.uid))
-                {ReleasePoint(r);r.rest=2f;r.fallback="point-blocked";return DragonBehaviorIntent.Idle;}
                 bool arrived=MoveToward(r,r.point.Position,dt,out speed,out turnRate);
+                if(r.routeFailed)
+                {
+                    r.blockedPoint=r.point.id;r.blockedUntil=Time.unscaledTime+5f;
+                    string reason=r.routeState;ReleasePoint(r);r.rest=1f;r.fallback="point-path: "+reason;
+                    return DragonBehaviorIntent.Idle;
+                }
                 if(!arrived)return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
                 var old=r.rotation;
                 r.rotation=Quaternion.RotateTowards(old,r.point.Rotation,180f*dt);
@@ -350,13 +411,19 @@ namespace Dravio
                 {
                     if(r.rest>0f)return DragonBehaviorIntent.Idle;
                     var p=locations.SpawnPointsIn(r.habitat).FirstOrDefault(x=>
-                        (x.Position-r.position).sqrMagnitude>.25f && ClearPoint(x.Position,r.habitat,r.uid) && Segment(r.position,x.Position,r.habitat));
+                        (x.Position-r.position).sqrMagnitude>.25f && ClearPoint(x.Position,r.habitat,r.uid) &&
+                        (x.id!=r.blockedPoint || Time.unscaledTime>=r.blockedUntil));
                     if(p==null){r.rest=2f;return DragonBehaviorIntent.Idle;}
-                    r.target=p.Position;r.hasTarget=true;
+                    r.target=p.Position;r.hasTarget=true;ResetRoute(r);
                 }
                 bool arrived=MoveToward(r,r.target,dt,out speed,out turnRate);
-                if(arrived || !GroundStepClear(r,r.target,dt) || !ClearPoint(r.target,r.habitat,r.uid))
-                {r.hasTarget=false;r.rest=2f;}
+                if(r.routeFailed)
+                {
+                    var failed=locations.SpawnPointsIn(r.habitat).FirstOrDefault(x=>(x.Position-r.target).sqrMagnitude<.0004f);
+                    r.blockedPoint=failed?.id;r.blockedUntil=Time.unscaledTime+5f;r.fallback="explore-path: "+r.routeState;
+                    r.hasTarget=false;r.rest=2f;ResetRoute(r);
+                }
+                else if(arrived){r.hasTarget=false;r.rest=2f;}
                 return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
             }
             return DragonBehaviorIntent.Idle;
@@ -373,6 +440,7 @@ namespace Dravio
             RefreshDecisions();
             float dt=Mathf.Min(Time.deltaTime,.1f);
             frames.Clear();
+            routeBudget=1; // bounded work per rendered frame, even with many residents
             foreach(var r in residents.Values)
             {
                 var intent=GroundIntent(r,dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget);
@@ -446,7 +514,7 @@ namespace Dravio
             var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
             r.manualRestUntil=0;ReleasePoint(r);
             var point=r.position+r.rotation*Vector3.forward*.4f;
-            foodPoint=locations.IsWalkable(point,r.habitat)?point:r.position;
+            foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
             foodRequestedUid=d.Uid;feedPending=true;
             try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId));}
             finally{feedPending=false;foodRequestedUid=null;}
@@ -592,10 +660,12 @@ namespace Dravio
                 status.text=BehaviorLabel(r.decision.Behavior)+" · "+phase;
                 profile.text+="\n"+(vi?"Hành vi: ":"Behavior: ")+BehaviorLabel(r.decision.Behavior)+" · "+r.decision.Reason+
                     "\n"+(vi?"Trình diễn: ":"Presentation: ")+r.shownIntent+(r.fallback==null?"":" ("+r.fallback+")")+
-                    "\n"+(vi?"Điểm tương tác: ":"Interaction point: ")+(r.point?.id??"—");
+                    "\n"+(vi?"Điểm tương tác: ":"Interaction point: ")+(r.point?.id??"—")+
+                    "\n"+(vi?"Đường đi: ":"Route: ")+r.routeState+" · "+(r.route==null?0:Math.Max(0,r.route.Waypoints.Count-r.routeIndex))+" wp";
             }
             else status.text=vi?messageVi:messageEn;
-            profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions;
+            profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
+                "\n"+(vi?"Lượt tìm đường / lỗi: ":"Routes planned / failed: ")+plannedRoutes+"/"+failedRoutes;
             if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
         }
