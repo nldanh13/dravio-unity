@@ -41,11 +41,13 @@ from mathutils import Matrix, Vector  # noqa: E402
 REPO = Path(__file__).resolve().parents[3]
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
-RIG_VERSION = 3  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot
+RIG_VERSION = 4  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips
 FPS = 30
 BASE_FRAMES = {'Idle': 120, 'Eat': 60, 'Sleep': 120, 'Happy': 45, 'Swim': 48, 'Burrow': 60,
-               'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40}
-LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide'}
+               'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40,
+               # U1-CHAR.6 behaviour clips
+               'Rest': 120, 'Bask': 120, 'Wake': 60, 'LookAround': 90, 'Curious': 75, 'Drink': 75, 'Stretch': 90}
+LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide', 'Rest', 'Bask'}
 NO_GROUND = {'Swim', 'Fly', 'Glide'}  # no ground contact: ground IK and clearance are off
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 _QA = json.loads(BUDGETS.read_text(encoding='utf-8')).get('animationQa', {})
@@ -584,6 +586,53 @@ class Animator:
 
     # --- clip definitions: return (R dict, root location, feet targets or None, FK leg rotations, root rot)
     def pose(self, clip, t):
+        if clip == 'Wake':
+            return self._wake(t)
+        return self._pose(clip, t)
+
+    def _scaled(self, clip, t):
+        """A clip's pose exactly as authored: with that clip's ground-clearance amplitude scale and lift."""
+        R, root, feet, contacts, root_rot = self._pose(clip, t)
+        amp, lift = self.amp.get(clip, 1.0), self.lift.get(clip, 0.0)
+        if amp < 1.0:
+            R = {k: Matrix.Identity(3).to_quaternion().slerp(m.to_quaternion(), amp).to_matrix() for k, m in R.items()}
+            root = root * amp
+            if feet is not None:
+                feet = {k: self.leg[k]['ankle0'].lerp(v, amp) for k, v in feet.items()}
+        root = root + Vector((0, 0, lift))
+        if feet is not None:
+            feet = {k: v + Vector((0, 0, lift)) for k, v in feet.items()}
+        return R, root, feet, contacts, root_rot
+
+    def _wake(self, t):
+        """Wake: the authored Sleep pose (t=0, with Sleep's own clearance scale/lift) rises into the authored
+        Idle pose (t=0) with an ease and a short neck stretch, so Sleep -> Wake -> Idle has no jump at either
+        end. Wake therefore gets no clearance scale/lift of its own (author() skips it)."""
+        Ra, ra, fa, ca, rra = self._scaled('Sleep', 0.0)
+        ffa = self.foot_follow
+        Rb, rb, fb, cb, rrb = self._scaled('Idle', 0.0)
+        e = t * t * (3 - 2 * t)
+        self.foot_follow = ffa * (1 - e)
+        R = {}
+        for n in set(Ra) | set(Rb):
+            qa = Ra.get(n, Matrix.Identity(3)).to_quaternion()
+            qb = Rb.get(n, Matrix.Identity(3)).to_quaternion()
+            R[n] = qa.slerp(qb, e).to_matrix()
+        if 'Neck' in self.P:
+            R['Neck'] = rot('X', -self.prof.get('wake', {}).get('neckStretch', 0.08) * math.sin(math.pi * t)) @ R.get('Neck', Matrix.Identity(3))
+        root = ra.lerp(rb, e)
+        feet, contacts = None, {}
+        if fa is not None and fb is not None:
+            feet = {}
+            lift = self.prof.get('wake', {}).get('stepLiftLegs', 0.06) * self.leg_len
+            for k in fa:
+                moved = (fb[k] - fa[k]).length > 1e-4
+                # a paw that has to move is lifted and set down (small arc), never dragged while planted
+                feet[k] = fa[k].lerp(fb[k], e) + (Vector((0, 0, lift * math.sin(math.pi * e))) if moved else Vector())
+                contacts[k] = not moved or e in (0.0, 1.0)
+        return R, root, feet, contacts, rra
+
+    def _pose(self, clip, t):
         tau = 2 * math.pi
         h, LL = self.h, self.leg_len
         R = {}
@@ -652,8 +701,12 @@ class Animator:
             mul('Chest', 'X', cfg.get('chestPitch', 0.08) * k)
             root.z -= cfg.get('chestDropH', 0.03) * h * k
             tail_wave(0.06, 1.0)
-        elif clip == 'Sleep':
-            cfg = pr.get('sleep', {})
+        elif clip in ('Sleep', 'Rest', 'Bask'):
+            # Rest / Bask lie down with the Sleep body (same legs, same paw fold) and differ by head, tail and
+            # wings: Rest keeps the head up and awake, Bask stretches out low with wings open to the sun.
+            cfg = dict(pr.get('sleep', {}))
+            if clip != 'Sleep':
+                cfg.update(pr.get(clip.lower(), {}))
             self.foot_follow = cfg.get('footFollow', 0.0)
             if self.leg:
                 drop = cfg.get('dropLegs', 0.42) * LL
@@ -664,25 +717,96 @@ class Animator:
                     else:  # hind feet slide out behind so the knee folds less while the body settles
                         feet[k] = self.leg[k]['ankle0'] + Vector((0, cfg.get('hindReachLegs', 0.0) * LL, 0))
                     contacts[k] = True
-            # head turns to the side and rests low; the turn is spread over neck and head
-            mul('Neck', 'X', cfg.get('neckPitch', 0.28))
-            mul('Neck', 'Z', cfg.get('neckYaw', 0.22))
-            mul('Head', 'X', cfg.get('headPitch', 0.15))
-            mul('Head', 'Z', cfg.get('headYaw', 0.12))
-            coil = cfg.get('coil', 0.2)
+            slow = math.sin(tau * t * 2)
+            if clip == 'Sleep':
+                # head turns to the side and rests low; the turn is spread over neck and head
+                mul('Neck', 'X', cfg.get('neckPitch', 0.28))
+                mul('Neck', 'Z', cfg.get('neckYaw', 0.22))
+                mul('Head', 'X', cfg.get('headPitch', 0.15))
+                mul('Head', 'Z', cfg.get('headYaw', 0.12))
+                coil = cfg.get('coil', 0.2)
+            elif clip == 'Rest':
+                # awake, head up; a slow look to one side and back over the loop
+                mul('Neck', 'X', cfg.get('restNeckPitch', -0.06))
+                mul('Neck', 'Z', cfg.get('restLook', 0.12) * math.sin(tau * t))
+                mul('Head', 'X', cfg.get('restHeadPitch', 0.06))
+                coil = cfg.get('restCoil', 0.1)
+            else:  # Bask: chin forward and low, tail laid out, no curl
+                mul('Neck', 'X', cfg.get('baskNeckPitch', 0.14))
+                mul('Head', 'X', cfg.get('baskHeadPitch', -0.08))
+                coil = 0.0
             for i, n in enumerate(self.tails):  # the curl starts past the tail base, not at the hip
-                mul(n, 'Z', coil * min(1.0, 0.5 * i) + 0.1 * i)
+                mul(n, 'Z', coil * min(1.0, 0.5 * i) + (0.1 * i if clip == 'Sleep' else 0.0))
+            if clip == 'Rest':
+                tail_wave(0.05, 1.0)
             # a legless body curls along its whole length; with planted feet only a slight body curve
             # (curling the spine would drag the hips sideways over the planted feet)
             spine_coil = cfg.get('spineCoil', 0.5 if not self.leg else 0.1)
             for i, n in enumerate(self.spine):
                 mul(n, 'Z', coil * spine_coil)
-            slow = math.sin(tau * t * 2)
-            for n in (['Spine', 'Chest'] + self.spine[:2]):
-                mul(n, 'X', 0.01 * slow)
+            breath = cfg.get('breath', 0.01) if clip == 'Sleep' else 0.014
+            # same rule as Idle: a long serpentine spine with legs must not breathe from Spine1 (it roots the
+            # whole body, so the hips would bob over the planted hind feet)
+            for n in (['Spine', 'Chest'] + ([] if self.leg else self.spine[:2])):
+                mul(n, 'X', breath * slow)
             for s, sign in (('L', 1), ('R', -1)):
-                mul(f'WingUpper_{s}', 'Y', -sign * min(0.15, self.wing_down if self.wing_down is not None else 0.15))
-                mul(f'WingFore_{s}', 'Z', sign * 0.2)
+                if clip == 'Bask':  # wings open to the sun, within the measured upstroke limit
+                    mul(f'WingUpper_{s}', 'Y', sign * min(cfg.get('baskWingOpen', 0.35), self.wing_up if self.wing_up is not None else 0.35))
+                else:
+                    mul(f'WingUpper_{s}', 'Y', -sign * min(0.15, self.wing_down if self.wing_down is not None else 0.15))
+                    mul(f'WingFore_{s}', 'Z', sign * 0.2)
+        elif clip == 'LookAround':
+            # standing look to one side, then the other, back to centre; zero speed at both ends
+            cfg = pr.get('lookaround', {})
+            yaw = cfg.get('neckYaw', 0.45) * math.sin(tau * t) * math.sin(math.pi * t)
+            mul('Neck', 'Z', yaw)
+            mul('Head', 'Z', cfg.get('headShare', 0.5) * yaw)
+            mul('Neck', 'X', -cfg.get('lift', 0.06) * math.sin(math.pi * t) ** 2)
+            mul('Chest', 'Z', cfg.get('chestShare', 0.2) * yaw)
+            tail_wave(0.06, 1.0)
+        elif clip == 'Curious':
+            # lean in and sniff: chest dips, the neck reaches forward, the head tilts side to side, tail lifts
+            cfg = pr.get('curious', {})
+            k = math.sin(math.pi * t) ** 2
+            mul('Chest', 'X', cfg.get('chestPitch', 0.07) * k)
+            mul('Neck', 'X', -cfg.get('neckReach', 0.12) * k)
+            mul('Head', 'X', cfg.get('headPitch', 0.12) * k)
+            mul('Head', 'Y', cfg.get('headTilt', 0.22) * k * math.sin(tau * 1.5 * t))
+            for i, n in enumerate(self.tails[:2]):
+                mul(n, 'X', -cfg.get('tailLift', 0.12) * k)
+            tail_wave(0.08 * k, 2.0)
+            root.z -= cfg.get('dropH', 0.015) * h * k
+        elif clip == 'Drink':
+            # head down to the water, lapping, back up (Eat-like timing with a lower head)
+            cfg = pr.get('drink', {})
+            if t < 0.2:
+                k = 0.5 - 0.5 * math.cos(math.pi * t / 0.2)
+            elif t < 0.8:
+                k = 1.0
+            else:
+                k = 0.5 + 0.5 * math.cos(math.pi * (t - 0.8) / 0.2)
+            lap = (math.sin(tau * cfg.get('laps', 5) * (t - 0.2) / 0.6) if 0.2 <= t < 0.8 else 0.0)
+            mul('Neck', 'X', cfg.get('neckPitch', 0.48) * k)
+            mul('Head', 'X', cfg.get('headPitch', 0.3) * k + cfg.get('lapPitch', 0.05) * lap)
+            mul('Chest', 'X', cfg.get('chestPitch', 0.12) * k)
+            root.z -= cfg.get('chestDropH', 0.03) * h * k
+            tail_wave(0.05, 1.0)
+        elif clip == 'Stretch':
+            # play-bow stretch: chest goes down between planted forelegs, hips stay up, head level, tail up
+            cfg = pr.get('stretch', {})
+            if t < 0.3:
+                k = 0.5 - 0.5 * math.cos(math.pi * t / 0.3)
+            elif t < 0.7:
+                k = 1.0
+            else:
+                k = 0.5 + 0.5 * math.cos(math.pi * (t - 0.7) / 0.3)
+            self.foot_follow = cfg.get('footFollow', 0.5)
+            mul('Chest', 'X', cfg.get('chestPitch', 0.16) * k)
+            mul('Spine', 'X', cfg.get('spinePitch', 0.06) * k)
+            mul('Neck', 'X', -cfg.get('neckLift', 0.2) * k)
+            for n in self.tails[1:3]:  # lift past the tail root (lifting at the hip stretched the rump)
+                mul(n, 'X', -cfg.get('tailLift', 0.12) * k)
+            root.z -= cfg.get('dropH', 0.02) * h * k
         elif clip == 'Happy':
             cfg = pr.get('happy', {})
             hop = cfg.get('hopH', 0.05) * h
@@ -848,7 +972,7 @@ class Animator:
             loop = clip in LOOPING
             ranges[clip] = {'start': start, 'end': start + n, 'loop': loop}
             cons, ik = self._author_clip(clip, start, n, loop)
-            if clip not in NO_GROUND and mod:
+            if clip not in NO_GROUND and clip != 'Wake' and mod:
                 # Ground clearance, measured on the skinned mesh:
                 #  * body/head below z=0 (a low head while eating, a deep sleep drop): the clip's
                 #    amplitude is reduced in steps of 15 % (at most 4) - never the ground or the limits;

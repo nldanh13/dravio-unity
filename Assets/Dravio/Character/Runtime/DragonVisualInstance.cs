@@ -32,6 +32,17 @@ namespace Dravio.Character
         private int _phase;
         private bool _hasParams;
         private DragonLocomotion? _lastSubstitution;
+        // U1-CHAR.6
+        private bool _hasTempo;
+        private float _tempo = 1f;
+        private DragonHeadLook _headLook;
+        private DragonBlink _blink;
+        private bool _lookActive;
+
+        /// <summary>Clips of the shown model (what the behaviour planner may use).</summary>
+        public DragonAnimationMap Clips { get { return _map; } }
+        public float Tempo { get { return _tempo; } }
+        public bool LookActive { get { return _lookActive; } }
 
         internal void Bind(GameObject sourcePrefab, int phase)
         {
@@ -40,11 +51,17 @@ namespace Dravio.Character
             _animator = GetComponentInChildren<Animator>(true);
             _renderers = GetComponentsInChildren<Renderer>(true);
             _grounding = GetComponent<DragonFootGrounding>();
+            _headLook = GetComponent<DragonHeadLook>();
+            _blink = GetComponent<DragonBlink>();
             if (_animator != null)
             {
                 _animator.keepAnimatorStateOnDisable = true; // throttling disables it; do not reset the state machine
                 _animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
                 _hasParams = _animator.runtimeAnimatorController != null;
+                _hasTempo = false;
+                if (_hasParams)
+                    foreach (var p in _animator.parameters)
+                        if (p.nameHash == DragonAnimatorParams.TempoHash) { _hasTempo = true; break; }
             }
             _anchors.Clear();
             foreach (var t in GetComponentsInChildren<Transform>(true))
@@ -100,7 +117,7 @@ namespace Dravio.Character
         {
             if (!_map.CanPlay(interaction) || _animator == null || !_hasParams) return false;
             CurrentInteraction = interaction;
-            _actionTimer = seconds > 0f ? seconds : 1f;
+            _actionTimer = (seconds > 0f ? seconds : 1f) / Mathf.Max(0.1f, _tempo);
             _animator.SetInteger(DragonAnimatorParams.ActionHash, (int)interaction);
             return true;
         }
@@ -122,6 +139,13 @@ namespace Dravio.Character
             }
             if (_grounding != null)
                 _grounding.enabled = footIk && interval == 1 && DragonFootGrounding.AppliesTo(ShownLocomotion, CurrentInteraction);
+            // look-at and blink only on full-rate (near, visible) dragons; both are layered after the Animator
+            if (_headLook != null) _headLook.enabled = _lookActive && interval == 1;
+            if (_blink != null)
+            {
+                _blink.enabled = _blink.HasShape && interval == 1;
+                _blink.Asleep = ShownLocomotion == DragonLocomotion.Sleep;
+            }
             if (_animator == null || !_map.IsAnimated) return false;
             if (interval == 1)
             {
@@ -178,8 +202,26 @@ namespace Dravio.Character
             _hasBlock = true;
         }
 
+        /// <summary>Personality tempo for the non-locomotion states (needs the U1-CHAR.6 "Tempo" parameter).</summary>
+        internal void SetTempo(float tempo)
+        {
+            _tempo = tempo > 0.1f ? tempo : 0.1f;
+            if (_animator != null && _hasTempo) _animator.SetFloat(DragonAnimatorParams.TempoHash, _tempo);
+        }
+
+        /// <summary>Head look-at; ignored (false) when the prefab has no DragonHeadLook (no Neck/Head bones).</summary>
+        internal bool SetLook(bool active, Vector3 worldTarget, float weight, float hold)
+        {
+            _lookActive = active && _headLook != null;
+            if (_headLook != null) _headLook.SetTarget(active, worldTarget, weight, hold);
+            return _headLook != null;
+        }
+
         internal void ResetForPool()
         {
+            SetTempo(1f);
+            SetLook(false, Vector3.zero, 0f, 1f);
+            if (_headLook != null) _headLook.ResetPose();
             if (_hasBlock) { foreach (var r in _renderers) if (r != null) r.SetPropertyBlock(null); _hasBlock = false; }
             CurrentInteraction = DragonInteraction.None;
             if (_animator != null)

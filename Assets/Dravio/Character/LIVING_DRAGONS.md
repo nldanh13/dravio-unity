@@ -144,6 +144,25 @@ Menu **Dravio ▸ Character ▸ Animation Lab** tạo hoặc mở `Scenes/Dragon
 - 4 góc nhìn
 - cảnh báo QA của clip đang xem
 
+### Rig v4: hành vi tự nhiên (U1-CHAR.6)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U6.md`. Clip, Animator và ánh xạ: [ANIMATION_CATALOG.md](ANIMATION_CATALOG.md).
+
+- **7 clip mới:**
+  - Rest, Wake, LookAround, Curious cho mọi loài;
+  - Drink, Stretch, Bask cho loài `walk`.
+  - Luật nằm trong `build_archetypes.py`. Không thêm khả năng sinh học nào.
+- **Wake:** khởi đầu đúng ở tư thế Sleep đã author (cùng hệ số tránh xuyên đất) và kết thúc ở Idle. `anim_qa.py` (QA v2) kiểm thêm `transitions` với ngưỡng khép vòng sẵn có. Chân phải dời chỗ thì được nhấc lên, không kéo lê.
+- **Profile:** quadruped có `drink`. Serpentine có `sleep.footFollow` 0,8 và `rest`/`bask.dropLegs` 0,3. Nhịp thở không xoay Spine1 trên rig serpentine có chân.
+- **Runtime:**
+  - `DragonBehaviorPlanner`: intent sang clip, chuyển tiếp, biến thể Idle, phản hồi;
+  - `DragonPersonalityPresentation`;
+  - `DragonHeadLook`, `DragonBlink`.
+  - Animator có thêm `Rest`, `Bask`, các action mới và tham số `Tempo`.
+  - Tích hợp: [CHARACTER_BEHAVIOR_API.md](CHARACTER_BEHAVIOR_API.md).
+- **Animation Lab:** bảng *Behaviour preview* chạy planner thật để thử intent, tính cách và Pet/Call/Feed.
+- **Stress scene:** `behaviourIntents = true` chạy qua `SanctuaryDragonSync`, có intent, tính cách và look-at.
+
 ## 4. Nhập vào Unity
 
 1. Đưa thư mục `Imported/` vào `Assets/Dravio/Character/Imported/`. Preset import tự áp dụng ở lần import đầu: rồng là Generic, prop không có animation và avatar, normal map, ASTC.

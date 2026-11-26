@@ -1,4 +1,4 @@
-# Dravio Core Domain (C#) — U2.1 → U2.8
+# Dravio Core Domain (C#) — U2.1 → U2.9
 
 Đây là bản port lõi domain của Dravio từ TypeScript sang C# thuần. Nguồn đối chiếu là **nldanh13/dravio @ `b33ec7a3dc98b4a74857fe92d143475028fc0d96`**, gồm GDD 3.1, ADR 0003/0004/0010/0013, `src/types`, `src/data`, `src/engine` và `tests/unit`. Luật, ID, thông số cân bằng và công thức kinh tế được giữ nguyên. Phần nào khác bản TS thì có ghi rõ ở mục 7.
 
@@ -16,6 +16,7 @@ Code nằm trong assembly `Dravio.Domain` (`Dravio.Domain.asmdef`). Assembly nà
 | `Breeding/` | `Dravio.Domain.Breeding` | `BreedingRules` (U2.5, port TS), `Hatchery` (U2.5, **implementation mới**) | `engine/genetics/breeding.ts`; lệnh: GDD/ADR 0003 |
 | `Expedition/` | `Dravio.Domain.Expedition` | `Expeditions`: thám hiểm (U2.8, **implementation mới**) | GDD tr. 22 |
 | `Queries/` | `Dravio.Domain.Queries` | `Ecosystem`: API truy vấn chỉ đọc cho Unity (U2.8) | — |
+| `Behavior/` | `Dravio.Domain.Behavior` | `PersonalityProfiles`, `BehaviorCatalog`, `BehaviorEngine`, `HabitatEcology`, `EcologyComfort` (tắt), `Research` (tắt): U2.9, **implementation mới**, chỉ đọc | — (ADR 0203) |
 | `Sanctuary/` | `Dravio.Domain.Sanctuary` | `SanctuaryRules`: bán, bán nhanh, khóa, nâng cấp, trang trí (U2.7, **implementation mới**) | GDD tr. 15, Phụ lục C.3, E, F |
 | `Progression/` | `Dravio.Domain.Progression` | `StarterPack`, `Achievements`, `Tutorial` (U2.4) | `engine/inventory/packs.ts` (phần gói hướng dẫn), `engine/progression/achievements.ts`, `engine/progression/tutorial.ts` |
 | `Text/` | `Dravio.Domain.Text` | `NicknameRules`, `GraphemeCounter` | `engine/inventory/nickname.ts` |
@@ -233,6 +234,19 @@ Quyết định và phần còn thiếu: [ADR 0202](../../../Docs/adr/0202-u2-6-
 
 **Validator v8:** chỉ số trong 0–100; ca duy nhất, đúng rồng, tối đa một ca mở mỗi rồng; kế hoạch hợp lệ và đã nhận định; ca đang chạy phải ở `care(caseId)`, ca chờ phải ở nơi trú; thời lượng khớp mức độ và kế hoạch; tiến trình không vượt đồng hồ; không quá 2 ca trong trạm và không để ca chờ khi trạm còn chỗ; sự kiện duy nhất mỗi zone, zone đã mở; không sản xuất khi đang có ca. Rồng ở nơi trú / trạm mà không có ca từ save cũ vẫn hợp lệ (D8).
 
+## 5f. U2.9 — Cá tính, hành vi, sinh thái sinh cảnh, nghiên cứu
+
+Quyết định và phần chờ duyệt: [ADR 0203](../../../Docs/adr/0203-u2-9-dragon-behavior-personality-ecology-research.md) (đề xuất). Hướng dẫn tích hợp: [INTEGRATION.md mục 8](INTEGRATION.md). Ma trận 16 loài: [BEHAVIOR_MATRIX.md](BEHAVIOR_MATRIX.md). Báo cáo cân bằng: [BEHAVIOR_SIMULATION.md](BEHAVIOR_SIMULATION.md). Toàn bộ là **implementation mới**, không có parity TS. **Không đổi Save Schema (vẫn v8), không có lệnh hay event mới.**
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Cá tính: 4 nét 0–100 dẫn xuất từ `Personality` đã lưu + lệch ±10 ổn định theo UID; thức ăn và microhabitat ưa thích | `Behavior/PersonalityProfile.cs` | bật (chỉ đọc) |
+| 11 hành vi, khả năng theo loài và nơi ở, chu kỳ ngày đêm, ưu tiên gameplay, chọn có trọng số tất định theo nhịp 60 s | `Behavior/BehaviorCatalog.cs`, `Behavior/BehaviorEngine.cs` | bật (chỉ đọc; Sanctuary chưa nối) |
+| Giải thích độ phù hợp theo từng yếu tố (điểm lấy từ Suitability, không engine mới) | `Behavior/HabitatEcology.cs` (`HabitatEcology`) | bật (chỉ đọc) |
+| Môi trường → comfort (ADR 0202 P8 / 0203 C1–C2) | `Behavior/HabitatEcology.cs` (`EcologyComfort`) | **tắt** (`EcologyComfortRules.Production`) |
+| Cấp nghiên cứu, mở hồ sơ Codex theo cấp, sổ quan sát tập tính | `Behavior/Research.cs` | **tắt** (`ResearchRules.Production`); sổ quan sát chưa lưu (Schema v9 chờ duyệt) |
+| Truy vấn cho Unity | `Queries/BehaviorQueries.cs` | bật |
+
 ## 6. Kiểm thử
 
 **Trong Unity:** mở *Window → General → Test Runner → EditMode* rồi chạy `Dravio.Domain.Tests`. Package Test Framework 1.8.0 đã có sẵn dưới dạng phụ thuộc gián tiếp trong `packages-lock.json`, nên không phải sửa manifest. Assembly test có `defineConstraints: UNITY_INCLUDE_TESTS` và chỉ chạy trong Editor.
@@ -291,6 +305,7 @@ Ngoài golden, có các test port từ `rng-clock`, `catalog`, `economy`, `g0Bio
 ## 8. Phạm vi đã kiểm thử
 
 - **Đã chạy:**
+  - U2.9: Domain 422 pass + 3 bỏ qua có chủ đích (thêm báo cáo mô phỏng hành vi); Persistence 192/192 (không đổi); Domain biên dịch được với `netstandard2.1` + C# 9. `BehaviorTests` (40) và `BehaviorSimulationTests` (2 chạy trong CI) gồm vân tay golden tất định, khả năng theo sinh học trên hơn 50 000 quyết định, SeekFood → `consumeFood` luôn hợp lệ, truy vấn không đổi state, kinh tế trùng khớp khi chèn truy vấn vào mô phỏng U2.7, luật đề xuất mặc định tắt. Cài thử 5 lỗi (bỏ kiểm hồi feed, bay không cần chỗ đậu, bỏ ngủ theo nhịp, gợi ý đi bộ dưới nước, giao một drop cho nhiều rồng): đều bị bắt.
   - U2.6: Domain 380 pass + 2 bỏ qua có chủ đích; Persistence 192/192; bộ đọc TS (`verify-csharp-saves.test.ts`) đọc đúng mọi save C# xuất ra, kể cả save v8.
   - U2.8: Domain 342 pass + 2 bỏ qua có chủ đích; Persistence 182/182. Cài thử 8 lỗi U2.8 (bỏ kiểm cửa ngõ, bỏ kiểm kiểu di chuyển, khóa tuyến, slot, nhận hai lần, tách quyết toán, khoảng 2–4, migration rồng mồ côi): đều bị bắt.
   - `dotnet test` với .NET SDK 8.0.134 trên Linux: Domain 330 pass + 2 bỏ qua có chủ đích (sinh báo cáo mô phỏng và đo thời gian, chỉ chạy khi đặt biến môi trường) sau U2.7; Persistence 179/179. Cài thử 12 lỗi U2.7: 11 bị bắt, 1 tương đương hành vi (Bách khoa quét cả rồng đã thả — rồng đó đã được ghi khi còn sở hữu).

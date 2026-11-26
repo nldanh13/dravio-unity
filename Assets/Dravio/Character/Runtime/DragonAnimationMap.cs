@@ -12,28 +12,49 @@ namespace Dravio.Character
     public sealed class DragonAnimationMap
     {
         private readonly HashSet<string> _clips;
+        // per-enum lookups built once (enum.ToString() allocates; this runs every frame for every dragon)
+        private readonly bool[] _loco, _action;
 
         public DragonAnimationMap(IEnumerable<string> clipNames)
         {
             _clips = new HashSet<string>(clipNames ?? Array.Empty<string>(), StringComparer.Ordinal);
+            var l = (DragonLocomotion[])Enum.GetValues(typeof(DragonLocomotion));
+            _loco = new bool[MaxValue(l) + 1];
+            foreach (var v in l) _loco[(int)v] = _clips.Contains(v.ToString());
+            var a = (DragonInteraction[])Enum.GetValues(typeof(DragonInteraction));
+            _action = new bool[MaxValue(a) + 1];
+            foreach (var v in a) _action[(int)v] = v != DragonInteraction.None && _clips.Contains(v.ToString());
         }
 
+        private static int MaxValue<T>(T[] values) where T : struct
+        {
+            int m = 0;
+            foreach (var v in values) m = Math.Max(m, Convert.ToInt32(v));
+            return m;
+        }
+
+        public bool Has(DragonLocomotion l) { int i = (int)l; return i >= 0 && i < _loco.Length && _loco[i]; }
+
         public bool Has(string clip) { return _clips.Contains(clip); }
-        public bool IsAnimated { get { return _clips.Contains("Idle"); } }
+        public bool IsAnimated { get { return Has(DragonLocomotion.Idle); } }
 
         /// <summary>Returns the locomotion that will be shown and whether it differs from the request.</summary>
         public DragonLocomotion Resolve(DragonLocomotion requested, out bool substituted)
         {
             substituted = false;
-            if (Has(requested.ToString())) return requested;
+            if (Has(requested)) return requested;
             substituted = true;
-            if (requested == DragonLocomotion.Run && Has("Walk")) return DragonLocomotion.Walk;
+            if (requested == DragonLocomotion.Run && Has(DragonLocomotion.Walk)) return DragonLocomotion.Walk;
+            // lying states fall back to the nearest lying clip the species has, never to another ability
+            if (requested == DragonLocomotion.Bask && Has(DragonLocomotion.Rest)) return DragonLocomotion.Rest;
+            if ((requested == DragonLocomotion.Bask || requested == DragonLocomotion.Rest) && Has(DragonLocomotion.Sleep)) return DragonLocomotion.Sleep;
             return DragonLocomotion.Idle;
         }
 
         public bool CanPlay(DragonInteraction interaction)
         {
-            return interaction != DragonInteraction.None && Has(interaction.ToString());
+            int i = (int)interaction;
+            return i > 0 && i < _action.Length && _action[i];
         }
 
         /// <summary>Playback multiplier so feet roughly match ground speed. referenceSpeed is the speed the clip

@@ -74,7 +74,10 @@ class Reports(unittest.TestCase):
     def test_animation_report_flags_clip_missing_against_biology(self):
         md = (self.out / 'animation-report.md').read_text(encoding='utf-8')
         row = next(l for l in md.splitlines() if l.startswith('| DRG_emberling_Baby'))
-        self.assertEqual(row.split('|')[5].strip(), 'Run', 'emberling walks: Run expected by its biology clip set')
+        expected = next(s['clips'] for s in json.loads(br.ARCHETYPES.read_text(encoding='utf-8'))['species'] if s['id'] == 'emberling')
+        missing = [c.strip() for c in row.split('|')[5].split(',')]
+        self.assertEqual(missing, [c for c in expected if c not in ('Idle', 'Eat', 'Sleep', 'Happy', 'Walk')])
+        self.assertIn('Run', missing, 'emberling walks: Run expected by its biology clip set')
         page = (self.out / 'qa' / 'DRG_emberling_Baby.md').read_text(encoding='utf-8')
         self.assertIn('| Sleep |', page)
         self.assertIn('WARNING', page)

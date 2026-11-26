@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Dravio.Character.Integration;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -24,6 +25,8 @@ namespace Dravio.Character.Diagnostics
         public float areaRadius = 12f;
         public int seed = 1234;
         public bool quitWhenDone;
+        [Tooltip("U1-CHAR.6: drive the dragons through SanctuaryDragonSync with behaviour intents, personalities and a look target (the camera) instead of raw locomotion")]
+        public bool behaviourIntents;
 
         [Serializable] public sealed class Result
         {
@@ -32,6 +35,7 @@ namespace Dravio.Character.Diagnostics
             public long drawCallsAvg, setPassAvg, trianglesAvg, verticesAvg;
             public long totalUsedMemoryMB, gcUsedMemoryMB, systemUsedMemoryMB;
             public int poolCreated, poolReused, poolDestroyed;
+            public bool behaviourIntents; public int oneShotsStarted, substitutions;
         }
         [Serializable] public sealed class Report
         {
@@ -47,6 +51,13 @@ namespace Dravio.Character.Diagnostics
         private readonly List<string> _uids = new List<string>();
         private readonly Dictionary<string, Vector3> _targets = new Dictionary<string, Vector3>();
         private string _status = "";
+        // behaviour mode (U1-CHAR.6)
+        private SanctuaryDragonSync _sync;
+        private readonly List<SanctuaryDragonFrame> _frames = new List<SanctuaryDragonFrame>();
+        private readonly Dictionary<string, SanctuaryDragonFrame> _sim = new Dictionary<string, SanctuaryDragonFrame>();
+        private int _oneShots, _subs;
+        private static readonly DragonBehaviorIntent[] Arrived = { DragonBehaviorIntent.Idle, DragonBehaviorIntent.Rest, DragonBehaviorIntent.Bask,
+            DragonBehaviorIntent.Curious, DragonBehaviorIntent.LookAround, DragonBehaviorIntent.Drink, DragonBehaviorIntent.Eat, DragonBehaviorIntent.Sleep };
 
         private IEnumerator Start()
         {
@@ -71,8 +82,10 @@ namespace Dravio.Character.Diagnostics
                 _status = "Warm-up " + n;
                 float t = 0f;
                 while (t < warmupSeconds) { Drive(); t += Time.unscaledDeltaTime; yield return null; }
+                _oneShots = 0; _subs = 0;
                 yield return Sample(n, report);
             }
+            if (_sync != null) { _sync.Clear(); _sim.Clear(); _uids.Clear(); }
             manager.DespawnAll();
             LastReport = report;
             string path = Path.Combine(Application.persistentDataPath, "dragon-stress-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".json");
@@ -122,13 +135,15 @@ namespace Dravio.Character.Diagnostics
                     drawCallsAvg = sDraw / k, setPassAvg = sSet / k, trianglesAvg = sTris / k, verticesAvg = sVerts / k,
                     totalUsedMemoryMB = totalMem.LastValue / (1024 * 1024), gcUsedMemoryMB = gcMem.LastValue / (1024 * 1024),
                     systemUsedMemoryMB = sysMem.LastValue / (1024 * 1024),
-                    poolCreated = manager.PoolCreated, poolReused = manager.PoolReused, poolDestroyed = manager.PoolDestroyed
+                    poolCreated = manager.PoolCreated, poolReused = manager.PoolReused, poolDestroyed = manager.PoolDestroyed,
+                    behaviourIntents = behaviourIntents, oneShotsStarted = _oneShots, substitutions = _subs
                 });
             }
         }
 
         private void SpawnTo(int n)
         {
+            if (behaviourIntents) { SpawnFrames(n); return; }
             var entries = manager.catalog.entries;
             while (_uids.Count > n) { manager.Despawn(_uids[_uids.Count - 1]); _uids.RemoveAt(_uids.Count - 1); }
             for (int i = _uids.Count; i < n; i++)
@@ -156,9 +171,67 @@ namespace Dravio.Character.Diagnostics
 
         /// <summary>Synthetic integration layer: wander between random points; the visual runtime substitutes
         /// clips a species does not have (reported once per instance).</summary>
+        private void SpawnFrames(int n)
+        {
+            if (_sync == null) _sync = new SanctuaryDragonSync(manager);
+            var entries = manager.catalog.entries;
+            while (_uids.Count > n) { _sim.Remove(_uids[_uids.Count - 1]); _uids.RemoveAt(_uids.Count - 1); }
+            for (int i = _uids.Count; i < n; i++)
+            {
+                var e = entries[i % entries.Count];
+                string uid = "stress-" + i;
+                _sim[uid] = new SanctuaryDragonFrame
+                {
+                    uid = uid, speciesId = e.speciesId, stage = e.stage, visible = true, intent = DragonBehaviorIntent.Walk,
+                    personality = (DragonPersonalityStyle)(1 + i % 4), position = RandomPoint(),
+                    rotation = Quaternion.Euler(0f, (float)_rng.NextDouble() * 360f, 0f),
+                };
+                _uids.Add(uid);
+                _targets[uid] = RandomPoint();
+            }
+            DriveFrames(0f);
+        }
+
+        /// <summary>Synthetic Sanctuary for behaviour mode: walk to a point, then an arrival intent for a while.</summary>
+        private void DriveFrames(float dt)
+        {
+            var cam = Camera.main;
+            _frames.Clear();
+            foreach (var uid in _uids)
+            {
+                var f = _sim[uid];
+                var to = _targets[uid] - f.position; to.y = 0f;
+                if (f.intent == DragonBehaviorIntent.Walk || f.intent == DragonBehaviorIntent.Run)
+                {
+                    if (to.magnitude < 0.3f) f.intent = Arrived[_rng.Next(Arrived.Length)];
+                    else
+                    {
+                        f.speed = f.intent == DragonBehaviorIntent.Run ? 3f : 1.2f;
+                        var before = f.rotation;
+                        f.rotation = Quaternion.RotateTowards(f.rotation, Quaternion.LookRotation(to.normalized), 180f * dt);
+                        f.turnRateDegPerSec = dt > 0f ? Quaternion.Angle(before, f.rotation) / dt : 0f;
+                        f.position += f.rotation * Vector3.forward * f.speed * dt;
+                    }
+                }
+                else
+                {
+                    f.speed = 0f; f.turnRateDegPerSec = 0f;
+                    if (_rng.NextDouble() < 0.002) { _targets[uid] = RandomPoint(); f.intent = _rng.NextDouble() < 0.25 ? DragonBehaviorIntent.Run : DragonBehaviorIntent.Walk; }
+                    else if (_rng.NextDouble() < 0.001) _sync.React(uid, DragonReaction.Petted);
+                }
+                f.hasLookTarget = cam != null;
+                if (cam != null) f.lookTarget = cam.transform.position;
+                _sim[uid] = f;
+                _frames.Add(f);
+            }
+            var r = _sync.Sync(_frames, dt);
+            _oneShots += r.triggered; _subs += r.substituted;
+        }
+
         private void Drive()
         {
             float dt = Time.deltaTime;
+            if (behaviourIntents) { DriveFrames(dt); return; }
             foreach (var uid in _uids)
             {
                 DragonVisualInstance inst;

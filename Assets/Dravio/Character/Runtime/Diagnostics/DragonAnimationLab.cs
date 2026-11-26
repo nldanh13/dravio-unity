@@ -14,6 +14,9 @@ namespace Dravio.Character.Diagnostics
     ///  * skeleton overlay (bones as lines, IK feet marked)
     ///  * the animation QA warnings recorded for that clip by anim_qa.py (catalog animQaWarnings)
     ///  * four fixed views (front, side, top, three-quarter) or one view
+    ///  * U1-CHAR.6 behaviour preview: the real DragonBehaviorPlanner drives the clips from an intent, a
+    ///    personality style and player reactions (Petted / Called / Fed), so transitions (Sleep -> Wake),
+    ///    idle variations and reactions can be reviewed per species
     /// The clip is played through a manual PlayableGraph (not the Animator controller), so what is shown is exactly
     /// the imported clip at the chosen time. Root motion is off, as in game: the clips are authored in place.
     /// </summary>
@@ -40,6 +43,13 @@ namespace Dravio.Character.Diagnostics
         private Transform[] _bones = new Transform[0];
         private Material _lineMat;
         private Vector2 _scroll;
+        // U1-CHAR.6 behaviour preview
+        private bool _behave;
+        private DragonBehaviorPlanner _planner;
+        private DragonBehaviorIntent _intent = DragonBehaviorIntent.Idle;
+        private DragonPersonalityStyle _style = DragonPersonalityStyle.Unspecified;
+        private float _tempo = 1f;
+        private string _behaviourLog = "";
 
         public GameObject Instance { get { return _instance; } }
         public AnimationClip CurrentClip { get { return _clip >= 0 && _clip < _clips.Length ? _clips[_clip] : null; } }
@@ -63,6 +73,7 @@ namespace Dravio.Character.Diagnostics
             if (_graph.IsValid()) _graph.Destroy();
             if (_instance != null) Destroy(_instance);
             _entry = entryIndex;
+            _planner = null;
             var e = catalog.entries[entryIndex];
             if (e.prefab == null) { _instance = null; _clips = new AnimationClip[0]; return; }
             _instance = Instantiate(e.prefab, stage != null ? stage.position : Vector3.zero, Quaternion.identity);
@@ -141,7 +152,9 @@ namespace Dravio.Character.Diagnostics
             var c = CurrentClip;
             if (c != null && _graph.IsValid())
             {
-                if (!_paused) _time = AdvanceTime(_time, Time.deltaTime * _speed, c.length, c.isLooping);
+                if (_behave) BehaviourTick();
+                c = CurrentClip;
+                if (!_paused) _time = AdvanceTime(_time, Time.deltaTime * _speed * (_behave ? _tempo : 1f), c.length, c.isLooping);
                 _playable.SetTime(_time);
                 _graph.Evaluate(0f);
             }
@@ -149,8 +162,29 @@ namespace Dravio.Character.Diagnostics
             FrameCameras();
         }
 
-        /// <summary>Clip name -> the game state it represents. Eat/Happy are interactions over Idle; flight
-        /// transitions (TakeOff, Glide, Land) count as Fly, so ground IK stays off for them.</summary>
+        private void BehaviourTick()
+        {
+            if (catalog == null || _entry < 0 || _entry >= catalog.entries.Count) return;
+            var e = catalog.entries[_entry];
+            if (_planner == null)
+            {
+                _planner = new DragonBehaviorPlanner(new DragonAnimationMap(e.rigged ? e.clips : null),
+                    i => DragonVisualCatalog.ClipSecondsOf(e, i), DragonPersonalityPresentation.For(_style), DragonBehaviorPlanner.SeedFor(e.speciesId));
+            }
+            var o = _planner.Update(Time.deltaTime, _intent, 0f, 0f);
+            _tempo = o.tempo;
+            if (o.trigger != DragonInteraction.None) _behaviourLog = "start " + o.trigger + (o.note != null ? " | " + o.note : "");
+            else if (o.note != null) _behaviourLog = o.note;
+            string want = _planner.ActiveAction != DragonInteraction.None ? _planner.ActiveAction.ToString() : o.locomotion.ToString();
+            var c = CurrentClip;
+            if (c == null || c.name != want || o.trigger != DragonInteraction.None)
+                for (int i = 0; i < _clips.Length; i++)
+                    if (_clips[i].name == want) { SetClip(i); _time = 0f; _paused = false; break; }
+        }
+
+        /// <summary>Clip name -> the game state it represents. One-shots (Eat, Happy, Drink, Wake, Stretch,
+        /// LookAround, Curious) play over Idle; flight transitions (TakeOff, Glide, Land) count as Fly, so ground
+        /// IK stays off for them.</summary>
         public static DragonLocomotion ShownLocomotion(AnimationClip c)
         {
             return ShownLocomotion(c == null ? null : c.name);
@@ -158,7 +192,8 @@ namespace Dravio.Character.Diagnostics
 
         public static DragonLocomotion ShownLocomotion(string clip)
         {
-            if (string.IsNullOrEmpty(clip) || clip == "Eat" || clip == "Happy") return DragonLocomotion.Idle;
+            DragonInteraction a;
+            if (string.IsNullOrEmpty(clip) || (System.Enum.TryParse(clip, out a) && a != DragonInteraction.None)) return DragonLocomotion.Idle;
             DragonLocomotion l;
             return System.Enum.TryParse(clip, out l) ? l : DragonLocomotion.Fly;
         }
@@ -166,7 +201,8 @@ namespace Dravio.Character.Diagnostics
         public static DragonInteraction Interaction(AnimationClip c)
         {
             if (c == null) return DragonInteraction.None;
-            return c.name == "Eat" ? DragonInteraction.Eat : c.name == "Happy" ? DragonInteraction.Happy : DragonInteraction.None;
+            DragonInteraction a;
+            return System.Enum.TryParse(c.name, out a) ? a : DragonInteraction.None;
         }
 
         private void ApplyLod()
@@ -306,6 +342,39 @@ namespace Dravio.Character.Diagnostics
                 _multiView = GUILayout.Toggle(_multiView, " Four views (3/4, front, side, top)");
                 if (_grounding != null && _grounding.enabled)
                     GUILayout.Label("Pelvis offset " + (_grounding.PelvisOffset * 100f).ToString("0.0") + " cm");
+                GUILayout.Space(6);
+                bool behave = GUILayout.Toggle(_behave, " Behaviour preview (planner)");
+                if (behave != _behave) { _behave = behave; _planner = null; _tempo = 1f; }
+                if (_behave)
+                {
+                    GUILayout.Label("Personality");
+                    GUILayout.BeginHorizontal();
+                    foreach (DragonPersonalityStyle s in System.Enum.GetValues(typeof(DragonPersonalityStyle)))
+                        if (GUILayout.Toggle(_style == s, s.ToString(), "Button") && _style != s)
+                        {
+                            _style = s;
+                            if (_planner != null) _planner.SetPresentation(DragonPersonalityPresentation.For(s));
+                        }
+                    GUILayout.EndHorizontal();
+                    GUILayout.Label("Intent: " + _intent);
+                    var intents = (DragonBehaviorIntent[])System.Enum.GetValues(typeof(DragonBehaviorIntent));
+                    for (int i = 1; i < intents.Length; i += 3)
+                    {
+                        GUILayout.BeginHorizontal();
+                        for (int k = i; k < Mathf.Min(i + 3, intents.Length); k++)
+                            if (GUILayout.Toggle(_intent == intents[k], intents[k].ToString(), "Button")) _intent = intents[k];
+                        GUILayout.EndHorizontal();
+                    }
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Pet")) _planner?.React(DragonReaction.Petted);
+                    if (GUILayout.Button("Call")) _planner?.React(DragonReaction.Called);
+                    if (GUILayout.Button("Feed")) _planner?.React(DragonReaction.Fed);
+                    GUILayout.EndHorizontal();
+                    if (_planner != null)
+                        GUILayout.Label("Shown " + _planner.Shown + (_planner.ActiveAction != DragonInteraction.None ? " + " + _planner.ActiveAction : "")
+                            + "  tempo x" + _tempo.ToString("0.00") + "  idle " + _planner.IdleSeconds.ToString("0") + "/" + _planner.NextVariationAt.ToString("0") + " s");
+                    if (!string.IsNullOrEmpty(_behaviourLog)) GUILayout.Label(_behaviourLog);
+                }
                 GUILayout.Space(6);
                 GUILayout.Label("Animation QA: " + (string.IsNullOrEmpty(e.animQaStatus) ? "no report" : e.animQaStatus));
                 if (c != null)
