@@ -10,6 +10,7 @@ using BehaviorPhase = Dravio.Domain.Behavior.DayPhase;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.Queries;
+using Dravio.Domain.World;
 using Dravio.EnvironmentArt;
 using Dravio.Navigation;
 using Dravio.Platform;
