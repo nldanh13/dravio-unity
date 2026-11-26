@@ -144,6 +144,46 @@ Menu **Dravio ▸ Character ▸ Animation Lab** tạo hoặc mở `Scenes/Dragon
 - 4 góc nhìn
 - cảnh báo QA của clip đang xem
 
+### Rig v4: hành vi tự nhiên (U1-CHAR.6)
+
+Chi tiết và số liệu: `scripts/art/character/TEST_REPORT_U6.md`. Clip, Animator và ánh xạ: [ANIMATION_CATALOG.md](ANIMATION_CATALOG.md).
+
+- **7 clip mới:**
+  - Rest, Wake, LookAround, Curious cho mọi loài;
+  - Drink, Stretch, Bask cho loài `walk`.
+  - Luật nằm trong `build_archetypes.py`. Không thêm khả năng sinh học nào.
+- **Wake:** khởi đầu đúng ở tư thế Sleep đã author (cùng hệ số tránh xuyên đất) và kết thúc ở Idle. `anim_qa.py` (QA v2) kiểm thêm `transitions` với ngưỡng khép vòng sẵn có. Chân phải dời chỗ thì được nhấc lên, không kéo lê.
+- **Profile:** quadruped có `drink`. Serpentine có `sleep.footFollow` 0,8 và `rest`/`bask.dropLegs` 0,3. Nhịp thở không xoay Spine1 trên rig serpentine có chân.
+- **Runtime:**
+  - `DragonBehaviorPlanner`: intent sang clip, chuyển tiếp, biến thể Idle, phản hồi;
+  - `DragonPersonalityPresentation`;
+  - `DragonHeadLook`, `DragonBlink`.
+  - Animator có thêm `Rest`, `Bask`, các action mới và tham số `Tempo`.
+  - Tích hợp: [CHARACTER_BEHAVIOR_API.md](CHARACTER_BEHAVIOR_API.md).
+- **Animation Lab:** bảng *Behaviour preview* chạy planner thật để thử intent, tính cách và Pet/Call/Feed.
+- **Stress scene:** `behaviourIntents = true` chạy qua `SanctuaryDragonSync`, có intent, tính cách và look-at.
+
+### Rig v5: chuyển động nâng cao (U1-CHAR.7)
+
+Chi tiết: `scripts/art/character/TEST_REPORT_U7.md`, [MOTION_CATALOG.md](MOTION_CATALOG.md), [MOTION_API.md](MOTION_API.md).
+
+- **10 clip mới**, phân quyền theo sinh học canonical:
+  - Greet cho mọi loài;
+  - SwimIdle;
+  - SwimRest (thở mang hoặc lưỡng hô hấp);
+  - SwimSurface (thở phổi hoặc lưỡng hô hấp);
+  - WaterEnter/Exit (biết bơi và biết đi);
+  - Perch (chỉ loài có "chân đậu");
+  - DigPrep, BurrowEnter, BurrowEmerge.
+- **TakeOff/Land** được khớp lại hai đầu: đầu chạm đất = Idle **đã author**, đầu trên không = Fly **đã author** cộng độ lệch root (`motion.rootOffsets_m`).
+- **Clip nối chuỗi** (`CHAINED`) không bị bước tránh xuyên đất tự giảm biên độ. `anim_qa.py` v3 kiểm 14 cặp chuyển tiếp và độ lệch root, đồng thời xuất `motionEnvelope`.
+- **Metadata:** `rig.json` ▸ `motion` (kích thước thân, tốc độ, độ lệch root, giới hạn quay); manifest ▸ `motion`; catalog ▸ `Entry.motion`.
+- **Runtime:**
+  - planner có máy trạng thái theo môi trường (`DragonMotionMode`), chuyển tiếp nối chuỗi, readiness, `canTranslate`;
+  - `DragonMotionShaper` (nghiêng cánh, ngóc/chúi, uốn thân, dáng đuôi, vây tai);
+  - `IDragonMotionTarget` (ẩn khi ở dưới đất).
+- **Chạy tại máy:** `scripts/art/character/run_u7_local.ps1`, dùng override `asset-overrides.u7-local.json` (limbCount `"auto"` cho Droplet, Zephyr, Steamdrake, Magma, Sparkwing).
+
 ## 4. Nhập vào Unity
 
 1. Đưa thư mục `Imported/` vào `Assets/Dravio/Character/Imported/`. Preset import tự áp dụng ở lần import đầu: rồng là Generic, prop không có animation và avatar, normal map, ASTC.

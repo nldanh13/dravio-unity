@@ -74,7 +74,10 @@ class Reports(unittest.TestCase):
     def test_animation_report_flags_clip_missing_against_biology(self):
         md = (self.out / 'animation-report.md').read_text(encoding='utf-8')
         row = next(l for l in md.splitlines() if l.startswith('| DRG_emberling_Baby'))
-        self.assertEqual(row.split('|')[5].strip(), 'Run', 'emberling walks: Run expected by its biology clip set')
+        expected = next(s['clips'] for s in json.loads(br.ARCHETYPES.read_text(encoding='utf-8'))['species'] if s['id'] == 'emberling')
+        missing = [c.strip() for c in row.split('|')[5].split(',')]
+        self.assertEqual(missing, [c for c in expected if c not in ('Idle', 'Eat', 'Sleep', 'Happy', 'Walk')])
+        self.assertIn('Run', missing, 'emberling walks: Run expected by its biology clip set')
         page = (self.out / 'qa' / 'DRG_emberling_Baby.md').read_text(encoding='utf-8')
         self.assertIn('| Sleep |', page)
         self.assertIn('WARNING', page)
@@ -83,6 +86,19 @@ class Reports(unittest.TestCase):
         md = (self.out / 'performance-budget.md').read_text(encoding='utf-8')
         self.assertIn('Không phải số đo trên thiết bị', md)
         self.assertIn('| 30 |', md)
+
+    def test_capability_matrix_follows_canonical_clips_and_marks_models(self):
+        rows = {r['species']: r for r in json.loads((self.out / 'capability-matrix.json').read_text(encoding='utf-8'))}
+        self.assertEqual(len(rows), 16)
+        self.assertTrue(rows['zephyr']['capabilities']['Perch'] and rows['zephyr']['capabilities']['Air'])
+        self.assertFalse(rows['sparkwing']['capabilities']['Perch'], 'no perching feet stated')
+        self.assertFalse(rows['frostfin']['capabilities']['Ground'], 'water dweller')
+        self.assertTrue(rows['frostfin']['capabilities']['Water rest'] and not rows['frostfin']['capabilities']['Surface'], 'gill breather')
+        self.assertEqual(rows['emberling']['models']['Baby'], 'SAMPLE')
+        self.assertIn('static', rows['magma']['models']['Adult'])
+        self.assertIsNone(rows['gaia']['models']['Adult'])
+        self.assertIn('| magma |', (self.out / 'capability-matrix.md').read_text(encoding='utf-8'))
+        self.assertIn('Sinh cơ học', (self.out / 'motion-report.md').read_text(encoding='utf-8'))
 
     def test_refuses_out_equal_work_and_missing_assets(self):
         with self.assertRaises(SystemExit):

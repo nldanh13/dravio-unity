@@ -127,6 +127,10 @@ namespace Dravio.Character.Editor
             entry.animQaWarnings = e.animQa != null && e.animQa.warnings != null ? e.animQa.warnings : new string[0];
             if (entry.animQaWarnings.Length > 0)
                 log.AppendLine("  animation QA " + entry.animQaStatus + ": " + string.Join(" | ", entry.animQaWarnings));
+            entry.clipLengths = animated
+                ? e.clipList.Select(c => new DragonVisualCatalog.ClipLength { clip = c.name, seconds = ClipSeconds(e, c.name) }).ToArray()
+                : new DragonVisualCatalog.ClipLength[0];
+            entry.motion = animated ? e.motion : null;
             entry.eatSeconds = ClipSeconds(e, "Eat");
             entry.happySeconds = ClipSeconds(e, "Happy");
             entry.validation = e.validation;
@@ -199,6 +203,16 @@ namespace Dravio.Character.Editor
                     animator.runtimeAnimatorController = ov;
                     animator.applyRootMotion = false; // the integration layer owns movement
                     animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+                    // U1-CHAR.6: head look (needs Neck + Head bones) and blink (self-disables without an eyelid blend shape)
+                    var bones = root.GetComponentsInChildren<Transform>(true);
+                    if (bones.Any(b => b.name == "Neck") && bones.Any(b => b.name == "Head") && root.GetComponent<DragonHeadLook>() == null)
+                    {
+                        root.AddComponent<DragonHeadLook>().enabled = false; // the manager enables it while a look is requested
+                        log.AppendLine("  head look: Neck/Head");
+                    }
+                    if (root.GetComponent<DragonBlink>() == null) root.AddComponent<DragonBlink>();
+                    // U1-CHAR.7: banking/pitching/turn bend, tail carriage, ear fins (self-idles without a Root bone)
+                    if (root.GetComponent<DragonMotionShaper>() == null) root.AddComponent<DragonMotionShaper>().enabled = false;
                     if (e.ikChains != null && e.ikChains.Length > 0 && root.GetComponent<DragonFootGrounding>() == null)
                     {
                         var g = root.AddComponent<DragonFootGrounding>();

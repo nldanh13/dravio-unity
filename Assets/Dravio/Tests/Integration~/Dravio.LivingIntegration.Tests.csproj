@@ -12,7 +12,48 @@
   <ItemGroup>
     <Compile Include="../../Domain/**/*.cs" />
     <Compile Include="../../Scripts/LivingResidentPolicy.cs" />
+    <Compile Include="../../Scripts/ConnectedWorldPolicy.cs" />
+    <Compile Include="ConnectedWorldPolicyTests.cs" />
+    <Compile Include="../../Scripts/SpatialResidentPolicy.cs" />
+    <Compile Include="SpatialResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/SocialPresentationScheduler.cs" />
+    <Compile Include="SocialPresentationSchedulerTests.cs" />
+    <Compile Include="../../Scripts/ResearchDiscoveryView.cs" />
+    <Compile Include="ResearchDiscoveryViewTests.cs" />
+    <Compile Include="../../Scripts/ExpeditionPresentation.cs" />
+    <Compile Include="ExpeditionPresentationTests.cs" />
+    <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
+    <Compile Include="AutonomousPresentationPolicyTests.cs" />
+    <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
+    <Compile Include="SanctuaryRoutePlannerTests.cs" />
+    <Compile Include="../../Scripts/Navigation/MediumTraversalReview.cs" />
+    <Compile Include="MediumTraversalReviewTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/U54MotionPolicy.cs" />
+    <Compile Include="U54IntegrationPolicyTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/SteeringLab.cs" />
+    <Compile Include="SteeringLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/AuthoredRouteBenchmark.cs" />
+    <Compile Include="AuthoredNavigationLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/AdaptiveRouteLab.cs" />
+    <Compile Include="AdaptiveRouteLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/RoutedCrowdExperiment.cs" />
+    <Compile Include="RoutedCrowdLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/CrowdCoordinationLab.cs" />
+    <Compile Include="CrowdCoordinationLabTests.cs" />
+    <Compile Include="../../Scripts/ControllerFrameTrace.cs" />
+    <Compile Include="ControllerFrameTraceTests.cs" />
+    <Compile Include="../../Scripts/FoodActionPresentationGate.cs" />
+    <Compile Include="FoodActionPresentationGateTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/CreatureTechniqueLab.cs" />
+    <Compile Include="CreatureTechniqueLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/RigContactCapture.cs" />
+    <Compile Include="RigContactCaptureTests.cs" />
+    <Compile Include="../../Scripts/Navigation/ExperimentalGroundRouteFallback.cs" />
+    <Compile Include="ExperimentalGroundRouteFallbackTests.cs" />
+    <None Include="../../Environment/Data/OriginSanctuaryLocations.json" Link="LabMaps/OriginSanctuaryLocations.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Environment/Zones/Ocean/Data/OceanLocations.json" Link="LabMaps/OceanLocations.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Environment/Zones/Sky/Data/SkyLocations.json" Link="LabMaps/SkyLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
