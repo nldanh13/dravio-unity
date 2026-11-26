@@ -41,14 +41,22 @@ from mathutils import Matrix, Vector  # noqa: E402
 REPO = Path(__file__).resolve().parents[3]
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
-RIG_VERSION = 4  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips
+RIG_VERSION = 5  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips; 5 = U1-CHAR.7 advanced motion
 FPS = 30
 BASE_FRAMES = {'Idle': 120, 'Eat': 60, 'Sleep': 120, 'Happy': 45, 'Swim': 48, 'Burrow': 60,
                'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40,
                # U1-CHAR.6 behaviour clips
-               'Rest': 120, 'Bask': 120, 'Wake': 60, 'LookAround': 90, 'Curious': 75, 'Drink': 75, 'Stretch': 90}
-LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide', 'Rest', 'Bask'}
-NO_GROUND = {'Swim', 'Fly', 'Glide'}  # no ground contact: ground IK and clearance are off
+               'Rest': 120, 'Bask': 120, 'Wake': 60, 'LookAround': 90, 'Curious': 75, 'Drink': 75, 'Stretch': 90,
+               # U1-CHAR.7 advanced motion clips
+               'Greet': 60, 'SwimIdle': 72, 'SwimRest': 120, 'SwimSurface': 48, 'WaterEnter': 60, 'WaterExit': 60,
+               'Perch': 120, 'DigPrep': 45, 'BurrowEnter': 60, 'BurrowEmerge': 60}
+LOOPING = {'Idle', 'Walk', 'Run', 'Sleep', 'Swim', 'Fly', 'Burrow', 'Glide', 'Rest', 'Bask',
+           'SwimIdle', 'SwimRest', 'SwimSurface', 'Perch'}
+# no ground contact: ground IK and clearance are off (in water / in the air; Water* happen at the water's edge)
+NO_GROUND = {'Swim', 'Fly', 'Glide', 'SwimIdle', 'SwimRest', 'SwimSurface', 'WaterEnter', 'WaterExit'}
+# clips whose ends are other clips' authored poses (U1-CHAR.6/7): no clearance rescale/lift of their own, so
+# the chain stays continuous; anim_qa measures their ground contact and transitions instead
+CHAINED = {'Wake', 'TakeOff', 'Land', 'WaterEnter', 'WaterExit', 'DigPrep', 'BurrowEnter', 'BurrowEmerge'}
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 _QA = json.loads(BUDGETS.read_text(encoding='utf-8')).get('animationQa', {})
 DEFORM_LIMITS = {'max_stretch_p999': _QA.get('maxStretchP999', 1.6), 'min_compress_p001': _QA.get('minCompressP001', 0.45)}
@@ -588,7 +596,158 @@ class Animator:
     def pose(self, clip, t):
         if clip == 'Wake':
             return self._wake(t)
+        chain = {'TakeOff': self._takeoff, 'Land': self._land, 'WaterEnter': self._water_enter, 'WaterExit': self._water_exit,
+                 'DigPrep': self._dig_prep, 'BurrowEnter': self._burrow_enter, 'BurrowEmerge': self._burrow_emerge}
+        if clip in chain:
+            return chain[clip](t)
+        if clip in ('SwimIdle', 'SwimRest', 'SwimSurface'):
+            return self._swim_variant(clip, t)
         return self._pose(clip, t)
+
+    # ---------------------------------------------------------------- U1-CHAR.7 helpers
+    @staticmethod
+    def _ease(x):
+        x = 0.0 if x < 0.0 else (1.0 if x > 1.0 else x)
+        return x * x * (3 - 2 * x)
+
+    def _blend(self, a, b, e, ff_a=0.0, ff_b=0.0):
+        """Pose a -> b at weight e: rotations slerped, root lerped, IK feet lerped when both poses have them
+        (otherwise FK legs: feet None). foot_follow is blended too."""
+        Ra, ra, fa, ca, rra = a
+        Rb, rb, fb, cb, rrb = b
+        R = {}
+        for n in set(Ra) | set(Rb):
+            R[n] = Ra.get(n, Matrix.Identity(3)).to_quaternion().slerp(Rb.get(n, Matrix.Identity(3)).to_quaternion(), e).to_matrix()
+        root = ra.lerp(rb, e)
+        feet, contacts = None, {}
+        if fa is not None and fb is not None:
+            feet = {k: fa[k].lerp(fb[k], e) for k in fa}
+            contacts = {k: (ca.get(k, True) if e < 0.5 else cb.get(k, True)) for k in fa}
+        rr = rra.to_quaternion().slerp(rrb.to_quaternion(), e).to_matrix()
+        self.foot_follow = ff_a * (1 - e) + ff_b * e
+        return R, root, feet, contacts, rr
+
+    def _scaled_ff(self, clip, t):
+        p = self._scaled(clip, t)
+        return p, self.foot_follow
+
+    def _add(self, pose, adds):
+        """Extra rotations on top of a pose: adds = [(bone, axis, angle)]."""
+        R = dict(pose[0])
+        for n, ax, a in adds:
+            if n in self.P:
+                R[n] = rot(ax, a) @ R.get(n, Matrix.Identity(3))
+        return (R,) + tuple(pose[1:])
+
+    def _takeoff(self, t):
+        """TakeOff: starts in the authored Idle pose (ground), ends in the authored Fly pose at TakeOff's rise
+        height (the root offset is exported as motion.rootOffsets so the Sanctuary raises the dragon by it)."""
+        raw = self._pose('TakeOff', t)
+        ff = self.foot_follow
+        idle, ffi = self._scaled_ff('Idle', 0.0)
+        p = self._blend(idle, raw, self._ease(t / 0.15), ffi, ff)
+        if t > 0.8:
+            fly = self._scaled('Fly', 0.0)
+            end_z = self._pose('TakeOff', 1.0)[1].z
+            fly = (fly[0], Vector((fly[1].x, fly[1].y, end_z)), None, {}, fly[4])
+            p = self._blend(p, fly, self._ease((t - 0.8) / 0.2), self.foot_follow, 0.0)
+        return p
+
+    def _land(self, t):
+        """Land: starts in the authored Fly pose at Land's drop height, ends in the authored Idle pose."""
+        raw = self._pose('Land', t)
+        ff = self.foot_follow
+        p = raw
+        if t < 0.2:
+            fly = self._scaled('Fly', 0.0)
+            start_z = self._pose('Land', 0.0)[1].z
+            fly = (fly[0], Vector((fly[1].x, fly[1].y, start_z)), None, {}, fly[4])
+            p = self._blend(fly, raw, self._ease(t / 0.2), 0.0, ff)
+            ff = self.foot_follow
+        if t > 0.8:
+            idle, ffi = self._scaled_ff('Idle', 0.0)
+            p = self._blend(p, idle, self._ease((t - 0.8) / 0.2), ff, ffi)
+        return p
+
+    def _water_enter(self, t):
+        """Standing at the water's edge -> swimming pose, in place (the Sanctuary moves it into the water
+        afterwards). Legs are FK throughout: Idle's IK legs at t=0 are the rest pose."""
+        idle = self._scaled('Idle', 0.0)
+        idle = (idle[0], idle[1], None, {}, idle[4])
+        swim = self._scaled('Swim', 0.0)
+        p = self._blend(idle, swim, self._ease(t))
+        return self._add(p, [('Neck', 'X', self.prof.get('waterenter', {}).get('nod', 0.15) * math.sin(math.pi * t))])
+
+    def _water_exit(self, t):
+        swim = self._scaled('Swim', 0.0)
+        idle = self._scaled('Idle', 0.0)
+        idle = (idle[0], idle[1], None, {}, idle[4])
+        p = self._blend(swim, idle, self._ease(t))
+        return self._add(p, [('Neck', 'X', -self.prof.get('waterexit', {}).get('lift', 0.12) * math.sin(math.pi * t))])
+
+    def _dig(self, crouch, phase, scoop):
+        """Shared dig pose: crouch 0..1 lowers the chest and head toward the soil (never below it: anim_qa checks),
+        the forelegs scoop with amplitude `scoop`; hind feet stay planted and share the ankle fold."""
+        cfg = self.prof.get('dig', {})
+        h, LL = self.h, self.leg_len
+        R = {}
+        feet = {k: L['ankle0'].copy() for k, L in self.leg.items()}
+        contacts = {}
+        def mul(n, ax, a):
+            if n in self.P:
+                R[n] = rot(ax, a) @ R.get(n, Matrix.Identity(3))
+        root = Vector((0, 0, -cfg.get('dropH', 0.035) * h * crouch))
+        mul('Chest', 'X', cfg.get('chestPitch', 0.14) * crouch)
+        mul('Neck', 'X', cfg.get('neckPitch', 0.22) * crouch)
+        mul('Head', 'X', cfg.get('headPitch', 0.08) * crouch)
+        for i, n in enumerate(self.tails[1:3]):
+            mul(n, 'X', -cfg.get('tailLift', 0.1) * crouch)
+        reach = cfg.get('digReachLegs', 0.3) * LL
+        for k in self.leg:
+            if k.startswith('Fore') and scoop > 0.0:
+                ph = (phase + (0.5 if k.endswith('_R') else 0.0)) % 1.0
+                s = math.sin(math.pi * ph)
+                feet[k] = self.leg[k]['ankle0'] + Vector((0, -reach * scoop * (0.5 - ph), 0.3 * reach * scoop * s))
+                contacts[k] = False
+            else:
+                contacts[k] = True
+        self.foot_follow = cfg.get('footFollow', 0.5) * crouch
+        return R, root, (feet if self.leg else None), contacts, Matrix.Identity(3)
+
+    def _dig_prep(self, t):
+        """Sniff and scratch the soil, settling into the half crouch BurrowEnter starts from."""
+        d = self._dig(0.5 * self._ease(t), 2.0 * t, 0.6 * math.sin(math.pi * t))
+        ffd = self.foot_follow
+        idle, ffi = self._scaled_ff('Idle', 0.0)
+        return self._blend(idle, d, self._ease(t / 0.25), ffi, ffd)
+
+    def _burrow_enter(self, t):
+        """Dig in: from the half crouch to the full crouch with vigorous scooping, all above the ground. At the
+        end the Sanctuary hides the model (underground) and shows its own soil VFX at VFX_Ground."""
+        return self._dig(0.5 + 0.5 * self._ease(t), 4.0 * t, math.sin(math.pi * t))
+
+    def _burrow_emerge(self, t):
+        """Emerge: from the full crouch BurrowEnter ends in, up into the authored Idle pose with a head shake."""
+        d = self._dig(1.0, 0.0, 0.0)
+        ffd = self.foot_follow
+        idle, ffi = self._scaled_ff('Idle', 0.0)
+        p = self._blend(d, idle, self._ease(t), ffd, ffi)
+        return self._add(p, [('Neck', 'Z', self.prof.get('emerge', {}).get('shake', 0.18) * math.sin(4 * math.pi * t) * math.sin(math.pi * t))])
+
+    def _swim_variant(self, clip, t):
+        """SwimIdle (hold station), SwimRest (rest under water, gill/dual breathers), SwimSurface (air breathers
+        at the surface, head up): the species' own Swim motion at a lower amplitude plus head/body settings."""
+        cfg = self.prof.get(clip.lower(), {})
+        k = cfg.get('amplitude', {'SwimIdle': 0.35, 'SwimRest': 0.15, 'SwimSurface': 0.7}[clip])
+        R, root, feet, contacts, rr = self._pose('Swim', t)
+        R = {n: Matrix.Identity(3).to_quaternion().slerp(m.to_quaternion(), k).to_matrix() for n, m in R.items()}
+        root = root * k
+        p = (R, root, None, {}, rr)
+        if clip == 'SwimSurface':
+            p = self._add(p, [('Neck', 'X', -cfg.get('neckLift', 0.15)), ('Head', 'X', -cfg.get('headLift', 0.05))])
+        elif clip == 'SwimRest':
+            p = self._add(p, [('Neck', 'X', cfg.get('neckDrop', 0.08))])
+        return p
 
     def _scaled(self, clip, t):
         """A clip's pose exactly as authored: with that clip's ground-clearance amplitude scale and lift."""
@@ -755,6 +914,28 @@ class Animator:
                 else:
                     mul(f'WingUpper_{s}', 'Y', -sign * min(0.15, self.wing_down if self.wing_down is not None else 0.15))
                     mul(f'WingFore_{s}', 'Z', sign * 0.2)
+        elif clip == 'Greet':
+            # simple social greeting toward another dragon (U1-CHAR.7): a small bow, nose forward, a tail wag
+            cfg = pr.get('greet', {})
+            k = math.sin(math.pi * t) ** 2
+            mul('Neck', 'X', cfg.get('bow', 0.16) * k)
+            mul('Head', 'X', -cfg.get('noseForward', 0.1) * k)
+            mul('Head', 'Y', cfg.get('tilt', 0.1) * k * math.sin(tau * t))
+            tail_wave(cfg.get('tailWag', 0.14) * k, 3.0)
+        elif clip == 'Perch':
+            # perched (zephyr/blossom: "chân đậu"): a slight crouch on planted feet, wings folded within the
+            # measured downstroke limit, tail hanging, slow breathing and a small look around
+            cfg = pr.get('perch', {})
+            root.z -= cfg.get('crouchH', 0.03) * h
+            self.foot_follow = cfg.get('footFollow', 0.5)
+            for s, sign in (('L', 1), ('R', -1)):
+                mul(f'WingUpper_{s}', 'Y', -sign * min(cfg.get('wingFold', 0.2), self.wing_down if self.wing_down is not None else 0.2))
+                mul(f'WingFore_{s}', 'Z', sign * cfg.get('foreFold', 0.3))
+            for n in self.tails[1:]:
+                mul(n, 'X', cfg.get('tailHang', 0.06))
+            for n in ('Spine', 'Chest'):
+                mul(n, 'X', 0.012 * math.sin(tau * t * 2))
+            mul('Neck', 'Z', cfg.get('look', 0.1) * math.sin(tau * t))
         elif clip == 'LookAround':
             # standing look to one side, then the other, back to centre; zero speed at both ends
             cfg = pr.get('lookaround', {})
@@ -914,15 +1095,17 @@ class Animator:
                 tail_wave(0.05, 1.0)
             elif clip == 'TakeOff':
                 rise = pr.get('takeoff', {}).get('riseH', 0.5) * h
+                crouch = pr.get('takeoff', {}).get('crouchH', 0.08) * h
+                self.foot_follow = pr.get('takeoff', {}).get('footFollow', 0.0)
                 if t < 0.25:
-                    root.z -= 0.08 * h * math.sin(0.5 * math.pi * t / 0.25)
+                    root.z -= crouch * math.sin(0.5 * math.pi * t / 0.25)
                     wings(0.3 * t / 0.25, 0.0)
                     fk_legs = False
                     for k in self.leg:
                         contacts[k] = True
                 else:
                     u = (t - 0.25) / 0.75
-                    root.z += -0.08 * h * (1 - u) + rise * (u * u)
+                    root.z += -crouch * (1 - u) + rise * (u * u)
                     a, fold = flap(2.0 * u)
                     wings(a, fold)
                     if root.z <= 0.0:
@@ -972,7 +1155,7 @@ class Animator:
             loop = clip in LOOPING
             ranges[clip] = {'start': start, 'end': start + n, 'loop': loop}
             cons, ik = self._author_clip(clip, start, n, loop)
-            if clip not in NO_GROUND and clip != 'Wake' and mod:
+            if clip not in NO_GROUND and clip not in CHAINED and mod:
                 # Ground clearance, measured on the skinned mesh:
                 #  * body/head below z=0 (a low head while eating, a deep sleep drop): the clip's
                 #    amplitude is reduced in steps of 15 % (at most 4) - never the ground or the limits;
@@ -1276,8 +1459,31 @@ def main():
     clips = list(sp['clips']) + [c for c in prof.get('extraClips', []) if 'Fly' in sp['clips']]
     anim = Animator(arm, obj, an, legs, arch, prof)
     ranges = anim.author(clips)
+    # U1-CHAR.7 motion metadata for the Sanctuary (body size, in-place swim/fly speeds, root offsets, turn limits)
+    Vr = np.array([v.co[:] for v in obj.data.vertices])
+    body = {'length_m': round(float(Vr[:, 1].max() - Vr[:, 1].min()), 4), 'width_m': round(float(Vr[:, 0].max() - Vr[:, 0].min()), 4),
+            'height_m': round(float(Vr[:, 2].max() - Vr[:, 2].min()), 4)}
+    motion_defaults = json.loads(PROFILES.read_text(encoding='utf-8')).get('motionDefaults', {})
+    for c, key in (('Swim', 'swim'), ('SwimSurface', 'swim'), ('Fly', 'fly')):
+        if c in ranges and c not in anim.ground_speed:
+            lpc = prof.get(key, {}).get('lengthsPerCycle', motion_defaults.get(key + 'LengthsPerCycle', 0.0))
+            n = ranges[c]['end'] - ranges[c]['start']
+            if lpc > 0 and n > 0:  # in-place clip: nominal speed = body lengths per cycle (pipeline default, art director to confirm)
+                anim.ground_speed[c] = lpc * body['length_m'] / (n / FPS)
     for c, r in ranges.items():
         r['groundSpeed'] = round(anim.ground_speed.get(c, 0.0), 4)
+    # visual root height relative to the Fly pose: at TakeOff's end the Sanctuary raises the dragon by
+    # TakeOff.end; when it switches Fly -> Land it lowers the dragon by Land.start (then Land brings it down)
+    root_offsets = {}
+    fly_z = float(anim.pose('Fly', 0.0)[1].z) if 'Fly' in ranges else 0.0
+    if 'TakeOff' in ranges:
+        root_offsets['TakeOff.end'] = round(float(anim.pose('TakeOff', 1.0)[1].z) - fly_z, 4)
+    if 'Land' in ranges:
+        root_offsets['Land.start'] = round(float(anim.pose('Land', 0.0)[1].z) - fly_z, 4)
+    motion = {'body': body, 'rootOffsets_m': root_offsets,
+              'maxTurnRateDegPerSec': motion_defaults.get('maxTurnRateDegPerSec', {}),
+              'speedSource': 'Walk/Run: planted-foot speed; Swim/SwimSurface/Fly: body lengths per cycle from rig-profiles '
+                             '(pipeline default, art director to confirm); other clips in place (0)'}
     deform = deformation_report(obj, ranges)
     for n in anchors:
         arm.data.bones[n].use_deform = True
@@ -1308,6 +1514,7 @@ def main():
                                'Land': round(-prof.get('land', {}).get('dropH', 0.4) * h, 4)} if 'TakeOff' in ranges else {},
               'bones': [b.name for b in arm.data.bones], 'deformBones': [b.name for b in arm.data.bones if b.name not in anchors],
               'anchors': anchors, 'ikChains': ik, 'clips': ranges, 'contacts': anim.contacts, 'groundClearanceLift_m': anim.clearance,
+              'motion': motion,
               'bind': bind_rep, 'skin': cc.skin_stats(obj), 'deformation': deform, 'deformationLimits': DEFORM_LIMITS,
               'deformationOk': all(v['ok'] for v in deform.values()),
               'landmarks': an.summary(), 'profile': prof, 'ikResidualMax': round(anim.ik_residual, 5),

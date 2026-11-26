@@ -20,6 +20,15 @@ Rules (each result cites the canonical field it comes from):
                 Drink, Stretch, Bask <- "walk" (a standing, legged body: drink at the pond bank, play-bow
                   stretch, lie on the warm rocks; hints drink / bask). Which dragon actually basks or drinks
                   is the Sanctuary's decision, not the clip set's.
+              advanced motion clips (U1-CHAR.7), appended after the U1-CHAR.6 clips:
+                Greet <- every species (head/neck/tail only: a simple social greeting)
+                SwimIdle <- "swim" (hold position in water)
+                SwimRest <- "swim" and respiration gill or dual (can rest under water)
+                SwimSurface <- "swim" and respiration lung or dual (an air breather swims at the surface)
+                WaterEnter, WaterExit <- "swim" and "walk" (goes between land and water)
+                Perch <- "fly" and silhouette "chân đậu" (perching feet stated); flyers without it get none
+                DigPrep, BurrowEnter, BurrowEmerge <- "burrow" (all above ground: the Sanctuary hides the
+                  model while underground; nothing is moved through the ground)
   limbCount   from the silhouette text only ("bốn chân"); otherwise null and the rig step requires an
               explicit artist/GDD value in asset-overrides.json - never guessed.
   features    silhouette keywords copied verbatim as attachment/VFX hints (no geometry is invented).
@@ -38,6 +47,7 @@ BASE_CLIPS = ['Idle', 'Eat', 'Sleep', 'Happy']
 LOCO_CLIPS = {'walk': ['Walk', 'Run'], 'swim': ['Swim'], 'fly': ['Fly'], 'burrow': ['Burrow']}
 BEHAVIOUR_CLIPS = ['Rest', 'Wake', 'LookAround', 'Curious']
 GROUND_BEHAVIOUR_CLIPS = {'walk': ['Drink', 'Stretch', 'Bask']}
+MOTION_CLIPS = ['Greet']
 # Silhouette keyword -> feature tag. Only words that literally appear in a silhouette are used.
 FEATURE_WORDS = [
     ('đuôi lửa', 'flame_tail'), ('sừng', 'horns'), ('mào', 'crest'), ('mai', 'shell'),
@@ -45,6 +55,7 @@ FEATURE_WORDS = [
     ('mầm lá', 'leaf_sprout'), ('đuôi lá', 'leaf_tail'), ('đuôi tia điện', 'spark_tail'),
     ('đuôi mây', 'cloud_tail'), ('đuôi quạt', 'fan_tail'), ('đuôi cực quang', 'aurora_tail'),
     ('đuôi sao', 'star_tail'), ('màng chân', 'webbed_feet'), ('đuôi dẹt', 'flat_tail'),
+    ('chân đậu', 'perching_feet'), ('vây tai', 'ear_fins'),
 ]
 TEMPLATES = {
     'quadruped': 'Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors',
@@ -88,6 +99,20 @@ def classify(s):
     clips += BEHAVIOUR_CLIPS
     for l in loc:
         clips += GROUND_BEHAVIOUR_CLIPS.get(l, [])
+    clips += MOTION_CLIPS
+    resp = c.get('respiration')
+    if 'swim' in loc:
+        clips.append('SwimIdle')
+        if resp in ('gill', 'dual'):
+            clips.append('SwimRest')
+        if resp in ('lung', 'dual'):
+            clips.append('SwimSurface')
+        if 'walk' in loc:
+            clips += ['WaterEnter', 'WaterExit']
+    if 'fly' in loc and has_word(sil, 'chân đậu'):
+        clips.append('Perch')
+    if 'burrow' in loc:
+        clips += ['DigPrep', 'BurrowEnter', 'BurrowEmerge']
     feats = [{'tag': tag, 'word': w} for w, tag in FEATURE_WORDS if has_word(sil, w)]
     needs = []
     walks = 'walk' in loc
@@ -111,7 +136,9 @@ def build():
         'version': 1, 'generatedBy': 'scripts/art/character/build_archetypes.py',
         'source': 'Assets/Dravio/Character/Data/species-character-spec.json',
         'clipNames': ['Idle', 'Walk', 'Run', 'Eat', 'Sleep', 'Happy', 'Swim', 'Fly', 'Burrow',
-                      'Rest', 'Wake', 'LookAround', 'Curious', 'Drink', 'Stretch', 'Bask'],
+                      'Rest', 'Wake', 'LookAround', 'Curious', 'Drink', 'Stretch', 'Bask',
+                      'Greet', 'SwimIdle', 'SwimRest', 'SwimSurface', 'WaterEnter', 'WaterExit', 'Perch',
+                      'DigPrep', 'BurrowEnter', 'BurrowEmerge'],
         'templates': TEMPLATES,
         'species': species,
     }
