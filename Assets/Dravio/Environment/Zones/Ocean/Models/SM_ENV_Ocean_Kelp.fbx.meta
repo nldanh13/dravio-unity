@@ -3,7 +3,22 @@ guid: ee395a64a2acfd246b4b44da83393daf
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Ocean_Foliage
+    second: {fileID: 2100000, guid: 4ab941f650887f74b928ce14258e35be, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Ocean_Ground
+    second: {fileID: 2100000, guid: 66f3c8368b9c59b4095505966407c006, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Ocean_Props
+    second: {fileID: 2100000, guid: 0b97602e4baffc74a8a7f9234ecfc429, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

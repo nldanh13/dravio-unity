@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_ENV_Sky_Water
+  m_Shader: {fileID: 4800000, guid: f81047997abc7cb4384af3911df0c052, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 4805d6fc8decc454f9e8da6cbdb4e18a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _FoamWidth: 0.2
+    - _Opacity: 0.96
+    - _ShoreOpacity: 0
+    - _SparkleStrength: 0.08
+    m_Colors:
+    - _DeepColor: {r: 0.74, g: 0.78, b: 0.94, a: 1}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ScrollA: {r: 0.006, g: 0.002, b: 0, a: 0}
+    - _ScrollB: {r: -0.004, g: 0.003, b: 0, a: 0}
+    - _ShallowColor: {r: 0.97, g: 0.97, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
