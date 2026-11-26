@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dravio.Character;
+using Dravio.Domain;
 using Dravio.Domain.Catalog;
 using Dravio.EnvironmentArt;
 using Dravio.Navigation;
@@ -26,7 +27,7 @@ namespace Dravio.EditorTools
         SanctuaryLocationData locations;
         SanctuaryNavigationSurface surface;
         DragonVisualCatalog.Entry entry;
-        SanctuaryLocationData.SpawnPoint start,goal;
+        SanctuaryLocationData.SpawnPoint start;
         MediumReviewEnvelope envelope;
         RouteResult route;
         NavigationMedium medium;
@@ -127,7 +128,7 @@ namespace Dravio.EditorTools
             if(resolved!=model || match==DragonVisualCatalog.Match.OtherStage || model.animQaStatus!="PASS" ||
                 (model.prefab.transform.localScale-Vector3.one).sqrMagnitude>.000001f)
             {message="Exact selected model, PASS QA and unit prefab root scale required for this review.";return;}
-            locations=data;medium=mode;entry=model;start=a;goal=z;envelope=bounds;surface=new SanctuaryNavigationSurface(data);
+            locations=data;medium=mode;entry=model;start=a;envelope=bounds;surface=new SanctuaryNavigationSurface(data);
             speed=authoredSpeed;turnLimit=yawRate;
             bool Clear(NavPoint p)=>surface.ClearReviewVolume(SanctuaryNavigationSurface.Vector(p),a.habitatId,mode,bounds);
             route=SpatialMediumReview.Plan(SanctuaryNavigationSurface.Point(a.Position),SanctuaryNavigationSurface.Point(z.Position),mode,Clear);

@@ -55,6 +55,21 @@ namespace Dravio.Tests
             t=Begin();t.Observe(1,"other","sky","h",true,true,true,NavigationMedium.Ground,true,false,false,0);
             Assert.That(t.State,Is.EqualTo(MediumTransitionState.Faulted));
         }
+        [Test] public void InterruptedClipOrNewlyBlockedEndpointCannotApplyOffset()
+        {
+            var t=Begin();
+            t.Observe(1,"uid","sky","h",true,true,true,NavigationMedium.Ground,true,false,false,0);
+            t.Observe(2,"uid","sky","h",true,true,true,NavigationMedium.Ground,false,false,true,0);
+            Assert.That(t.State,Is.EqualTo(MediumTransitionState.Faulted));
+            bool open=true;
+            t=MediumTransitionGate.TryBegin("uid","sky","h","c",MediumTransitionKind.TakeOff,P(0),P(1),1,
+                true,true,true,true,Clear,p=>open,Clear,0);
+            t.Observe(1,"uid","sky","h",true,true,true,NavigationMedium.Ground,true,false,false,0);
+            open=false;
+            t.Observe(2,"uid","sky","h",true,true,true,NavigationMedium.Air,false,true,true,1);
+            Assert.That(t.State,Is.EqualTo(MediumTransitionState.Faulted));
+            Assert.That(t.Position.Y,Is.Zero);
+        }
         [Test] public void WaterCannotInventHorizontalOrVerticalMovement()
         {
             Assert.That(MediumTransitionGate.TryBegin("u","o","h","c",MediumTransitionKind.WaterEnter,P(0),P(1),0,true,true,true,true,
