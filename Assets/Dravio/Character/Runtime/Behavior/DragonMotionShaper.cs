@@ -6,7 +6,9 @@ namespace Dravio.Character
     /// Procedural motion shaping layered after the Animator (LateUpdate), U1-CHAR.7:
     ///   - Air: bank into turns and pitch with the climb; Water: pitch with the climb;
     ///   - Water/Ground/Air: body and tail curve into the turn (spread over the spine/tail bones);
-    ///   - tail carriage from the personality style and ear-fin perk (EarFin bones only, when the rig has them).
+    ///   - tail carriage from the personality style and ear-fin perk (EarFin bones only, when the rig has them);
+    ///   - U1-CHAR.7b: the bank follows a coordinated turn (MotionShapeSolver.CoordinatedBankDeg) and the neck/head
+    ///     counter-roll it (gaze stabilisation, headRollStabilisation).
     /// Banking/pitching rotate the Root bone about the body centre, so the dragon's position (owned by the Sanctuary)
     /// never moves. Horns and crests have no bones (anatomy: rigid / not rigged) and are never animated.
     /// The manager enables it only for near, full-rate dragons; angles are smoothed and clamped (MotionShapeSolver).
@@ -16,8 +18,10 @@ namespace Dravio.Character
     {
         [Tooltip("Seconds for the shaping angles to cover half the remaining distance")] public float halfLife = 0.25f;
         [Tooltip("Degrees per personality step of tail carriage (+ up)")] public float tailCarriageDeg = 10f;
+        [Tooltip("Share of the body bank the neck and head take back (1 = head level; birds hold it nearly level)")]
+        [Range(0f, 1f)] public float headRollStabilisation = 1f;
 
-        private Transform _root, _pivotA, _pivotB;
+        private Transform _root, _pivotA, _pivotB, _neck, _head;
         private Transform[] _chain = new Transform[0];
         private Transform[] _earFins = new Transform[0];
         private DragonMotionMode _mode;
@@ -32,7 +36,7 @@ namespace Dravio.Character
 
         public void FindBones()
         {
-            _root = _pivotA = _pivotB = null;
+            _root = _pivotA = _pivotB = _neck = _head = null;
             var chain = new System.Collections.Generic.List<Transform>();
             var ears = new System.Collections.Generic.List<Transform>();
             foreach (var t in GetComponentsInChildren<Transform>(true))
@@ -41,6 +45,8 @@ namespace Dravio.Character
                 if (n == "Root") _root = t;
                 else if (n == "Chest" || n == "Spine1") _pivotA = _pivotA ?? t;
                 else if (n == "Pelvis") _pivotB = t;
+                else if (n == "Neck") _neck = t;
+                else if (n == "Head") _head = t;
                 if ((n.StartsWith("Spine") || n.StartsWith("Tail")) && n != "Spine") chain.Add(t);
                 if (n.StartsWith("EarFin_")) ears.Add(t);
             }
@@ -69,6 +75,14 @@ namespace Dravio.Character
                 Vector3 pivot = _pivotA != null && _pivotB != null ? 0.5f * (_pivotA.position + _pivotB.position) : _root.position;
                 _root.RotateAround(pivot, fwd, _bank);
                 _root.RotateAround(pivot, right, -_pitch);
+                if (_head != null && Mathf.Abs(_bank) > 0.01f)
+                {
+                    float neckRoll, headRoll;
+                    MotionShapeSolver.HeadRollCompensation(_bank, headRollStabilisation, out neckRoll, out headRoll);
+                    if (_neck != null) _neck.rotation = Quaternion.AngleAxis(neckRoll, fwd) * _neck.rotation;
+                    else headRoll += neckRoll;
+                    _head.rotation = Quaternion.AngleAxis(headRoll, fwd) * _head.rotation;
+                }
             }
             if (_chain.Length > 0 && Mathf.Abs(_bend) > 0.01f)
             {

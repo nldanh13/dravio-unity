@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector  # noqa: E402
 REPO = Path(__file__).resolve().parents[3]
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
-RIG_VERSION = 5  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips; 5 = U1-CHAR.7 advanced motion
+RIG_VERSION = 6  # 3 = U1-CHAR.5: C1 swing, paws share the ankle fold, symmetry-plane pivot; 4 = U1-CHAR.6 behaviour clips; 5 = U1-CHAR.7 advanced motion; 6 = U1-CHAR.7b biomechanics (Froude cadence, Strouhal speeds, leg-driven take-off, landing flare)
 FPS = 30
 BASE_FRAMES = {'Idle': 120, 'Eat': 60, 'Sleep': 120, 'Happy': 45, 'Swim': 48, 'Burrow': 60,
                'Fly': 32, 'Glide': 60, 'TakeOff': 40, 'Land': 40,
@@ -544,6 +544,31 @@ class Animator:
         self.wing_up = None
         self.shape_blink = next((k for k in (obj.data.shape_keys.key_blocks if obj.data.shape_keys else [])
                                  if any(t in k.name.lower() for t in ('blink', 'eye_close', 'eyeclose', 'eyesclosed'))), None)
+        self.biomech = {}
+        self._froude_cadence()
+
+    def _froude_cadence(self):
+        """U1-CHAR.7b: Walk/Run cycle length from dynamic similarity (Alexander 1976, stride/h = 2.3 Fr^0.3).
+        The stride (leg excursion, bounded by the deformation limits) stays as authored; only the period changes,
+        so the speed per stride is the one animals of this hip height use. Profiles opt in with "cadence": "froude";
+        long-bodied serpentines keep their authored period (body undulation adds to the stride, the relation was
+        fitted on erect-legged animals)."""
+        hind = [L for k, L in self.leg.items() if k.startswith('Hind')] or list(self.leg.values())
+        if not hind:
+            return
+        hip_h = sum(self.rest[L['names'][0]].translation.z for L in hind) / len(hind)
+        for key in ('walk', 'run'):
+            cfg = self.prof.get(key)
+            if not cfg or cfg.get('cadence') != 'froude' or hip_h <= 0:
+                continue
+            stride = rg.stance_stride(cfg['strideLegs'] * self.leg_len, cfg['duty']) / cfg['duty']
+            fr, v, period = rg.froude_cadence(stride, hip_h)
+            authored = cfg['frames']
+            cfg['frames'] = max(cfg.get('minFrames', 10), int(round(period * FPS)))
+            self.biomech[key] = {'hipHeight_m': round(hip_h, 4), 'stride_m': round(stride, 4),
+                                 'relativeStride': round(stride / hip_h, 3), 'froude': round(fr, 4),
+                                 'speed_mps': round(v, 4), 'framesAuthoredDefault': authored, 'frames': cfg['frames'],
+                                 'duty': cfg['duty'], 'source': 'Alexander 1976 stride/h = 2.3 Fr^0.3'}
 
     # --- helpers
     def set_rot(self, name, R):
@@ -1105,7 +1130,10 @@ class Animator:
                         contacts[k] = True
                 else:
                     u = (t - 0.25) / 0.75
-                    root.z += -crouch * (1 - u) + rise * (u * u)
+                    # leg-driven launch (U1-CHAR.7b): birds get 80-95 % of their lift-off velocity from the hindlimb
+                    # push, the first downstroke starts at lift-off; launchShare 0 = the U1-CHAR.7 wing-only u^2 rise
+                    ls = pr.get('takeoff', {}).get('launchShare', 0.0)
+                    root.z += -crouch * (1 - u) + rise * (ls * u + (1.0 - ls) * u * u)
                     a, fold = flap(2.0 * u)
                     wings(a, fold)
                     if root.z <= 0.0:
@@ -1120,6 +1148,10 @@ class Animator:
                     u = t / 0.6
                     root.z += drop * (1 - u) * (1 - u)
                     wings(0.6, -0.2 * u)  # flare
+                    # pitch-up braking before touch-down (U1-CHAR.7b; raptors/pigeons tilt up ~17 deg), level at contact
+                    fp = pr.get('land', {}).get('flarePitch', 0.0)
+                    if fp:
+                        root_rot = rot('X', -fp * math.sin(math.pi * u))
                     tuck(max(0.0, 1.0 - 1.6 * u))
                 else:
                     u = (t - 0.6) / 0.4
@@ -1193,6 +1225,29 @@ class Animator:
             self._blink(ranges.get('Idle'))
         self.ik_residual = worst_ik
         return ranges
+
+    def launch_share(self):
+        """Vertical root speed at lift-off over the clip's peak climb speed (birds: 0.8-0.95 from the leg push)."""
+        n = 400
+        z = [float(self._pose('TakeOff', i / n)[1].z) for i in range(n + 1)]
+        v = [(z[i + 1] - z[i]) * n for i in range(n)]
+        lift = next((i for i in range(int(0.25 * n), n) if z[i] <= 0.0 < z[i + 1]), None)
+        peak = max(v) if v else 0.0
+        share = v[lift] / peak if lift is not None and peak > 0 else None
+        return {'liftOffT': round(lift / n, 3) if lift is not None else None,
+                'liftOffVelocityShare': round(share, 3) if share is not None else None,
+                'launchShare': self.prof.get('takeoff', {}).get('launchShare', 0.0),
+                'source': 'hindlimb push gives 80-95 % of initial flight velocity (Earls 2000; Provini et al. 2012)'}
+
+    def tip_amplitude(self, bone, axis, r):
+        """Peak-to-peak excursion (m) of a bone's tip along an axis over an authored clip range (pose space)."""
+        if bone not in self.P:
+            return 0.0
+        vals = []
+        for f in range(r['start'], r['end'] + 1):
+            bpy.context.scene.frame_set(f)
+            vals.append(float((self.arm.matrix_world @ self.P[bone].tail)[axis]))
+        return max(vals) - min(vals) if vals else 0.0
 
     def _wing_down_limit(self, mod, wanted=None, direction=-1):
         """Largest downstroke (rad) before the wing membrane enters the body, measured on the skinned
@@ -1464,12 +1519,28 @@ def main():
     body = {'length_m': round(float(Vr[:, 1].max() - Vr[:, 1].min()), 4), 'width_m': round(float(Vr[:, 0].max() - Vr[:, 0].min()), 4),
             'height_m': round(float(Vr[:, 2].max() - Vr[:, 2].min()), 4)}
     motion_defaults = json.loads(PROFILES.read_text(encoding='utf-8')).get('motionDefaults', {})
+    st = motion_defaults.get('strouhal', 0.0)
     for c, key in (('Swim', 'swim'), ('SwimSurface', 'swim'), ('Fly', 'fly')):
         if c in ranges and c not in anim.ground_speed:
             lpc = prof.get(key, {}).get('lengthsPerCycle', motion_defaults.get(key + 'LengthsPerCycle', 0.0))
             n = ranges[c]['end'] - ranges[c]['start']
-            if lpc > 0 and n > 0:  # in-place clip: nominal speed = body lengths per cycle (pipeline default, art director to confirm)
+            # U1-CHAR.7b: nominal in-place speed from the Strouhal number of the authored stroke (tail tip sideways
+            # for swimming, wing tip vertically for flapping); lengthsPerCycle stays the fallback without that bone
+            tip, axis = (('WingTip_L', 2) if key == 'fly' else ((anim.tails or [''])[-1], 0))
+            amp = anim.tip_amplitude(tip, axis, ranges[c]) if st > 0 else 0.0
+            info = {'tipBone': tip, 'tipAmplitudePP_m': round(amp, 4), 'strouhalTarget': st,
+                    'lengthsPerCycleDefault': lpc}
+            if amp > 0.01 * body['length_m']:
+                lpc = rg.strouhal_lengths_per_cycle(amp, body['length_m'], st)
+                info['source'] = 'Taylor, Nudds & Thomas 2003: cruising St = fA/U in 0.2-0.4'
+            else:
+                info['source'] = 'motionDefaults lengthsPerCycle (no measurable stroke tip)'
+            if lpc > 0 and n > 0:  # in-place clip: nominal speed = distance per cycle / period
                 anim.ground_speed[c] = lpc * body['length_m'] / (n / FPS)
+                info['lengthsPerCycle'] = round(lpc, 3)
+                info['speed_mps'] = round(anim.ground_speed[c], 4)
+                info['strouhal'] = round(rg.strouhal(amp, anim.ground_speed[c], n / FPS), 3) if amp else None
+            anim.biomech[c] = info
     for c, r in ranges.items():
         r['groundSpeed'] = round(anim.ground_speed.get(c, 0.0), 4)
     # visual root height relative to the Fly pose: at TakeOff's end the Sanctuary raises the dragon by
@@ -1480,10 +1551,20 @@ def main():
         root_offsets['TakeOff.end'] = round(float(anim.pose('TakeOff', 1.0)[1].z) - fly_z, 4)
     if 'Land' in ranges:
         root_offsets['Land.start'] = round(float(anim.pose('Land', 0.0)[1].z) - fly_z, 4)
+    max_turn = dict(motion_defaults.get('maxTurnRateDegPerSec', {}))
+    bank = motion_defaults.get('maxBankDeg', 0.0)
+    if bank and anim.ground_speed.get('Fly'):
+        # the yaw rate at which a coordinated turn at the nominal flight speed reaches the shaper's bank limit
+        max_turn['air'] = round(min(max_turn.get('ground', 180), rg.coordinated_turn_rate_deg(anim.ground_speed['Fly'], bank)), 1)
+        anim.biomech['airTurn'] = {'maxBankDeg': bank, 'flySpeed_mps': round(anim.ground_speed['Fly'], 4),
+                                   'maxTurnRateDegPerSec': max_turn['air'], 'source': 'coordinated turn tan(bank) = V w / g'}
+    if 'TakeOff' in ranges:
+        anim.biomech['TakeOff'] = anim.launch_share()
     motion = {'body': body, 'rootOffsets_m': root_offsets,
-              'maxTurnRateDegPerSec': motion_defaults.get('maxTurnRateDegPerSec', {}),
-              'speedSource': 'Walk/Run: planted-foot speed; Swim/SwimSurface/Fly: body lengths per cycle from rig-profiles '
-                             '(pipeline default, art director to confirm); other clips in place (0)'}
+              'maxTurnRateDegPerSec': max_turn, 'biomechanics': anim.biomech,
+              'speedSource': 'Walk/Run: planted-foot speed (period from the Froude relation where the profile opts in); '
+                             'Swim/SwimSurface/Fly: Strouhal 0.3 on the measured stroke tip (fallback: body lengths per cycle '
+                             'from rig-profiles); other clips in place (0). See motion.biomechanics'}
     deform = deformation_report(obj, ranges)
     for n in anchors:
         arm.data.bones[n].use_deform = True

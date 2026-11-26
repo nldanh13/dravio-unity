@@ -40,7 +40,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
-PIPELINE_VERSION = 'u1-char7-v1'
+PIPELINE_VERSION = 'u1-char7b-v1'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
 # Every script and data file whose change must re-process an asset (cache fingerprint).
 PIPELINE_FILES = ['batch_import.py', 'char_common.py', 'inspect_character.py', 'prepare_character.py',

@@ -83,6 +83,30 @@ namespace Dravio.Character
     public static class MotionShapeSolver
     {
         public const float MaxBankDeg = 30f, MaxPitchDeg = 25f, MaxBendDeg = 20f;
+        /// <summary>Gravity used by the coordinated-turn bank (m/s^2).</summary>
+        public const float Gravity = 9.81f;
+
+        /// <summary>
+        /// U1-CHAR.7b: bank of a coordinated (balanced) turn, tan(bank) = V * yawRate / g, the angle flying animals
+        /// roll to so lift supplies the turning force (pigeons bank as aerodynamic theory predicts; sources in
+        /// BIOMECHANICS_RESEARCH.md). Clamped to MaxBankDeg. Negative = roll right (about forward) for a right turn.
+        /// </summary>
+        public static float CoordinatedBankDeg(float turnRateDegPerSec, float speed)
+        {
+            double tan = Math.Abs(speed) * (turnRateDegPerSec * Math.PI / 180.0) / Gravity;
+            return -Clamp((float)(Math.Atan(tan) * 180.0 / Math.PI), MaxBankDeg);
+        }
+
+        /// <summary>
+        /// U1-CHAR.7b gaze stabilisation: birds hold the head almost level against body roll (vestibulo-collic reflex).
+        /// Returns the roll the neck and head add (each half of the correction) so the head ends at
+        /// (1 - gain) of the body's bank.
+        /// </summary>
+        public static void HeadRollCompensation(float bankDeg, float gain, out float neckDeg, out float headDeg)
+        {
+            gain = gain < 0f ? 0f : (gain > 1f ? 1f : gain);
+            neckDeg = headDeg = -0.5f * gain * bankDeg;
+        }
 
         /// <param name="turnRateDegPerSec">Signed yaw rate (+ = turning right).</param>
         /// <param name="verticalSpeed">m/s, + = climbing.</param>
@@ -98,7 +122,9 @@ namespace Dravio.Character
             switch (mode)
             {
                 case DragonMotionMode.Air:
-                    bankDeg = -turn * MaxBankDeg;              // roll into the turn
+                    // coordinated turn when the forward speed is known; without it (speed 0: not sent) the U1-CHAR.7
+                    // linear mapping, so a target that sends no speed keeps banking
+                    bankDeg = speed > 0.05f ? CoordinatedBankDeg(turnRateDegPerSec, speed) : -turn * MaxBankDeg;
                     pitchDeg = Clamp(climb, MaxPitchDeg);
                     bendDeg = turn * MaxBendDeg * 0.3f;
                     break;
