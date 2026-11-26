@@ -72,11 +72,37 @@ Tỉ lệ key/fill tăng là thứ tạo độ sâu trên shader painterly (bón
 
 ## 4. Ảnh trước / sau
 
-IMAGES_PLACEHOLDER
+Blender 5.3 Cycles, **cùng** camera ortho cố định của Unity (`zone_common` / `layout` camera), 16:9, cùng exposure, cùng sample; "trước" = generator ở baseline `02e25cf`, "sau" = nhánh này. Đây là preview của pipeline art, **không** phải Unity Game View (shader painterly / URP, hạt, tia sáng động khác); ảnh Unity phải do chủ dự án chụp lại.
 
-## 5. Làm mới scene đã sinh mà không ghi đè
+| Thế giới | Ảnh | Luma TB | Độ tương phản (σ luma) | Điểm ảnh cháy ≥ 250 | Độ bão hòa TB |
+|---|---|---|---|---|---|
+| Ocean | [`ocean_before_after.jpg`](env-alpha/ocean_before_after.jpg) | 136,7 → 131,3 | 16,1 → **17,5** | 0,01 % → 0,01 % | 81,6 → 85,0 |
+| Sky | [`sky_before_after.jpg`](env-alpha/sky_before_after.jpg) | 212,1 → 202,7 | 39,4 → 40,5 | **18,37 % → 0,67 %** | 34,0 → **43,9** |
+| Origin (giờ mặc định, dữ liệu sống) | [`origin_before_after.jpg`](env-alpha/origin_before_after.jpg) | 131,1 → 129,3 | 35,3 → 35,4 | 0,04 % → 0,04 % | 133,4 → 135,5 |
 
-Scene Ocean / Sky của chủ dự án **không** bị ghi đè. Chạy **Dravio ▸ Environment ▸ Zones ▸ Ocean / Sky – Build Everything** (không phải "Rebuild … (overwrite)"):
+Đọc ảnh:
+- **Ocean**: các cột sáng trắng còn mờ nhẹ, không còn phủ vòm, tường và cụm rong bên trái; đá, san hô, cát đọc rõ hơn. Màn sương xanh của preview (volume) vẫn dày hơn Unity.
+- **Sky**: biển mây hết cháy trắng (18 % → < 1 % điểm ảnh bão hòa), vân mây hiện lại, đảo tách khỏi nền; mây và cỏ đậm màu hơn.
+- **Origin**: thay đổi nhẹ và gần như không thấy trên preview Blender (Blender chỉ mô phỏng ambient bằng một màu nền, không có trilight / shader painterly). Hiệu quả thật (bóng 0,75 → 0,82, fill thấp hơn) chỉ đánh giá được trong Unity. Đại tu hình ảnh Origin là issue #80, không thuộc PR này.
+- `atlas_readability.jpg`: độ đọc texture sau khi giảm (mục 1).
+- Preview ban ngày "cố định" cũ của Origin dùng đèn U1-ENV.2 cứng nên không phản ánh dữ liệu sống; generator giờ render thêm khung `day_living` (giờ mặc định từ JSON) — dùng cho bảng trên.
+
+## 5. Scene / asset đã sinh của chủ dự án
+
+Trong lúc làm, chủ dự án đã đẩy scene và asset Ocean / Sky đã sinh (`83dddeb`, U6.0.3b) lên nhánh tích hợp; nhánh này đã merge vào và **cập nhật trực tiếp** các file đó, giữ nguyên GUID / fileID, không dựng lại scene:
+
+| File | Thay đổi |
+|---|---|
+| `Zones/Sky/Prefabs/SM_ENV_Sky_Gate.prefab` | thêm 1 BoxCollider đá khóa (0,8 × 0,98 × 0,86 tại y 5,93) — scene nhận qua prefab instance |
+| `M_ENV_Ocean_Props.mat`, `M_ENV_Sky_Props.mat` | `_EmissionColor` 1,7 → 1,2 / 1,3 |
+| `M_ENV_Sky_Water.mat` | shallow / deep / foam / foam width / sparkle như mục 3 |
+| `OceanLiving.asset`, `SkyLiving.asset`, `SkyLocations.asset` | sinh lại từ JSON; bộ ghi YAML được kiểm: đọc–ghi lại tái tạo đúng từng byte file cũ, và JSON cũ tái tạo đúng file cũ, rồi mới áp JSON mới |
+| `Scenes/Ocean_Environment.unity` | alpha 7 quad FX, bề rộng 6 tia sáng, `fullLightIntensity` 1,05 → 1,1644, sương 18–48 → 22–56 (32 dòng) |
+| `Scenes/Sky_Environment.unity` | sương 26–60 → 32–72, màu hạt `cloud_wisps` (6 dòng) |
+
+Ánh sáng / ambient trong scene do `EnvironmentTimeOfDay` (`[ExecuteAlways]`) lấy từ `.asset` mỗi frame, nên không cần sửa đèn tĩnh trong scene.
+
+Nếu cần sinh lại từ builder thay vì dùng file đã commit, chạy **Dravio ▸ Environment ▸ Zones ▸ Ocean / Sky – Build Everything** (không phải "Rebuild … (overwrite)"):
 1. vật liệu (emission, mây) và prefab (collider perch_06) cập nhật tại chỗ, GUID giữ nguyên;
 2. `OceanLiving.asset` / `SkyLiving.asset` / `…Locations.asset` nạp lại từ JSON (ánh sáng ngày–đêm đọc mỗi frame);
 3. scene có sẵn được mở và `RefreshArtInOpenScene` (mới) chỉ cập nhật alpha / bề rộng quad caustics–tia sáng theo id, màu hạt mây theo id volume, khoảng sương — **không lưu tự động**, chủ dự án xem rồi tự lưu.
@@ -86,6 +112,6 @@ Sau đó: mở từng scene, **Validate Ocean and Sky** riêng với mỗi scene
 
 ## 6. Kiểm thử
 
-- `python3 -m unittest` cho `scripts/art/environment/test_environment_kit.py`, `test_living_environment.py`, `test_zone_environments.py`: TEST_RESULTS_PLACEHOLDER
+- `python3 -m unittest` cho `scripts/art/environment/test_environment_kit.py`, `test_living_environment.py`, `test_zone_environments.py`: **OK** (`test_environment_kit` OK, `test_living_environment` 30 OK, `test_zone_environments` 31 OK). Test mới: ước tính RGBA32 của validator ≤ 6 MiB; đỉnh collider dưới mọi perch / rest (dung sai 0,20); ánh sáng tĩnh Origin = giờ mặc định (đọc thẳng C#); file Unity đã commit (asset, prefab, scene, vật liệu) = JSON nguồn.
 - Generator tái tạo đúng từng byte texture / dữ liệu / audio đang commit ở baseline trước khi sửa (chỉ `*Manifest.json` lệch 4 tam giác do metaball mây — không chép model hay manifest).
 - Không đổi: Domain, luật gameplay, Save Schema, UI, camera, WorldGraph, vị trí tương tác; FBX model, audio, GUID / `.meta`.
