@@ -85,19 +85,19 @@ namespace Dravio
             mesh.AddVert(v);
         }
 
-        // Convex polygons only. Fan triangulation is stable at every aspect ratio.
+        // Ear clipping handles concave icon outlines as well as beveled frames.
         // An optional translucent fringe smooths the outer silhouette at ~one pixel.
         void Poly(Vector2[] p,Color32 bottom,Color32 top,bool aa=false)
         {
             if(p.Length<3)return;
-            Vector2 center=Vector2.zero;
             float low=p[0].y,high=low;
-            foreach(var q in p){center+=q;low=Mathf.Min(low,q.y);high=Mathf.Max(high,q.y);}
-            center/=p.Length;
+            foreach(var q in p){low=Mathf.Min(low,q.y);high=Mathf.Max(high,q.y);}
             int first=mesh.currentVertCount;
-            Vertex(center,Mix(bottom,top,Mathf.InverseLerp(low,high,center.y)));
             for(int i=0;i<p.Length;i++)Vertex(p[i],Mix(bottom,top,Mathf.InverseLerp(low,high,p[i].y)));
-            for(int i=0;i<p.Length;i++)mesh.AddTriangle(first,first+1+i,first+1+(i+1)%p.Length);
+            float area=0f;
+            for(int i=0;i<p.Length;i++)area+=Cross(p[i],p[(i+1)%p.Length]);
+            float winding=area>=0?1f:-1f;
+            Triangulate(p,first,winding);
             if(!aa)return;
             int outer=mesh.currentVertCount;
             for(int i=0;i<p.Length;i++)
@@ -105,7 +105,7 @@ namespace Dravio
                 Vector2 prev=p[i]-p[(i+p.Length-1)%p.Length],next=p[(i+1)%p.Length]-p[i];
                 Vector2 n1=new Vector2(prev.y,-prev.x).normalized,n2=new Vector2(next.y,-next.x).normalized;
                 Vector2 n=(n1+n2).normalized;
-                if(Vector2.Dot(n,p[i]-center)<0)n=-n;
+                n*=winding;
                 float extension=feather/Mathf.Max(.5f,Mathf.Abs(Vector2.Dot(n,n1)));
                 var c=Mix(bottom,top,Mathf.InverseLerp(low,high,p[i].y));c.a=0;
                 Vertex(p[i]+n*extension,c);
@@ -113,10 +113,56 @@ namespace Dravio
             for(int i=0;i<p.Length;i++)
             {
                 int j=(i+1)%p.Length;
-                mesh.AddTriangle(first+1+i,outer+i,outer+j);
-                mesh.AddTriangle(first+1+i,outer+j,first+1+j);
+                mesh.AddTriangle(first+i,outer+i,outer+j);
+                mesh.AddTriangle(first+i,outer+j,first+j);
             }
         }
+        static float Cross(Vector2 a,Vector2 b)=>a.x*b.y-a.y*b.x;
+
+        static bool InsideTriangle(Vector2 p,Vector2 a,Vector2 b,Vector2 c,float winding)
+        {
+            const float epsilon=.00001f;
+            return Cross(b-a,p-a)*winding>epsilon &&
+                   Cross(c-b,p-b)*winding>epsilon &&
+                   Cross(a-c,p-c)*winding>epsilon;
+        }
+
+        void Triangulate(Vector2[] p,int first,float winding)
+        {
+            // Fast path for circles, diamonds and frame polygons.
+            bool convex=true;
+            for(int i=0;i<p.Length;i++)
+                if(Cross(p[i]-p[(i+p.Length-1)%p.Length],p[(i+1)%p.Length]-p[i])*winding<-.00001f)
+                {convex=false;break;}
+            if(convex)
+            {
+                for(int i=1;i<p.Length-1;i++)mesh.AddTriangle(first,first+i,first+i+1);
+                return;
+            }
+            var remaining=new System.Collections.Generic.List<int>(p.Length);
+            for(int i=0;i<p.Length;i++)remaining.Add(i);
+            while(remaining.Count>3)
+            {
+                bool found=false;
+                for(int i=0;i<remaining.Count;i++)
+                {
+                    int a=remaining[(i+remaining.Count-1)%remaining.Count],b=remaining[i],c=remaining[(i+1)%remaining.Count];
+                    if(Cross(p[b]-p[a],p[c]-p[b])*winding<=.00001f)continue;
+                    bool blocked=false;
+                    foreach(int j in remaining)
+                    {
+                        if(j==a||j==b||j==c)continue;
+                        if(InsideTriangle(p[j],p[a],p[b],p[c],winding)){blocked=true;break;}
+                    }
+                    if(blocked)continue;
+                    mesh.AddTriangle(first+a,first+b,first+c);
+                    remaining.RemoveAt(i);found=true;break;
+                }
+                if(!found)return; // malformed outline: do not loop indefinitely
+            }
+            mesh.AddTriangle(first+remaining[0],first+remaining[1],first+remaining[2]);
+        }
+
         void Solid(Vector2[] p,Color32 c,bool aa=false)=>Poly(p,c,c,aa);
         static Rect Inset(Rect r,float d)=>new Rect(r.xMin+d,r.yMin+d,Mathf.Max(0,r.width-2*d),Mathf.Max(0,r.height-2*d));
         static Vector2[] Bevel(Rect r,float k)
