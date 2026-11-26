@@ -5,6 +5,8 @@ using Dravio.Character;
 using Dravio.Character.Integration;
 using Dravio.Domain;
 using Dravio.Domain.Biology;
+using Dravio.Domain.Behavior;
+using BehaviorPhase = Dravio.Domain.Behavior.DayPhase;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
 using Dravio.Domain.Queries;
@@ -19,7 +21,7 @@ using UnityEngine.UI;
 namespace Dravio
 {
     // Presentation only. GameSession remains the sole writer of canonical state.
-    // Origin ground slice: non-ground movement waits for explicit environment/behavior data.
+    // U5.3 ground slice. Domain decisions are read-only; only validated food commands mutate state.
     public sealed class LivingSanctuaryPresentation : MonoBehaviour
     {
         [SerializeField] DravioSessionHost host;
@@ -28,6 +30,8 @@ namespace Dravio
         [SerializeField] DragonCarePreview legacy;
         [SerializeField] SanctuaryDomainPreview adapter;
         [SerializeField] GameObject fruit;
+        [Tooltip("Experimental ADR 0203 B7/A4: assign food by preference instead of selected UID. Off until approved.")]
+        [SerializeField] bool sharedFoodAllocation;
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
         sealed class Resident
@@ -37,8 +41,15 @@ namespace Dravio
             public GenotypeEntry[] genotype;
             public Vector3 position,target;
             public Quaternion rotation;
-            public bool walking,canSleep,hasTarget,sleeping;
+            public bool walking,canSleep,hasTarget,sleeping,usedPoint;
             public float rest;
+            public int occupant;
+            public BehaviorDecision decision;
+            public DragonPersonalityStyle personality;
+            public SanctuaryLivingData.InteractionPoint point;
+            public DragonBehaviorIntent shownIntent;
+            public string fallback;
+            public long manualRestUntil;
         }
         readonly Dictionary<string,Resident> residents=new(StringComparer.Ordinal);
         readonly Dictionary<string,string> unavailable=new(StringComparer.Ordinal);
@@ -46,6 +57,14 @@ namespace Dravio
         readonly List<RaycastResult> uiHits=new();
         readonly List<string> removals=new();
         SanctuaryDragonSync sync;
+        EnvironmentInteractions interactions;
+        BehaviorPhase phase=BehaviorPhase.Day;
+        int nextOccupant=1;
+        bool decisionsDirty=true;
+        long decisionDeadline;
+        int substitutions;
+        string foodRequestedUid;
+        bool feedPending;
         GameSession session;
         GameState lastState;
         string selected,travelHabitat,foodId,foodUid;
@@ -95,6 +114,7 @@ namespace Dravio
             if(!active)return;
             session=host.Session;
             if(session!=null)session.DomainEvents+=OnEvents;
+            interactions=LivingEnvironment.Active!=null?LivingEnvironment.Active.interactions:null;
             cameraView=Camera.main;
             if(cameraView!=null)cameraFit=cameraView.GetComponent<SanctuaryCameraFit>();
             feed.onClick.AddListener(Feed);pet.onClick.AddListener(Pet);
@@ -117,6 +137,7 @@ namespace Dravio
         {
             if(session!=null)session.DomainEvents-=OnEvents;
             StopFollow();
+            foreach(var resident in residents.Values)ReleasePoint(resident);
             if(sync!=null && manager!=null)sync.Clear();
             if(fruit!=null && active)fruit.SetActive(false);
         }
@@ -138,7 +159,7 @@ namespace Dravio
 
         void RefreshRoster()
         {
-            lastState=State;
+            lastState=State;decisionsDirty=true;
             if(lastState==null){RefreshProfile();return;}
             // Remove stale placement first so moved/sold/away dragons cannot reserve a spawn.
             removals.Clear();
@@ -147,23 +168,24 @@ namespace Dravio
                 var d=lastState.FindDragon(item.Key);
                 if(d==null || !Presentable(d) || d.Location.HabitatId!=item.Value.habitat)removals.Add(item.Key);
             }
-            foreach(var id in removals)residents.Remove(id);
+            foreach(var id in removals)RemoveResident(id);
             unavailable.Clear();
             foreach(var d in lastState.Dragons.OrderBy(x=>x.Uid,StringComparer.Ordinal))
             {
                 if(!Presentable(d))continue;
-                if(!LivingResidentPolicy.CanWalk(d)){unavailable[d.Uid]="ground-only";residents.Remove(d.Uid);continue;}
+                if(!LivingResidentPolicy.CanWalk(d)){unavailable[d.Uid]="ground-only";RemoveResident(d.Uid);continue;}
                 if(!SanctuaryVisualMapping.TryStage(Lifecycle.StageOf(d).ToString(),out var stage))continue;
                 var entry=manager.catalog.Resolve(d.SpeciesId,stage,out _);
-                if(entry==null || entry.prefab==null){unavailable[d.Uid]="missing-model";residents.Remove(d.Uid);continue;}
+                if(entry==null || entry.prefab==null){unavailable[d.Uid]="missing-model";RemoveResident(d.Uid);continue;}
                 if(!residents.TryGetValue(d.Uid,out var resident))
                 {
                     var spawn=locations.SpawnPointsIn(d.Location.HabitatId).FirstOrDefault(p=>ClearPoint(p.Position,d.Location.HabitatId,d.Uid));
                     if(spawn==null){unavailable[d.Uid]="no-safe-spawn";continue;}
-                    resident=new Resident{uid=d.Uid,habitat=d.Location.HabitatId,position=spawn.Position,rotation=spawn.Rotation,rest=1f};
+                    resident=new Resident{uid=d.Uid,habitat=d.Location.HabitatId,position=spawn.Position,rotation=spawn.Rotation,rest=1f,occupant=nextOccupant++};
                     residents.Add(d.Uid,resident);
                 }
                 resident.stage=stage;resident.species=d.SpeciesId;resident.variant=d.Mutation.ToWire();
+                resident.personality=DragonPersonalityPresentation.StyleFromName(d.Personality.ToString());
                 resident.walking=entry.rigged && entry.clips!=null && entry.clips.Contains("Walk");
                 resident.canSleep=entry.rigged && entry.clips!=null && entry.clips.Contains("Sleep");
                 if(!resident.canSleep)resident.sleeping=false;
@@ -176,60 +198,180 @@ namespace Dravio
                 travelHabitat=null;
             }
             if(following && (selected==null || !residents.ContainsKey(selected)))StopFollow();
-            if(foodId!=null && (!lastState.Food.Drops.Any(f=>f.Id==foodId) || !residents.ContainsKey(foodUid)))ClearFood();
+            if(foodId!=null && !lastState.Food.Drops.Any(f=>f.Id==foodId))ClearFood();
             RefreshProfile();
         }
 
+        long NowMs=>State?.Clock.LastProcessedAtMs??0L;
+        BehaviorPhase CurrentPhase()
+        {
+            var living=LivingEnvironment.Active;
+            if(living==null || living.timeOfDay==null || living.timeOfDay.data==null)return BehaviorPhase.Day;
+            return DayCycle.PhaseOfMinute(Mathf.FloorToInt(living.Hour*60f));
+        }
+        void RemoveResident(string uid)
+        {
+            if(residents.TryGetValue(uid,out var r))ReleasePoint(r);
+            residents.Remove(uid);
+        }
+        void ReleasePoint(Resident r)
+        {
+            if(r.point!=null && interactions!=null)interactions.Release(r.point.id,r.occupant);
+            r.point=null;r.usedPoint=false;r.hasTarget=false;r.rest=0f;
+        }
+        void RefreshDecisions()
+        {
+            var current=CurrentPhase();long now=NowMs;
+            if(!decisionsDirty && current==phase && now<decisionDeadline)return;
+            phase=current;decisionsDirty=false;decisionDeadline=now+1000;
+            var all=BehaviorQueries.All(State,now,phase);
+            foreach(var d in all)
+            {
+                if(!residents.TryGetValue(d.Uid,out var r))continue;
+                var old=r.decision;
+                if(old==null || old.Behavior!=d.Behavior || old.StartedAtMs!=d.StartedAtMs ||
+                    old.TargetFoodId!=d.TargetFoodId || old.Phase!=d.Phase)ReleasePoint(r);
+                r.decision=d;
+                if(d.UntilMs>now)decisionDeadline=Math.Min(decisionDeadline,d.UntilMs);
+            }
+            // Shared allocation is an experimental gameplay change, not silently enabled.
+            // Default mode keeps the existing selected-UID food contract.
+            if(foodId!=null && sharedFoodAllocation)
+            {
+                var assigned=all.FirstOrDefault(d=>d.Behavior==DragonBehavior.SeekFood && d.TargetFoodId==foodId);
+                foodUid=assigned?.Uid;
+            }
+            RefreshProfile();
+        }
+        bool IsFoodTarget(Resident r)=>foodId!=null && r.uid==foodUid;
+        bool TryReservePoint(Resident r,DragonBehavior behavior)
+        {
+            if(interactions==null || !r.walking)return false;
+            SanctuaryLivingData.InteractionPoint best=null;float score=float.MaxValue;
+            foreach(var p in interactions.All)
+            {
+                if(p==null || p.habitatId!=r.habitat || p.requiresSwim || p.requiresFly ||
+                    (!string.IsNullOrEmpty(p.medium) && p.medium!="ground") ||
+                    !AutonomousPresentationPolicy.PointMatches(behavior,p.kind) || !interactions.IsFree(p.id) ||
+                    !ClearPoint(p.Position,r.habitat,r.uid) || !Segment(r.position,p.Position,r.habitat))continue;
+                float distance=Vector3.Distance(r.position,p.Position)-
+                    (p.Prefers((Dravio.EnvironmentArt.DayPhase)phase)?.5f:0f);
+                if(distance<score){best=p;score=distance;}
+            }
+            if(best==null || !interactions.TryReserve(best.id,r.occupant))return false;
+            r.point=best;r.target=best.Position;r.hasTarget=true;r.usedPoint=false;
+            return true;
+        }
+        bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
+        {
+            speed=0f;turnRate=0f;
+            Vector3 delta=target-r.position;delta.y=0;
+            if(delta.sqrMagnitude<.01f)return true;
+            if(!r.walking || !Segment(r.position,target,r.habitat))return false;
+            var next=Vector3.MoveTowards(r.position,target,.55f*dt);
+            if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat))return false;
+            var old=r.rotation;var heading=Quaternion.LookRotation(delta);
+            r.rotation=Quaternion.RotateTowards(old,heading,180f*dt);
+            if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+            if(Quaternion.Angle(r.rotation,heading)<15f){r.position=next;speed=.55f;}
+            return (r.position-target).sqrMagnitude<.01f;
+        }
+        DragonBehaviorIntent GroundIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
+        {
+            speed=0f;turnRate=0f;look=false;lookTarget=Vector3.zero;r.fallback=null;
+            var behavior=r.decision?.Behavior??DragonBehavior.Idle;
+            if(IsFoodTarget(r))
+            {
+                var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
+                if(d!=null && drop!=null && BehaviorEngine.CanEat(d,drop,NowMs))
+                {
+                    if(r.point!=null)ReleasePoint(r);
+                    look=true;lookTarget=foodPoint;
+                    if((r.position-foodPoint).sqrMagnitude>.55f*.55f)
+                    {
+                        MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                        if(speed==0f)r.fallback="food-path";
+                        return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+                    }
+                    return DragonBehaviorIntent.Idle;
+                }
+            }
+            if(behavior==DragonBehavior.Eat)return DragonBehaviorIntent.Eat;
+            // Manual doze is a short cosmetic request, never overrides a real gameplay rest/food decision.
+            if(r.manualRestUntil>NowMs && r.decision?.Role==BehaviorRole.Presentation && r.canSleep)
+            {if(r.point!=null)ReleasePoint(r);return DragonBehaviorIntent.Sleep;}
+            if(behavior==DragonBehavior.SeekFood)
+            {r.fallback="food-not-assigned-to-visible-marker";return DragonBehaviorIntent.Idle;}
+            if(AutonomousPresentationPolicy.RequiresUnimplementedMedium(behavior))
+            {r.fallback="medium-not-implemented";return DragonBehaviorIntent.Rest;}
+            if(behavior==DragonBehavior.Sleep)return DragonBehaviorIntent.Sleep;
+            if(behavior==DragonBehavior.Idle)return DragonBehaviorIntent.Idle;
+            // Approach authored points only for compatible behaviors, using the existing reservations.
+            bool pointBehavior=AutonomousPresentationPolicy.UsesPoint(behavior);
+            if(pointBehavior && r.point==null)
+            {
+                r.rest-=dt;
+                if(r.rest<=0f){if(!TryReservePoint(r,behavior))r.rest=2f;}
+            }
+            if(r.point!=null)
+            {
+                if(!Segment(r.position,r.point.Position,r.habitat) || !ClearPoint(r.point.Position,r.habitat,r.uid))
+                {ReleasePoint(r);r.rest=2f;r.fallback="point-blocked";return DragonBehaviorIntent.Idle;}
+                bool arrived=MoveToward(r,r.point.Position,dt,out speed,out turnRate);
+                if(!arrived)return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+                var old=r.rotation;
+                r.rotation=Quaternion.RotateTowards(old,r.point.Rotation,180f*dt);
+                if(dt>0f)turnRate=Quaternion.Angle(old,r.rotation)/dt;
+                look=true;lookTarget=r.point.Target;
+                if(Quaternion.Angle(r.rotation,r.point.Rotation)>15f)return DragonBehaviorIntent.Idle;
+                if(!r.usedPoint){r.usedPoint=true;interactions.NotifyUsed(r.point.id,r.occupant);}
+                return behavior==DragonBehavior.Bask?DragonBehaviorIntent.Bask:
+                    behavior==DragonBehavior.Rest?DragonBehaviorIntent.Rest:DragonBehaviorIntent.Curious;
+            }
+            if(behavior==DragonBehavior.Bask){r.fallback="no-safe-bask-point";return DragonBehaviorIntent.Rest;}
+            if(behavior==DragonBehavior.Rest)return DragonBehaviorIntent.Rest;
+            if(behavior==DragonBehavior.Play)return DragonBehaviorIntent.Play;
+            if(behavior==DragonBehavior.Explore && r.walking)
+            {
+                if(!r.hasTarget)
+                {
+                    if(r.rest>0f)return DragonBehaviorIntent.Idle;
+                    var p=locations.SpawnPointsIn(r.habitat).FirstOrDefault(x=>
+                        (x.Position-r.position).sqrMagnitude>.25f && ClearPoint(x.Position,r.habitat,r.uid) && Segment(r.position,x.Position,r.habitat));
+                    if(p==null){r.rest=2f;return DragonBehaviorIntent.Idle;}
+                    r.target=p.Position;r.hasTarget=true;
+                }
+                bool arrived=MoveToward(r,r.target,dt,out speed,out turnRate);
+                if(arrived || !Segment(r.position,r.target,r.habitat) || !ClearPoint(r.target,r.habitat,r.uid))
+                {r.hasTarget=false;r.rest=2f;}
+                return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+            }
+            return DragonBehaviorIntent.Idle;
+        }
         void Update()
         {
             if(!active)return;
             if(session==null && host.Session!=null){session=host.Session;session.DomainEvents+=OnEvents;}
+            if(interactions==null && LivingEnvironment.Active!=null)interactions=LivingEnvironment.Active.interactions;
             if(!ReferenceEquals(lastState,State))RefreshRoster();
             bool ready=Ready;
-            if(ready!=previousReady){previousReady=ready;RefreshButtons();}
+            if(ready!=previousReady){previousReady=ready;RefreshButtons();decisionsDirty=true;}
             if(!ready)return;
+            RefreshDecisions();
             float dt=Mathf.Min(Time.deltaTime,.1f);
             frames.Clear();
             foreach(var r in residents.Values)
             {
-                var locomotion=DragonLocomotion.Idle;
-                float speed=0f;
-                if(r.sleeping)locomotion=DragonLocomotion.Sleep;
-                else if(r.walking && r.uid!=foodUid)
-                {
-                    r.rest-=dt;
-                    if(r.rest<=0f && !r.hasTarget)
-                    {
-                        var p=locations.SpawnPointsIn(r.habitat).FirstOrDefault(x=>
-                            (x.Position-r.position).sqrMagnitude>.25f && ClearPoint(x.Position,r.habitat,r.uid) && Segment(r.position,x.Position,r.habitat));
-                        if(p!=null){r.target=p.Position;r.hasTarget=true;}
-                        else r.rest=2f;
-                    }
-                    if(r.hasTarget)
-                    {
-                        var delta=r.target-r.position;delta.y=0;
-                        if(delta.sqrMagnitude<.01f){r.hasTarget=false;r.rest=2f;}
-                        else
-                        {
-                            var target=Vector3.MoveTowards(r.position,r.target,.55f*dt);
-                            if(ClearPoint(target,r.habitat,r.uid) && Segment(r.position,target,r.habitat))
-                            {
-                                r.rotation=Quaternion.RotateTowards(r.rotation,Quaternion.LookRotation(delta),180f*dt);
-                                if(Quaternion.Angle(r.rotation,Quaternion.LookRotation(delta))<15f)
-                                {r.position=target;locomotion=DragonLocomotion.Walk;speed=.55f;}
-                            }
-                            else{r.hasTarget=false;r.rest=2f;}
-                        }
-                    }
-                }
+                var intent=GroundIntent(r,dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget);
+                r.shownIntent=intent;
                 frames.Add(new SanctuaryDragonFrame{uid=r.uid,speciesId=r.species,variantId=r.variant,stage=r.stage,
-                    genotype=r.genotype,visible=true,position=r.position,rotation=r.rotation,locomotion=locomotion,speed=speed});
+                    genotype=r.genotype,visible=true,position=r.position,rotation=r.rotation,intent=intent,
+                    personality=r.personality,speed=speed,turnRateDegPerSec=turnRate,hasLookTarget=look,lookTarget=lookTarget});
             }
-            var report=sync.Sync(frames);
+            var report=sync.Sync(frames,dt);substitutions=report.substituted;
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
-            if(foodId!=null && Time.unscaledTime>=consumeAfter)Consume();
+            if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)Consume();
             ReadSelection();
-            // Domain eligibility refreshed on state/selection changes, not every rendered frame.
         }
 
         void ReadSelection()
@@ -257,7 +399,7 @@ namespace Dravio
             if(hit!=null)Select(hit);
         }
 
-        void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();}RefreshProfile();}
+        void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();if(manager.IsLive(id))sync.React(id,DragonReaction.Called);}RefreshProfile();}
         void NextDragon()
         {
             if(State==null)return;
@@ -282,45 +424,62 @@ namespace Dravio
         {
             var d=Selected;
             if(d==null || !residents.TryGetValue(d.Uid,out var r) || foodId!=null || !Ready)return;
+            var personality=BehaviorQueries.Personality(State,d.Uid);
+            if(personality==null)return;
             var diets=SpeciesCatalog.Get(d.SpeciesId).Biology.DietIds;
             if(diets.Count==0)return;
-            // Choose a canonical diet. Position is only presentation; consume is a separate checked command.
-            var diet=diets[0];r.sleeping=false;r.hasTarget=false;
+            // Preserve existing selected UID / first diet unless experimental allocation is enabled.
+            var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
+            r.manualRestUntil=0;ReleasePoint(r);
             var point=r.position+r.rotation*Vector3.forward*.4f;
             foodPoint=locations.IsWalkable(point,r.habitat)?point:r.position;
-            foodUid=d.Uid;
-            if(!Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId)))foodUid=null;
+            foodRequestedUid=d.Uid;feedPending=true;
+            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId));}
+            finally{feedPending=false;foodRequestedUid=null;}
         }
         void Consume()
         {
             var drop=State?.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
             var d=State?.FindDragon(foodUid);
-            if(drop==null || d==null || !residents.TryGetValue(foodUid,out var r) || d.Location.HabitatId!=drop.HabitatId ||
-                (r.position-foodPoint).sqrMagnitude>.55f*.55f){ClearFood();return;}
+            if(drop==null){ClearFood();return;}
+            if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
+                (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
+            if(sharedFoodAllocation)
+            {
+                var decision=BehaviorQueries.Dragon(State,d.Uid,NowMs,phase);
+                if(decision?.Behavior!=DragonBehavior.SeekFood || decision.TargetFoodId!=foodId)return;
+            }
             var idToEat=foodId;var who=foodUid;
-            if(Send(id=>new ConsumeFoodCommand(id,idToEat,who)))Message("Food consumed.","Rồng đã ăn.");
-            ClearFood(); // A rejected drop is not removed from Domain; it expires by the canonical clock.
+            if(Send(id=>new ConsumeFoodCommand(id,idToEat,who)))Message("Food consumed: "+who,"Rồng đã ăn: "+who);
+            else consumeAfter=Time.unscaledTime+1f; // no retry every frame; Domain remains authoritative.
         }
-        void ClearFood(){foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);RefreshButtons();}
+        void ClearFood(){foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();}
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
+            decisionsDirty=true;
             foreach(var e in events)
             {
-                if(e is FoodSpawned f && foodUid!=null && foodId==null)
+                if(e is FoodSpawned f && feedPending && foodRequestedUid!=null && foodId==null)
                 {
-                    foodId=f.FoodId;consumeAfter=Time.unscaledTime+.6f;RefreshButtons();
+                    foodId=f.FoodId;foodUid=sharedFoodAllocation?null:foodRequestedUid;consumeAfter=Time.unscaledTime+.6f;
+                    RefreshButtons();
                     if(fruit!=null){fruit.transform.position=foodPoint+Vector3.up*.12f;fruit.SetActive(true);}
                 }
                 else if(e is FoodConsumed consumed)
-                {sync.Trigger(consumed.DragonUid,DragonInteraction.Eat);if(consumed.FoodId==foodId)ClearFood();}
-                else if(e is DragonPetted p)sync.Trigger(p.DragonUid,DragonInteraction.Happy);
+                {if(consumed.FoodId==foodId)ClearFood();} // Eat intent is derived from the accepted Domain event's timestamp.
+                else if(e is DragonPetted p)sync.React(p.DragonUid,DragonReaction.Petted);
                 else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
             }
         }
         void ToggleSleep()
         {
-            if(selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep)
-            {r.sleeping=!r.sleeping;r.hasTarget=false;Message(r.sleeping?"Resting (visual)":"Awake",r.sleeping?"Đang nghỉ (hoạt ảnh)":"Đã thức");}
+            if(selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep &&
+                r.decision?.Role==BehaviorRole.Presentation && !IsFoodTarget(r))
+            {
+                r.manualRestUntil=r.manualRestUntil>NowMs?0:NowMs+15000;
+                ReleasePoint(r);
+                Message(r.manualRestUntil>0?"Doze request (visual)":"Automatic behavior",r.manualRestUntil>0?"Nghỉ ngắn (hoạt ảnh)":"Tự sinh hoạt");
+            }
         }
         void Observe()
         {
@@ -354,7 +513,7 @@ namespace Dravio
             if(restoreFit)cameraFit.enabled=false;
             following=true;
         }
-        void Resume(){StopFollow();if(selected!=null && residents.TryGetValue(selected,out var r))r.sleeping=false;}
+        void Resume(){StopFollow();if(selected!=null && residents.TryGetValue(selected,out var r))r.manualRestUntil=0;}
         void LateUpdate()
         {
             if(!following || cameraView==null)return;
@@ -410,9 +569,31 @@ namespace Dravio
             var option=options.FirstOrDefault(o=>o.HabitatId==travelHabitat);
             travel.text=option==null?"—":option.HabitatId+" · "+option.Score+"/100\n"+
                 (option.Blocked.HasValue?option.Blocked.Value.ToWire():(vi?"Có thể chuyển":"Available"));
-            status.text=vi?messageVi:messageEn;
+            var traits=BehaviorQueries.Personality(State,d.Uid);
+            var ecology=BehaviorQueries.Ecology(State,d.Uid);
+            if(traits!=null)profile.text+="\n"+(vi?"Năng động / tò mò / ham chơi / dạn dĩ":"Energy / curiosity / play / boldness")+
+                ": "+traits.Traits.Energy+"/"+traits.Traits.Curiosity+"/"+traits.Traits.Playfulness+"/"+traits.Traits.Boldness+
+                "\n"+(vi?"Ưa thích: ":"Favorite: ")+traits.FavoriteDiet+" · "+traits.FavoriteHabitatId;
+            if(ecology?.Habitat!=null)profile.text+="\n"+(vi?"Sinh thái: ":"Ecology: ")+ecology.Habitat.Score+"/100 · "+ecology.Habitat.PrimaryIssueKey+
+                "\n"+string.Join(", ",ecology.Habitat.Factors.Where(f=>f.Relevant && !f.Ok).Select(f=>f.Key+": "+f.Actual+" / "+f.Required))+
+                "\n"+(vi?"Comfort hiện tại: ":"Current comfort: ")+ecology.CurrentComfort+" · "+(vi?"tự đổi: tắt":"drift: off");
+            if(r!=null && r.decision!=null)
+            {
+                status.text=BehaviorLabel(r.decision.Behavior)+" · "+phase;
+                profile.text+="\n"+(vi?"Hành vi: ":"Behavior: ")+BehaviorLabel(r.decision.Behavior)+" · "+r.decision.Reason+
+                    "\n"+(vi?"Trình diễn: ":"Presentation: ")+r.shownIntent+(r.fallback==null?"":" ("+r.fallback+")")+
+                    "\n"+(vi?"Điểm tương tác: ":"Interaction point: ")+(r.point?.id??"—");
+            }
+            else status.text=vi?messageVi:messageEn;
+            profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions;
+            if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
         }
+        string BehaviorLabel(DragonBehavior? b)=>!vi?b?.ToString()??"—":b switch {
+            DragonBehavior.Idle=>"Thư giãn",DragonBehavior.Rest=>"Nghỉ ngơi",DragonBehavior.Sleep=>"Ngủ",
+            DragonBehavior.Explore=>"Khám phá",DragonBehavior.SeekFood=>"Tìm thức ăn",DragonBehavior.Eat=>"Ăn",
+            DragonBehavior.Play=>"Chơi",DragonBehavior.Bask=>"Sưởi ấm",DragonBehavior.Swim=>"Bơi",
+            DragonBehavior.Fly=>"Bay",DragonBehavior.Burrow=>"Đào hang",_=>"—"};
         void RefreshButtons()
         {
             if(!active)return;
@@ -421,7 +602,7 @@ namespace Dravio
             bool ready=Ready;
             feed.interactable=ready && visible && foodId==null;
             pet.interactable=inspect.interactable=rosterInspect.interactable=observe.interactable=ready && visible;
-            sleep.interactable=ready && visible && residents[selected].canSleep;
+            sleep.interactable=ready && visible && residents[selected].canSleep && residents[selected].decision?.Role==BehaviorRole.Presentation && !IsFoodTarget(residents[selected]);
             resume.interactable=ready && (visible || following);
             nextDragon.interactable=ready && State.Dragons.Count(x=>x.Location.Kind!=LocationKind.Released)>1;
             // Eligibility can change on each Domain revision; never calculate gameplay rules here.

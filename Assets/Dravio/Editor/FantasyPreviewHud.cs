@@ -134,7 +134,7 @@ namespace Dravio.Editor
             var feed=Button(ui,row1,"Feed","Cho ăn",56);
             var pet=Button(ui,row1,"Pet","Vuốt ve",56);
             var row2=ActionRow(care);
-            var sleep=Button(ui,row2,"Doze / wake","Ngủ / thức",56);
+            var sleep=Button(ui,row2,playable?"Doze / auto":"Doze / wake",playable?"Nghỉ / tự động":"Ngủ / thức",56);
             var inspect=Button(ui,row2,"Inspect","Quan sát",56);
             var resume=Button(ui,care,"Resume exploring","Tiếp tục khám phá",52);
             Label(ui,care,playable?"Tap a dragon or select it in Dragons. Inspect follows the selected model.":"Drag to rotate in inspection. F / P / N / Space / R on keyboard.",playable?"Chạm vào rồng hoặc chọn trong danh sách Rồng. Quan sát sẽ theo dõi cá thể.":"Kéo để xoay khi quan sát. Bàn phím: F / P / N / Space / R.",14,Muted,TextAnchor.MiddleLeft,64);
@@ -167,7 +167,7 @@ namespace Dravio.Editor
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
-                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,190,false);
+                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,420,false);
                 nextDragon=Button(ui,roster,"Next dragon","Rồng tiếp theo",46);
                 observeDragon=Button(ui,roster,"Record species observation","Ghi nhận hồ sơ loài",46);
                 livingTravel=Label(ui,roster,"—","—",14,Muted,TextAnchor.UpperLeft,80,false);

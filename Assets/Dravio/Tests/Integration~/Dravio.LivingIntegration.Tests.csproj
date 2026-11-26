@@ -12,6 +12,8 @@
   <ItemGroup>
     <Compile Include="../../Domain/**/*.cs" />
     <Compile Include="../../Scripts/LivingResidentPolicy.cs" />
+    <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
+    <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
