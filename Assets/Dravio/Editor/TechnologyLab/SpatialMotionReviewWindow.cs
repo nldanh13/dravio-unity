@@ -32,7 +32,8 @@ namespace Dravio.EditorTools
         RouteResult route;
         NavigationMedium medium;
         DragonLocomotion locomotion;
-        int entryIndex,habitatIndex,startIndex,goalIndex=1,waypoint,lastFrame=-1,sceneHandle;
+        int entryIndex,habitatIndex,startIndex,goalIndex=1,waypoint,lastFrame=-1;
+        SceneHandle sceneHandle;
         bool running,consent;
         float speed,turnLimit,travelled;
         Vector3 position;
