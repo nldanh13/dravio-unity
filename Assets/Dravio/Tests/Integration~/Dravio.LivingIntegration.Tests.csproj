@@ -35,6 +35,8 @@
     <Compile Include="CreatureTechniqueLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/RigContactCapture.cs" />
     <Compile Include="RigContactCaptureTests.cs" />
+    <Compile Include="../../Scripts/Navigation/ExperimentalGroundRouteFallback.cs" />
+    <Compile Include="ExperimentalGroundRouteFallbackTests.cs" />
     <None Include="../../Environment/Data/OriginSanctuaryLocations.json" Link="LabMaps/OriginSanctuaryLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../Environment/Zones/Ocean/Data/OceanLocations.json" Link="LabMaps/OceanLocations.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../Environment/Zones/Sky/Data/SkyLocations.json" Link="LabMaps/SkyLocations.json" CopyToOutputDirectory="PreserveNewest" />

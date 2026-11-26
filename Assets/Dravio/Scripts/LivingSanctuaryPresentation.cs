@@ -83,7 +83,10 @@ namespace Dravio
         int plannedRoutes,failedRoutes;
 #if UNITY_EDITOR
         ControllerFrameTrace controllerTrace;
-        int traceAttempts,traceArrivals,traceBlocked;
+        [Tooltip("TL.13 editor-only fallback after the original ground A* fails. Off by default.")]
+        [SerializeField] bool experimentalAdaptiveGroundRouting;
+        int traceAttempts,traceArrivals,traceBlocked,adaptiveAttempts,adaptiveRescues;
+        bool traceAdaptiveMode;
 #endif
         [SerializeField] bool drawSelectedRoute=true;
         EnvironmentInteractions interactions;
@@ -201,6 +204,16 @@ namespace Dravio
             // Dynamic residents are obstacles at plan time; final step rechecks current positions.
             r.route=navigation.Plan(r.position,goal,r.habitat,NavigationMedium.Ground,
                 point=>Separated(point,r.uid));
+#if UNITY_EDITOR
+            if(experimentalAdaptiveGroundRouting && !r.route.Success)
+            {
+                var fallback=ExperimentalGroundRouteFallback.Try(SanctuaryNavigationSurface.Point(r.position),
+                    SanctuaryNavigationSurface.Point(goal),r.route,
+                    point=>ClearPoint(SanctuaryNavigationSurface.Vector(point),r.habitat,r.uid));
+                adaptiveAttempts+=fallback.Attempts;
+                if(fallback.Rescued){adaptiveRescues++;r.route=fallback.Path;}
+            }
+#endif
             r.routeIndex=0;r.routeState=r.route.Status.ToString();
             r.routeFailed=!r.route.Success;
             if(r.routeFailed){failedRoutes++;r.retryAt=Time.unscaledTime+1f;return false;}
@@ -540,9 +553,12 @@ namespace Dravio
             RefreshDecisions();
             float dt=Mathf.Min(Time.deltaTime,.1f);
 #if UNITY_EDITOR
+            if(controllerTrace!=null && controllerTrace.Recording && traceAdaptiveMode!=experimentalAdaptiveGroundRouting)
+            {controllerTrace.Stop();Debug.LogWarning("TL.13 route mode changed; trace stopped to preserve A/B comparability.");}
             bool tracing=controllerTrace!=null && controllerTrace.Recording;
             long traceStart=tracing?System.Diagnostics.Stopwatch.GetTimestamp():0L;
             int tracePlansBefore=plannedRoutes,traceFailsBefore=failedRoutes,traceMoving=0;
+            int traceAdaptiveBefore=adaptiveAttempts,traceRescueBefore=adaptiveRescues;
             traceAttempts=traceArrivals=traceBlocked=0;
 #endif
             frames.Clear();
@@ -573,7 +589,8 @@ namespace Dravio
                 controllerTrace.Add(new ControllerFrameSample(dt,frames.Count,traceMoving,traceAttempts,traceArrivals,
                     traceBlocked,plannedRoutes-tracePlansBefore,failedRoutes-traceFailsBefore,
                     report.substituted,float.IsInfinity(min)?-1:min,
-                    (traceSyncStart-traceStart)*scale,(traceEnd-traceSyncStart)*scale));
+                    (traceSyncStart-traceStart)*scale,(traceEnd-traceSyncStart)*scale,
+                    adaptiveAttempts-traceAdaptiveBefore,adaptiveRescues-traceRescueBefore));
             }
 #endif
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
@@ -587,8 +604,9 @@ namespace Dravio
         void StartControllerTrace()
         {
             if(!Application.isPlaying){Debug.LogWarning("Controller trace requires Play Mode.");return;}
+            traceAdaptiveMode=experimentalAdaptiveGroundRouting;
             controllerTrace=new ControllerFrameTrace(1200);
-            Debug.Log("Dravio TL.10: recording up to 1200 ready controller frames. Stop/export before leaving Play Mode.");
+            Debug.Log("Dravio TL.10: recording up to 1200 ready controller frames; adaptive="+traceAdaptiveMode+". Stop/export before leaving Play Mode.");
         }
         [ContextMenu("Technology Lab/Stop and report trace")]
         void StopControllerTrace()
@@ -602,7 +620,7 @@ namespace Dravio
             if(controllerTrace==null || controllerTrace.Count==0){Debug.LogWarning("No controller trace.");return;}
             controllerTrace.Stop();
             string path=UnityEditor.EditorUtility.SaveFilePanel("Export controller trace","",
-                "dravio-controller-trace","csv");
+                "dravio-controller-trace-"+(traceAdaptiveMode?"adaptive":"baseline"),"csv");
             if(!string.IsNullOrEmpty(path))System.IO.File.WriteAllText(path,controllerTrace.Csv());
             Debug.Log(controllerTrace.Summary());
         }
