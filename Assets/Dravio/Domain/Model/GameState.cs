@@ -258,6 +258,12 @@ namespace Dravio.Domain
         public int SanctuaryProjectsBuilt { get; set; }
         /// <summary>(research) U2.10 R1–R11: sổ nghiên cứu (tập tính, pha, sinh cảnh theo loài; tiến trình cá thể). Schema v9.</summary>
         public Behavior.ResearchLog Research { get; set; } = new Behavior.ResearchLog();
+        /// <summary>(completedSideQuests) U2.11: nhiệm vụ phụ đã nhận hoàn thành, thứ tự catalog. Nhiệm vụ cổng vẫn nằm ở <see cref="CompletedQuests"/>. Schema v10.</summary>
+        public List<string> CompletedSideQuests { get; set; } = new List<string>();
+        /// <summary>(expeditionsClaimed) U2.11: số chuyến thám hiểm đã nhận theo tuyến (mốc thưởng khám phá). Schema v10.</summary>
+        public SortedDictionary<string, int> ExpeditionsClaimed { get; set; } = new SortedDictionary<string, int>(System.StringComparer.Ordinal);
+        /// <summary>(relations) U2.11: thời gian sống chung theo cặp rồng (độ quen, chỉ trình diễn). Schema v10.</summary>
+        public Behavior.RelationLog Relations { get; set; } = new Behavior.RelationLog();
 
         /// <summary>Bản sao sâu. Dispatch làm việc trên bản sao để lệnh bị từ chối không đổi state gốc.</summary>
         public GameState DeepClone()
@@ -286,6 +292,9 @@ namespace Dravio.Domain
             c.Hazard = Hazard?.Clone();
             c.PackDaily = PackDaily?.Clone();
             c.Research = Research?.Clone();
+            c.CompletedSideQuests = CompletedSideQuests == null ? null : new List<string>(CompletedSideQuests);
+            c.ExpeditionsClaimed = ExpeditionsClaimed == null ? null : new SortedDictionary<string, int>(ExpeditionsClaimed, System.StringComparer.Ordinal);
+            c.Relations = Relations?.Clone();
             return c;
         }
 

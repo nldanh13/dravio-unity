@@ -10,9 +10,9 @@ namespace Dravio.Domain.Catalog
         /// <summary>
         /// Dravio Save Schema của bản Unity: 7. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
         /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
-        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition; v8 (U2.6) thêm vitals, healthCases, disasters, hazard; v9 (U2.10, ADR 0204) thêm packDaily, sanctuaryProjectsBuilt, research. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
+        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition; v8 (U2.6) thêm vitals, healthCases, disasters, hazard; v9 (U2.10, ADR 0204) thêm packDaily, sanctuaryProjectsBuilt, research; v10 (U2.11, ADR 0206) thêm completedSideQuests, expeditionsClaimed, relations. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 9;
+        public const int SchemaVersion = 10;
 
         /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
         public const int TsSchemaVersion = 4;

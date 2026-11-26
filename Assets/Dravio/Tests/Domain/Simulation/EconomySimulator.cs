@@ -37,7 +37,7 @@ namespace Dravio.Domain.Tests.Simulation
         Breeder,
         /// <summary>
         /// U2.10 — nghiên cứu: như Relaxed + cho ăn mỗi phiên, xem hồ sơ mọi loài, quan sát mọi rồng mỗi 30 s (ResearchPacing.ProposedU210),
-        /// thám hiểm tuyến mở bằng rồng Adult không sinh vàng; THỬ NGHIỆM hoàn thành nhiệm vụ cổng theo đề xuất ADR 0204 rồi gửi unlockZone thật.
+        /// thám hiểm tuyến mở bằng rồng Adult không sinh vàng; U2.11: nhận nhiệm vụ bằng lệnh completeQuest thật rồi gửi unlockZone thật.
         /// </summary>
         Researcher,
     }
@@ -56,7 +56,8 @@ namespace Dravio.Domain.Tests.Simulation
         public bool BuyUpgrades;
         /// <summary>E5: người chơi xây dự án Sanctuary (lệnh thật) khi số dư ≥ 1,2 × giá và đủ gỗ, hạt giống.</summary>
         public bool BuildProjects;
-        /// <summary>Relaxed / Collector / Breeder cũng gửi thám hiểm (để có gỗ, hạt cho dự án). Researcher luôn gửi.</summary>
+        /// <summary>Relaxed / Collector / Breeder cũng gửi thám hiểm (để có gỗ, hạt cho dự án). Researcher luôn gửi.
+        /// U2.11: khi đó họ cũng nhận nhiệm vụ đủ yêu cầu (đầu phiên và mỗi 10 phút) và mở thế giới khi đủ điều kiện.</summary>
         public bool RunExpeditions;
         /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
         public ResearchPacing Pacing;
@@ -81,6 +82,17 @@ namespace Dravio.Domain.Tests.Simulation
         /// <summary>Gỗ + hạt giống đã dùng cho dự án Sanctuary.</summary>
         public long ProjectMaterials;
         public int Profiled, LifeCycle, Ethology, IndividualsKnown, ZonesUnlocked, Observations;
+        // U2.11
+        /// <summary>Nhiệm vụ đã nhận (cổng + phụ) qua lệnh completeQuest thật.</summary>
+        public int QuestsCompleted;
+        /// <summary>Vật liệu đã giao cho nhiệm vụ.</summary>
+        public long QuestMaterials;
+        /// <summary>Vật liệu thưởng từ mốc thám hiểm.</summary>
+        public long MilestoneMaterials;
+        public int ExpeditionsClaimed;
+        /// <summary>Số cặp rồng (chưa thả) ở bậc Friend trở lên.</summary>
+        public int FriendPairs;
+        public int TitlesEarned;
     }
 
     public sealed class RunResult
@@ -90,6 +102,8 @@ namespace Dravio.Domain.Tests.Simulation
         public Dictionary<string, double?> FirstAffordHours = new Dictionary<string, double?>();
         /// <summary>U2.10: giờ mở Thủy Vực / Thiên Giới (chỉ Researcher, theo đề xuất nhiệm vụ); null nếu chưa.</summary>
         public Dictionary<string, double?> ZoneUnlockHours = new Dictionary<string, double?> { ["ocean"] = null, ["sky"] = null };
+        /// <summary>U2.11: giờ nhận từng nhiệm vụ (lệnh completeQuest thật).</summary>
+        public Dictionary<string, double> QuestHours = new Dictionary<string, double>();
     }
 
     /// <summary>
@@ -117,6 +131,9 @@ namespace Dravio.Domain.Tests.Simulation
         private long _spentUpgrades, _projectsG, _lastOnlineMs;
         private int _projects;
         private long _projectMaterials;
+        private long _questMaterials, _milestoneMaterials;
+        private int _questsDone;
+        private long _tickInSession;
         private bool _upgradedThisSession;
         /// <summary>Rồng Researcher đặt có chủ đích (sinh cảnh thế giới mới, rồng biết bay); ArrangeProducers không đổi chỗ chúng.</summary>
         private readonly HashSet<string> _pinned = new HashSet<string>();
@@ -162,6 +179,14 @@ namespace Dravio.Domain.Tests.Simulation
                     if (e is AchievementUnlocked a) _rewards += a.RewardGoldMicro;
                     if (e is UpgradeBought ub) _spentUpgrades += ub.CostGoldMicro;
                     if (e is SanctuaryProjectBuilt sp) { _projectsG += sp.CostGoldMicro; _projects++; _materialsSpent += 2L * sp.MaterialEach; _projectMaterials += 2L * sp.MaterialEach; }
+                    if (e is QuestRewarded qr)
+                    {
+                        _questsDone++;
+                        long m = qr.Delivered.Sum(kv => (long)kv.Value);
+                        _questMaterials += m; _materialsSpent += m;
+                        _result.QuestHours[qr.QuestId] = (_now - Start) / 3_600_000.0;
+                    }
+                    if (e is ExplorationMilestoneReached em) _milestoneMaterials += em.Bonus.Sum(kv => (long)kv.Value);
                     if (e is DragonHatched dh && !dh.Tutorial && r.State.FindDragon(dh.DragonUid)?.Origin == DragonOrigin.Breed) _bred++;
                 }
                 _s = r.State;
@@ -193,11 +218,12 @@ namespace Dravio.Domain.Tests.Simulation
                     if (marks.Count == 0) return _result;
                     Settle(sessionStart, AdvanceMode.Offline);
                     if (first) { Onboarding(); first = false; }
-                    _boughtThisSession = false; _fedThisSession = false; _upgradedThisSession = false; _sessions++;
+                    _boughtThisSession = false; _fedThisSession = false; _upgradedThisSession = false; _sessions++; _tickInSession = 0;
                     for (_now = sessionStart; _now < sessionEnd; _now += 30_000)
                     {
                         Do(new AdvanceTimeCommand(Rid(), AdvanceMode.Online));
                         Act();
+                        _tickInSession++;
                         TrackAfford();
                         foreach (double h in marks.ToList())
                             if (Start + (long)(h * 3_600_000) <= _now) { Mark(h); marks.Remove(h); }
@@ -242,6 +268,9 @@ namespace Dravio.Domain.Tests.Simulation
                 MaterialsHeld = _s.Player.Inventory.Values.Sum(), ZonesUnlocked = _s.Zones.Count(z => z.Unlocked),
                 SpentUpgradesG = _spentUpgrades / 1_000_000, ProjectsG = _projectsG / 1_000_000, Projects = _projects, ProjectMaterials = _projectMaterials,
                 UpgradeLevels = EconomyTables.Upgrades.Sum(u => u.LevelOf(_s.Player.Upgrades)),
+                QuestsCompleted = _questsDone, QuestMaterials = _questMaterials, MilestoneMaterials = _milestoneMaterials,
+                ExpeditionsClaimed = _s.ExpeditionsClaimed.Values.Sum(), TitlesEarned = Exploration.Titles(_s).Count(t => t.Earned),
+                FriendPairs = FriendPairs(),
             };
             if (_policy == Policy.Researcher)
             {
@@ -251,6 +280,16 @@ namespace Dravio.Domain.Tests.Simulation
                 sn.IndividualsKnown = _s.Dragons.Count(d => d.Location.Kind != LocationKind.Released &&
                     ResearchProgress.Individual(_s, d.Uid, Research, Pacing)?.RevealedTraits.Count == 4);
             }
+        }
+
+        private int FriendPairs()
+        {
+            var kept = _s.Dragons.Where(d => d.Location.Kind != LocationKind.Released).ToList();
+            int n = 0;
+            for (int i = 0; i < kept.Count; i++)
+                for (int j = i + 1; j < kept.Count; j++)
+                    if (SocialEcology.Relation(_s, kept[i], kept[j]).Tier >= RelationTier.Friend) n++;
+            return n;
         }
 
         /// <summary>Hướng dẫn rút gọn: xem hồ sơ, mở đá ấm và bờ hồ (miễn phí), bỏ qua tutorial; Idle cũng làm (không tốn vàng).</summary>
@@ -330,7 +369,7 @@ namespace Dravio.Domain.Tests.Simulation
                     if (!_s.Tutorial.StarterPackUsed && _s.Player.Gold >= MicroGold.FromWholeGold(100)) Do(new BuyTutorialPackCommand(Rid()));
                     else if (!_boughtThisSession && BuyBestPack()) _boughtThisSession = true;
                     TryBreed(cheapest: false);
-                    if (_variant.RunExpeditions) RunExpedition();
+                    if (_variant.RunExpeditions) { RunExpedition(); if (_tickInSession % 20 == 0) ResearchQuests(); }
                     break;
                 case Policy.StarterTrader:
                     if (_s.PendingPack == null && CanAfford(StarterPriceG) && StarterAllowedToday()) Do(new BuyPackCommand(Rid(), "starter"));
@@ -343,13 +382,13 @@ namespace Dravio.Domain.Tests.Simulation
                     break;
                 case Policy.Relaxed:
                     DailyPack();
-                    if (_variant.RunExpeditions) RunExpedition();
+                    if (_variant.RunExpeditions) { RunExpedition(); if (_tickInSession % 20 == 0) ResearchQuests(); }
                     break;
                 case Policy.Breeder:
                     DailyPack();
                     TryBreed(cheapest: false);
                     if (_s.BreedingNest != null && _s.BreedingNest.Status == EggStatus.Incubating) Do(new TapEggCommand(Rid()));
-                    if (_variant.RunExpeditions) RunExpedition();
+                    if (_variant.RunExpeditions) { RunExpedition(); if (_tickInSession % 20 == 0) ResearchQuests(); }
                     break;
                 case Policy.Researcher:
                     DailyPack();
@@ -454,8 +493,7 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         /// <summary>
-        /// Researcher: hồ sơ, cho ăn, quan sát, thám hiểm, và (THỬ NGHIỆM) hoàn thành nhiệm vụ cổng khi đề xuất báo đủ — trừ vật liệu trực tiếp
-        /// (chưa có lệnh), ghi nhiệm vụ qua hàm engine canonical WorldExpansion.ApplyQuestComplete, rồi mở thế giới bằng lệnh unlockZone thật.
+        /// Researcher: hồ sơ, cho ăn, quan sát, thám hiểm, nhận nhiệm vụ (lệnh completeQuest thật, U2.11) rồi mở thế giới bằng lệnh unlockZone thật.
         /// </summary>
         private void ResearchActions()
         {
@@ -487,7 +525,7 @@ namespace Dravio.Domain.Tests.Simulation
             Research.PruneIndividuals(_s);
 
             RunExpedition();
-            ResearchQuests();
+            if (_tickInSession % 20 == 0) ResearchQuests();
         }
 
         /// <summary>Thám hiểm: rồng Adult không sinh vàng (trong kho), tuyến mở có bảng thưởng; nhận khi xong.</summary>
@@ -514,17 +552,13 @@ namespace Dravio.Domain.Tests.Simulation
         private void ResearchQuests()
         {
 
-            // THỬ NGHIỆM nhiệm vụ cổng (ADR 0204 Q1). Không phải luật production.
-            foreach (QuestStatusView q in QuestProposals.Evaluate(_s, Research, Pacing, QuestRules.ProposedForReview).Where(v => v.IsCanonicalGate && v.CanComplete).ToList())
+            // U2.11: lệnh completeQuest THẬT. Người chơi nhận mọi nhiệm vụ đủ yêu cầu; nhiệm vụ cổng trước (catalog đã xếp cổng trước nhiệm vụ cùng thế giới).
+            // Lặp vì nhận một nhiệm vụ có thể mở tiền đề của nhiệm vụ khác.
+            for (int pass = 0; pass < 4; pass++)
             {
-                GameState w = _s.DeepClone();
-                foreach (QuestRequirementStatus r in q.Requirements.Where(r => r.Def.Kind == QuestRequirementKind.MaterialDelivery))
-                {
-                    w.Player.Inventory[r.Def.Param] -= r.Def.Target;
-                    _materialsSpent += r.Def.Target;
-                }
-                WorldExpansion.ApplyQuestComplete(w, q.QuestId, null);
-                _s = w;
+                List<QuestStatusView> ready = QuestProposals.Evaluate(_s, Research, Pacing).Where(v => v.CanComplete).ToList();
+                if (ready.Count == 0) break;
+                foreach (QuestStatusView q in ready.OrderBy(v => v.IsCanonicalGate ? 0 : 1)) Do(new CompleteQuestCommand(Rid(), q.QuestId));
             }
             foreach (ZoneUnlockRule rule in WorldUnlockCatalog.Rules)
                 if (_s.FindZone(rule.ZoneId)?.Unlocked == false && WorldExpansion.MissingRequirements(_s, rule.ZoneId).Count == 0 &&

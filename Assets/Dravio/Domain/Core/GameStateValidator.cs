@@ -402,6 +402,7 @@ namespace Dravio.Domain.Core
 
             if (s.SchemaVersion >= 8) ValidateHealth(s, errors);
             if (s.SchemaVersion >= 9) ValidateU210(s, errors);
+            if (s.SchemaVersion >= 10) ValidateU211(s, errors);
 
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
@@ -414,6 +415,19 @@ namespace Dravio.Domain.Core
         /// U2.6 (schema v8): chỉ số, ca chăm sóc, thiên tai. Chặn sửa tay để rút ngắn chăm sóc, nhân ca, vượt trạm 2 chỗ, sản xuất khi đang chăm sóc,
         /// hay một rồng nằm ở hai nơi.
         /// </summary>
+        /// <summary>
+        /// U2.11 (Schema v10): nhiệm vụ phụ (ID catalog, không trùng, không phải cổng), bộ đếm thám hiểm (tuyến canonical, ≥ 0), khối quan hệ.
+        /// Quan hệ không chạm vàng / rồng / vật liệu: mục lạ bị bỏ khi nạp (RelationLog.Sanitize), không bao giờ làm save bị từ chối.
+        /// </summary>
+        private static void ValidateU211(GameState s, List<string> errors)
+        {
+            if (s.CompletedSideQuests == null || !UniqueStrings(s.CompletedSideQuests, Progression.QuestProposals.IsSideQuestId)) errors.Add("completedSideQuests: invalid");
+            if (s.ExpeditionsClaimed == null) errors.Add("expeditionsClaimed: not an object");
+            else foreach (var kv in s.ExpeditionsClaimed)
+                    if (!ExpeditionCatalog.TryGet(kv.Key, out _) || kv.Value < 0) { errors.Add("expeditionsClaimed: invalid"); break; }
+            if (s.Relations == null) errors.Add("relations: not an object");
+        }
+
         /// <summary>U2.10 (Schema v9): bộ đếm Starter, dự án Sanctuary, sổ nghiên cứu (ResearchSchemaDraft.Validate).</summary>
         private static void ValidateU210(GameState s, List<string> errors)
         {

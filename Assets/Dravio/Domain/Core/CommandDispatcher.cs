@@ -69,6 +69,8 @@ namespace Dravio.Domain.Core
 
             // U2.10: sổ nghiên cứu chỉ giữ cá thể còn trong kho.
             ResearchRules210.Prune(working);
+            // U2.11: quan hệ chỉ giữ cặp còn trong kho.
+            if (working.Relations != null && !working.Relations.IsEmpty) working.Relations.Prune(working);
             // Sau mỗi lệnh thành công: thành tựu rồi hướng dẫn, đều đọc state (không đọc thao tác UI).
             BuiltInProgressEvaluator.Instance.Evaluate(working, events);
             if (postEvaluators != null)
@@ -114,6 +116,15 @@ namespace Dravio.Domain.Core
                 // ---- U2.10 (ADR 0204, đã duyệt E5, R9, R11) ----
                 case BuildSanctuaryProjectCommand _: return SettleThen(s, nowMs, events, () => SanctuaryProjects.Check(s), () => SanctuaryProjects.Apply(s, events));
                 case ObserveDragonCommand c: return SettleThen(s, nowMs, events, () => null, () => ResearchRules210.Observe(s, c.DragonUid, c.Phase, nowMs, events));
+                // ---- U2.11 (ADR 0206): nhiệm vụ thật. Quyết toán trước (rồng có thể vừa thành Adult), rồi kiểm và nhận; bị từ chối thì không đổi gì ----
+                case CompleteQuestCommand c:
+                {
+                    if (QuestProposals.Get(c.QuestId) == null) return new DomainError(DomainErrorCode.UnknownQuest);
+                    SettleTime(s, nowMs, AdvanceMode.Online, events);
+                    DomainErrorCode? pre = QuestSystem.Check(s, c.QuestId, out string why);
+                    if (pre != null) return new DomainError(pre.Value, why);
+                    return ToError(QuestSystem.Complete(s, c.QuestId, events));
+                }
                 case StartBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckStartBreed(s, c.ParentA, c.ParentB, nowMs), () => Hatchery.ApplyStartBreed(s, c.ParentA, c.ParentB, nowMs, events));
                 case TapEggCommand _: return SettleThen(s, nowMs, events, () => Hatchery.CheckTap(s, nowMs), () => Hatchery.ApplyTap(s, nowMs, events));
                 case ClaimBreedCommand c: return SettleThen(s, nowMs, events, () => Hatchery.CheckClaimBreed(s, c.Target, nowMs), () => Hatchery.ApplyClaimBreed(s, c.Target, nowMs, events));
@@ -127,7 +138,14 @@ namespace Dravio.Domain.Core
                 case StartExpeditionCommand c: return SettleThen(s, nowMs, events, () => Expeditions.CheckStart(s, c.RouteId, c.DragonUid, out _), () => Expeditions.ApplyStart(s, c.RouteId, c.DragonUid, nowMs, events));
                 // Mở thế giới không đổi vị trí rồng nên không cần quyết toán thời gian.
                 case UnlockZoneCommand c: return ToError(WorldExpansion.ApplyZoneUnlockCommand(s, c.ZoneId, nowMs, events));
-                case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () => Expeditions.ApplyClaim(s, nowMs, events));
+                // U2.11: sau khi cộng vật liệu, đếm chuyến theo tuyến và trao mốc thưởng thám hiểm (một lần).
+                case ClaimExpeditionCommand _: return SettleThen(s, nowMs, events, () => Expeditions.CheckClaim(s, nowMs), () =>
+                {
+                    string route = s.Expedition?.RouteId;
+                    DomainErrorCode? e = Expeditions.ApplyClaim(s, nowMs, events);
+                    if (e == null && route != null) Exploration.OnClaimed(s, route, events);
+                    return e;
+                });
                 case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));
                 // ---- U2.6 (implementation mới): trú ẩn và chăm sóc — kiểm, quyết toán online tới now (tiến trình ca, sản xuất), rồi áp dụng ----
                 case MoveToShelterCommand c: return MoveOrProduction(s, c.DragonUid, nowMs, events, d => DisasterEngine.CheckMoveToShelter(s, d), d => DisasterEngine.ApplyMoveToShelter(s, d, events));
@@ -225,6 +243,8 @@ namespace Dravio.Domain.Core
             long gold = 0;
             var matured = new List<string>();
             long fromMs = s.Clock.LastProcessedAtMs;
+            // U2.11: độ quen theo thời gian sống chung (chỉ trình diễn), tính theo vị trí trước khi đổi chỗ — không ảnh hưởng vàng / XP.
+            s.Relations?.Accrue(s, elapsedMs);
             // U2.5: tổ ấp xong trong khoảng này thì bố mẹ (đang "breeding", không sản xuất) được giải phóng đúng tại finishAtMs:
             // phần trước mốc không sản xuất, phần sau mốc sản xuất theo vị trí. Thời gian mô phỏng có thể bị chặn 24 h nên mốc
             // được kẹp vào [0, elapsedMs].

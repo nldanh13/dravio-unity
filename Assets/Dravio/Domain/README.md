@@ -189,7 +189,7 @@ Hướng dẫn tích hợp đầy đủ (chữ ký API, DTO, ví dụ, mã lỗi
   - Chuyển chỗ quyết toán sản xuất đúng tại thời điểm chuyển (đã có từ U2.3).
 - **Mở thế giới** (ADR 0201), lệnh `unlockZone(zoneId)`:
   - Thủy Vực cần hướng dẫn hoàn tất, đủ 3 sinh cảnh Khởi Nguyên và nhiệm vụ `QUEST_AQUATIC_EXPLORATION`. Thiên Giới cần Thủy Vực và `QUEST_SKY_EXPLORATION`. Không có điều kiện vàng hay cấp độ.
-  - Nội dung nhiệm vụ là TBD, nên save mới vẫn khóa cả hai thế giới. `WorldExpansion.ApplyQuestComplete` là hàm engine cho hệ nhiệm vụ sau này.
+  - Nội dung nhiệm vụ là TBD, nên save mới vẫn khóa cả hai thế giới. `WorldExpansion.ApplyQuestComplete` là hàm engine cho hệ nhiệm vụ. Từ U2.11 (ADR 0206) lệnh `completeQuest` gọi hàm này cho nhiệm vụ cổng; xem `Docs/u2.11/WORLD_PROGRESSION.md`.
   - Khi mở: mở zone cùng mọi microhabitat; trao một lần trứng Droplet/Zephyr cố định, Normal, không tính pity. Kho đầy hoặc đang có trứng chờ → trứng nằm trong `rewardQueue`, giao sau lệnh thành công đầu tiên có chỗ.
 - **Thám hiểm** (GDD tr. 22):
 

@@ -104,6 +104,11 @@ namespace Dravio.Domain.Core
         [WireName("not-enough-materials")] NotEnoughMaterials,
         [WireName("not-observable")] NotObservable,
         [WireName("observation-cooldown")] ObservationCooldown,
+        // ---- U2.11: nhiệm vụ (ADR 0206) ----
+        [WireName("unknown-quest")] UnknownQuest,
+        [WireName("quest-locked")] QuestLocked,
+        [WireName("quest-not-ready")] QuestNotReady,
+        [WireName("quest-completed")] QuestAlreadyCompleted,
     }
 
     /// <summary>Lỗi nghiệp vụ trả về từ dispatch. Không phải exception: lệnh bị từ chối là luồng bình thường.</summary>

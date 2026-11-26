@@ -216,8 +216,9 @@ namespace Dravio.Domain.Tests
         public void Production_rule_flags_show_recording_on_and_everything_unapproved_still_off()
         {
             RuleFlagsDto f = ProgressionQueries.Rules();
-            Assert.That((f.ResearchRecordingEnabled, f.NightJournalEnabled), Is.EqualTo((true, true)));
-            Assert.That(f.ResearchPacingEnabled || f.SocialGameplayEffectsEnabled || f.QuestCompletionEnabled || f.ComfortDriftEnabled || f.NaturalDisastersEnabled || f.EnergyDrainEnabled, Is.False);
+            // U2.11: hoàn thành nhiệm vụ chạy thật (ADR 0206).
+            Assert.That((f.ResearchRecordingEnabled, f.NightJournalEnabled, f.QuestCompletionEnabled), Is.EqualTo((true, true, true)));
+            Assert.That(f.ResearchPacingEnabled || f.SocialGameplayEffectsEnabled || f.ComfortDriftEnabled || f.NaturalDisastersEnabled || f.EnergyDrainEnabled, Is.False);
         }
     }
 }
