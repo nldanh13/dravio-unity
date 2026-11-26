@@ -2,6 +2,7 @@ using System.Linq;
 using Dravio.Domain;
 using Dravio.Domain.Catalog;
 using Dravio.Domain.Core;
+using Dravio.Domain.Progression;
 using Dravio.Domain.Queries;
 using NUnit.Framework;
 
@@ -50,7 +51,11 @@ namespace Dravio.Tests
             var claim=new ClaimExpeditionCommand("claim");
             var result=CommandDispatcher.Dispatch(s,claim,clock);
             Assert.That(result.Ok,Is.True,result.Error?.ToString());s=result.State;
-            foreach(var kv in rewards)Assert.That(s.Player.Inventory[kv.Key],Is.EqualTo(before[kv.Key]+kv.Value));
+            // U2.11 (ADR 0206): chuyến rừng đầu tiên đạt mốc 1, cộng thêm thưởng mốc đúng một lần.
+            var milestone=result.Events.OfType<ExplorationMilestoneReached>().ToArray();
+            Assert.That(milestone.Select(e=>e.Claims),Is.EqualTo(new[]{1}));
+            var bonus=milestone.SelectMany(e=>e.Bonus).ToDictionary(b=>b.Key,b=>b.Value);
+            foreach(var kv in rewards)Assert.That(s.Player.Inventory[kv.Key],Is.EqualTo(before[kv.Key]+kv.Value+(bonus.TryGetValue(kv.Key,out var extra)?extra:0)));
             Assert.That(ExpeditionPresentation.CanClaim(s),Is.False);
             var dup=CommandDispatcher.Dispatch(s,claim,clock);
             Assert.That(dup.Duplicate,Is.True);Assert.That(dup.State.Player.Inventory.Values.Sum(),Is.EqualTo(s.Player.Inventory.Values.Sum()));
