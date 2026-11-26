@@ -172,7 +172,7 @@ namespace Dravio
             if(id=="origin-habitats")return vi?"Mở đủ sinh cảnh Khởi Nguyên":"Unlock all Origin habitats";
             if(id.StartsWith("zone:",StringComparison.Ordinal))return (vi?"Mở ":"Unlock ")+ZoneName(id.Substring(5),vi);
             if(id.StartsWith("quest:",StringComparison.Ordinal))return (vi?"Nhận nhiệm vụ: ":"Claim quest: ")+QuestName(id.Substring(6),vi);
-            if(id=="route-rewards-undefined")return vi?"Chưa duyệt bảng thưởng tuyến":"Route reward table not approved";
+            if(id=="route-rewards-undefined")return vi?"Tuyến chưa có bảng thưởng hoạt động":"Route reward table unavailable";
             return id;
         }
         // Return a claim or an exact zone ID, never both. Domain is the only eligibility authority.

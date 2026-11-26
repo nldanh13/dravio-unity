@@ -377,8 +377,12 @@ namespace Dravio
         public void UnlockSky(){if(persistentMode)GuideCommand(id=>new UnlockZoneCommand(id,"sky"),"Sky unlocked.","Đã mở Thiên Giới.");}
         public void ClaimExpeditionReward()
         {
-            if(persistentMode && CanSend && ExpeditionPresentation.CanClaim(state))
-                GuideCommand(id=>new ClaimExpeditionCommand(id),"Expedition reward claimed.","Đã nhận thưởng thám hiểm.");
+            if(!persistentMode||!CanSend||!ExpeditionPresentation.CanClaim(state))return;
+            var events=Send(id=>new ClaimExpeditionCommand(id));
+            if(events==null)return;
+            bool saveError=Session.SaveError;
+            SetMessage(ExpeditionPresentation.ClaimFeedback(events,false,saveError),
+                ExpeditionPresentation.ClaimFeedback(events,true,saveError));
         }
         public void NextExpeditionRoute()
         {
@@ -414,19 +418,21 @@ namespace Dravio
             if(expeditionRouteId==null)expeditionRouteId=options.FirstOrDefault()?.RouteId;
             var route=options.FirstOrDefault(r=>r.RouteId==expeditionRouteId);
             if(route==null){expeditionRouteText.text=expeditionDragonText.text="—";nextExpeditionRoute.interactable=ready&&options.Count>0;return;}
-            if(expeditionDragonUid==null)expeditionDragonUid=route.Candidates.FirstOrDefault()?.DragonUid;
+            if(!route.Candidates.Any(c=>c.DragonUid==expeditionDragonUid))
+                expeditionDragonUid=route.Candidates.FirstOrDefault()?.DragonUid;
             var dragon=state.FindDragon(expeditionDragonUid);
             var candidate=route.Candidates.FirstOrDefault(c=>c.DragonUid==expeditionDragonUid);
             bool eligible=ExpeditionPresentation.CanStart(state,route.RouteId,expeditionDragonUid,out string reason);
             var progress=ProgressionQueries.ExplorationRoutes(state).FirstOrDefault(x=>x.RouteId==route.RouteId);
-            expeditionRouteText.text=(vi?route.NameVi:route.RouteId)+" · "+ZoneName(route.ZoneId)+
+            expeditionRouteText.text=ExpeditionPresentation.RouteName(route.RouteId,vi)+" · "+ZoneName(route.ZoneId)+
                 "\n"+ExpeditionPresentation.Remaining(route.DurationMs)+" · "+route.Requirement+
-                "\n"+(route.Materials.Count==0?(vi?"Bảng thưởng chưa duyệt":"Reward table unavailable"):
+                "\n"+(route.Materials.Count==0?(vi?"Bảng thưởng chưa hoạt động":"Reward table unavailable"):
                     (vi?"Vật liệu có thể nhận: ":"Possible materials: ")+string.Join(", ",route.Materials.Select(x=>ExpeditionPresentation.MaterialName(x,vi)))+" · "+route.MinQty+"–"+route.MaxQty)+
                 "\n"+(route.Blocked.HasValue?ExpeditionPresentation.Reason(route.Blocked.Value.ToWire(),vi):(vi?"Tuyến khả dụng":"Route available"))+
                 "\n"+ExpeditionPresentation.RouteProgress(progress,vi);
             expeditionDragonText.text=(dragon==null||candidate==null?(vi?"Chưa chọn rồng hợp lệ":"No valid dragon selected"):
-                dragon.SpeciesId+" · "+Lifecycle.StageOf(dragon)+"\nUID: "+dragon.Uid)+
+                (string.IsNullOrEmpty(dragon.Nickname)?dragon.SpeciesId:dragon.Nickname)+" · "+
+                ResearchDiscoveryView.StageLabel(Lifecycle.StageOf(dragon),vi)+" #"+dragon.Uid.Substring(0,Math.Min(6,dragon.Uid.Length)))+
                 "\n"+ExpeditionPresentation.Reason(reason,vi);
             nextExpeditionRoute.interactable=ready&&options.Count>1;
             nextExpeditionDragon.interactable=ready&&(route.Candidates.Count>1||(candidate==null&&route.Candidates.Count>0));

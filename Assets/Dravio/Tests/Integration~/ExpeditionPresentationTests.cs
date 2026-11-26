@@ -111,9 +111,19 @@ namespace Dravio.Tests
         {
             var s=New();s.FindZone("ocean").Unlocked=true;s.FindZone("sky").Unlocked=true;
             s.SanctuaryProjectsBuilt=14;
-            var q=ProgressionQueries.SanctuaryEconomy(s,Now);
-            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("Cloud bridge").And.Contain("Fallback material source: Ocean"));
-            Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Not.Contain("stardust"));
+            SanctuaryEconomyDto q;
+            using(SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                q=ProgressionQueries.SanctuaryEconomy(s,Now);
+                Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("Cloud bridge").And.Contain("Fallback material source: Ocean"));
+                Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Not.Contain("stardust"));
+            }
+            using(SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
+            {
+                q=ProgressionQueries.SanctuaryEconomy(s,Now);
+                Assert.That(q.NextProjectMaterialFallback,Is.False);
+                Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Contain("stardust"));
+            }
             s.SanctuaryProjectsBuilt=60;
             q=ProgressionQueries.SanctuaryEconomy(s,Now);
             Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("60/60").And.Contain("All projects completed"));
@@ -122,11 +132,43 @@ namespace Dravio.Tests
         [Test] public void SkyProgressShowsLockedEggMilestoneWithoutClaimPermission()
         {
             var s=New();
-            var sky=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
-            Assert.That(sky.RewardsDefined,Is.False);
-            Assert.That(sky.NextMilestoneAt,Is.EqualTo(15));
-            Assert.That(ExpeditionPresentation.RouteProgress(sky,true),Does.Contain("15").And.Contain("aurorawing").And.Contain("chưa thể đạt"));
-            Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+            using(SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                var sky=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
+                Assert.That(sky.RewardsDefined,Is.False);
+                Assert.That(sky.NextMilestoneAt,Is.EqualTo(15));
+                Assert.That(ExpeditionPresentation.RouteProgress(sky,true),Does.Contain("15").And.Contain("aurorawing").And.Contain("chưa thể đạt"));
+                Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+            }
+        }
+        [Test] public void EnabledSkyTableStillRequiresWorldAndShowsFirstMilestone()
+        {
+            var s=New();
+            using(SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
+            {
+                var route=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
+                Assert.That(route.RewardsDefined,Is.True);
+                Assert.That(route.NextMilestoneAt,Is.EqualTo(1));
+                Assert.That(route.NextMilestoneBonusEach,Is.EqualTo(2));
+                Assert.That(ExpeditionPresentation.RouteProgress(route,false),Does.Contain("Unlock the route world").And.Contain("Milestone bonus per material: +2"));
+                Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+            }
+        }
+        [Test] public void ClaimFeedbackUsesActualEventsAndDoesNotInventRewards()
+        {
+            var s=Adult();var clock=new FixedClock(Now);
+            var start=CommandDispatcher.Dispatch(s,new StartExpeditionCommand("start-feedback","origin_forest",s.Dragons[0].Uid),clock);
+            Assert.That(start.Ok,Is.True);
+            s=start.State;clock.Set(s.Expedition.FinishAtMs);
+            s=CommandDispatcher.Dispatch(s,new AdvanceTimeCommand("settle-feedback",AdvanceMode.Offline),clock).State;
+            var claim=CommandDispatcher.Dispatch(s,new ClaimExpeditionCommand("claim-feedback"),clock);
+            Assert.That(claim.Ok,Is.True);
+            var ev=claim.Events.OfType<ExpeditionClaimed>().Single();
+            var feedback=ExpeditionPresentation.ClaimFeedback(claim.Events,false,true);
+            foreach(var kv in ev.Rewards)Assert.That(feedback,Does.Contain(kv.Key+" +"+kv.Value));
+            Assert.That(feedback,Does.Contain("Reached claim milestone 1").And.Contain("Milestone bonus:").And.Contain("Save failed"));
+            Assert.That(ExpeditionPresentation.ClaimFeedback(System.Array.Empty<DomainEvent>(),false,false),Does.Contain("not confirmed"));
+            Assert.That(ExpeditionPresentation.ClaimFeedback(claim.Events,false,false),Does.Not.Contain("aurorawing"));
         }
         [Test] public void RewardEggMessageDistinguishesDeliveryFromQueue()
         {

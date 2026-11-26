@@ -119,7 +119,7 @@ namespace Dravio
             if(route==null)return "—";
             var lines=new List<string>{(vi?"Chuyến đã nhận thưởng: ":"Claimed expeditions: ")+route.Claimed};
             if(!route.RewardsDefined)
-                lines.Add(vi?"Tuyến chưa được kích hoạt; bảng thưởng chờ duyệt.":"Route disabled; reward table awaiting approval.");
+                lines.Add(vi?"Tuyến chưa được kích hoạt trong phiên bản này.":"Route not enabled in this build.");
             else if(!route.Open)lines.Add(vi?"Cần mở thế giới của tuyến.":"Unlock the route world first.");
             if(route.NextMilestoneAt.HasValue)
             {
@@ -132,6 +132,36 @@ namespace Dravio
                         (!route.RewardsDefined?(vi?" (chưa thể đạt)":" (not yet attainable)"):""));
             }
             else lines.Add(vi?"Đã đạt hết mốc hiện có.":"All current milestones reached.");
+            return string.Join("\n",lines);
+        }
+        public static string RouteName(string id,bool vi)=>id switch
+        {
+            "origin_forest"=>vi?"Rừng Khởi Nguyên":"Origin forest",
+            "ocean_reef"=>vi?"Rạn Thủy Vực":"Ocean reef",
+            "sky_cloud"=>vi?"Sân mây Thiên Giới":"Sky cloud",
+            _=>id??"—"
+        };
+        public static string ClaimFeedback(IReadOnlyList<DomainEvent> events,bool vi,bool saveError)
+        {
+            if(events==null)return "";
+            var claims=events.OfType<ExpeditionClaimed>().ToArray();
+            if(claims.Length!=1)return vi?"Chưa có xác nhận nhận thưởng.":"Reward claim not confirmed.";
+            var lines=new List<string>{vi?"Đã nhận thưởng thám hiểm.":"Expedition reward claimed."};
+            string Materials(IEnumerable<KeyValuePair<string,int>> entries)=>
+                string.Join(", ",entries.Select(k=>MaterialName(k.Key,vi)+" +"+k.Value.ToString(CultureInfo.InvariantCulture)));
+            if(claims[0].Rewards.Count>0)
+                lines.Add((vi?"Vật liệu chuyến đi: ":"Trip materials: ")+Materials(claims[0].Rewards));
+            foreach(var milestone in events.OfType<ExplorationMilestoneReached>())
+            {
+                lines.Add((vi?"Đạt mốc chuyến thứ ":"Reached claim milestone ")+milestone.Claims);
+                if(milestone.Bonus.Count>0)
+                    lines.Add((vi?"Thưởng thêm: ":"Milestone bonus: ")+Materials(milestone.Bonus));
+            }
+            foreach(var egg in events.OfType<RewardEggGranted>())lines.Add(EggGrant(egg,vi));
+            long achievement=events.OfType<AchievementUnlocked>().Sum(x=>x.RewardGoldMicro);
+            if(achievement>0)lines.Add((vi?"Thưởng thành tựu: ":"Achievement reward: ")+
+                (achievement/(decimal)MicroGold.MicroPerGold).ToString("0.##",CultureInfo.InvariantCulture)+" G");
+            if(saveError)lines.Add(vi?"Chưa lưu được tiến trình; kiểm tra bộ nhớ.":"Save failed; check storage.");
             return string.Join("\n",lines);
         }
         public static string EggGrant(RewardEggGranted egg,bool vi)
@@ -148,7 +178,7 @@ namespace Dravio
             string translated=first switch
             {
                 "route-locked"=>vi?"Thế giới chưa mở khóa":"World locked",
-                "route-rewards-undefined"=>vi?"Chưa có bảng thưởng được duyệt":"Reward table unavailable",
+                "route-rewards-undefined"=>vi?"Tuyến chưa có bảng thưởng hoạt động":"Reward table unavailable",
                 "expedition-busy"=>vi?"Đang có chuyến đi hoặc thưởng chờ nhận":"Expedition slot occupied",
                 "dragon-busy"=>vi?"Rồng đang bận hoặc có ca chăm sóc":"Dragon busy or in care",
                 "dragon-unsuited"=>vi?"Rồng chưa trưởng thành hoặc không phù hợp tuyến":"Adult or locomotion requirement not met",
