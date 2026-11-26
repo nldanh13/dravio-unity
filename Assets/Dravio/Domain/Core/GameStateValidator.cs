@@ -401,6 +401,7 @@ namespace Dravio.Domain.Core
             }
 
             if (s.SchemaVersion >= 8) ValidateHealth(s, errors);
+            if (s.SchemaVersion >= 9) ValidateU210(s, errors);
 
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
@@ -413,6 +414,23 @@ namespace Dravio.Domain.Core
         /// U2.6 (schema v8): chỉ số, ca chăm sóc, thiên tai. Chặn sửa tay để rút ngắn chăm sóc, nhân ca, vượt trạm 2 chỗ, sản xuất khi đang chăm sóc,
         /// hay một rồng nằm ở hai nơi.
         /// </summary>
+        /// <summary>U2.10 (Schema v9): bộ đếm Starter, dự án Sanctuary, sổ nghiên cứu (ResearchSchemaDraft.Validate).</summary>
+        private static void ValidateU210(GameState s, List<string> errors)
+        {
+            if (s.PackDaily == null) errors.Add("packDaily: not an object");
+            else
+            {
+                if (s.PackDaily.Day != null && !JsCompat.IsUtcDayPattern(s.PackDaily.Day)) errors.Add("packDaily.day: invalid");
+                // Không so với StarterDailyLimit: nếu sau này đổi giới hạn, save cũ vẫn nạp được (dispatcher tự so số đã mua với giới hạn mới).
+                if (s.PackDaily.StarterBought < 0 || (s.PackDaily.Day == null && s.PackDaily.StarterBought != 0))
+                    errors.Add("packDaily.starterBought: out of range");
+            }
+            if (s.SanctuaryProjectsBuilt < 0 || s.SanctuaryProjectsBuilt > SanctuaryProjectCatalog.Max) errors.Add("sanctuaryProjectsBuilt: out of range");
+            // Sổ nghiên cứu không chạm vàng / rồng / vật liệu: mục lạ bị bỏ khi nạp và khi ghi (ResearchSchemaDraft.Sanitize), KHÔNG bao giờ làm save
+            // bị từ chối. Kiểm chi tiết dùng ResearchSchemaDraft.Validate.
+            if (s.Research == null) errors.Add("research: not an object");
+        }
+
         private static void ValidateHealth(GameState s, List<string> errors)
         {
             if (s.Dragons != null)

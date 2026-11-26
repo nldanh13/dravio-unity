@@ -18,7 +18,7 @@ Số liệu QA hiện chỉ có trên **SAMPLE**, xem `scripts/art/character/rep
 | Eat | — | 60 | mọi loài | care interactions có sẵn |
 | Sleep | có | 120 | mọi loài | care interactions có sẵn |
 | Happy | — | 45 | mọi loài | care interactions có sẵn |
-| Walk, Run | có | 32 / 20 (quadruped) | locomotion có `walk` | canonical `locomotion` |
+| Walk, Run | có | quadruped: theo Froude và chiều cao hông (SAMPLE: 22 / 12, U1-CHAR.7b, [BIOMECHANICS_RESEARCH.md](BIOMECHANICS_RESEARCH.md)); serpentine 40 / 26 | locomotion có `walk` | canonical `locomotion` |
 | Swim | có | 48 | `swim` | canonical |
 | Fly (+ TakeOff, Glide, Land) | có (Glide), không | 32 / 60 / 40 / 40 | `fly` | canonical |
 | Burrow | có | 60 | `burrow` | canonical |

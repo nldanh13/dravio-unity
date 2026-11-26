@@ -54,11 +54,12 @@ Mọi chuyển tiếp đều có hai đầu khớp **chính xác** với clip **
 
 | Môi trường | Nghiêng cánh (bank) | Ngóc/chúi (pitch) | Uốn thân/đuôi khi rẽ |
 |---|---|---|---|
-| Air | ±30° theo tốc độ quay / `maxTurnAir` | ±25° theo góc leo | 30% |
+| Air | vòng nghiêng cân bằng tan φ = V·ω/g, tối đa ±30° (U1-CHAR.7b); không có `speed` thì tuyến tính theo tốc độ quay / `maxTurnAir` như U1-CHAR.7 | ±25° theo góc leo | 30% |
 | Water | — | ±25° theo góc lên/xuống | ±20° |
 | Ground | — | — | 50% |
 
 - Xoay quanh tâm thân trên bone Root: vị trí rồng (do Sanctuary sở hữu) không đổi.
+- **Ổn định đầu (U1-CHAR.7b):** cổ và đầu xoay ngược để bù góc nghiêng, đầu giữ thăng bằng như chim (`headRollStabilisation`, mặc định 1).
 - **Dáng đuôi theo tính cách:** Playful +0,6 (cao), Curious +0,3, Calm 0, Shy −0,6 (cụp).
 - **Vây tai** dựng lên khi Curious, Greet hoặc LookAround.
 - Chỉ chạy cho rồng gần, cập nhật đủ nhịp.
@@ -74,8 +75,8 @@ Có trong `rig.json` ▸ `motion`, `*_animqa.json` ▸ `motionEnvelope`, và cat
 | flightSpan, flightVerticalExtent | sải cánh và chiều cao khi bay: khoảng không tối thiểu cần trống |
 | groundHeight / Length / Width | khoảng chiếm chỗ trên cạn |
 | takeOffRootOffset, landRootOffset | độ cao root so với tư thế Fly ở cuối TakeOff / đầu Land |
-| Swim, SwimSurface, Fly `groundSpeed` | tốc độ danh nghĩa = số thân mỗi chu kỳ (`motionDefaults`: 0,6 khi bơi, 3,0 khi bay). **Mặc định pipeline, chờ art director xác nhận** |
-| maxTurnGround / Water / Air | tốc độ quay khuyến nghị (180 / 90 / 60 °/s, mặc định pipeline) |
+| Swim, SwimSurface, Fly `groundSpeed` | tốc độ danh nghĩa theo số Strouhal 0,3 của nhịp đuôi/cánh đo trên model (U1-CHAR.7b). Khi bơi chỉ áp dụng nếu biên độ đuôi trong dải cá (A/L 0,1–0,3). Ngoài dải, hoặc không có bone chóp, dùng số thân mỗi chu kỳ (`motionDefaults`). Xem [BIOMECHANICS_RESEARCH.md](BIOMECHANICS_RESEARCH.md). **Chờ art director xác nhận** |
+| maxTurnGround / Water / Air | tốc độ quay khuyến nghị: Ground 180 °/s, Water 90 °/s (mặc định pipeline). Air tính cho từng model từ vòng nghiêng 30° ở tốc độ bay danh nghĩa, tối đa 180 °/s; loài không bay giữ 60 °/s |
 | transitionsChecked, transitionMaxDeg | số chuyển tiếp đã kiểm và độ lệch lớn nhất |
 
 ## 5. Tương tác xã hội (không tạo quan hệ hay đổi gameplay)

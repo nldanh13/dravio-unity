@@ -11,7 +11,7 @@ U1-CHAR.7: advanced creature motion (water, air, perch, burrow, greet) on YOUR 7
 Steps (source GLBs are only read and hash-checked at the end; nothing in -OldWork is changed):
   1. before: every <OldWork>\assets\<Name>\<Name>_Rigged.blend (your U1-CHAR.6 run) measured again with the
      current anim_qa.py and the SAME limits -> <Work>\qa_before
-  2. after: batch_import.py with rig v5 (U1-CHAR.7: water/air/perch/burrow/greet clips, transition + motion-envelope QA) -> <Work>, QA images unless -NoImages
+  2. after: batch_import.py with rig v6 (U1-CHAR.7: water/air/perch/burrow/greet clips, transition + motion-envelope QA; 7b: Froude cadence, Strouhal speeds, leg-driven take-off, landing flare) -> <Work>, QA images unless -NoImages
   3. <Work>\U7_before_after.md (compare_animqa.py) and <Work>\reports\ (build_character_reports.py):
      qa\<Name>.md per model, prefab-catalog.md/json, animation-report.md, performance-budget.md
   4. optional, with -UnityOut and -Unity: Unity batch mode imports the manifest (prefabs, materials,
@@ -87,7 +87,7 @@ if ($OldWork) {
 $batch = @((Join-Path $here "batch_import.py"), $Source, $Work, "--blender", $Blender, "--overrides", $Overrides)
 if ($UnityOut) { $batch += @("--unity-out", $UnityOut) }
 if (-not $NoImages) { $batch += "--qa-images" }
-Write-Host "Batch (rig v5): $Python $($batch -join ' ')"
+Write-Host "Batch (rig v6): $Python $($batch -join ' ')"
 & $Python @batch
 $batchExit = $LASTEXITCODE
 Get-ChildItem -Path (Join-Path $Work "assets") -Recurse -File -Include "*_animqa.json", "*_animqa.png" -ErrorAction SilentlyContinue |
@@ -97,7 +97,7 @@ Get-ChildItem -Path (Join-Path $Work "assets") -Recurse -File -Include "*_animqa
 $md = Join-Path $Work "U7_before_after.md"
 if ($OldWork) {
     & $Python (Join-Path $here "compare_animqa.py") $before $after $md --json (Join-Path $Work "U7_before_after.json") `
-        --before-label "rig v4 (U1-CHAR.6)" --after-label "rig v5 (U1-CHAR.7)"
+        --before-label "rig v4 (U1-CHAR.6)" --after-label "rig v6 (U1-CHAR.7b)"
 }
 & $Python (Join-Path $here "build_character_reports.py") $Work $reports
 if ($LASTEXITCODE -ne 0) { Write-Warning "build_character_reports.py failed" }

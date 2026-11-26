@@ -728,3 +728,34 @@ def chain_weights(points, joints, names, parent=None, power=6.0, parent_blend=0.
             w[parent] = w.get(parent, 0.0) + k
         out.append(w)
     return out
+
+
+# ---------------------------------------------------------------- biomechanics (U1-CHAR.7b, pure python)
+# Published relations, used to set pipeline defaults from each model's own geometry instead of fixed numbers.
+# Sources and limits: Assets/Dravio/Character/BIOMECHANICS_RESEARCH.md.
+G = 9.81
+
+
+def froude_cadence(stride_m, hip_h_m, k=2.3, e=0.3):
+    """Alexander (1976) relative stride vs Froude number: stride/h = k * Fr^e, Fr = v^2 / (g h).
+    Given the stride the clip authors (distance travelled per cycle) and the hip height, returns the
+    dynamically similar (Fr, speed m/s, cycle period s)."""
+    rel = stride_m / hip_h_m
+    fr = (rel / k) ** (1.0 / e)
+    v = math.sqrt(fr * G * hip_h_m)
+    return fr, v, stride_m / v
+
+
+def strouhal_lengths_per_cycle(amplitude_pp_m, body_len_m, st=0.3):
+    """Cruising swimmers and flyers keep St = f A / U within 0.2-0.4 (Taylor, Nudds & Thomas 2003; A peak-to-peak
+    tip excursion). Distance per cycle U / f = A / St, returned in body lengths."""
+    return amplitude_pp_m / (st * body_len_m)
+
+
+def strouhal(amplitude_pp_m, speed_mps, period_s):
+    return amplitude_pp_m / (speed_mps * period_s) if speed_mps > 0 and period_s > 0 else 0.0
+
+
+def coordinated_turn_rate_deg(speed_mps, bank_deg):
+    """Banked (coordinated) turn: tan(bank) = V * omega / g, so the yaw rate at a bank limit is g tan(bank) / V."""
+    return math.degrees(G * math.tan(math.radians(bank_deg)) / max(speed_mps, 1e-6))

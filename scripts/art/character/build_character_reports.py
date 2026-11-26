@@ -269,7 +269,7 @@ def capability_md(rows):
 
 
 def motion_md(recs):
-    L = ['# Motion metadata và chuyển tiếp (U1-CHAR.7)', '',
+    L = ['# Motion metadata và chuyển tiếp (U1-CHAR.7, 7b)', '',
          'Cho Environment/Sanctuary: kích thước thân, tốc độ authored, độ lệch root khi cất/hạ cánh, khoảng không cần cho từng môi trường, '
          'và kết quả kiểm chuyển tiếp (ngưỡng khép vòng: ≤ 0,5°).', '',
          '| Model | Bằng chứng | Thân D×R×C (m) | Swim / Fly m/s | TakeOff / Land root (m) | Nước: cao × rộng (m) | Bay: sải (m) | Chuyển tiếp (max °) |',
@@ -289,8 +289,28 @@ def motion_md(recs):
                  f"{fmt(off.get('Land.start'), 3) if off.get('Land.start') is not None else '—'} | "
                  f"{fmt(env.get('swimVerticalExtent_m'), 2)} × {fmt(env.get('swimWidth_m'), 2)} | {fmt(env.get('flightSpan_m'), 2)} | "
                  f"{len(tr)} ({fmt(max((x['poseErrorDeg'] for x in tr), default=None))}) |")
-    L += ['', 'Tốc độ Swim/Fly: clip tại chỗ, tốc độ danh nghĩa = số thân mỗi chu kỳ (`rig-profiles.json` ▸ `motionDefaults`), '
-          '**mặc định pipeline, chờ art director xác nhận**. Giới hạn quay mỗi môi trường cũng từ `motionDefaults`.', '']
+    L += ['', '## Sinh cơ học (U1-CHAR.7b)', '',
+          'Froude theo Alexander (λ/h = 2,3·Fr^0,3); Strouhal St = f·A/U (hành trình 0,2–0,4); A/L = biên độ đỉnh-đỉnh '
+          'chóp đuôi/cánh trên chiều dài thân (cá 0,1–0,3); tỉ lệ vận tốc lúc rời đất (chim 0,8–0,95). '
+          'Nguồn: `Assets/Dravio/Character/BIOMECHANICS_RESEARCH.md`.', '',
+          '| Model | Walk: khung / Fr | Run: khung / Fr | Swim: St / A/L | Fly: St / A/L | Quay trên không °/s | Rời đất | Ghi chú |',
+          '|---|---|---|---|---|---|---|---|']
+    for rec in recs:
+        if not rec['rigged']:
+            continue
+        m = (rec['rig'] or {}).get('motion') or {}
+        bm = m.get('biomechanics') or {}
+        if not bm:
+            continue
+        g = lambda k: f"{bm[k]['frames']} / {fmt(bm[k]['froude'], 3)}" if k in bm else '—'  # noqa: E731
+        w = lambda c: f"{fmt(bm[c].get('strouhal'), 2)} / {fmt(bm[c].get('tipAmplitudeL'), 2)}" if c in bm else '—'  # noqa: E731
+        notes = [c + ': A/L ngoài dải cá, giữ sải mặc định' for c in ('Swim', 'SwimSurface') if bm.get(c, {}).get('amplitudeOutsideBand')]
+        L.append(f"| {rec['name']} | {g('walk')} | {g('run')} | {w('Swim')} | {w('Fly')} | "
+                 f"{fmt((m.get('maxTurnRateDegPerSec') or {}).get('air'), 0)} | {fmt(bm.get('TakeOff', {}).get('liftOffVelocityShare'), 2)} | "
+                 f"{'; '.join(notes) or '—'} |")
+    L += ['', 'Tốc độ Swim/Fly: clip tại chỗ. Tốc độ danh nghĩa theo Strouhal 0,3 của nhịp đo trên model. Nếu không đo được hoặc biên độ '
+          'đuôi ngoài dải thì dùng số thân mỗi chu kỳ của `rig-profiles.json` ▸ `motionDefaults`. '
+          '**Chờ art director xác nhận.** Giới hạn quay: Ground/Water từ `motionDefaults`, Air tính từ vòng nghiêng.', '']
     return '\n'.join(L)
 
 
