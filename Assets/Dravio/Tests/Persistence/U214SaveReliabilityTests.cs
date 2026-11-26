@@ -173,7 +173,7 @@ namespace Dravio.Persistence.Tests
             LoadOutcome r = new SaveManager(store, () => PFix.T0).Load();
             Assert.That((r.Kind, r.Slot), Is.EqualTo((LoadKind.Loaded, SaveSlot.Backup1)));
             Assert.That(r.Save.State.Revision, Is.EqualTo(chain[chain.Length - 2].Revision), "mất tối đa một lần lưu");
-            Assert.That(r.Failures.Select(f => f.Code), Does.Contain(SaveErrorCode.CorruptJson));
+            Assert.That(r.Failures.Select(f => f.Code), Has.Member(SaveErrorCode.CorruptJson));
         }
 
         // ================================================================== duplicate request
