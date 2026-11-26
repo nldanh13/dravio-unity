@@ -11,6 +11,13 @@ namespace Dravio.Tests
     {
         const long Now=1795000000000;
         static GameState New()=>InitialStateFactory.Create("research-ui",Now,Rng.Create(1));
+        [Test] public void PlayerLabelsTranslateCanonicalStatusAndStageWithoutChangingIds()
+        {
+            Assert.That(ResearchDiscoveryView.StageLabel(GrowthStage.Adult,true),Is.EqualTo("Trưởng thành"));
+            Assert.That(ResearchDiscoveryView.StatusLabel(DragonStatus.Expedition,true),Is.EqualTo("Đang thám hiểm"));
+            Assert.That(ResearchDiscoveryView.HabitatName("origin_meadow",true),Is.EqualTo("Đồng cỏ"));
+            Assert.That(ResearchDiscoveryView.HabitatName("future_habitat",false),Is.EqualTo("future_habitat"));
+        }
         [Test] public void RelationsSummaryUsesCanonicalTiersAndBoundsVisibleRows()
         {
             var s=New();var uid=s.Dragons[0].Uid;var rev=s.Revision;

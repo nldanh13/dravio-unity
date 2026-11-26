@@ -109,6 +109,35 @@ namespace Dravio
             if(p.RevealedSections.Contains(CodexSection.Behavior))lines.Add((vi?"Tập tính còn thiếu: ":"Missing behaviors: ")+List(p.ObservableBehaviors.Except(p.ObservedBehaviors)));
             return string.Join("\n\n",lines);
         }
+        public static string StageLabel(GrowthStage stage,bool vi)=>stage switch
+        {
+            GrowthStage.Baby=>vi?"Rồng non":"Baby",
+            GrowthStage.Juvenile=>vi?"Rồng thiếu niên":"Juvenile",
+            GrowthStage.Adult=>vi?"Trưởng thành":"Adult",
+            _=>stage.ToString()
+        };
+        public static string StatusLabel(DragonStatus status,bool vi)=>status switch
+        {
+            DragonStatus.Released=>vi?"Đã thả":"Released",
+            DragonStatus.Care=>vi?"Đang chăm sóc":"In care",
+            DragonStatus.Shelter=>vi?"Đang trú ẩn":"Sheltered",
+            DragonStatus.Breeding=>vi?"Đang lai giống":"Breeding",
+            DragonStatus.Expedition=>vi?"Đang thám hiểm":"On expedition",
+            DragonStatus.InHabitat=>vi?"Trong sinh cảnh":"In habitat",
+            DragonStatus.Storage=>vi?"Trong kho":"In storage",
+            _=>status.ToString()
+        };
+        public static string HabitatName(string id,bool vi)=>id switch
+        {
+            "origin_meadow"=>vi?"Đồng cỏ":"Meadow",
+            "origin_warm_rocks"=>vi?"Bãi đá ấm":"Warm rocks",
+            "origin_pondbank"=>vi?"Bờ hồ":"Pondbank",
+            "ocean_estuary"=>vi?"Cửa sông":"Estuary",
+            "ocean_cool_pool"=>vi?"Hồ nước mát":"Cool pool",
+            "ocean_reef"=>vi?"Rạn san hô":"Reef",
+            "sky_low_island"=>vi?"Đảo nổi thấp":"Low island",
+            _=>id??"—"
+        };
         public static string ZoneName(string id,bool vi)=>id switch
         {
             "origin"=>vi?"Khởi Nguyên":"Origin",

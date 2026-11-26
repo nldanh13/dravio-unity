@@ -33,6 +33,14 @@ namespace Dravio
         string lastResultEn="",lastResultVi="";
         GameState lastState,questLogState;
         QuestLogDto cachedQuestLog;
+        GameState overviewState;
+        ProgressionOverviewDto cachedOverview;
+        ProgressionOverviewDto OverviewFor(GameState s)
+        {
+            if(!ReferenceEquals(overviewState,s)||cachedOverview==null)
+            {overviewState=s;cachedOverview=ProgressionQueries.Overview(s);}
+            return cachedOverview;
+        }
         GameState journeyState;
         JourneyDto cachedJourney;
         JourneyDto JourneyFor(GameState s)
@@ -130,7 +138,7 @@ namespace Dravio
         {
             var current=host?.Session;
             string id=displayedQuest, action=displayedAction;
-            if(current==null||current!=displayedSession||current.Status!=SessionStatus.Ready||
+            if(current==null||current!=displayedSession||current.Status!=SessionStatus.Ready||current.Hidden||
                 current.State==null||id!=quest||string.IsNullOrEmpty(action)||
                 ResearchDiscoveryView.QuestAction(ProgressionQueries.QuestLog(current.State),id)!=action)
             {
@@ -187,12 +195,17 @@ namespace Dravio
             var s=current?.State;lastState=s;record.interactable=false;prev.interactable=next.interactable=false;
             displayedQuest=displayedAction=null;displayedSession=null;
             if(actionLabel!=null)actionLabel.text=mode==2?(Vi?"Nhận nhiệm vụ":"Claim quest"):(Vi?"Ghi quan sát":"Record observation");
-            if(s==null||host.Session.Status!=SessionStatus.Ready)
-            {Write(overview,Vi?"Đang tải dữ liệu nghiên cứu":"Loading research");Write(detail,"—");Write(feedback,"—");return;}
+            if(s==null||current.Status!=SessionStatus.Ready)
+            {
+                Write(overview,current==null||current.Status==SessionStatus.Loading?
+                    (Vi?"Đang tải dữ liệu nghiên cứu":"Loading research"):
+                    (Vi?"Phiên chưa sẵn sàng: ":"Session unavailable: ")+current.Status);
+                Write(detail,"—");Write(feedback,"—");return;
+            }
             bool vi=Vi;
             if(mode!=2)
             {
-            var progress=ProgressionQueries.Overview(s);
+            var progress=OverviewFor(s);
             Write(overview,(vi?"Bách khoa: ":"Codex: ")+progress.CodexCells+"/"+progress.CodexCellsTotal+
                 " · "+(vi?"Loài: ":"Species: ")+progress.SpeciesDiscovered+"/"+progress.SpeciesTotal+
                 "\n"+(vi?"Ghi nghiên cứu: ":"Research recording: ")+(progress.Rules.ResearchRecordingEnabled?"ON":"OFF")+
@@ -222,7 +235,7 @@ namespace Dravio
                         "\n"+(vi?"Nét cá thể dự kiến: ":"Potential traits: ")+string.Join(", ",o.IndividualReveals)+
                         "\n\n"+(vi?"Số lần ghi nhận cá thể: ":"Individual observations: ")+ind.Observations+
                         "\n"+(vi?"Nét đã ghi: ":"Recorded traits: ")+string.Join(", ",ind.RevealedTraits));
-                    record.interactable=ResearchDiscoveryView.CanRecord(o);
+                    record.interactable=!current.Hidden&&ResearchDiscoveryView.CanRecord(o);
                 }
                 prev.interactable=next.interactable=list.Count>1;
             }
@@ -242,7 +255,7 @@ namespace Dravio
                     (string.IsNullOrEmpty(guidance)?"":"\n\n"+guidance));
                 if(actionLabel!=null&&displayedAction!=null&&displayedAction!="claim")
                     actionLabel.text=(vi?"Mở ":"Unlock ")+ResearchDiscoveryView.ZoneName(displayedAction,vi);
-                record.interactable=displayedAction!=null;
+                record.interactable=!current.Hidden&&displayedAction!=null;
                 prev.interactable=next.interactable=list.Count>1;
             }
             Write(feedback,(vi?lastResultVi:lastResultEn)+"\n"+(vi?"Phát hiện tích lũy được lưu; thông báo sự kiện chỉ trong phiên.":"Accumulated findings are saved; event messages are session-only."));

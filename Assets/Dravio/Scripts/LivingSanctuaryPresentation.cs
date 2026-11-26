@@ -46,6 +46,21 @@ namespace Dravio
             && !UseFoodGate
 #endif
             ;
+        // Diagnostics remain available to developers in the Editor, never enabled in a player build.
+#if UNITY_EDITOR
+        [SerializeField] bool showProfileDiagnostics;
+#endif
+        bool ProfileDiagnostics
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return showProfileDiagnostics || experimentalFoodPerception || UseFoodGate || SocialEnabled || spatialForView;
+#else
+                return false;
+#endif
+            }
+        }
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
         [SerializeField] Button researchObserve;
@@ -1209,7 +1224,7 @@ namespace Dravio
                 RefreshButtons();return;
             }
             var snapshot=Ecosystem.Snapshot(State,d);
-            title.text=(string.IsNullOrEmpty(d.Nickname)?d.SpeciesId:d.Nickname)+" · "+snapshot.Stage;
+            title.text=(string.IsNullOrEmpty(d.Nickname)?d.SpeciesId:d.Nickname)+" · "+ResearchDiscoveryView.StageLabel(snapshot.Stage,vi);
             progress.text="XP "+d.XpSec.ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"/"+SpeciesCatalog.Get(d.SpeciesId).GrowthTimeSec+
                 " · "+(vi?"Gắn kết ":"Bond ")+d.Bond+"/100";
             string visual=vi?"Không ở sinh cảnh hiện tại":"Not in current habitat view";
@@ -1227,16 +1242,22 @@ namespace Dravio
                 "spatial-no-safe-spawn"=>"Spatial review: no safe 3D spawn",
                 "ground-only"=>vi?"Chưa hỗ trợ bơi/bay trong game":"Live swim/fly not implemented",
                 _=>vi?"Không có điểm đặt an toàn":"No safe spawn"};
-            profile.text=title.text+"\n"+(vi?"Thế giới đang xem: ":"Viewing: ")+ViewZone+"\nUID: "+d.Uid+"\n"+snapshot.Mutation+" · "+d.Personality+"\n"+snapshot.Status+
-                " · "+(snapshot.HabitatId??snapshot.ZoneId??"—")+"\n"+(vi?"Phù hợp: ":"Suitability: ")+(snapshot.Suitability?.ToString()??"—")+
-                "\n"+visual+"\n"+(vi?"Hiển thị: ":"Visual residents: ")+residents.Count;
+            profile.text=title.text+"\n"+snapshot.Mutation+" · "+d.Personality+"\n"+
+                ResearchDiscoveryView.StatusLabel(snapshot.Status,vi)+" · "+
+                (snapshot.HabitatId!=null?ResearchDiscoveryView.HabitatName(snapshot.HabitatId,vi):ResearchDiscoveryView.ZoneName(snapshot.ZoneId,vi)??"—")+
+                "\n"+(vi?"Phù hợp sinh cảnh: ":"Habitat suitability: ")+(snapshot.Suitability?.ToString()??"—");
+            if(ProfileDiagnostics)
+                profile.text+="\n"+(vi?"Thế giới đang xem: ":"Viewing: ")+ViewZone+"\nUID: "+d.Uid+"\n"+visual+
+                    "\n"+(vi?"Hiển thị: ":"Visual residents: ")+residents.Count;
+            else if(snapshot.Status==DragonStatus.InHabitat&&d.Location.ZoneId==ViewZone&&!manager.IsLive(d.Uid))
+                profile.text+="\n"+(vi?"Chưa thể hiển thị cá thể này trong thế giới.":"This dragon cannot be displayed in the world yet.");
             if(d.Location.Kind==LocationKind.Zone && d.Location.ZoneId!=ViewZone)
                 profile.text+="\n"+(vi?"Đang ở thế giới khác; đổi vùng xem để tương tác.":"In another world; visit that world to interact.");
             var options=TravelOptions();
             if(!options.Any(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat)))
             {var first=options.FirstOrDefault();travelZone=first?.ZoneId;travelHabitat=first?.HabitatId;}
             var option=options.FirstOrDefault(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat));
-            travel.text=option==null?"—":option.ZoneId+" / "+option.HabitatId+" · "+option.Score+"/100\n"+
+            travel.text=option==null?"—":ResearchDiscoveryView.ZoneName(option.ZoneId,vi)+" / "+ResearchDiscoveryView.HabitatName(option.HabitatId,vi)+" · "+option.Score+"/100\n"+
                 (option.Blocked.HasValue?option.Blocked.Value.ToWire():(vi?"Có thể chuyển":"Available"));
             var traits=BehaviorQueries.Personality(State,d.Uid);
             var ecology=BehaviorQueries.Ecology(State,d.Uid);
@@ -1249,7 +1270,8 @@ namespace Dravio
             if(r!=null && r.decision!=null)
             {
                 status.text=BehaviorLabel(r.decision.Behavior)+" · "+phase;
-                profile.text+="\n"+(vi?"Hành vi: ":"Behavior: ")+BehaviorLabel(r.decision.Behavior)+" · "+r.decision.Reason+
+                profile.text+="\n"+(vi?"Hành vi: ":"Behavior: ")+BehaviorLabel(r.decision.Behavior);
+                if(ProfileDiagnostics)profile.text+=" · "+r.decision.Reason+
                     "\n"+(vi?"Trình diễn: ":"Presentation: ")+r.shownIntent+(r.fallback==null?"":" ("+r.fallback+")")+
                     "\n"+(vi?"Điểm tương tác: ":"Interaction point: ")+(r.point?.id??"—")+
                     "\n"+(vi?"Đường đi: ":"Route: ")+r.routeState+" · "+(r.route==null?0:Math.Max(0,r.route.Waypoints.Count-r.routeIndex))+" wp";
@@ -1259,7 +1281,7 @@ namespace Dravio
             if(r!=null && r.Spatial)
                 profile.text+="\n"+(vi?"Thử nghiệm cư dân 3D: ":"Spatial resident trial: ")+r.medium+" · "+r.routeState+
                     "\n"+(vi?"Chăm sóc trong nước/không trung chưa hỗ trợ.":"Water/air care not implemented.");
-            else if(r!=null && sync.IsShown(r.uid))
+            else if(ProfileDiagnostics && r!=null && sync.IsShown(r.uid))
             {
                 var st=sync.MotionStatusOf(r.uid);var caps=sync.CapabilitiesOf(r.uid);
                 profile.text+="\n"+(vi?"Rig / môi trường: ":"Rig / medium: ")+st.mode+" · "+st.transition+
@@ -1267,7 +1289,7 @@ namespace Dravio
                     (caps.ground?"Ground ":"")+(caps.water?"Water ":"")+(caps.air?"Air ":"")+(caps.perch?"Perch ":"")+(caps.underground?"Burrow":"")+
                     "\n"+(vi?"Được dịch chuyển: ":"Motion unlocked: ")+GroundMotionReady(r);
             }
-            profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
+            if(ProfileDiagnostics)profile.text+="\n"+(vi?"Thay clip (khung trước): ":"Clip substitutions (last frame): ")+substitutions+
                 "\n"+(vi?"Lượt tìm đường / lỗi: ":"Routes planned / failed: ")+plannedRoutes+"/"+failedRoutes;
 #if UNITY_EDITOR
             if(experimentalFoodPerception || UseFoodGate)profile.text+="\nTL.11: "+(UseFoodGate?foodGate.Phase.ToString():"next marker")+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests+" · last "+lastFoodGateOutcome;
@@ -1326,7 +1348,8 @@ namespace Dravio
             profile.text+="\n"+(rule.QuestCompletionEnabled?(vi?"Nhiệm vụ đã hoàn thành: ":"Quests completed: "):
                 (vi?"Nhiệm vụ (chưa bật nhận thưởng): ":"Quests (completion disabled): "))+
                 progression.QuestsCompleted+" / "+(progression.QuestsCompleted+progression.QuestsReady+progression.QuestsInProgress+progression.QuestsLocked)+
-                "\n"+(vi?"Mục tiêu gợi ý: ":"Suggested goals: ")+string.Join(", ",progression.SuggestedGoals)+
+                "\n"+(vi?"Xem mục Sổ để theo dõi hành trình và nhận nhiệm vụ.":"Open Log for journey guidance and quest claims.");
+            if(ProfileDiagnostics)profile.text+="\n"+(vi?"Mục tiêu gợi ý: ":"Suggested goals: ")+string.Join(", ",progression.SuggestedGoals)+
                 "\n"+(vi?"Luật xã hội mới / nhiệm vụ: ":"New social / quest rules: ")+rule.SocialGameplayEffectsEnabled+" / "+rule.QuestCompletionEnabled;
         }
         string BehaviorLabel(DragonBehavior? b)=>!vi?b?.ToString()??"—":b switch {
