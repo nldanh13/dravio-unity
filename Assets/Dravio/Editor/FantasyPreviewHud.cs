@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -43,6 +44,7 @@ namespace Dravio.Editor
             if(biology==null || biology.locomotion==null || biology.dietIds==null ||
                 biology.thermalBands==null || biology.habitatRules==null)
                 throw new InvalidOperationException("Emberling biology incomplete.");
+            var environmentRoots=playable?SceneManager.GetActiveScene().GetRootGameObjects().Where(x=>x!=dragon && x.GetComponentInChildren<EventSystem>(true)==null).ToArray():Array.Empty<GameObject>();
             // On this new scene only, replace the old visual placeholder HUD.
             foreach(var old in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
                 if(old.renderMode!=RenderMode.WorldSpace)
@@ -106,6 +108,7 @@ namespace Dravio.Editor
                 tabs.Add(Button(ui,second,"Guide","Hướng dẫn",44));
                 tabs.Add(Button(ui,second,"Eggs","Trứng",44));
                 tabs.Add(Button(ui,second,"Manage","Quản lý",44));
+                tabs.Add(Button(ui,second,"Log","Sổ",44));
             }
             var host=RectNode("Page host",panel);
             var hostSize=host.gameObject.AddComponent<LayoutElement>();
@@ -115,13 +118,20 @@ namespace Dravio.Editor
             var roster=Page(host,"Dragons");
 
             Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
-            RectTransform guide=null,hatchery=null,management=null;
+            RectTransform guide=null,hatchery=null,management=null,research=null;
+            Text researchOverview=null,researchDetail=null,researchFeedback=null;
+            Button codexTab=null,journalTab=null,questTab=null,researchPrev=null,researchNext=null,researchRecord=null;
+            ResearchDiscoveryPanel researchPanel=null;
+            DravioSessionHost researchHost=null;
+            LivingSanctuaryPresentation researchLiving=null;
             Text healthStatus=null,careCaseStatus=null,carePlanStatus=null;
             Button healthNext=null,healthShelter=null,healthAssess=null,healthNextPlan=null,healthApplyPlan=null,healthStart=null,healthReview=null,healthDischarge=null;
             Text managementSummary=null,managementWorld=null,managementCodex=null,managementMaterials=null,managementExpedition=null,managementFeedback=null;
             var upgradeStatus=new List<Text>();
             var upgradeButtons=new List<Button>();
             Button unlockOcean=null,unlockSky=null,claimExpedition=null;
+            Text expeditionRouteText=null,expeditionDragonText=null;
+            Button nextExpeditionRoute=null,nextExpeditionDragon=null,startExpedition=null;
             Text hatcheryStatus=null,parentsStatus=null,hatcheryFeedback=null;
             Button standard=null,elemental=null,mystic=null,astral=null,packMeadow=null,packStorage=null,selectA=null,selectB=null,breed=null,tap=null,breedMeadow=null,breedStorage=null;
             Button saveButton=null,bioRecord=null,surveyRocks=null,unlockRocks=null,surveyPond=null,unlockPond=null,buy=null,claim=null,store=null;
@@ -164,7 +174,8 @@ namespace Dravio.Editor
             var rosterInspect=Button(ui,roster,playable?"Inspect selected":"Inspect Emberling",playable?"Quan sát rồng đã chọn":"Quan sát Emberling",46);
             Text livingProfile=null,livingTravel=null;
             Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null,researchObserve=null,projectBuild=null;
-            Text projectStatus=null;
+            Text projectStatus=null,worldViewStatus=null;
+            Button worldOrigin=null,worldOcean=null,worldSky=null;
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
@@ -213,10 +224,16 @@ namespace Dravio.Editor
 
                 management=Page(host,"Management");
                 Label(ui,management,"Sanctuary overview","Tổng quan khu bảo tồn",18,Gold,TextAnchor.MiddleLeft,36);
+                worldViewStatus=Label(ui,management,"World view","Thế giới đang xem",14,Paper,TextAnchor.UpperLeft,130,false);
+                worldOrigin=Button(ui,management,"Visit Origin","Xem Khởi Nguyên",46);
+                worldOcean=Button(ui,management,"Visit Ocean","Xem Thủy Vực",46);
+                worldSky=Button(ui,management,"Visit Sky","Xem Thiên Giới",46);
+                worldOrigin.interactable=worldOcean.interactable=worldSky.interactable=false;
+                Label(ui,management,"Visiting does not move dragons. Move them separately in Dragons.","Xem thế giới không chuyển rồng. Chuyển riêng ở mục Rồng.",14,Muted,TextAnchor.MiddleLeft,66);
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
-                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,150,false);
+                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,190,false);
                 projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
                 projectBuild.interactable=false;
                 Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
@@ -244,13 +261,33 @@ namespace Dravio.Editor
                 }
                 Label(ui,management,"Capacity upgrade increases the production budget, not physical habitat slots.","Nâng cấp sức chứa tăng ngân sách sản xuất, không tăng chỗ ở vật lý.",14,Muted,TextAnchor.MiddleLeft,66);
                 Label(ui,management,"Expedition","Thám hiểm",18,Gold,TextAnchor.MiddleLeft,36);
-                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,105,false);
+                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,160,false);
+                expeditionRouteText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,155,false);
+                nextExpeditionRoute=Button(ui,management,"Next route","Tuyến tiếp theo",46);
+                expeditionDragonText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,125,false);
+                nextExpeditionDragon=Button(ui,management,"Next expedition dragon","Rồng thám hiểm tiếp theo",46);
+                startExpedition=Button(ui,management,"Depart","Khởi hành",46);
+                nextExpeditionRoute.interactable=nextExpeditionDragon.interactable=startExpedition.interactable=false;
                 claimExpedition=Button(ui,management,"Claim expedition rewards","Nhận thưởng thám hiểm",46);
-                Label(ui,management,"Starting expeditions is deferred until health checks and living-dragon presentation are integrated.","Chưa mở nút khởi hành cho đến khi tích hợp kiểm tra sức khỏe và hiển thị rồng.",14,Muted,TextAnchor.MiddleLeft,80);
+                Label(ui,management,"One expedition slot. The adult must meet health and route requirements. Away dragons do not produce gold; claim materials after return.","Một ô thám hiểm. Rồng trưởng thành cần đủ sức khỏe và phù hợp tuyến. Rồng đi xa không sinh vàng; nhận vật liệu khi trở về.",14,Muted,TextAnchor.MiddleLeft,100);
                 Label(ui,management,"Materials","Vật liệu",18,Gold,TextAnchor.MiddleLeft,36);
                 managementMaterials=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,130,false);
                 Label(ui,management,"Codex","Bách khoa",18,Gold,TextAnchor.MiddleLeft,36);
                 managementCodex=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,500,false);
+                research=Page(host,"Research & discovery");
+                Label(ui,research,"Research & discovery","Nghiên cứu & khám phá",18,Gold,TextAnchor.MiddleLeft,40);
+                researchOverview=FlowText(ui,research,Gold);
+                var modes=ActionRow(research);
+                codexTab=Button(ui,modes,"Codex","Bách khoa",46);
+                journalTab=Button(ui,modes,"Observe","Quan sát",46);
+                questTab=Button(ui,modes,"Quests","Nhiệm vụ",46);
+                var browse=ActionRow(research);
+                researchPrev=Button(ui,browse,"Previous","Trước",46);
+                researchNext=Button(ui,browse,"Next","Tiếp",46);
+                researchRecord=Button(ui,research,"Record observation","Ghi quan sát",46);
+                researchRecord.interactable=false;
+                researchDetail=FlowText(ui,research,Paper);
+                researchFeedback=FlowText(ui,research,Muted);
             }
             else Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
@@ -277,7 +314,15 @@ namespace Dravio.Editor
                         selectedTitle,status,progress,notice,livingProfile,livingTravel,
                         feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observeDragon,nextTravel,moveDragon,storeDragon);
                     living.ConfigureResearch(researchObserve);
+                    researchHost=persistence;researchLiving=living;
+                    researchPanel=hostGo.AddComponent<ResearchDiscoveryPanel>();
                     session.ConfigureLiving(living);
+                    if(SceneManager.GetActiveScene().path==ConnectedWorldPolicy.OriginScene)
+                    {
+                        living.EnableConnectedWorlds();
+                        var worlds=hostGo.AddComponent<ConnectedWorldController>();
+                        worlds.Configure(persistence,living,session,environmentRoots,worldViewStatus,worldOrigin,worldOcean,worldSky);
+                    }
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyRocks.onClick,session.SurveyRocks);
@@ -307,6 +352,10 @@ namespace Dravio.Editor
                         upgradeStatus.ToArray(),upgradeButtons.ToArray());
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockOcean.onClick,session.UnlockOcean);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockSky.onClick,session.UnlockSky);
+                    session.ConfigureExpedition(expeditionRouteText,expeditionDragonText,nextExpeditionRoute,nextExpeditionDragon,startExpedition);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionRoute.onClick,session.NextExpeditionRoute);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(nextExpeditionDragon.onClick,session.NextExpeditionDragon);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(startExpedition.onClick,session.StartSelectedExpedition);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(claimExpedition.onClick,session.ClaimExpeditionReward);
                     for(int i=0;i<upgradeButtons.Count;i++)
                         UnityEditor.Events.UnityEventTools.AddStringPersistentListener(upgradeButtons[i].onClick,session.BuySanctuaryUpgrade,EconomyTables.Upgrades[i].Id);
@@ -335,6 +384,9 @@ namespace Dravio.Editor
                 pages.Add(guide.parent.parent.gameObject);
                 pages.Add(hatchery.parent.parent.gameObject);
                 pages.Add(management.parent.parent.gameObject);
+                pages.Add(research.parent.parent.gameObject);
+                researchPanel.Configure(researchHost,researchLiving,runtime,research.parent.parent.gameObject,
+                    researchOverview,researchDetail,researchFeedback,codexTab,journalTab,questTab,researchPrev,researchNext,researchRecord);
             }
             runtime.Configure(safe,panel,pages.ToArray(),
                 tabs.ToArray(),lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
@@ -413,6 +465,12 @@ namespace Dravio.Editor
             scroll.viewport=viewport;scroll.content=body;scroll.horizontal=false;
             scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=24;
             return body;
+        }
+        static Text FlowText(Layout ui,Transform parent,Color color)
+        {
+            var label=Label(ui,parent,"—","—",14,color,TextAnchor.UpperLeft,80,false);
+            label.resizeTextForBestFit=false;label.verticalOverflow=VerticalWrapMode.Overflow;
+            return label;
         }
         static Text Label(Layout ui,Transform parent,string en,string vi,int size,Color color,TextAnchor align,float height,bool localize=true)
         {
