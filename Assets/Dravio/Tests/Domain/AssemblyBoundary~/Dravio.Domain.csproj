@@ -9,6 +9,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../**/*.cs" Exclude="../DotNet~/**/*.cs" />
+    <Compile Include="../../../Domain/**/*.cs" />
   </ItemGroup>
 </Project>
