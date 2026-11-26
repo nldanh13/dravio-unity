@@ -37,16 +37,15 @@ namespace Dravio.Editor
                     for (int i = 0; i < mats.Length; i++)
                     {
                         var src = mats[i];
-                        if (src == null || src.shader == shader) continue;
+                        if (src == null) continue;
                         if (stylized == null) stylized = GetOrCreate(shader, src);
-                        mats[i] = stylized;
-                        slots++;
+                        if (mats[i] != stylized) { mats[i] = stylized; slots++; }
                     }
                     r.sharedMaterials = mats;
                 }
                 if (slots == 0)
                 {
-                    Debug.Log("Dravio VIS.1: Emberling already uses the stylized material (nothing to do).");
+                    Debug.Log("Dravio VIS.1: Emberling already uses the stylized material; VIS.3 settings refreshed.");
                     return;
                 }
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
@@ -101,12 +100,12 @@ namespace Dravio.Editor
             mat.SetTexture("_BaseMap", baseMap);
             if (src.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", src.GetColor("_BaseColor"));
             // Matches the Origin VIS.1 environment grade (OriginSanctuaryEnvironmentBuilder.ApplyOriginVis1Grade).
-            mat.SetColor("_ShadowTint", new Color(0.60f, 0.62f, 0.88f, 1f));
+            mat.SetColor("_ShadowTint", new Color(0.70f, 0.72f, 0.91f, 1f));
             mat.SetFloat("_RampThreshold", 0f);
-            mat.SetFloat("_RampSoftness", 0.22f);
+            mat.SetFloat("_RampSoftness", 0.34f);
             mat.SetColor("_RimColor", new Color(1f, 0.84f, 0.62f, 1f));
-            mat.SetFloat("_RimStrength", 0.32f);
-            mat.SetFloat("_SpecStrength", 0.12f);
+            mat.SetFloat("_RimStrength", 0.24f);
+            mat.SetFloat("_SpecStrength", 0.22f);
             mat.enableInstancing = true;
             EditorUtility.SetDirty(mat);
             AssetDatabase.SaveAssets();

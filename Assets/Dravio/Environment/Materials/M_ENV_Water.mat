@@ -29,15 +29,16 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _FoamWidth: 0.28
+    - _BrightPond: 1
+    - _FoamWidth: 0.22
     - _Opacity: 0.82
     - _ShoreOpacity: 0.55
-    - _SparkleStrength: 0.6
+    - _SparkleStrength: 0.46
     m_Colors:
-    - _DeepColor: {r: 0.12999997, g: 0.41999996, b: 0.5, a: 1}
+    - _DeepColor: {r: 0.10, g: 0.50, b: 0.62, a: 1}
     - _FoamColor: {r: 0.93, g: 0.97999996, b: 0.92, a: 1}
     - _ScrollA: {r: 0.025, g: 0.012, b: 0, a: 0}
     - _ScrollB: {r: -0.018, g: 0.02, b: 0, a: 0}
-    - _ShallowColor: {r: 0.41999996, g: 0.78, b: 0.74, a: 1}
+    - _ShallowColor: {r: 0.36, g: 0.85, b: 0.80, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

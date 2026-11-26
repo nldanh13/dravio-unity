@@ -125,6 +125,12 @@ namespace Dravio.EnvironmentArt.EditorTools
                 ConfigurePainterly(mats["ENV_Ground"], ground, null, wind: 0f, path: 1f, clip: false);
                 foreach (var key in new[] { "ENV_Props", "ENV_Foliage", "ENV_Ground" }) ApplyOriginVis1Grade(mats[key]);
                 mats["ENV_Ground"].SetFloat("_RimStrength", 0f);
+                // VIS.3: material opt-in; no changes to other zone builders.
+                foreach (var key in new[] { "ENV_Props", "ENV_Foliage", "ENV_Ground" })
+                    mats[key].SetFloat("_BrightFantasy", 1f);
+                mats["ENV_Props"].SetFloat("_SoftSheen", 0.11f);
+                mats["ENV_Foliage"].SetFloat("_SoftSheen", 0.07f);
+                mats["ENV_Ground"].SetFloat("_SoftSheen", 0.015f);
             }
             else
             {
@@ -135,6 +141,11 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (waterOk)
             {
                 mats["ENV_Water"].SetTexture("_BaseMap", water);
+                mats["ENV_Water"].SetFloat("_BrightPond", 1f);
+                mats["ENV_Water"].SetFloat("_FoamWidth", 0.22f);
+                mats["ENV_Water"].SetFloat("_SparkleStrength", 0.46f);
+                mats["ENV_Water"].SetColor("_ShallowColor", new Color(0.36f, 0.85f, 0.80f, 1f));
+                mats["ENV_Water"].SetColor("_DeepColor", new Color(0.10f, 0.50f, 0.62f, 1f));
                 mats["ENV_Water"].renderQueue = (int)RenderQueue.Transparent;
             }
             else ConfigureLitFallback(mats["ENV_Water"], water, null, false, true);
@@ -452,12 +463,12 @@ namespace Dravio.EnvironmentArt.EditorTools
 
             // Lighting: warm key light, cool painted ambient, soft distance fog.
             // VIS.1 (Issue #80) grade over ENV Alpha (#79); equals the 13:00 keyframe of OriginSanctuaryLiving.json.
-            Color sky = new Color(0.80f, 0.84f, 0.70f);
+            Color sky = new Color(0.78f, 0.88f, 0.93f);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.56f, 0.66f, 0.84f);
-            RenderSettings.ambientEquatorColor = new Color(0.50f, 0.56f, 0.48f);
-            RenderSettings.ambientGroundColor = new Color(0.34f, 0.28f, 0.22f);
+            RenderSettings.ambientSkyColor = new Color(0.62f, 0.73f, 0.88f);
+            RenderSettings.ambientEquatorColor = new Color(0.53f, 0.61f, 0.49f);
+            RenderSettings.ambientGroundColor = new Color(0.36f, 0.31f, 0.25f);
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
@@ -468,8 +479,8 @@ namespace Dravio.EnvironmentArt.EditorTools
             var sunGo = new GameObject("Warm Sun");
             var sun = sunGo.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = new Color(1f, 0.86f, 0.66f);
-            sun.intensity = 1.12f;
+            sun.color = new Color(1f, 0.92f, 0.80f);
+            sun.intensity = 1.10f;
             sun.shadows = LightShadows.Soft;
             sun.shadowStrength = 0.82f;
             sunGo.transform.rotation = Quaternion.Euler(46f, -38f, 0f);
