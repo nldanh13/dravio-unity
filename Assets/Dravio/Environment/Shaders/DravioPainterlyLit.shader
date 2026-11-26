@@ -5,6 +5,10 @@
 //   * soft two-tone light ramp with a cool painted shadow tint
 //   * vertex colour RGB = painted AO, vertex colour A = wind weight / path mask
 //   * optional alpha clip (foliage cards) and pulsing emission (runes, glow caps)
+//   * U1-ENV.3 globals (set by the Living Environment, all zero by default so the
+//     U1-ENV.2 look is unchanged when no Living Environment is in the scene):
+//       _DravioWind   x = extra wind strength, y = gust 0..1, zw = gust direction (xz)
+//       _DravioLiving x = night glow 0..1 (emission boost), y = ambient floor cut 0..1
 Shader "Dravio/Environment/Painterly Lit"
 {
     Properties
@@ -67,12 +71,20 @@ Shader "Dravio/Environment/Painterly Lit"
             half _Cutoff;
         CBUFFER_END
 
+        // Globals (outside UnityPerMaterial, so the SRP Batcher is unaffected).
+        float4 _DravioWind;
+        half4 _DravioLiving;
+
         float3 DravioWind(float3 positionWS, half weight)
         {
-            float w = weight * _WindStrength;
+            float gust = saturate(_DravioWind.y);
+            float w = weight * _WindStrength * max(0.0, 1.0 + _DravioWind.x + gust * 0.8);
             float phase = _Time.y * _WindSpeed + positionWS.x * 0.6 + positionWS.z * 0.45;
             positionWS.x += sin(phase) * w;
             positionWS.z += cos(phase * 0.83) * w * 0.6;
+            // Gusts lean foliage downwind (amplitude only, so no phase pops).
+            float lean = weight * _WindStrength * gust * (0.75 + 0.25 * sin(phase * 0.37));
+            positionWS.xz += _DravioWind.zw * lean;
             return positionWS;
         }
 
@@ -158,7 +170,7 @@ Shader "Dravio/Environment/Painterly Lit"
                 half ramp = smoothstep(_RampThreshold - _RampSoftness, _RampThreshold + _RampSoftness, ndl);
                 ramp *= light.shadowAttenuation * light.distanceAttenuation;
 
-                half3 ambient = max(SampleSH(n), _AmbientFloor.rgb) * _AmbientStrength;
+                half3 ambient = max(SampleSH(n), _AmbientFloor.rgb * (1.0h - saturate(_DravioLiving.y))) * _AmbientStrength;
                 half3 lighting = light.color * ramp + ambient * lerp(_ShadowTint.rgb, half3(1,1,1), ramp);
 
                 half3 viewDir = SafeNormalize(GetWorldSpaceViewDir(input.positionWS));
@@ -168,7 +180,8 @@ Shader "Dravio/Environment/Painterly Lit"
 
                 half pulse = 1.0h - _EmissionPulse * 0.5h
                            + _EmissionPulse * 0.5h * sin(_Time.y * _PulseSpeed + input.positionWS.x * 0.7 + input.positionWS.z * 0.5);
-                color += SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb * _EmissionColor.rgb * pulse;
+                half glow = 1.0h + saturate(_DravioLiving.x) * 1.6h;
+                color += SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb * _EmissionColor.rgb * pulse * glow;
 
                 color = MixFog(color, input.fogFactor);
                 return half4(color, 1);

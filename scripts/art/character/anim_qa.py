@@ -40,8 +40,22 @@ from mathutils.bvhtree import BVHTree  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[3]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
-QA_VERSION = 1
-NO_GROUND = {'Swim', 'Fly', 'Glide'}
+QA_VERSION = 3  # 2 = U1-CHAR.6: authored transition checks (Sleep -> Wake -> Idle); 3 = U1-CHAR.7: flight/water/burrow transitions with root offsets, motion envelope; limits unchanged
+NO_GROUND = {'Swim', 'Fly', 'Glide', 'SwimIdle', 'SwimRest', 'SwimSurface', 'WaterEnter', 'WaterExit'}
+# authored transitions (U1-CHAR.6/7): (from clip, frame, to clip, frame, root offset key or None). With a key, the
+# vertical root offset is not a pose error: it must equal rig.json motion.rootOffsets_m[key] (the Sanctuary
+# moves the dragon by it); every rotation and the rest of the pose must still match within the loop-seam limits.
+TRANSITIONS = (
+    ('Sleep', 'start', 'Wake', 'start', None), ('Wake', 'end', 'Idle', 'start', None),
+    ('Idle', 'start', 'TakeOff', 'start', None), ('TakeOff', 'end', 'Fly', 'start', 'TakeOff.end'),
+    ('Fly', 'start', 'Land', 'start', 'Land.start'), ('Land', 'end', 'Idle', 'start', None),
+    ('Idle', 'start', 'WaterEnter', 'start', None), ('WaterEnter', 'end', 'Swim', 'start', None),
+    ('Swim', 'start', 'WaterExit', 'start', None), ('WaterExit', 'end', 'Idle', 'start', None),
+    ('Idle', 'start', 'DigPrep', 'start', None), ('DigPrep', 'end', 'BurrowEnter', 'start', None),
+    ('BurrowEnter', 'end', 'BurrowEmerge', 'start', None), ('BurrowEmerge', 'end', 'Idle', 'start', None),
+)
+WATER_CLIPS = ('Swim', 'SwimIdle', 'SwimRest', 'SwimSurface')
+AIR_CLIPS = ('Fly', 'Glide', 'TakeOff', 'Land')
 SAMPLES = 8
 
 
@@ -101,14 +115,19 @@ def pose_snapshot(arm):
     return {pb.name: (np.array(pb.matrix), pb.length) for pb in arm.pose.bones}
 
 
-def pose_difference(a, b, h):
+def pose_difference(a, b, h, ignore_root_z=False):
+    """Worst bone rotation (deg) and translation (relative to height) between two poses. ignore_root_z removes
+    the Root bone's vertical offset from every bone first (an authored vertical root offset is not an error)."""
+    dz = float(b['Root'][0][2, 3] - a['Root'][0][2, 3]) if ignore_root_z and 'Root' in a else 0.0
     worst_deg, worst_rel = 0.0, 0.0
     for n, (ma, _) in a.items():
         mb = b[n][0]
         ra, rb = ma[:3, :3], mb[:3, :3]
         c = np.clip((np.trace(ra.T @ rb) - 1) / 2, -1, 1)
         worst_deg = max(worst_deg, math.degrees(math.acos(c)))
-        worst_rel = max(worst_rel, float(np.linalg.norm(ma[:3, 3] - mb[:3, 3])) / h)
+        d = mb[:3, 3] - ma[:3, 3]
+        d[2] -= dz
+        worst_rel = max(worst_rel, float(np.linalg.norm(d)) / h)
     return worst_deg, worst_rel
 
 
@@ -440,6 +459,43 @@ def main():
                 warn(clip, 'loop', 'loop does not close', [round(deg, 3), round(rel, 5)],
                      [lim['maxLoopPoseErrorDeg'], lim['maxLoopPoseErrorRel']])
         clips[clip] = rep
+    # authored transitions (U1-CHAR.6): a clip that starts or ends in another clip's pose must match it exactly,
+    # same limits as a loop seam (Sleep -> Wake -> Idle has no jump)
+    transitions = []
+    rc = rig['clips']
+    offsets = (rig.get('motion') or {}).get('rootOffsets_m', {})
+    for a_clip, a_frame, b_clip, b_frame, off_key in TRANSITIONS:
+        if a_clip in rc and b_clip in rc:
+            scene.frame_set(rc[a_clip][a_frame])
+            pa = pose_snapshot(arm)
+            scene.frame_set(rc[b_clip][b_frame])
+            pb = pose_snapshot(arm)
+            deg, rel = pose_difference(pa, pb, h, ignore_root_z=off_key is not None)
+            item = {'from': f'{a_clip}.{a_frame}', 'to': f'{b_clip}.{b_frame}', 'poseErrorDeg': round(deg, 3), 'poseErrorRel': round(rel, 5)}
+            if off_key is not None:
+                measured = float(pb['Root'][0][2, 3] - pa['Root'][0][2, 3])
+                # Land.start sits above Fly by the offset; TakeOff.end sits above Fly by the offset (sign: a -> b)
+                expected = -offsets.get(off_key, 0.0) if a_clip == 'TakeOff' else offsets.get(off_key, 0.0)
+                item.update({'rootOffsetMeasured_m': round(measured, 4), 'rootOffsetDeclared_m': round(expected, 4)})
+                if abs(measured - expected) > lim['maxLoopPoseErrorRel'] * h:
+                    warn(b_clip, 'transition', f'{a_clip}.{a_frame} -> {b_clip}.{b_frame} root offset differs from motion.rootOffsets_m',
+                         [round(measured, 4), round(expected, 4)], lim['maxLoopPoseErrorRel'])
+            transitions.append(item)
+            if deg > lim['maxLoopPoseErrorDeg'] or rel > lim['maxLoopPoseErrorRel']:
+                warn(b_clip, 'transition', f'{a_clip}.{a_frame} -> {b_clip}.{b_frame} poses differ', [round(deg, 3), round(rel, 5)],
+                     [lim['maxLoopPoseErrorDeg'], lim['maxLoopPoseErrorRel']])
+    # motion envelope (U1-CHAR.7): space the animated body needs per medium, for Environment integration
+    def extent(names, axis):
+        v = [c['bounds']['max'][axis] - c['bounds']['min'][axis] for n, c in clips.items() if n in names and 'bounds' in c]
+        return round(max(v), 4) if v else None
+    ground = [n for n in clips if n not in WATER_CLIPS and n not in AIR_CLIPS and n not in ('WaterEnter', 'WaterExit')]
+    envelope = {
+        'groundHeight_m': extent(ground, 2), 'groundLength_m': extent(ground, 1), 'groundWidth_m': extent(ground, 0),
+        'swimVerticalExtent_m': extent(WATER_CLIPS, 2), 'swimWidth_m': extent(WATER_CLIPS, 0),
+        'flightSpan_m': extent(AIR_CLIPS, 0), 'flightVerticalExtent_m': extent(('Fly', 'Glide'), 2),
+        'note': 'Largest animated extent over the clips of each medium. Submerged swimming needs water deeper than '
+                'swimVerticalExtent_m; flight needs a clear width of flightSpan_m. Margins are the Sanctuary\'s choice.',
+    }
     scene.frame_set(1)
     images = None
     if a.images:
@@ -451,7 +507,7 @@ def main():
     report = {
         'qaVersion': QA_VERSION, 'name': name, 'species': rig.get('species'), 'archetype': rig.get('archetype'),
         'rigVersion': rig.get('rigVersion'), 'limits': lim, 'weights': weights, 'bones': bones_rep,
-        'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'images': images,
+        'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'transitions': transitions, 'motionEnvelope': envelope, 'images': images,
         'warnings': warnings, 'status': 'PASS' if not warnings else 'PASS_WITH_WARNINGS',
         'note': 'Automated geometric checks. They do not replace an animator review of the motion.',
     }

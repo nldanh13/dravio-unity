@@ -12,7 +12,7 @@ namespace Dravio.Editor
         private const string Root = "Assets/Dravio";
         private const string ScenePath = Root + "/Scenes/OriginMeadow.unity";
 
-        [MenuItem("Dravio/Create or Open Origin Prototype")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Origin Prototype")]
         public static void CreateOrOpen()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

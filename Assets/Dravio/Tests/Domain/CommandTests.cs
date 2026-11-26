@@ -134,8 +134,9 @@ namespace Dravio.Domain.Tests
             DispatchResult r = Ok(state, Online(), clock);
             long gained = r.State.Player.TotalGoldEarned.Micro - state.Player.TotalGoldEarned.Micro;
             Assert.That(gained, Is.EqualTo(4_706_250)); // 105×0.025×0.4 + 195×0.025×0.75 G
-            // U2.1 chưa port thành tựu: không có +100 G ACH_FIRST_ADULT như bản TS (README "Khác biệt có chủ đích").
-            Assert.That(r.State.Player.Gold.Micro - state.Player.Gold.Micro, Is.EqualTo(gained));
+            // Thành tựu "Rồng trưởng thành đầu tiên" tự nhận +100 G, không tính vào vàng sản xuất (ADR 0013; U2.4).
+            Assert.That(r.State.Player.Gold.Micro - state.Player.Gold.Micro, Is.EqualTo(gained + 100_000_000));
+            Assert.That(r.Events.OfType<AchievementUnlocked>().Select(e => (e.AchievementId, e.RewardGoldMicro)), Is.EqualTo(new[] { ("ACH_FIRST_ADULT", 100_000_000L) }));
             Assert.That(EconomyRates.GrowthStageOf(Ember(r.State).XpSec, SpeciesCatalog.Get("emberling")), Is.EqualTo(GrowthStage.Adult));
             var changes = r.Events.OfType<StageChanged>().Select(e => (e.From, e.To)).ToArray();
             Assert.That(changes, Is.EqualTo(new[] { (GrowthStage.Baby, GrowthStage.Juvenile), (GrowthStage.Juvenile, GrowthStage.Adult) }));
@@ -227,7 +228,9 @@ namespace Dravio.Domain.Tests
         public void Busy_dragons_pause_production()
         {
             var (state, clock) = NewGame();
-            Ember(state).Activity = DragonActivity.Care;
+            // U2.6: rồng đang chăm sóc phải có ca mở thật (care + caseId) và đã rời ngân sách sản xuất.
+            Ember(state).Location = DragonLocation.Care("case-busy");
+            state = Normalize(state);
             clock.Advance(60_000);
             DispatchResult r = Ok(state, Online(), clock);
             Assert.That(r.State.Player.Gold, Is.EqualTo(state.Player.Gold));

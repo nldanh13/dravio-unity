@@ -17,7 +17,7 @@ namespace Dravio.Character
     /// No Domain, Persistence, HUD or scene dependency.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class DragonVisualManager : MonoBehaviour, IDragonVisualTarget
+    public sealed class DragonVisualManager : MonoBehaviour, IDragonSocialTarget
     {
         public DragonVisualCatalog catalog;
         [Tooltip("Optional. Empty or missing = no genotype/variant visual changes (none are defined in the GDD yet)")]
@@ -152,6 +152,66 @@ namespace Dravio.Character
         }
 
         bool IDragonVisualTarget.Spawn(DragonVisualSpawn spawn) { return Spawn(spawn) != null; }
+
+        // ---- U1-CHAR.6 behaviour support (IDragonBehaviorTarget) ----
+        public DragonAnimationMap ClipsOf(string uid) { DragonVisualInstance i; return TryGet(uid, out i) ? i.Clips : null; }
+
+        public float ClipSeconds(string uid, DragonInteraction clip)
+        {
+            DragonVisualInstance i;
+            return TryGet(uid, out i) ? DragonVisualCatalog.ClipSecondsOf(i.Entry, clip) : 0f;
+        }
+
+        public void SetTempo(string uid, float tempo) { DragonVisualInstance i; if (TryGet(uid, out i)) i.SetTempo(tempo); }
+
+        public void SetLook(string uid, bool active, Vector3 worldTarget, float weight, float hold)
+        {
+            DragonVisualInstance i;
+            if (TryGet(uid, out i)) i.SetLook(active, worldTarget, weight, hold);
+        }
+
+        // ---- U1-CHAR.7 motion contract (IDragonMotionTarget) ----
+        public DragonVisualCatalog.MotionInfo MotionInfoOf(string uid)
+        {
+            DragonVisualInstance i;
+            return TryGet(uid, out i) && i.Entry != null ? i.Entry.motion : null;
+        }
+
+        public void SetHidden(string uid, bool hidden) { DragonVisualInstance i; if (TryGet(uid, out i)) i.SetHidden(hidden); }
+
+        public void SetMotionShape(string uid, DragonMotionMode mode, float turnRateDegPerSec, float verticalSpeed, float speed)
+        {
+            DragonVisualInstance i;
+            if (!TryGet(uid, out i)) return;
+            var info = i.Entry != null ? i.Entry.motion : null;
+            i.SetMotionShape(mode, turnRateDegPerSec, verticalSpeed, speed, info != null ? info.MaxTurn(mode) : 0f);
+        }
+
+        public void SetExpression(string uid, float tailCarriage, float earPerk)
+        {
+            DragonVisualInstance i;
+            if (TryGet(uid, out i)) i.SetExpression(tailCarriage, earPerk);
+        }
+        // ---- U1-CHAR.8 pair acts and expressions (IDragonSocialTarget) ----
+        public bool TryGetHeadPosition(string uid, out Vector3 position)
+        {
+            DragonVisualInstance i;
+            position = Vector3.zero;
+            return TryGet(uid, out i) && i.TryGetHeadPosition(out position);
+        }
+
+        public void SyncPhase(string followerUid, string leaderUid)
+        {
+            DragonVisualInstance f, l;
+            if (TryGet(followerUid, out f) && TryGet(leaderUid, out l)) f.SyncPhaseWith(l);
+        }
+
+        public void SetExpressionState(string uid, DragonExpressionState state)
+        {
+            DragonVisualInstance i;
+            if (TryGet(uid, out i)) i.SetExpressionState(state);
+        }
+
         bool IDragonVisualTarget.SetStage(string uid, DragonVisualStage stage) { return SetStage(uid, stage) != null; }
 
         private void Update()
@@ -172,7 +232,7 @@ namespace Dravio.Character
                 float dist = cam != null ? Vector3.Distance(camPos, bounds.center) : 0f;
                 int interval = updatePolicy.IntervalFor(vis, dist);
                 if (vis) visible++;
-                if (inst.Tick(dt, frame, interval, vis, footIk && dist <= footIkDistance)) evaluated++;
+                if (inst.Tick(dt, frame, interval, vis, footIk && dist <= footIkDistance, updatePolicy.DetailFor(interval, dist))) evaluated++;
             }
             EvaluatedLastFrame = evaluated;
             VisibleLastFrame = visible;

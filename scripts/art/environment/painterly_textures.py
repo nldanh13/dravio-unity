@@ -430,7 +430,8 @@ def build_foliage(seed=21):
                       ch * (0.55 + rng.random() * 0.35), 9 + rng.random() * 4,
                       rng.normal() * 0.9, "#3e6a2a", light)
         elif name.startswith("flower"):
-            petal = {"flower_pink": "#ef9cc2", "flower_blue": "#86cfe3", "flower_gold": "#ffd56e"}[name]
+            petal = {"flower_pink": "#ef9cc2", "flower_blue": "#86cfe3", "flower_gold": "#ffd56e",
+                     "flower_lilac": "#c3a3e8"}[name]
             for k in range(3):
                 x0 = cw * (0.3 + 0.2 * k) + rng.normal() * 4
                 tx, ty = blade(c, x0, base_y, ch * (0.5 + 0.25 * rng.random()), 5, rng.normal() * 0.4,
@@ -466,6 +467,46 @@ def build_foliage(seed=21):
                 if s % 3 == 0:
                     sgn = 1 if s % 6 == 0 else -1
                     leaf(c, xx, y, math.pi / 2 + sgn * 1.2, 34, 22, "#3a6a2f", "#8fbd52")
+        elif name in ("reed", "cattail"):
+            for k in range(7 if name == "reed" else 5):
+                x0 = cw * 0.5 + rng.normal() * cw * 0.13
+                tx, ty = blade(c, x0, base_y, ch * (0.72 + rng.random() * 0.22), 7, rng.normal() * 0.25,
+                               "#4d6b33", "#a3b866")
+                if name == "cattail" and k % 2 == 0:
+                    for j in range(6):  # brown seed head
+                        c.stamp(tx, ty + 10 + j * 5, math.pi / 2, 8, 11, hex_rgb("#7a4f2e"), 1.0, wrap=False,
+                                rng=rng, bristle=0, write_alpha=True, hardness=0.7)
+        elif name == "dry_grass":
+            for _ in range(14):
+                blade(c, cw * 0.5 + rng.normal() * cw * 0.18, base_y, ch * (0.4 + rng.random() * 0.35),
+                      8 + rng.random() * 3, rng.normal() * 1.1, "#8a7a3e", "#e3cf86")
+        elif name == "meadow_tall":
+            for _ in range(10):
+                tx, ty = blade(c, cw * 0.5 + rng.normal() * cw * 0.16, base_y, ch * (0.7 + rng.random() * 0.25),
+                               7, rng.normal() * 0.6, "#3e6a2a", "#b9d36a")
+                c.stamp(tx, ty + 8, -math.pi / 2, 14, 7, hex_rgb("#d9d79a"), 1.0, wrap=False, rng=rng,
+                        bristle=0, write_alpha=True)
+        elif name == "clover":
+            for _ in range(7):
+                x0, y0 = cw * 0.5 + rng.normal() * 24, base_y - rng.random() * ch * 0.35
+                for k in range(3):
+                    a = -math.pi / 2 + (k - 1) * 1.2
+                    leaf(c, x0, y0, a, 26, 20, "#3f7a35", "#8fc860")
+                if rng.random() < 0.5:
+                    c.stamp(x0, y0 - 20, 0, 0.1, 13, hex_rgb("#f4f0f5"), 1.0, wrap=False, rng=rng,
+                            bristle=0, write_alpha=True, hardness=0.7)
+        elif name == "shrub_leaf":
+            for k in range(26):
+                a = -math.pi / 2 + rng.normal() * 1.0
+                leaf(c, cw * 0.5 + rng.normal() * 18, ch * 0.55 + rng.normal() * 34, a,
+                     34 + rng.random() * 14, 18, "#335f2c", "#7fb04c")
+        elif name == "twig_dry":
+            for _ in range(5):
+                tx, ty = blade(c, cw * 0.5 + rng.normal() * 10, base_y, ch * (0.5 + rng.random() * 0.3),
+                               5, rng.normal() * 1.4, "#5e4630", "#a08060", segs=10)
+                for _ in range(3):
+                    leaf(c, tx + rng.normal() * 8, ty + rng.random() * 40, rng.random() * 6.28, 16, 9,
+                         "#9a7d3e", "#d8b866")
         col, row = i % cols, i // cols
         # Bleed RGB under transparent pixels so mipmaps stay green, not black.
         a = c.a

@@ -90,7 +90,9 @@ namespace Dravio.Domain.Tests
             foreach (var entry in GoldenFile.List("initialStates").Select(O))
             {
                 GameState s = InitialStateFactory.Create((string)entry["saveId"], L(entry["nowMs"]), Rng.Create((uint)(double)entry["seed"]));
-                string diff = MiniJson.Diff(entry["state"], StateJson.ToJson(s));
+                // State khởi tạo trùng TS ngoài schemaVersion: C# ghi v5 (U2.5, tổ ấp rỗng nên không có khóa breedingNest).
+                var expected = new Dictionary<string, object>(O(entry["state"])) { ["schemaVersion"] = (double)ContentInfo.SchemaVersion };
+                string diff = MiniJson.Diff(expected, StateJson.ToJson(s));
                 Assert.That(diff, Is.Null, "seed " + entry["seed"]);
                 Assert.That(GameStateValidator.Validate(s).IsValid, Is.True);
             }
@@ -165,6 +167,8 @@ namespace Dravio.Domain.Tests
             }
         }
 
+        private static readonly HashSet<string> U21Events = new HashSet<string> { "timeAdvanced", "stageChanged", "offlineReceiptCreated", "foodSpawned", "foodExpired", "foodConsumed", "bondChanged", "dragonPetted", "dragonRenamed" };
+
         private static IEnumerable<TestCaseData> Scenarios()
         {
             foreach (var sc in GoldenFile.List("scenarios").Select(O))
@@ -184,6 +188,7 @@ namespace Dravio.Domain.Tests
             Assert.That(MiniJson.Diff(sc["start"], StateJson.ToGoldenSubset(state, fullIds: true)), Is.Null, "start state round-trip");
             var clock = new FixedClock(0);
             var steps = (List<object>)sc["steps"];
+            long rewards = 0;
             for (int i = 0; i < steps.Count; i++)
             {
                 var st = O(steps[i]);
@@ -195,17 +200,20 @@ namespace Dravio.Domain.Tests
                 Assert.That(r.Duplicate, Is.EqualTo((bool)st["duplicate"]), at + " duplicate");
                 if (!r.Ok) Assert.That(r.Error.WireCode, Is.EqualTo(st["errorCode"]), at + " error code");
                 Assert.That(ReferenceEquals(r.State, state), Is.EqualTo((bool)st["sameStateObject"]), at + " same object");
-                var events = new List<object>(r.Events.Select(e => (object)StateJson.Event(e)));
+                // Golden U2.1 chỉ ghi event của U2.1 và vàng đã trừ thưởng thành tựu; từ U2.4 C# cũng phát thành tựu/hướng dẫn
+                // nên so cùng tập event và trừ thưởng giống hệt (thành tựu/hướng dẫn được so đầy đủ ở golden U2.4).
+                rewards += r.Events.OfType<AchievementUnlocked>().Sum(e => e.RewardGoldMicro);
+                var events = new List<object>(r.Events.Where(e => U21Events.Contains(e.Type)).Select(e => (object)StateJson.Event(e)));
                 Assert.That(MiniJson.Diff(st["events"], events), Is.Null, at + " events");
                 if (st["state"] != null)
                 {
-                    Assert.That(MiniJson.Diff(st["state"], StateJson.ToGoldenSubset(r.State, fullIds: false)), Is.Null, at + " state");
+                    Assert.That(MiniJson.Diff(st["state"], StateJson.ToGoldenSubset(r.State, fullIds: false, rewardsMicro: rewards)), Is.Null, at + " state");
                     var v = GameStateValidator.Validate(r.State);
                     Assert.That(v.IsValid, Is.True, at + " invalid: " + v);
                 }
                 state = r.State;
             }
-            Assert.That(MiniJson.Diff(sc["final"], StateJson.ToGoldenSubset(state, fullIds: true)), Is.Null, name + " final");
+            Assert.That(MiniJson.Diff(sc["final"], StateJson.ToGoldenSubset(state, fullIds: true, rewardsMicro: rewards)), Is.Null, name + " final");
         }
     }
 }

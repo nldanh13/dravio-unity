@@ -24,12 +24,15 @@ namespace Dravio.EnvironmentArt.EditorTools
         const string Textures = Root + "/Textures";
         const string MaterialsDir = Root + "/Materials";
         const string PrefabsDir = Root + "/Prefabs";
-        const string ScenesDir = Root + "/Scenes";
+        internal const string ScenesDir = Root + "/Scenes";
         const string LayoutPath = Root + "/Data/OriginSanctuaryLayout.json";
+        const string LocationsJsonPath = Root + "/Data/OriginSanctuaryLocations.json";
+        const string CollidersJsonPath = Root + "/Data/OriginSanctuaryColliders.json";
+        public const string LocationsAssetPath = Root + "/Data/OriginSanctuaryLocations.asset";
         public const string ScenePath = ScenesDir + "/OriginSanctuary_Environment.unity";
 
-        const string PainterlyShader = "Dravio/Environment/Painterly Lit";
-        const string WaterShader = "Dravio/Environment/Painterly Water";
+        internal const string PainterlyShader = "Dravio/Environment/Painterly Lit";
+        internal const string WaterShader = "Dravio/Environment/Painterly Water";
 
         static readonly string[] SlotNames = { "ENV_Props", "ENV_Foliage", "ENV_Water", "ENV_Ground" };
 
@@ -38,6 +41,7 @@ namespace Dravio.EnvironmentArt.EditorTools
         {
             "SM_ENV_Grass", "SM_ENV_Flower", "SM_ENV_Fern", "SM_ENV_Mushroom",
             "SM_ENV_Rock_Mossy_C", "SM_ENV_Pond", "SM_ENV_Ground", "SM_ENV_Vine",
+            "SM_ENV_Cover", "SM_ENV_Stepping",
         };
 
         // ------------------------------------------------------------------ menu
@@ -46,7 +50,10 @@ namespace Dravio.EnvironmentArt.EditorTools
         {
             if (!SetupMaterials()) return;
             if (!BuildPrefabs()) return;
+            if (UpdateLocationData() == null) return;
             BuildScene(false);
+            // U1-ENV.3: day/night, particles, ambience and interaction points.
+            if (LivingEnvironmentBuilder.UpdateLivingData() != null) LivingEnvironmentBuilder.AddToOpenScene(false);
         }
 
         [MenuItem("Dravio/Environment/1. Setup Materials and Import Remaps", priority = 111)]
@@ -57,6 +64,12 @@ namespace Dravio.EnvironmentArt.EditorTools
 
         [MenuItem("Dravio/Environment/3. Create or Open Origin Sanctuary Scene", priority = 113)]
         public static void BuildSceneMenu() => BuildScene(false);
+
+        [MenuItem("Dravio/Environment/4. Update Location Data (habitats, spawns, transitions)", priority = 114)]
+        public static void UpdateLocationDataMenu() => UpdateLocationData();
+
+        [MenuItem("Dravio/Environment/5. Validate Landscape Framing and UI Area", priority = 115)]
+        public static void ValidateFramingMenu() => SanctuaryFramingValidator.Run(true);
 
         [MenuItem("Dravio/Environment/Rebuild Origin Sanctuary Scene (overwrite)", priority = 130)]
         public static void RebuildSceneMenu()
@@ -154,7 +167,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return true;
         }
 
-        static void ConfigurePainterly(Material m, Texture2D baseMap, Texture2D emission, float wind, float path, bool clip)
+        internal static void ConfigurePainterly(Material m, Texture2D baseMap, Texture2D emission, float wind, float path, bool clip)
         {
             m.SetTexture("_BaseMap", baseMap);
             m.SetTexture("_EmissionMap", emission != null ? emission : Texture2D.blackTexture);
@@ -178,7 +191,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             m.enableInstancing = true;
         }
 
-        static void ConfigureLitFallback(Material m, Texture2D baseMap, Texture2D emission, bool clip, bool transparent)
+        internal static void ConfigureLitFallback(Material m, Texture2D baseMap, Texture2D emission, bool clip, bool transparent)
         {
             m.SetTexture("_BaseMap", baseMap);
             m.SetFloat("_Smoothness", transparent ? 0.7f : 0.08f);
@@ -234,6 +247,7 @@ namespace Dravio.EnvironmentArt.EditorTools
                 Debug.LogError("Dravio Environment: no FBX found in " + Models);
                 return false;
             }
+            var colliders = LoadColliderSpecs();
             int built = 0;
             var problems = new List<string>();
             foreach (string guid in guids)
@@ -267,6 +281,7 @@ namespace Dravio.EnvironmentArt.EditorTools
                         r.reflectionProbeUsage = ReflectionProbeUsage.Off;
                         r.allowOcclusionWhenDynamic = false;
                     }
+                    if (colliders.TryGetValue(name, out var boxes)) AddColliders(instance, boxes);
                     foreach (var t in instance.GetComponentsInChildren<Transform>(true))
                         GameObjectUtility.SetStaticEditorFlags(t.gameObject, StaticEditorFlags.BatchingStatic);
                     var saved = PrefabUtility.SaveAsPrefabAsset(instance, prefabPath, out bool ok);
@@ -285,27 +300,139 @@ namespace Dravio.EnvironmentArt.EditorTools
             return built > 0;
         }
 
-        // ----------------------------------------------------------------- scene
-        [Serializable] class LayoutCamera { public float[] position; public float[] lookAt; public float orthographicSize; public float minVisibleWidth; }
-        [Serializable] class LayoutClearing { public float x; public float z; public float radius; }
-        [Serializable] class LayoutPlacement { public string asset; public float x; public float y; public float z; public float yaw; public float scale; }
-        [Serializable] class LayoutData { public int version; public int seed; public LayoutCamera camera; public LayoutClearing clearing; public LayoutPlacement[] placements; }
+        // ------------------------------------------------------------- colliders
+        [Serializable] internal class ColliderBox { public string type; public float[] center; public float[] size; public float yaw; }
+        [Serializable] internal class ColliderAsset { public string asset; public ColliderBox[] boxes; }
+        [Serializable] internal class ColliderFile { public int version; public ColliderAsset[] assets; }
 
-        public static void BuildScene(bool overwrite)
+        static Dictionary<string, ColliderBox[]> LoadColliderSpecs() => LoadColliderSpecs(CollidersJsonPath);
+
+        internal static Dictionary<string, ColliderBox[]> LoadColliderSpecs(string path)
+        {
+            var result = new Dictionary<string, ColliderBox[]>();
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+            if (json == null)
+            {
+                Debug.LogWarning("Dravio Environment: " + path + " missing; prefabs get no colliders.");
+                return result;
+            }
+            var file = JsonUtility.FromJson<ColliderFile>(json.text);
+            if (file?.assets != null)
+                foreach (var a in file.assets)
+                    if (!string.IsNullOrEmpty(a.asset) && a.boxes != null) result[a.asset] = a.boxes;
+            return result;
+        }
+
+        /// <summary>Simple static box colliders (local space of the FBX). Rotated boxes get a child.
+        /// U1-ENV.4: type "mesh" adds a MeshCollider on every mesh (floating island tops).</summary>
+        internal static void AddColliders(GameObject root, ColliderBox[] boxes)
+        {
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                var b = boxes[i];
+                if (b != null && b.type == "mesh")
+                {
+                    foreach (var mf in root.GetComponentsInChildren<MeshFilter>(true))
+                        if (mf.sharedMesh != null) mf.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
+                    continue;
+                }
+                if (b?.center == null || b.size == null || b.center.Length < 3 || b.size.Length < 3) continue;
+                var center = new Vector3(b.center[0], b.center[1], b.center[2]);
+                var size = new Vector3(b.size[0], b.size[1], b.size[2]);
+                if (Mathf.Abs(b.yaw) < 0.01f)
+                {
+                    var c = root.AddComponent<BoxCollider>();
+                    c.center = center;
+                    c.size = size;
+                }
+                else
+                {
+                    var child = new GameObject("Collider " + i);
+                    child.transform.SetParent(root.transform, false);
+                    child.transform.localPosition = center;
+                    child.transform.localRotation = Quaternion.Euler(0f, b.yaw, 0f);
+                    child.AddComponent<BoxCollider>().size = size;
+                }
+            }
+        }
+
+        // ------------------------------------------------------------ locations
+        /// <summary>Creates or refreshes the SanctuaryLocationData asset from the generated JSON.</summary>
+        public static SanctuaryLocationData UpdateLocationData()
+        {
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(LocationsJsonPath);
+            if (json == null)
+            {
+                Debug.LogError("Dravio Environment: " + LocationsJsonPath + " missing. Re-run the Blender build with --unity.");
+                return null;
+            }
+            var data = AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(LocationsAssetPath);
+            bool create = data == null;
+            if (create) data = ScriptableObject.CreateInstance<SanctuaryLocationData>();
+            data.LoadFromJson(json.text);
+            if (data.habitats == null || data.habitats.Length == 0)
+            {
+                Debug.LogError("Dravio Environment: location JSON has no habitats.");
+                return null;
+            }
+            if (create) AssetDatabase.CreateAsset(data, LocationsAssetPath);
+            EditorUtility.SetDirty(data);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Dravio Environment: location data updated ({data.habitats.Length} habitats, " +
+                      $"{data.spawnPoints.Length} spawn points, {data.transitions.Length} transitions, " +
+                      $"{data.perchPoints.Length} perches, {data.obstacles.Length} obstacles).");
+            return data;
+        }
+
+        // ----------------------------------------------------------------- scene
+        [Serializable] internal class LayoutCamera
+        {
+            public float[] anchorPosition; public float[] eulerAngles; public float orthographicSize;
+            public float rightPanelScreenHeights; public float leftMarginScreenHeights; public float minAspect;
+            public float topMarginScreenHeights; public float bottomMarginScreenHeights;
+            public string[] supportedAspects;
+        }
+        [Serializable] internal class LayoutPlacement { public string asset; public float x; public float y; public float z; public float yaw; public float scale; public string habitat; }
+        [Serializable] internal class LayoutData { public int version; public int seed; public LayoutCamera camera; public LayoutPlacement[] placements; }
+
+        internal static LayoutData LoadLayout() => LoadLayout(LayoutPath);
+
+        internal static LayoutData LoadLayout(string layoutPath)
+        {
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(layoutPath);
+            if (json == null) { Debug.LogError("Dravio Environment: layout missing at " + layoutPath); return null; }
+            var layout = JsonUtility.FromJson<LayoutData>(json.text);
+            if (layout?.placements == null || layout.camera?.anchorPosition == null || layout.camera.anchorPosition.Length < 3)
+            { Debug.LogError("Dravio Environment: layout JSON could not be parsed (expected version 2)."); return null; }
+            return layout;
+        }
+
+        internal static void ConfigureCameraFit(SanctuaryCameraFit fit, LayoutCamera c)
+        {
+            fit.anchorPosition = V(c.anchorPosition);
+            fit.eulerAngles = V(c.eulerAngles);
+            fit.baseOrthographicSize = c.orthographicSize;
+            fit.rightPanelScreenHeights = c.rightPanelScreenHeights;
+            fit.leftMarginScreenHeights = c.leftMarginScreenHeights;
+            fit.topMarginScreenHeights = c.topMarginScreenHeights;
+            fit.bottomMarginScreenHeights = c.bottomMarginScreenHeights;
+            fit.minAspect = c.minAspect > 0f ? c.minAspect : 16f / 9f;
+        }
+
+        public static void BuildScene(bool overwrite, string targetPath = ScenePath)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
-            if (!overwrite && AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
+            if (!overwrite && AssetDatabase.LoadAssetAtPath<SceneAsset>(targetPath) != null)
             {
-                EditorSceneManager.OpenScene(ScenePath);
-                Debug.Log("Dravio Environment: opened existing " + ScenePath + " (use 'Rebuild ... (overwrite)' to regenerate).");
+                EditorSceneManager.OpenScene(targetPath);
+                Debug.Log("Dravio Environment: opened existing " + targetPath + " (use 'Rebuild ... (overwrite)' to regenerate).");
                 return;
             }
-            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(LayoutPath);
-            if (json == null) { Debug.LogError("Dravio Environment: layout missing at " + LayoutPath); return; }
-            var layout = JsonUtility.FromJson<LayoutData>(json.text);
-            if (layout?.placements == null || layout.camera?.position == null || layout.camera.position.Length < 3)
-            { Debug.LogError("Dravio Environment: layout JSON could not be parsed."); return; }
+            var layout = LoadLayout();
+            if (layout == null) return;
+            var locations = AssetDatabase.LoadAssetAtPath<SanctuaryLocationData>(LocationsAssetPath);
+            if (locations == null) locations = UpdateLocationData();
 
             EnsureFolder(ScenesDir);
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -341,11 +468,9 @@ namespace Dravio.EnvironmentArt.EditorTools
             cam.backgroundColor = sky;
             cam.nearClipPlane = 0.3f;
             cam.farClipPlane = 80f;
-            camGo.transform.position = V(layout.camera.position);
-            camGo.transform.LookAt(V(layout.camera.lookAt));
+            camGo.transform.SetPositionAndRotation(V(layout.camera.anchorPosition), Quaternion.Euler(V(layout.camera.eulerAngles)));
             var fit = camGo.AddComponent<SanctuaryCameraFit>();
-            fit.baseOrthographicSize = layout.camera.orthographicSize;
-            fit.minVisibleWidth = layout.camera.minVisibleWidth;
+            ConfigureCameraFit(fit, layout.camera);
 
             var envRoot = new GameObject("Origin Sanctuary - Environment").transform;
             var groups = new Dictionary<string, Transform>();
@@ -355,7 +480,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabsDir + "/" + p.asset + ".prefab");
                 if (prefab == null) { missing.Add(p.asset); continue; }
-                string group = GroupFor(p.asset);
+                string group = string.IsNullOrEmpty(p.habitat) ? GroupFor(p.asset) : "Habitat " + p.habitat;
                 if (!groups.TryGetValue(group, out var parent))
                 {
                     parent = new GameObject(group).transform;
@@ -371,22 +496,66 @@ namespace Dravio.EnvironmentArt.EditorTools
             }
             GameObjectUtility.SetStaticEditorFlags(envRoot.gameObject, StaticEditorFlags.BatchingStatic);
 
-            // Marker only (no component): where Emberling / gameplay will stand later.
-            var marker = new GameObject("Clearing - Dragon Spot (marker)");
-            marker.transform.position = new Vector3(layout.clearing?.x ?? 0f, 0f, layout.clearing?.z ?? 0f);
+            if (locations != null) AddLocationMarkers(locations);
 
             foreach (var m in missing)
                 Debug.LogWarning("Dravio Environment: prefab not found for " + m + " (run '2. Build Prefabs').");
             EditorSceneManager.MarkSceneDirty(scene);
-            if (!EditorSceneManager.SaveScene(scene, ScenePath))
+            if (!EditorSceneManager.SaveScene(scene, targetPath))
             {
-                Debug.LogError("Dravio Environment: could not save " + ScenePath);
+                Debug.LogError("Dravio Environment: could not save " + targetPath);
                 return;
             }
             AssetDatabase.SaveAssets();
             Selection.activeGameObject = envRoot.gameObject;
-            Debug.Log($"Dravio Environment: {placed} placements -> {ScenePath}. Existing test scenes untouched.");
+            Debug.Log($"Dravio Environment: {placed} placements -> {targetPath}. Existing test scenes untouched.");
             ReportBudget(false);
+        }
+
+        /// <summary>Gizmos + designer markers. Transitions get trigger spheres (no script logic).</summary>
+        internal static GameObject AddLocationMarkers(SanctuaryLocationData data,
+                                                      string rootName = "Origin Sanctuary - Locations (data mirror)")
+        {
+            var root = new GameObject(rootName);
+            root.AddComponent<SanctuaryLocationGizmos>().data = data;
+            var spawns = new GameObject("Spawn Points").transform;
+            spawns.SetParent(root.transform, false);
+            foreach (var s in data.spawnPoints)
+            {
+                var m = Marker(spawns, s.id, SanctuaryMarker.Kind.Spawn, s.habitatId, null);
+                m.transform.SetPositionAndRotation(s.Position, s.Rotation);
+            }
+            var transitions = new GameObject("Habitat Transitions").transform;
+            transitions.SetParent(root.transform, false);
+            foreach (var t in data.transitions)
+            {
+                var m = Marker(transitions, t.id, SanctuaryMarker.Kind.Transition, t.habitatA, t.habitatB);
+                m.transform.position = t.Position;
+                var trigger = m.AddComponent<SphereCollider>();
+                trigger.isTrigger = true;
+                trigger.radius = t.radius;
+                trigger.center = Vector3.up * 0.5f;
+            }
+            var perches = new GameObject("Perches").transform;
+            perches.SetParent(root.transform, false);
+            foreach (var p in data.perchPoints)
+            {
+                var m = Marker(perches, p.id, SanctuaryMarker.Kind.Perch, p.habitatId, null);
+                m.transform.position = p.Position;
+            }
+            return root;
+        }
+
+        internal static GameObject Marker(Transform parent, string id, SanctuaryMarker.Kind kind, string habitat, string other)
+        {
+            var go = new GameObject(id);
+            go.transform.SetParent(parent, false);
+            var m = go.AddComponent<SanctuaryMarker>();
+            m.kind = kind;
+            m.markerId = id;
+            m.habitatId = habitat;
+            m.otherHabitatId = other;
+            return go;
         }
 
         static string GroupFor(string asset)
@@ -442,12 +611,12 @@ namespace Dravio.EnvironmentArt.EditorTools
         }
 
         // --------------------------------------------------------------- helpers
-        static Vector3 V(float[] a) => a != null && a.Length >= 3 ? new Vector3(a[0], a[1], a[2]) : Vector3.zero;
+        internal static Vector3 V(float[] a) => a != null && a.Length >= 3 ? new Vector3(a[0], a[1], a[2]) : Vector3.zero;
 
         static Texture2D LoadTexture(string name) =>
             AssetDatabase.LoadAssetAtPath<Texture2D>(Textures + "/" + name + ".png");
 
-        static Shader ResolveShader(string preferred, string fallback, out bool usedPreferred)
+        internal static Shader ResolveShader(string preferred, string fallback, out bool usedPreferred)
         {
             var s = Shader.Find(preferred);
             usedPreferred = s != null && s.isSupported && !ShaderUtil.ShaderHasError(s);
@@ -456,9 +625,12 @@ namespace Dravio.EnvironmentArt.EditorTools
             return Shader.Find(fallback);
         }
 
-        static Material GetOrCreateMaterial(string name, Shader shader)
+        static Material GetOrCreateMaterial(string name, Shader shader) => GetOrCreateMaterial(name, shader, MaterialsDir);
+
+        internal static Material GetOrCreateMaterial(string name, Shader shader, string dir)
         {
-            string path = MaterialsDir + "/" + name + ".mat";
+            EnsureFolder(dir);
+            string path = dir + "/" + name + ".mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (m == null)
             {
@@ -472,7 +644,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             return m;
         }
 
-        static void EnsureFolder(string path)
+        internal static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
             string parent = Path.GetDirectoryName(path)?.Replace('\\', '/');

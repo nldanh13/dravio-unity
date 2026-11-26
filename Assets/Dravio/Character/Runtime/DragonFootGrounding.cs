@@ -14,6 +14,8 @@ namespace Dravio.Character
     ///  * smoothing: offsets ease with <see cref="smoothTime"/> so steps and slopes do not pop
     /// The two-bone chain is solved analytically keeping the animated bend plane; foot world rotation is kept.
     /// Ground states only (<see cref="AppliesTo"/>): off for Swim, Fly, Burrow and the Happy hop.
+    /// U1-CHAR.8: on a slope the body follows <see cref="bodyAlign"/> of the ground's pitch/roll under the feet
+    /// (TerrainAlignSolver), rotated about the root, then the feet are solved to the ground; no per-frame allocation.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class DragonFootGrounding : MonoBehaviour
@@ -28,6 +30,8 @@ namespace Dravio.Character
         [Tooltip("Bone lowered when a foot cannot reach the ground; empty = the bone named Root")]
         public Transform pelvis;
         [Tooltip("Lower the pelvis when a foot must reach lower ground")] public bool adjustPelvis = true;
+        [Tooltip("Share of the ground slope the body follows (0 = legs only); art default")] [Range(0f, 1f)]
+        public float bodyAlign = TerrainAlignSolver.DefaultShare;
 
         private struct Chain
         {
@@ -35,9 +39,16 @@ namespace Dravio.Character
             public float bindHeight;   // foot height above the root plane in the bind pose
             public float reach;        // upper + lower length
             public float offset;       // smoothed vertical offset (m)
+            public float ground;       // unsmoothed ground offset under the foot (m), for the body tilt
+            public bool fore, left;
         }
         private Chain[] _chains = new Chain[0];
         private float _pelvisOffset;
+        private float[] _wanted = new float[0], _slack = new float[0];
+        private Vector3[] _start = new Vector3[0];
+        private float _span, _track, _pitch, _roll;
+        public float BodyPitch { get { return _pitch; } }
+        public float BodyRoll { get { return _roll; } }
         private static readonly RaycastHit[] Hits = new RaycastHit[4];
 
         public int ChainCount { get { return _chains.Length; } }
@@ -47,9 +58,14 @@ namespace Dravio.Character
         /// are animated without ground contact (or with the feet digging), so they are never corrected.</summary>
         public static bool AppliesTo(DragonLocomotion shown, DragonInteraction interaction)
         {
-            if (interaction == DragonInteraction.Happy) return false;
+            // feet leave the ground (hop, take-off, landing, water's edge) or scoop the soil (digging): no ground IK
+            if (interaction == DragonInteraction.Happy || interaction == DragonInteraction.TakeOff || interaction == DragonInteraction.Land
+                || interaction == DragonInteraction.WaterEnter || interaction == DragonInteraction.WaterExit
+                || interaction == DragonInteraction.DigPrep || interaction == DragonInteraction.BurrowEnter || interaction == DragonInteraction.BurrowEmerge)
+                return false;
             return shown == DragonLocomotion.Idle || shown == DragonLocomotion.Walk || shown == DragonLocomotion.Run
-                || shown == DragonLocomotion.Sleep;
+                || shown == DragonLocomotion.Sleep || shown == DragonLocomotion.Rest || shown == DragonLocomotion.Bask
+                || shown == DragonLocomotion.Perch;
         }
 
         public void Configure(DragonVisualCatalog.IkChain[] chains)
@@ -63,16 +79,29 @@ namespace Dravio.Character
                     if (ch.upper == null || ch.lower == null || ch.foot == null) continue;
                     ch.bindHeight = Vector3.Dot(ch.foot.position, transform.up) - rootH;
                     ch.reach = (ch.lower.position - ch.upper.position).magnitude + (ch.foot.position - ch.lower.position).magnitude;
+                    ch.fore = ch.upper.name.StartsWith("Fore", System.StringComparison.Ordinal);
+                    ch.left = ch.upper.name.EndsWith("_L", System.StringComparison.Ordinal);
                     list.Add(ch);
                 }
             _chains = list.ToArray();
+            _wanted = new float[_chains.Length]; _slack = new float[_chains.Length]; _start = new Vector3[_chains.Length];
+            // foot spans in the bind pose, in the dragon's frame
+            Vector3 fs = Vector3.zero, hs = Vector3.zero, ls = Vector3.zero, rs = Vector3.zero; int nf = 0, nh = 0, nl = 0, nr = 0;
+            foreach (var c in _chains)
+            {
+                Vector3 lp = transform.InverseTransformPoint(c.foot.position);
+                if (c.fore) { fs += lp; nf++; } else { hs += lp; nh++; }
+                if (c.left) { ls += lp; nl++; } else { rs += lp; nr++; }
+            }
+            _span = nf > 0 && nh > 0 ? Mathf.Abs((fs / nf).z - (hs / nh).z) : 0f;
+            _track = nl > 0 && nr > 0 ? Mathf.Abs((ls / nl).x - (rs / nr).x) : 0f;
             if (pelvis == null) pelvis = Find("Root");
             if (_chains.Length == 0) enabled = false;
         }
 
         private void OnDisable()
         {
-            _pelvisOffset = 0f;
+            _pelvisOffset = 0f; _pitch = _roll = 0f;
             for (int i = 0; i < _chains.Length; i++) _chains[i].offset = 0f;
         }
 
@@ -111,12 +140,14 @@ namespace Dravio.Character
             Vector3 up = transform.up;
             float rootHeight = Vector3.Dot(transform.position, up);
             float k = smoothTime > 0f ? 1f - Mathf.Exp(-Time.deltaTime / smoothTime) : 1f;
-            var wanted = new float[_chains.Length];
-            var slack = new float[_chains.Length];
+            var wanted = _wanted;
+            var slack = _slack;
+            float fore = 0f, hind = 0f, left = 0f, right = 0f; int nf = 0, nh = 0, nl = 0, nr = 0;
             for (int i = 0; i < _chains.Length; i++)
             {
                 var c = _chains[i];
                 Vector3 foot = c.foot.position;
+                _start[i] = foot;
                 float target = 0f;
                 int n = Physics.RaycastNonAlloc(foot + up * rayHeight * scale, -up, Hits, (rayHeight + maxAdjust) * scale * 2f,
                                                 groundMask, QueryTriggerInteraction.Ignore);
@@ -126,9 +157,11 @@ namespace Dravio.Character
                     if (Hits[h].collider.transform.IsChildOf(transform)) continue;
                     if (Hits[h].distance < best) { best = Hits[h].distance; point = Hits[h].point; }
                 }
+                c.ground = 0f;
                 if (best != float.MaxValue)
                 {
                     target = Mathf.Clamp(Vector3.Dot(point, up) - rootHeight, -maxAdjust * scale, maxAdjust * scale);
+                    c.ground = target;
                     target *= SwingFactor(Vector3.Dot(foot, up) - rootHeight, c.bindHeight * scale, swingFadeHeight * scale);
                 }
                 c.offset = Mathf.Lerp(c.offset, target * weight, k);
@@ -137,6 +170,20 @@ namespace Dravio.Character
                 // how much further down this foot can go before the leg is straight
                 float dist = (foot - c.upper.position).magnitude;
                 slack[i] = Mathf.Max(0f, c.reach * scale * 0.995f - dist);
+                if (c.fore) { fore += c.ground; nf++; } else { hind += c.ground; nh++; }
+                if (c.left) { left += c.ground; nl++; } else { right += c.ground; nr++; }
+            }
+            // body follows a share of the slope under the feet, about the root (the position stays the Sanctuary's)
+            float pitch, roll;
+            TerrainAlignSolver.Compute(nf > 0 ? fore / nf : 0f, nh > 0 ? hind / nh : 0f, nl > 0 ? left / nl : 0f, nr > 0 ? right / nr : 0f,
+                                       _span * scale, _track * scale, bodyAlign * weight, out pitch, out roll);
+            _pitch = Mathf.Lerp(_pitch, pitch, k);
+            _roll = Mathf.Lerp(_roll, roll, k);
+            if (pelvis != null && (Mathf.Abs(_pitch) > 0.01f || Mathf.Abs(_roll) > 0.01f))
+            {
+                // nose up on an uphill (fore ground higher): rotate about the dragon's right axis
+                pelvis.RotateAround(transform.position, transform.right, -_pitch);
+                pelvis.RotateAround(transform.position, transform.forward, -_roll); // left higher: the right side goes down
             }
             float drop = adjustPelvis && pelvis != null ? PelvisDrop(wanted, slack) : 0f;
             _pelvisOffset = Mathf.Lerp(_pelvisOffset, drop, k);
@@ -144,9 +191,9 @@ namespace Dravio.Character
             for (int i = 0; i < _chains.Length; i++)
             {
                 var c = _chains[i];
-                if (Mathf.Abs(c.offset - _pelvisOffset) < 1e-5f && Mathf.Abs(c.offset) < 1e-5f) continue;
-                // the pelvis move already carried the foot by _pelvisOffset; aim at the original foot + offset
-                Vector3 animatedFoot = c.foot.position - up * _pelvisOffset;
+                if (Mathf.Abs(c.offset - _pelvisOffset) < 1e-5f && Mathf.Abs(c.offset) < 1e-5f && Mathf.Abs(_pitch) <= 0.01f && Mathf.Abs(_roll) <= 0.01f) continue;
+                // the pelvis move/tilt already carried the foot; aim at the animated foot + offset
+                Vector3 animatedFoot = _start[i];
                 Quaternion footRot = c.foot.rotation;
                 SolveTwoBone(c.upper, c.lower, c.foot, animatedFoot + up * c.offset, transform.forward);
                 c.foot.rotation = footRot;

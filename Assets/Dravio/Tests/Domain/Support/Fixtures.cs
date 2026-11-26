@@ -60,6 +60,39 @@ namespace Dravio.Domain.Tests.Support
             return d;
         }
 
+        /// <summary>
+        /// U2.6 (schema v8): fixture cũ đặt rồng vào care / shelter trực tiếp. Từ v8 vị trí đó phải đi kèm dữ liệu thật — ca chăm sóc đang mở
+        /// (care) hoặc một cảnh báo thiên tai có danh sách trú (shelter) — nên hàm này dựng phần còn thiếu, không đổi gì khác.
+        /// </summary>
+        public static GameState Normalize(GameState s)
+        {
+            foreach (DragonState d in s.Dragons)
+            {
+                if (d.Location.Kind == LocationKind.Care && s.FindCase(d.Location.CaseId) == null)
+                {
+                    d.Activity = DragonActivity.Care;
+                    s.ProductionDragonIds.Remove(d.Uid);
+                    s.HealthCases.Add(new HealthCase
+                    {
+                        CaseId = d.Location.CaseId, DragonId = d.Uid, Cause = HazardId.Wildfire, Site = InjurySite.SkinScale, Severity = CaseSeverity.Mild,
+                        Symptoms = new System.Collections.Generic.List<string>(HealthCatalog.Site(InjurySite.SkinScale).Symptoms), CreatedAtMs = 0, Status = CaseStatus.Active,
+                    });
+                }
+                else if (d.Location.Kind == LocationKind.Shelter && d.Activity != DragonActivity.Care)
+                {
+                    DisasterState ev = s.OpenDisasterIn(d.Location.ZoneId);
+                    if (ev == null)
+                    {
+                        ev = new DisasterState { Id = "dis_fixture_" + d.Location.ZoneId, Hazard = HazardId.Wildfire, ZoneId = d.Location.ZoneId, Phase = DisasterPhase.Forecast };
+                        s.Disasters.Add(ev);
+                    }
+                    s.ProductionDragonIds.Remove(d.Uid);
+                    ev.Sheltered.Add(new ShelteredDragon { Uid = d.Uid, HabitatId = World.Zones.HabitatsOfZone(d.Location.ZoneId)[0] });
+                }
+            }
+            return s;
+        }
+
         /// <summary>Bản sao môi trường với một số thuộc tính đổi (spread {...env, x} trong test TS).</summary>
         public static HabitatProfile Env(HabitatProfile h, string zoneId = null, TemperatureBand? temperature = null, SalinityBand? salinity = null,
             DepthBand? depth = null, bool? perch = null, QualityValues? quality = null) =>
