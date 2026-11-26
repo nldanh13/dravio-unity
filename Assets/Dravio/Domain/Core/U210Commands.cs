@@ -28,12 +28,18 @@ namespace Dravio.Domain.Core
 
     public sealed class SanctuaryProjectBuilt : DomainEvent
     {
-        public SanctuaryProjectBuilt(int index, long costGoldMicro, int materialEach) { Index = index; CostGoldMicro = costGoldMicro; MaterialEach = materialEach; }
+        public SanctuaryProjectBuilt(int index, long costGoldMicro, int materialEach) : this(index, costGoldMicro, materialEach, Catalog.SanctuaryProjectCatalog.MaterialIds) { }
+        public SanctuaryProjectBuilt(int index, long costGoldMicro, int materialEach, IReadOnlyList<string> materialIds)
+        {
+            Index = index; CostGoldMicro = costGoldMicro; MaterialEach = materialEach; MaterialIds = materialIds;
+        }
+        /// <summary>U2.13: vật liệu đã dùng (mỗi ID đúng <see cref="MaterialEach"/> đơn vị).</summary>
+        public IReadOnlyList<string> MaterialIds { get; }
         public override string Type => "sanctuaryProjectBuilt";
         /// <summary>Thứ tự dự án vừa xây (0-based).</summary>
         public int Index { get; }
         public long CostGoldMicro { get; }
-        /// <summary>Số gỗ và số hạt giống đã dùng (mỗi loại).</summary>
+        /// <summary>Số đơn vị đã dùng của MỖI vật liệu trong <see cref="MaterialIds"/> (U2.10: gỗ và hạt giống).</summary>
         public int MaterialEach { get; }
     }
 

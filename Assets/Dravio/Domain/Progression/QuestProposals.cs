@@ -436,7 +436,7 @@ namespace Dravio.Domain.Progression
                     var kept = new List<DragonState>(Kept(s));
                     for (int i = 0; i < kept.Count; i++)
                         for (int j = i + 1; j < kept.Count; j++)
-                            if (SocialEcology.Relation(s, kept[i], kept[j]).Tier >= r.Relation) n++;
+                            if (RelationRules.TierOf(SocialEcology.Familiarity(s, kept[i], kept[j])) >= r.Relation) n++;
                     break;
                 }
                 case QuestRequirementKind.ExpeditionsClaimed:

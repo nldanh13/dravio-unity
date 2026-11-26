@@ -42,6 +42,38 @@ namespace Dravio
             }
             return missing;
         }
+        public static string MaterialName(string id,bool vi)
+        {
+            if(!vi)return id;
+            return id switch {"wood"=>"Gỗ","seed"=>"Hạt giống","stone"=>"Đá","crystal"=>"Pha lê","coral"=>"San hô","stardust"=>"Bụi sao",_=>id};
+        }
+        public static string RouteProgress(RouteExplorationDto route,bool vi)
+        {
+            if(route==null)return "—";
+            var lines=new List<string>{(vi?"Chuyến đã nhận thưởng: ":"Claimed expeditions: ")+route.Claimed};
+            if(!route.RewardsDefined)
+                lines.Add(vi?"Tuyến chưa được kích hoạt; bảng thưởng chờ duyệt.":"Route disabled; reward table awaiting approval.");
+            else if(!route.Open)lines.Add(vi?"Cần mở thế giới của tuyến.":"Unlock the route world first.");
+            if(route.NextMilestoneAt.HasValue)
+            {
+                lines.Add((vi?"Mốc kế tiếp: ":"Next milestone: ")+route.NextMilestoneAt.Value+
+                    (vi?" · Còn ":" · Remaining ")+Math.Max(0,route.NextMilestoneAt.Value-route.Claimed));
+                if(route.NextMilestoneBonusEach>0&&route.RewardsDefined)
+                    lines.Add((vi?"Thưởng mốc mỗi vật liệu: +":"Milestone bonus per material: +")+route.NextMilestoneBonusEach);
+                if(!string.IsNullOrEmpty(route.NextMilestoneEggSpeciesId))
+                    lines.Add((vi?"Trứng thưởng một lần: ":"One-time egg reward: ")+route.NextMilestoneEggSpeciesId+
+                        (!route.RewardsDefined?(vi?" (chưa thể đạt)":" (not yet attainable)"):""));
+            }
+            else lines.Add(vi?"Đã đạt hết mốc hiện có.":"All current milestones reached.");
+            return string.Join("\n",lines);
+        }
+        public static string EggGrant(RewardEggGranted egg,bool vi)
+        {
+            if(egg==null)return "";
+            return (vi?"Trứng thưởng: ":"Reward egg: ")+egg.SpeciesId+" · "+
+                (egg.Delivered?(vi?"Đã giao vào ô trứng, nhận tại Hatchery.":"Delivered to pending egg; claim in Hatchery."):
+                (vi?"Đang chờ giao; giải phóng kho hoặc ô trứng.":"Queued; free storage or the pending egg slot."));
+        }
         public static string Reason(string code,bool vi)
         {
             if(string.IsNullOrEmpty(code))return vi?"Đủ điều kiện":"Eligible";

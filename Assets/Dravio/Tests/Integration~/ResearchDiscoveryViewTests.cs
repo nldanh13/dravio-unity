@@ -104,6 +104,12 @@ namespace Dravio.Tests
             Assert.That(s.Revision,Is.EqualTo(rev));
             Assert.That(s.Research.IsEmpty,Is.True);
         }
+        [Test] public void CanonicalJourneyShowsTutorialAndNextWorld()
+        {
+            var s=New();var j=ProgressionQueries.Journey(s);
+            Assert.That(ResearchDiscoveryView.CanonicalJourneySummary(j,false),Does.Contain("Ocean").And.Contain("tutorial"));
+            Assert.That(ResearchDiscoveryView.CanonicalJourneyFocus(j),Is.EqualTo(j.Steps.First(x=>x.QuestId!=null).QuestId));
+        }
         [Test] public void QuestAndCodexBrowsingDoesNotMutateCanonicalState()
         {
             var s=New();long rev=s.Revision,gold=s.Player.Gold.Micro;

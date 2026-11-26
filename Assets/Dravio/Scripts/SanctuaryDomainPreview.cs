@@ -158,6 +158,7 @@ namespace Dravio
             {
                 if(e is OfflineReceiptCreated offline)SetMessage("Offline: +"+GoldText(offline.GoldMicro)+" G","Offline: +"+GoldText(offline.GoldMicro)+" G");
                 else if(e is ExpeditionReady)SetMessage("Expedition returned; claim materials.","Rồng đã về; hãy nhận vật liệu.");
+                else if(e is RewardEggDelivered delivered)SetMessage("Queued reward egg delivered; check Hatchery.","Trứng thưởng chờ đã được giao; kiểm tra ô ấp.");
                 else if(e is NightJournalWritten journal)SetMessage("Night journal: "+journal.Findings.Count+" findings.","Nhật ký đêm: "+journal.Findings.Count+" phát hiện.");
                 else if(e is AchievementUnlocked achievement)SetMessage("Achievement: +"+GoldText(achievement.RewardGoldMicro)+" G","Thành tựu: +"+GoldText(achievement.RewardGoldMicro)+" G");
                 else if(e is FoodExpired expired && expired.FoodId==foodId)SetMessage("Food expired.","Thức ăn đã hết hạn.");
@@ -262,7 +263,10 @@ namespace Dravio
             {
                 var reward=events.OfType<AchievementUnlocked>().Sum(e=>e.RewardGoldMicro);
                 string bonus=reward>0?" (+"+GoldText(reward)+" G)":"";
-                SetMessage(en+bonus,vn+bonus);
+                var eggs=events.OfType<RewardEggGranted>().ToArray();
+                string enEgg=string.Join("\n",eggs.Select(x=>ExpeditionPresentation.EggGrant(x,false)));
+                string viEgg=string.Join("\n",eggs.Select(x=>ExpeditionPresentation.EggGrant(x,true)));
+                SetMessage(en+bonus+(eggs.Length>0?"\n"+enEgg:""),vn+bonus+(eggs.Length>0?"\n"+viEgg:""));
             }
         }
         public void ViewBiology(){GuideCommand(id=>new ViewBiologyProfileCommand(id,"emberling"),"Profile recorded.","Đã ghi nhận hồ sơ.");}
@@ -403,11 +407,13 @@ namespace Dravio
             var dragon=state.FindDragon(expeditionDragonUid);
             var candidate=route.Candidates.FirstOrDefault(c=>c.DragonUid==expeditionDragonUid);
             bool eligible=ExpeditionPresentation.CanStart(state,route.RouteId,expeditionDragonUid,out string reason);
+            var progress=ProgressionQueries.ExplorationRoutes(state).FirstOrDefault(x=>x.RouteId==route.RouteId);
             expeditionRouteText.text=(vi?route.NameVi:route.RouteId)+" · "+ZoneName(route.ZoneId)+
                 "\n"+ExpeditionPresentation.Remaining(route.DurationMs)+" · "+route.Requirement+
                 "\n"+(route.Materials.Count==0?(vi?"Bảng thưởng chưa duyệt":"Reward table unavailable"):
-                    (vi?"Vật liệu có thể nhận: ":"Possible materials: ")+string.Join(", ",route.Materials)+" · "+route.MinQty+"–"+route.MaxQty)+
-                "\n"+(route.Blocked.HasValue?ExpeditionPresentation.Reason(route.Blocked.Value.ToWire(),vi):(vi?"Tuyến khả dụng":"Route available"));
+                    (vi?"Vật liệu có thể nhận: ":"Possible materials: ")+string.Join(", ",route.Materials.Select(x=>ExpeditionPresentation.MaterialName(x,vi)))+" · "+route.MinQty+"–"+route.MaxQty)+
+                "\n"+(route.Blocked.HasValue?ExpeditionPresentation.Reason(route.Blocked.Value.ToWire(),vi):(vi?"Tuyến khả dụng":"Route available"))+
+                "\n"+ExpeditionPresentation.RouteProgress(progress,vi);
             expeditionDragonText.text=(dragon==null||candidate==null?(vi?"Chưa chọn rồng hợp lệ":"No valid dragon selected"):
                 dragon.SpeciesId+" · "+Lifecycle.StageOf(dragon)+"\nUID: "+dragon.Uid)+
                 "\n"+ExpeditionPresentation.Reason(reason,vi);
@@ -609,7 +615,7 @@ namespace Dravio
                     (vi?"Đang đi · Tạm ngừng sinh vàng":"Away · No gold production")+"\n"+ExpeditionPresentation.Remaining(left));
                 claimExpeditionButton.interactable=ready && ExpeditionPresentation.CanClaim(state);
             }
-            managementMaterials.text=string.Join("\n",Ecosystem.Materials(state).Select(m=>
+            managementMaterials.text=string.Join("\n",Ecosystem.Materials(state).Where(m=>m.Active||m.Quantity>0).Select(m=>
                 (vi?m.NameVi:m.MaterialId)+": "+m.Quantity+(m.Active?"":(vi?" (chưa kích hoạt)":" (inactive)"))));
             var discovery=Ecosystem.Discovery(state);
             managementCodex.text=(vi?"Loài: ":"Species: ")+discovery.SpeciesDiscovered+"/"+discovery.SpeciesTotal+

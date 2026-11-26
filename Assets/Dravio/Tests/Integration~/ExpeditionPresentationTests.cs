@@ -91,6 +91,20 @@ namespace Dravio.Tests
             Assert.That(s.SanctuaryProjectsBuilt,Is.EqualTo(2));
             Assert.That(result.State.ProductionDragonIds,Is.EqualTo(s.ProductionDragonIds));
         }
+        [Test] public void SkyProgressShowsLockedEggMilestoneWithoutClaimPermission()
+        {
+            var s=New();
+            var sky=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
+            Assert.That(sky.RewardsDefined,Is.False);
+            Assert.That(sky.NextMilestoneAt,Is.EqualTo(15));
+            Assert.That(ExpeditionPresentation.RouteProgress(sky,true),Does.Contain("15").And.Contain("aurorawing").And.Contain("chưa thể đạt"));
+            Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+        }
+        [Test] public void RewardEggMessageDistinguishesDeliveryFromQueue()
+        {
+            Assert.That(ExpeditionPresentation.EggGrant(new RewardEggGranted("EXPEDITION_EGG_AURORAWING","aurorawing",false),false),Does.Contain("Queued").And.Contain("aurorawing"));
+            Assert.That(ExpeditionPresentation.EggGrant(new RewardEggGranted("EXPEDITION_EGG_AURORAWING","aurorawing",true),false),Does.Contain("Delivered"));
+        }
         [TestCase(0L,"00:00:00")]
         [TestCase(1L,"00:00:01")]
         [TestCase(900000L,"00:15:00")]

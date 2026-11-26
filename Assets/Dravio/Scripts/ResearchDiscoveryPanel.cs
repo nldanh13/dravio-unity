@@ -33,6 +33,14 @@ namespace Dravio
         string lastResultEn="",lastResultVi="";
         GameState lastState,questLogState;
         QuestLogDto cachedQuestLog;
+        GameState journeyState;
+        JourneyDto cachedJourney;
+        JourneyDto JourneyFor(GameState s)
+        {
+            if(!ReferenceEquals(journeyState,s)||cachedJourney==null)
+            {journeyState=s;cachedJourney=ProgressionQueries.Journey(s);}
+            return cachedJourney;
+        }
         QuestLogDto QuestLogFor(GameState s)
         {
             if(!ReferenceEquals(questLogState,s)||cachedQuestLog==null)
@@ -58,7 +66,7 @@ namespace Dravio
             if(m==2&&s!=null)
             {
                 // Explicit tab click refocuses; periodic refresh never changes the chosen quest.
-                string focus=ResearchDiscoveryView.JourneyQuest(QuestLogFor(s));
+                string focus=ResearchDiscoveryView.CanonicalJourneyFocus(JourneyFor(s));
                 if(focus!=null)quest=focus;
             }
             dirty=true;Refresh();ScrollTop();
@@ -227,7 +235,7 @@ namespace Dravio
                 displayedAction=ResearchDiscoveryView.QuestAction(log,quest);
                 Write(overview,(vi?"Nhiệm vụ đã nhận: ":"Quests claimed: ")+list.Count(q=>q.State==QuestState.Completed)+"/"+list.Count+
                     " · "+(vi?"Có thể nhận: ":"Ready: ")+log.ReadyQuestIds.Count+
-                    "\n"+ResearchDiscoveryView.WorldProgress(log,vi)+"\n\n"+ResearchDiscoveryView.JourneySummary(log,vi));
+                    "\n"+ResearchDiscoveryView.WorldProgress(log,vi)+"\n\n"+ResearchDiscoveryView.CanonicalJourneySummary(JourneyFor(s),vi));
                 string guidance=ResearchDiscoveryView.QuestGuidance(s,selected,vi);
                 Write(detail,(Array.IndexOf(list.Select(q=>q.QuestId).ToArray(),quest)+1)+"/"+list.Count+"\n\n"+
                     ResearchDiscoveryView.Quest(selected,ProgressionQueries.Rules().QuestCompletionEnabled,vi)+

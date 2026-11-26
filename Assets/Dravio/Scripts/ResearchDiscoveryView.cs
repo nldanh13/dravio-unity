@@ -176,6 +176,43 @@ namespace Dravio
             lines.Add(vi?"Nhấn lại Nhiệm vụ để về thẻ trọng tâm.":"Tap Quests again to return to the focus card.");
             return string.Join("\n",lines);
         }
+        public static string CanonicalJourneyFocus(JourneyDto journey)
+        {
+            if(journey==null)return null;
+            return journey.Steps.FirstOrDefault(x=>!string.IsNullOrEmpty(x.QuestId))?.QuestId ??
+                (journey.NextZoneId==null?null:WorldUnlockCatalog.RuleFor(journey.NextZoneId)?.RequiresQuest);
+        }
+        public static string CanonicalJourneySummary(JourneyDto journey,bool vi)
+        {
+            if(journey==null)return "—";
+            if(journey.NextZoneId==null)return vi?"Hành trình: đã mở đủ ba thế giới. Tiếp tục nhiệm vụ phụ và nghiên cứu.":"Journey: all three worlds unlocked. Continue side quests and research.";
+            var lines=new List<string>{(vi?"Mục tiêu tiếp theo: ":"Next world: ")+ZoneName(journey.NextZoneId,vi)};
+            foreach(var step in journey.Steps.Take(4))
+            {
+                string action=step.Code switch
+                {
+                    JourneyStepCode.ResumeTutorial=>vi?"Tiếp tục hướng dẫn":"Resume tutorial",
+                    JourneyStepCode.FinishTutorial=>vi?"Hoàn thành bước hướng dẫn":"Finish tutorial step",
+                    JourneyStepCode.SurveyHabitat=>vi?"Khảo sát sinh cảnh":"Survey habitat",
+                    JourneyStepCode.UnlockHabitat=>vi?"Mở sinh cảnh":"Unlock habitat",
+                    JourneyStepCode.QuestRequirement=>vi?"Yêu cầu nhiệm vụ":"Quest requirement",
+                    JourneyStepCode.ClaimQuest=>vi?"Nhận nhiệm vụ":"Claim quest",
+                    JourneyStepCode.UnlockZone=>vi?"Mở thế giới":"Unlock world",
+                    _=>step.Code.ToString()
+                };
+                string target=step.QuestId!=null?QuestName(step.QuestId,vi):step.Target;
+                if(step.Code==JourneyStepCode.UnlockZone)target=ZoneName(step.Target,vi);
+                lines.Add(action+(string.IsNullOrEmpty(target)?"":" · "+target)+
+                    (step.Requirement.HasValue?" · "+step.Requirement+" "+step.Current+"/"+step.Required:"")+
+                    (step.Ready?(vi?" · Sẵn sàng":" · Ready"):"")+
+                    (string.IsNullOrEmpty(step.Detail)?"":" · "+Missing(step.Detail,vi)));
+                if(step.Candidates!=null&&step.Candidates.Count>0)
+                    lines.Add((vi?"Gợi ý: ":"Candidates: ")+string.Join(", ",step.Candidates.Take(3)));
+            }
+            if(journey.Steps.Count>4)lines.Add((vi?"Các bước tiếp theo: ":"Further steps: ")+(journey.Steps.Count-4));
+            if(journey.SideQuestsReady.Count>0)lines.Add((vi?"Nhiệm vụ phụ có thể nhận: ":"Side quests ready: ")+string.Join(", ",journey.SideQuestsReady.Select(x=>QuestName(x,vi))));
+            return string.Join("\n",lines);
+        }
         static bool InRealm(IEnumerable<string> habitats,Realm realm)=>
             habitats.Any(h=>HabitatCatalog.TryGet(h,out var profile)&&profile.Realm==realm);
         // Suggestions are bounded, read-only examples from currently owned species and catalog routes.

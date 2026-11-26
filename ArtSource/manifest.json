@@ -1,0 +1,301 @@
+﻿{
+    "formatVersion":  1,
+    "description":  "Original art sources; not Unity production assets. License and visual/technical QA must be reviewed.",
+    "files":  [
+                  {
+                      "path":  "ArtSource/Dragons/images/01_emberling.glb",
+                      "bytes":  3942888,
+                      "sha256":  "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/01_emberling.jpg",
+                      "bytes":  347147,
+                      "sha256":  "98622c67f0635eb7dd87baa4fb23f30c2c78af57d6f346ffdd6b7d216cff30b7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/02_droplet.glb",
+                      "bytes":  3953936,
+                      "sha256":  "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/02_droplet.jpg",
+                      "bytes":  378458,
+                      "sha256":  "b564266ffc93d2a8db41a9f77476e45a33cd5b0a53528709be454fff40308bf7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/03_sprout.glb",
+                      "bytes":  4184268,
+                      "sha256":  "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/03_sprout.jpg",
+                      "bytes":  372001,
+                      "sha256":  "fe82b1d5ab162a5ba1b1ac3a65970c39255b8931b0f68d9a39a766608cb7fe9d"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/04_zephyr.glb",
+                      "bytes":  4524668,
+                      "sha256":  "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/04_zephyr.jpg",
+                      "bytes":  420180,
+                      "sha256":  "c989d1cfc550133c47c21d0c7167a5c568e4f0f3fdd2705f163452139c919d09"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/05_steamdrake.glb",
+                      "bytes":  4142736,
+                      "sha256":  "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/05_steamdrake.jpg",
+                      "bytes":  340548,
+                      "sha256":  "5763b5d604c17f3075ff284e6e6c1a9e286e162df5a4da0dbd569e41fabc3a93"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/06_magma.glb",
+                      "bytes":  3648020,
+                      "sha256":  "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/06_magma.jpg",
+                      "bytes":  390563,
+                      "sha256":  "45596db0efdc36fca0f5dde2af934fdfe7d649e9fcf5efc65cee457a9052c4b4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/07_sparkwing.glb",
+                      "bytes":  3627404,
+                      "sha256":  "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/07_sparkwing.jpg",
+                      "bytes":  408241,
+                      "sha256":  "0abc6fb3f8dc9ca56695a9e6e84c4f72c1010c213b802c90f80ba9bf7c199325"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/08_frostfin.glb",
+                      "bytes":  3501148,
+                      "sha256":  "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/08_frostfin.jpg",
+                      "bytes":  330614,
+                      "sha256":  "7e0fe3038b85faf7b128c1a0a7a52380ecde0ded9f41495da54411984eb155c3"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/09_mossback.glb",
+                      "bytes":  3560776,
+                      "sha256":  "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/09_mossback.jpg",
+                      "bytes":  339670,
+                      "sha256":  "01eb76414fa965077792e0f21ff1864dcabab156c60ebec0c5d89ea83031a576"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/10_blossom.glb",
+                      "bytes":  3900628,
+                      "sha256":  "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/10_blossom.jpg",
+                      "bytes":  395758,
+                      "sha256":  "fdf4cccdc2494cc651de15d40ca66764ddab8ac3d3dfdf7a36b5e39fe2c54603"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/11_solaris.glb",
+                      "bytes":  3502444,
+                      "sha256":  "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/11_solaris.jpg",
+                      "bytes":  437954,
+                      "sha256":  "4272b3060200571cbc4ffc98d4b43d54c4d9544c8c9d3e6fbc4ebbdd7fb9da74"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/12_leviathan.glb",
+                      "bytes":  3833836,
+                      "sha256":  "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/12_leviathan.jpg",
+                      "bytes":  376676,
+                      "sha256":  "af06427401a4f74d7afd8fa4c7f89c924fc160776f64a6c8f0faf8d79f674aef"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/13_amberhorn.glb",
+                      "bytes":  4277448,
+                      "sha256":  "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/13_amberhorn.jpg",
+                      "bytes":  403688,
+                      "sha256":  "37d5981da4108c03abebc8792fc3fa984eaa1153c2a8315c8ce27b07a25f40a4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/14_aurorawing.glb",
+                      "bytes":  3376524,
+                      "sha256":  "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/14_aurorawing.jpg",
+                      "bytes":  379155,
+                      "sha256":  "9821ae6e5e4c5eb11265cc0c2fba1f5aa501b83d875bafd0a1753b78f61a4aa7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/15_celestia.glb",
+                      "bytes":  3508848,
+                      "sha256":  "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/15_celestia.jpg",
+                      "bytes":  388819,
+                      "sha256":  "8b0ed26c47127a3b329d71be0195138670b95dd29a1a92a68c60afcc4afab2d4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/16_gaia.glb",
+                      "bytes":  4717212,
+                      "sha256":  "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/16_gaia.jpg",
+                      "bytes":  414146,
+                      "sha256":  "6fbee25c69cb27c300b0a99fce6da27e69f1ec4a9f89123f5c83786205518981"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/preview_all_16_species.png",
+                      "bytes":  3093826,
+                      "sha256":  "c9d1c52478063733e6f6ed1ea181639ced0dd15610e03df91f6650b21af300ec"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/01_origin_meadow.jpg",
+                      "bytes":  793797,
+                      "sha256":  "64a5519add9afa526a433956165163861fd580e190b0066198649b30e1ca23f1"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/02_origin_warm_rocks.jpg",
+                      "bytes":  763420,
+                      "sha256":  "48cb80e3569972683701a5d4adf2d02e81b79a283e833b4486313abbba602dcc"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/03_origin_pondbank.jpg",
+                      "bytes":  839046,
+                      "sha256":  "fd5f484f08f6ebf2ecccaa437d82dcb30767f3bcd6b653a2dbb1157e976a3fce"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/04_ocean_estuary.jpg",
+                      "bytes":  827578,
+                      "sha256":  "e0bc7473cca3c0bfccc6a3bc35bea3b9aa0fa25621a953ec0225358351a720d7"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/05_ocean_cool_pool.jpg",
+                      "bytes":  797508,
+                      "sha256":  "a3eef53265b9f3fe17ee82bdb3530bceff2be12b4e1628fe03e144b90e8e0b14"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/06_ocean_reef.jpg",
+                      "bytes":  830441,
+                      "sha256":  "c00309cbb9fef23a2e8f2f3b076e171090cfaf6b84e321c9971277768c3a1b19"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/07_sky_low_island.jpg",
+                      "bytes":  795867,
+                      "sha256":  "59157ab4a1ca390ddd0f99b76487e9078b73df3a05975ce51c8036625a4cbfd2"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/preview_all_habitats_and_props.png",
+                      "bytes":  3283983,
+                      "sha256":  "462cc54c9b3524b4939e5e4e9154a995b50061e4e85d61c5ba3d6a6f7a33952e"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue.jpg",
+                      "bytes":  480139,
+                      "sha256":  "9e155d2be467f4e2bffa18de9a0c3064dfc0388f90fa2ada711d60f41ffcd2c3"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin.jpg",
+                      "bytes":  432744,
+                      "sha256":  "044851fd7e490a695d4a3628440c9840fe36a4e85226b9263eb6608e38b8e009"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone.jpg",
+                      "bytes":  415690,
+                      "sha256":  "1f5a302e6e63df5d579cf9030bd2144bd183c77059b51f67c25121e44301ff2b"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest.jpg",
+                      "bytes":  486706,
+                      "sha256":  "ca48186b21d00c3619697f655a632cedb265670471788764f0ed333341f8f15b"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.jpg",
+                      "bytes":  513312,
+                      "sha256":  "c714cfa7788ec39731cb3d9c721f1381c063ca035edae79611da6da29c107978"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb",
+                      "bytes":  4069008,
+                      "sha256":  "fc00a2308edf9e8be332bd705a7f772597ccb51ec5af337dd15dafc595fcb6dc"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.jpg",
+                      "bytes":  437799,
+                      "sha256":  "78c1f02b78a6626c234fa0ae093d77e2eb99dfbcce3a0701ab958fd08211c9ce"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg",
+                      "bytes":  431819,
+                      "sha256":  "2a34024ce67e39b8c38d127f958b62d928da4eb731482e50738c1aabe54937ba"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal.jpg",
+                      "bytes":  518772,
+                      "sha256":  "ac10907192a021f52686c72ee0eea3428dbe277522cdaff0c5594c592f8a1a0e"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket.jpg",
+                      "bytes":  494360,
+                      "sha256":  "3827fba2586f1e2244ae0540eeb366cea2254a5004f68d6d41b0b64d2359a3d7"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/preview_all_12_nature_props.png",
+                      "bytes":  2404512,
+                      "sha256":  "8805e49d61fe18283df3a2d87742f63e6f41d37ef024deb5adab5ca5d484af77"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder.jpg",
+                      "bytes":  445276,
+                      "sha256":  "3cf9f2b511553f7b7980f75f35da8b40263073848a001e617de9b5dd7d528a2a"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber.jpg",
+                      "bytes":  415750,
+                      "sha256":  "c97ab69e435a7e1edbd868483ca7232b574012923e0ab6114746eb93577c8ac5"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island.jpg",
+                      "bytes":  487188,
+                      "sha256":  "c1923019c524a673506b98b764f8afe0635305262e6168111275ad0ed64ddd01"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin.jpg",
+                      "bytes":  457137,
+                      "sha256":  "117e11552c8d05ee6f577c5d94e60d2199029f101069d3f6f8604fb8d873951f"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster.jpg",
+                      "bytes":  372269,
+                      "sha256":  "0dfafb0618369f0c918e0f3a784d3c44d7ee05ce33aaed4264e83e211306b2ce"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster.jpg",
+                      "bytes":  383016,
+                      "sha256":  "618e9cd69f5534a395759784fc4eac2d87ced9bf3d4f08b05a0c20dc7616812d"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster.jpg",
+                      "bytes":  439371,
+                      "sha256":  "700154929c76689678dde8e98aade10d08d8969ac8964b79e1679be2835e4ab6"
+                  }
+              ]
+}

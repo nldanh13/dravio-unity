@@ -338,7 +338,9 @@ namespace Dravio.Domain.Tests
             Assert.That(ProgressionQueries.Rewards(s).Titles, Does.Contain("title.forest_ranger"));
             Assert.That(ProgressionQueries.Rewards(s).CodexNotes, Does.Contain("note.forest_first_trail"));
             Assert.That(QuestProposals.Evaluate(s).Single(q => q.QuestId == "Q_EXPEDITION_PATHFINDER").Requirements[0].Current, Is.EqualTo(16));
-            Assert.That(Exploration.Milestones.All(m => m.RouteId != "sky_cloud"), Is.True);
+            // U2.13: sky_cloud chỉ có mốc trứng Aurorawing đã duyệt (không vật liệu, không danh hiệu) khi bảng chưa duyệt; tuyến khóa nên không đạt được.
+            Assert.That(Exploration.Milestones.Where(m => m.RouteId == "sky_cloud").Select(m => (m.Claims, m.BonusEach, m.RewardId, m.EggRewardId)),
+                Is.EqualTo(new[] { (15, 0, (string)null, "EXPEDITION_EGG_AURORAWING") }));
         }
 
         // ================================================================== nghiên cứu + danh hiệu
