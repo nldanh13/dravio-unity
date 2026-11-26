@@ -31,7 +31,14 @@ namespace Dravio.Persistence.Tests
         public void Domain_does_not_reference_persistence_or_platform()
         {
             foreach (string f in Directory.GetFiles(Dir("Domain"), "*.cs", SearchOption.AllDirectories))
-                Assert.That(Regex.IsMatch(Code(f), @"Dravio\.(Persistence|Platform)"), Is.False, f);
+            {
+                string code = Code(f);
+                // An exact friend declaration for the editor test assembly is metadata,
+                // not a reference to the production Persistence assembly.
+                if (Path.GetFullPath(f) == Path.GetFullPath(Path.Combine(Dir("Domain"), "AssemblyInfo.cs")))
+                    code = Regex.Replace(code, @"(?m)^\s*\[assembly:\s*InternalsVisibleTo\(""Dravio\.Persistence\.Tests""\)\]\s*$", "");
+                Assert.That(Regex.IsMatch(code, @"Dravio\.(Persistence|Platform)"), Is.False, f);
+            }
         }
 
         [TestCase("Persistence/Dravio.Persistence.asmdef", true, "\"Dravio.Domain\"")]
