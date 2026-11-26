@@ -106,6 +106,8 @@ namespace Dravio.Domain.Behavior
         [WireName("grandparent")] Grandparent,
         [WireName("sharedHabitat")] SharedHabitat,
         [WireName("sameSpecies")] SameSpecies,
+        /// <summary>U2.11 (ADR 0206): thời gian sống chung đã lưu (Schema v10), 1 điểm / giờ, trần 40.</summary>
+        [WireName("sharedTime")] SharedTime,
     }
 
     /// <summary>Quan hệ giữa hai cá thể (S4). Snapshot.</summary>
@@ -113,8 +115,12 @@ namespace Dravio.Domain.Behavior
     {
         public string UidA { get; internal set; }
         public string UidB { get; internal set; }
-        /// <summary>0–100, dẫn xuất (phả hệ, cùng chỗ, cùng loài). Độ quen theo thời gian sống chung cần Schema v9 (S7, chưa làm).</summary>
+        /// <summary>0–100: phả hệ, cùng chỗ, cùng loài và (U2.11) thời gian sống chung đã lưu.</summary>
         public int Familiarity { get; internal set; }
+        /// <summary>U2.11: bậc hiển thị theo <see cref="Familiarity"/>.</summary>
+        public RelationTier Tier => RelationRules.TierOf(Familiarity);
+        /// <summary>U2.11: thời gian sống chung đã lưu (ms, trần 40 giờ).</summary>
+        public long SharedMs { get; internal set; }
         public IReadOnlyList<FamiliaritySource> Sources { get; internal set; }
         /// <summary>0–100: hai cá thể có muốn ở gần nhau không.</summary>
         public int Affinity { get; internal set; }
@@ -203,7 +209,10 @@ namespace Dravio.Domain.Behavior
         private static bool IsParentOf(DragonState p, DragonState c) => c.ParentIds != null && Array.IndexOf(c.ParentIds, p.Uid) >= 0;
 
         /// <summary>Độ quen dẫn xuất (S4): cha mẹ–con 60, anh chị em ruột 50, cùng cha hoặc mẹ 30, ông bà 30; cùng chỗ +20, cùng loài +10.</summary>
-        public static SocialRelation Relation(DragonState a, DragonState b)
+        public static SocialRelation Relation(DragonState a, DragonState b) => Relation(null, a, b);
+
+        /// <summary>U2.11: như trên, cộng điểm thời gian sống chung từ <see cref="GameState.Relations"/> (null = không có).</summary>
+        public static SocialRelation Relation(GameState s, DragonState a, DragonState b)
         {
             var src = new List<FamiliaritySource>();
             int kin = 0;
@@ -222,6 +231,9 @@ namespace Dravio.Domain.Behavior
             int fam = kin;
             if (SameHabitat(a, b)) { fam += 20; src.Add(FamiliaritySource.SharedHabitat); }
             if (a.SpeciesId == b.SpeciesId) { fam += 10; src.Add(FamiliaritySource.SameSpecies); }
+            long sharedMs = s?.Relations?.SharedMs(a.Uid, b.Uid) ?? 0;
+            int timePts = RelationRules.TimePoints(sharedMs);
+            if (timePts > 0) { fam += timePts; src.Add(FamiliaritySource.SharedTime); }
             fam = Clamp(fam);
 
             SocialProfile pa = Profile(a), pb = Profile(b);
@@ -232,7 +244,7 @@ namespace Dravio.Domain.Behavior
             if ((ca == ActivityCycle.Day && cb == ActivityCycle.Night) || (ca == ActivityCycle.Night && cb == ActivityCycle.Day)) aff -= 15;
             if (pa.Style == SocialStyle.Solitary || pb.Style == SocialStyle.Solitary) aff -= 20;
             bool ordered = string.CompareOrdinal(a.Uid, b.Uid) <= 0;
-            return new SocialRelation { UidA = ordered ? a.Uid : b.Uid, UidB = ordered ? b.Uid : a.Uid, Familiarity = fam, Sources = src, Affinity = Clamp(aff) };
+            return new SocialRelation { UidA = ordered ? a.Uid : b.Uid, UidB = ordered ? b.Uid : a.Uid, Familiarity = fam, Sources = src, Affinity = Clamp(aff), SharedMs = sharedMs };
         }
 
         private static bool IsRestLike(BehaviorDecision d) => d.Behavior == DragonBehavior.Rest || d.Behavior == DragonBehavior.Sleep || d.Behavior == DragonBehavior.Idle;
@@ -302,7 +314,7 @@ namespace Dravio.Domain.Behavior
         {
             DragonState da = s.FindDragon(a.Uid), db = s.FindDragon(b.Uid);
             SocialProfile pa = Profile(da), pb = Profile(db);
-            SocialRelation r = Relation(da, db);
+            SocialRelation r = Relation(s, da, db);
             int dist = Math.Max(pa.PersonalSpaceDm, pb.PersonalSpaceDm);
             long start = Math.Max(a.StartedAtMs, b.StartedAtMs), until = Math.Min(a.UntilMs, b.UntilMs);
             SocialInteractionCandidate Make(SocialInteractionKind k, BehaviorDecision init, BehaviorDecision partner, int score) => new SocialInteractionCandidate
@@ -351,7 +363,7 @@ namespace Dravio.Domain.Behavior
             {
                 if (x.Uid == d.Uid || !SameHabitat(d, x)) continue;
                 others++;
-                if (Relation(d, x).Familiarity >= 40) familiarCompanion = true;
+                if (Relation(s, d, x).Familiarity >= 40) familiarCompanion = true;
             }
             if (p.WantsSpace && others >= BehaviorCatalog.CrowdedAtOthers) return -rules.CrowdingComfortPenalty;
             if (p.PrefersCompany && familiarCompanion) return rules.CompanionComfortBonus;

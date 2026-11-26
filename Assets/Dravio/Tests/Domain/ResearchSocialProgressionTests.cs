@@ -453,20 +453,26 @@ namespace Dravio.Domain.Tests
         public void Aquatic_quest_can_be_satisfied_with_origin_content_only_but_never_unlocks_the_world_by_itself()
         {
             GameState s = AquaticReady(out ResearchLog log);
+            s.Research = log;
             var json = StateJson.ToJson(s);
+            // U2.11: tiền đề Q_ORIGIN_FIELD_NOTES phải được NHẬN trước (không còn tính "Ready").
             QuestStatusView v = QuestProposals.Evaluate(s, log, ResearchPacing.ProposedU210, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
             Assert.That(v.Requirements.Where(r => r.State != RequirementState.Met).Select(r => r.Def.Kind + ":" + r.Current + "/" + r.Target), Is.Empty);
-            Assert.That(v.State, Is.EqualTo(QuestState.Ready));
-            Assert.That(v.CanComplete, Is.False, "production không tự hoàn thành");
-            Assert.That(MiniJson.Diff(json, StateJson.ToJson(s)), Is.Null);
-            Assert.That(s.CompletedQuests, Is.Empty);
-            // Lệnh canonical vẫn từ chối: nhiệm vụ chưa được ghi nhận.
-            Fail(s, new UnlockZoneCommand(Rid(), "ocean"), new FixedClock(Day0 + 3 * Day), DomainErrorCode.UnlockRequirementMissing);
-            // Khi có hệ nhiệm vụ (đã duyệt), hoàn thành đi qua hàm engine canonical rồi lệnh unlockZone kiểm đủ điều kiện như cũ.
-            Assert.That(QuestProposals.Evaluate(s, log, ResearchPacing.ProposedU210, QuestRules.ProposedForReview).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION").CanComplete, Is.True);
-            GameState w = s.DeepClone();
-            Assert.That(WorldExpansion.ApplyQuestComplete(w, "QUEST_AQUATIC_EXPLORATION", null), Is.Null);
-            Ok(w, new UnlockZoneCommand(Rid(), "ocean"), new FixedClock(Day0 + 3 * Day));
+            Assert.That((v.State, v.LockedBy.Single(), v.CanComplete), Is.EqualTo((QuestState.Locked, "quest:Q_ORIGIN_FIELD_NOTES", false)));
+            Assert.That(MiniJson.Diff(json, StateJson.ToJson(s)), Is.Null, "đánh giá không đổi state");
+            var clock = new FixedClock(Day0 + 3 * Day);
+            Fail(s, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock, DomainErrorCode.QuestLocked);
+            GameState notes = Ok(s, new CompleteQuestCommand(Rid(), "Q_ORIGIN_FIELD_NOTES"), clock).State;
+            Assert.That((notes.CompletedSideQuests.Single(), notes.CompletedQuests.Count), Is.EqualTo(("Q_ORIGIN_FIELD_NOTES", 0)));
+            // Lệnh canonical vẫn từ chối: nhiệm vụ cổng chưa được nhận.
+            Fail(notes, new UnlockZoneCommand(Rid(), "ocean"), clock, DomainErrorCode.UnlockRequirementMissing);
+            DispatchResult done = Ok(notes, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock);
+            Assert.That(done.State.CompletedQuests, Is.EqualTo(new[] { "QUEST_AQUATIC_EXPLORATION" }));
+            Assert.That((done.State.Player.Inventory["wood"], done.State.Player.Inventory["seed"]), Is.EqualTo((0L, 0L)), "vật liệu giao bị trừ");
+            Assert.That(done.State.FindZone("ocean").Unlocked, Is.False, "hoàn thành nhiệm vụ không tự mở thế giới");
+            Assert.That(done.State.Player.Gold.Micro - notes.Player.Gold.Micro, Is.EqualTo(done.Events.OfType<TimeAdvanced>().Sum(e => e.GoldMicro)), "không thưởng vàng");
+            Fail(done.State, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock, DomainErrorCode.QuestAlreadyCompleted);
+            Ok(done.State, new UnlockZoneCommand(Rid(), "ocean"), clock);
         }
 
         [Test]
@@ -504,7 +510,8 @@ namespace Dravio.Domain.Tests
         {
             (GameState s, _) = NewGame();
             ProgressionOverviewDto o = ProgressionQueries.Overview(s);
-            Assert.That(o.Rules.ResearchPacingEnabled || o.Rules.SocialGameplayEffectsEnabled || o.Rules.QuestCompletionEnabled ||
+            Assert.That(o.Rules.QuestCompletionEnabled, Is.True, "U2.11: nhiệm vụ chạy thật");
+            Assert.That(o.Rules.ResearchPacingEnabled || o.Rules.SocialGameplayEffectsEnabled ||
                 o.Rules.ComfortDriftEnabled || o.Rules.NaturalDisastersEnabled || o.Rules.EnergyDrainEnabled, Is.False);
             Assert.That(o.SpeciesTotal, Is.EqualTo(16));
             Assert.That(o.CodexCellsTotal, Is.EqualTo(64));

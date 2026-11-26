@@ -8,7 +8,7 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v9 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6) + packDaily / sanctuaryProjectsBuilt / research (U2.10)), trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v9 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6) + packDaily / sanctuaryProjectsBuilt / research (U2.10) + completedSideQuests / expeditionsClaimed / relations (U2.11)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
@@ -27,6 +27,8 @@ namespace Dravio.Persistence.Schema
             "healthCases", "disasters", "hazard",
             // v9 (U2.10), chỉ có ở bản Unity
             "packDaily", "sanctuaryProjectsBuilt", "research",
+            // v10 (U2.11), chỉ có ở bản Unity
+            "completedSideQuests", "expeditionsClaimed", "relations",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -111,6 +113,7 @@ namespace Dravio.Persistence.Schema
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             HealthToJson(s, o);
             if (s.SchemaVersion >= 9) U210ToJson(s, o);
+            if (s.SchemaVersion >= 10) U211ToJson(s, o);
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
             GameStats st = p.Stats;
@@ -567,7 +570,47 @@ namespace Dravio.Persistence.Schema
             else errors.Add("rewardQueue: invalid");
             HealthFromJson(o, s, errors);
             if (s.SchemaVersion >= 9) U210FromJson(o, s, errors);
+            if (s.SchemaVersion >= 10) U211FromJson(o, s, errors);
             return s;
+        }
+
+        // ---------------- v10 (U2.11): nhiệm vụ phụ, bộ đếm thám hiểm, quan hệ ----------------
+
+        private static void U211ToJson(GameState s, JsonObject o)
+        {
+            o.Set("completedSideQuests", Arr(s.CompletedSideQuests));
+            var claimed = new JsonObject();
+            if (s.ExpeditionsClaimed != null) foreach (var kv in s.ExpeditionsClaimed) claimed.Set(kv.Key, N(kv.Value));
+            o.Set("expeditionsClaimed", claimed);
+            // Ghi bản đã làm sạch (như khi nạp), giống sổ nghiên cứu.
+            Dravio.Domain.Behavior.RelationLogSnapshot snap = (s.Relations ?? new Dravio.Domain.Behavior.RelationLog()).ToSnapshot();
+            if (s.Dragons != null) snap = Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s);
+            var pairs = new JsonArray();
+            foreach (var p in snap.Pairs) pairs.Add(new JsonObject().Set("a", S(p.A)).Set("b", S(p.B)).Set("sharedMs", N(p.SharedMs)));
+            o.Set("relations", new JsonObject().Set("pairs", pairs));
+        }
+
+        private static void U211FromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            s.CompletedSideQuests = new Reader(errors).StrList(o, "completedSideQuests", "completedSideQuests: invalid") ?? new List<string>();
+            s.ExpeditionsClaimed = new SortedDictionary<string, int>(StringComparer.Ordinal);
+            if (o.Get("expeditionsClaimed") is JsonObject ec)
+            {
+                foreach (var kv in ec)
+                    if (Reader.AsSafeLong(kv.Value, out long n) && n >= 0 && n <= int.MaxValue) s.ExpeditionsClaimed[kv.Key] = (int)n;
+                    else { errors.Add("expeditionsClaimed: invalid"); break; }
+            }
+            else errors.Add("expeditionsClaimed: invalid");
+            // Quan hệ chỉ trình diễn: khối hỏng hay mục lạ bị BỎ khi nạp, không làm hỏng save.
+            s.Relations = new Dravio.Domain.Behavior.RelationLog();
+            if (s.Dragons == null || !(o.Get("relations") is JsonObject ro) || !(ro.Get("pairs") is JsonArray pa)) return;
+            var snap = new Dravio.Domain.Behavior.RelationLogSnapshot();
+            foreach (JsonValue x in pa)
+            {
+                if (!(x is JsonObject e) || !(e.Get("a") is JsonString a) || !(e.Get("b") is JsonString b) || !Reader.AsSafeLong(e.Get("sharedMs"), out long ms)) continue;
+                snap.Pairs.Add(new Dravio.Domain.Behavior.RelationLogSnapshot.Pair { A = a.Value, B = b.Value, SharedMs = ms });
+            }
+            s.Relations = Dravio.Domain.Behavior.RelationLog.FromSnapshot(Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s));
         }
 
         // ---------------- v9 (U2.10): giới hạn gói theo ngày, dự án Sanctuary, sổ nghiên cứu ----------------

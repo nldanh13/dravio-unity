@@ -59,8 +59,8 @@ namespace Dravio.Persistence.Tests
             Assert.That(r.Ok, Is.True, r.ToString());
             Assert.That(PFix.Canonical(r.Save.State), Is.EqualTo(PFix.Canonical(SaveSchema.ToPersistedState(s))));
             var state = (Json.JsonObject)((Json.JsonObject)Json.JsonParser.Parse(text)).Get("state");
-            Assert.That(state.Keys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(GameStateJson.StateKeys.OrderBy(k => k, StringComparer.Ordinal)), "schema v9 keys only (v4 + breedingNest + codex + expedition + health + U2.10)");
-            Assert.That(state.Get("schemaVersion").ToString(), Is.EqualTo("9"));
+            Assert.That(state.Keys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(GameStateJson.StateKeys.OrderBy(k => k, StringComparer.Ordinal)), "schema v10 keys only (v4 + breedingNest + codex + expedition + health + U2.10 + U2.11)");
+            Assert.That(state.Get("schemaVersion").ToString(), Is.EqualTo("10"));
             string dir = Environment.GetEnvironmentVariable("DRAVIO_EXPORT_DIR");
             PFix.Export(dir, "u23-world", text);
         }
