@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Dravio.Domain;
+using Dravio.Domain.Core;
 using Dravio.Domain.Queries;
 using Dravio.Domain.Expedition;
 
