@@ -1,0 +1,91 @@
+{
+  "generator": "scripts/art/environment/build_sanctuary_projects.py",
+  "blender": "5.3.0",
+  "status": "style-sample (not accepted; art-direction review)",
+  "projectId": "origin_lantern_row",
+  "domainIndex": 1,
+  "world": "origin",
+  "kind": "light",
+  "prefabId": "PF_SANC_origin_lantern_row",
+  "model": "Models/SM_SANC_origin_lantern_row.fbx",
+  "materials": [
+    "ENV_Props"
+  ],
+  "lods": [
+    {
+      "mesh": "SM_SANC_origin_lantern_row_LOD0",
+      "triangles": 1856,
+      "screenRelativeHeight": 0.35
+    },
+    {
+      "mesh": "SM_SANC_origin_lantern_row_LOD1",
+      "triangles": 928,
+      "screenRelativeHeight": 0.12
+    },
+    {
+      "mesh": "SM_SANC_origin_lantern_row_LOD2",
+      "triangles": 408,
+      "screenRelativeHeight": 0.02
+    }
+  ],
+  "lod0Budget": 6000,
+  "uvErrors": 0,
+  "boundsUnity": {
+    "center": [
+      -0.005,
+      0.822,
+      -0.267
+    ],
+    "size": [
+      7.76,
+      1.655,
+      1.572
+    ]
+  },
+  "footprintRadius_m": 3.88,
+  "pivot": "bottom centre (ground y = 0)",
+  "front": "-Z (faces the Sanctuary camera)",
+  "anchors": {
+    "ANCHOR_Approach": [
+      -0.0,
+      0.0,
+      -1.6
+    ],
+    "ANCHOR_Light_0": [
+      3.2,
+      1.08,
+      -0.0
+    ],
+    "ANCHOR_Light_1": [
+      1.6,
+      1.08,
+      -0.173
+    ],
+    "ANCHOR_Light_2": [
+      -0.0,
+      1.08,
+      -0.093
+    ],
+    "ANCHOR_Light_3": [
+      -1.6,
+      1.08,
+      0.124
+    ],
+    "ANCHOR_Light_4": [
+      -3.2,
+      1.08,
+      0.159
+    ],
+    "ANCHOR_VFX_Complete": [
+      -0.0,
+      1.9,
+      -0.0
+    ]
+  },
+  "notDecidedHere": [
+    "cost",
+    "buildMaterials",
+    "buffs",
+    "rewards"
+  ]
+}

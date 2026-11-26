@@ -1,0 +1,281 @@
+[
+ {
+  "generator": "scripts/art/environment/build_sanctuary_projects.py",
+  "blender": "5.3.0",
+  "status": "style-sample (not accepted; art-direction review)",
+  "projectId": "origin_lantern_row",
+  "domainIndex": 1,
+  "world": "origin",
+  "kind": "light",
+  "prefabId": "PF_SANC_origin_lantern_row",
+  "model": "Models/SM_SANC_origin_lantern_row.fbx",
+  "materials": [
+   "ENV_Props"
+  ],
+  "lods": [
+   {
+    "mesh": "SM_SANC_origin_lantern_row_LOD0",
+    "triangles": 1856,
+    "screenRelativeHeight": 0.35
+   },
+   {
+    "mesh": "SM_SANC_origin_lantern_row_LOD1",
+    "triangles": 928,
+    "screenRelativeHeight": 0.12
+   },
+   {
+    "mesh": "SM_SANC_origin_lantern_row_LOD2",
+    "triangles": 408,
+    "screenRelativeHeight": 0.02
+   }
+  ],
+  "lod0Budget": 6000,
+  "uvErrors": 0,
+  "boundsUnity": {
+   "center": [
+    -0.005,
+    0.822,
+    -0.267
+   ],
+   "size": [
+    7.76,
+    1.655,
+    1.572
+   ]
+  },
+  "footprintRadius_m": 3.88,
+  "pivot": "bottom centre (ground y = 0)",
+  "front": "-Z (faces the Sanctuary camera)",
+  "anchors": {
+   "ANCHOR_Approach": [
+    -0.0,
+    0.0,
+    -1.6
+   ],
+   "ANCHOR_Light_0": [
+    3.2,
+    1.08,
+    -0.0
+   ],
+   "ANCHOR_Light_1": [
+    1.6,
+    1.08,
+    -0.173
+   ],
+   "ANCHOR_Light_2": [
+    -0.0,
+    1.08,
+    -0.093
+   ],
+   "ANCHOR_Light_3": [
+    -1.6,
+    1.08,
+    0.124
+   ],
+   "ANCHOR_Light_4": [
+    -3.2,
+    1.08,
+    0.159
+   ],
+   "ANCHOR_VFX_Complete": [
+    -0.0,
+    1.9,
+    -0.0
+   ]
+  },
+  "notDecidedHere": [
+   "cost",
+   "buildMaterials",
+   "buffs",
+   "rewards"
+  ]
+ },
+ {
+  "generator": "scripts/art/environment/build_sanctuary_projects.py",
+  "blender": "5.3.0",
+  "status": "style-sample (not accepted; art-direction review)",
+  "projectId": "ocean_coral_arch",
+  "domainIndex": 9,
+  "world": "ocean",
+  "kind": "landmark",
+  "prefabId": "PF_SANC_ocean_coral_arch",
+  "model": "Models/SM_SANC_ocean_coral_arch.fbx",
+  "materials": [
+   "ENV_Ocean_Foliage",
+   "ENV_Ocean_Props"
+  ],
+  "lods": [
+   {
+    "mesh": "SM_SANC_ocean_coral_arch_LOD0",
+    "triangles": 2028,
+    "screenRelativeHeight": 0.35
+   },
+   {
+    "mesh": "SM_SANC_ocean_coral_arch_LOD1",
+    "triangles": 1014,
+    "screenRelativeHeight": 0.12
+   },
+   {
+    "mesh": "SM_SANC_ocean_coral_arch_LOD2",
+    "triangles": 446,
+    "screenRelativeHeight": 0.02
+   }
+  ],
+  "lod0Budget": 6000,
+  "uvErrors": 0,
+  "boundsUnity": {
+   "center": [
+    0.081,
+    1.83,
+    -0.092
+   ],
+   "size": [
+    5.898,
+    3.741,
+    1.737
+   ]
+  },
+  "footprintRadius_m": 2.949,
+  "pivot": "bottom centre (ground y = 0)",
+  "front": "-Z (faces the Sanctuary camera)",
+  "anchors": {
+   "ANCHOR_Approach": [
+    -0.0,
+    0.0,
+    -1.8
+   ],
+   "ANCHOR_Glow_0": [
+    -2.13,
+    1.99,
+    -0.35
+   ],
+   "ANCHOR_Glow_1": [
+    -1.708,
+    2.872,
+    -0.35
+   ],
+   "ANCHOR_Glow_2": [
+    -0.948,
+    3.482,
+    -0.35
+   ],
+   "ANCHOR_Glow_3": [
+    -0.0,
+    3.7,
+    -0.35
+   ],
+   "ANCHOR_Glow_4": [
+    0.948,
+    3.482,
+    -0.35
+   ],
+   "ANCHOR_Glow_5": [
+    1.708,
+    2.872,
+    -0.35
+   ],
+   "ANCHOR_Glow_6": [
+    2.13,
+    1.99,
+    -0.35
+   ],
+   "ANCHOR_SwimThrough": [
+    -0.0,
+    1.2,
+    -0.0
+   ],
+   "ANCHOR_VFX_Complete": [
+    -0.0,
+    3.2,
+    -0.0
+   ]
+  },
+  "notDecidedHere": [
+   "cost",
+   "buildMaterials",
+   "buffs",
+   "rewards"
+  ]
+ },
+ {
+  "generator": "scripts/art/environment/build_sanctuary_projects.py",
+  "blender": "5.3.0",
+  "status": "style-sample (not accepted; art-direction review)",
+  "projectId": "sky_star_observatory",
+  "domainIndex": 18,
+  "world": "sky",
+  "kind": "landmark",
+  "prefabId": "PF_SANC_sky_star_observatory",
+  "model": "Models/SM_SANC_sky_star_observatory.fbx",
+  "materials": [
+   "ENV_Sky_Props"
+  ],
+  "lods": [
+   {
+    "mesh": "SM_SANC_sky_star_observatory_LOD0",
+    "triangles": 856,
+    "screenRelativeHeight": 0.35
+   },
+   {
+    "mesh": "SM_SANC_sky_star_observatory_LOD1",
+    "triangles": 428,
+    "screenRelativeHeight": 0.12
+   },
+   {
+    "mesh": "SM_SANC_sky_star_observatory_LOD2",
+    "triangles": 188,
+    "screenRelativeHeight": 0.02
+   }
+  ],
+  "lod0Budget": 6000,
+  "uvErrors": 0,
+  "boundsUnity": {
+   "center": [
+    -0.0,
+    2.0,
+    -0.45
+   ],
+   "size": [
+    3.12,
+    4.0,
+    4.1
+   ]
+  },
+  "footprintRadius_m": 2.05,
+  "pivot": "bottom centre (ground y = 0)",
+  "front": "-Z (faces the Sanctuary camera)",
+  "anchors": {
+   "ANCHOR_Approach": [
+    -0.0,
+    0.0,
+    -2.6
+   ],
+   "ANCHOR_Crystal": [
+    0,
+    1.65,
+    0
+   ],
+   "ANCHOR_Perch_0": [
+    -0.953,
+    2.75,
+    -0.55
+   ],
+   "ANCHOR_Perch_1": [
+    0.953,
+    2.75,
+    -0.55
+   ],
+   "ANCHOR_VFX_Complete": [
+    -0.0,
+    3.9,
+    -0.0
+   ]
+  },
+  "notDecidedHere": [
+   "cost",
+   "buildMaterials",
+   "buffs",
+   "rewards"
+  ]
+ }
+]

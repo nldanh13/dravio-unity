@@ -73,3 +73,11 @@ Xem `SPECIES_MORPHOLOGY.md` (tự sinh bởi `build_species_spec.py`, có `--che
 - Decimate kiểu collapse có thể làm vài mặt UV bị lật hoặc kéo giãn ở đường nối (đo được, xem `uv_flipped` và `texture_drift`). Có `--protect-group` để giảm decimate ở mặt/mắt, nhưng chưa thử trên mô hình thật.
 - Shape key (blend shape) chưa được hỗ trợ trong bước LOD.
 - Rig vẫn là rig fit theo bounding box của pipeline GLB cũ; chất lượng skin của LOD được đo so với LOD nguồn, không chứng minh rig đó đẹp.
+
+## CHAR.8 — Aurorawing, chất lượng rồng sống, Sanctuary
+
+- Aurorawing (trứng thưởng + ba giai đoạn, blockout SAMPLE qua pipeline thật, QA PASS): [`AURORAWING.md`](AURORAWING.md).
+- Phản ứng nhìn / tiếp cận / ăn của rồng được chọn (nghiên cứu, hợp đồng đề xuất): [`FEEDING_RESPONSE.md`](FEEDING_RESPONSE.md).
+- Mẫu phong cách và catalog prefab 20 công trình Sanctuary: [`../Environment/SANCTUARY_PREFABS.md`](../Environment/SANCTUARY_PREFABS.md).
+- Báo cáo kiểm thử, hiệu năng, phần nào chạy thật: `scripts/art/character/TEST_REPORT_CHAR8.md`.
+- Dữ liệu: nhóm prop `egg` trong `Data/character-budgets.json`; `Data/asset-overrides.char8-local.json` (u7-local + Aurorawing `limbCount: "auto"`, chiều cao trứng đề xuất).
