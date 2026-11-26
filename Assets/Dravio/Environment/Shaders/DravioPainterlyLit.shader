@@ -153,7 +153,7 @@ Shader "Dravio/Environment/Painterly Lit"
                 return o;
             }
 
-            half4 frag(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
+            half4 frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
@@ -187,10 +187,8 @@ Shader "Dravio/Environment/Painterly Lit"
                 }
 
                 half3 n = normalize(input.normalWS);
-                #if defined(_ALPHATEST_ON)
-                    // Keep other zone materials' previous lighting at grade zero.
-                    if (_BrightFantasy > 0.0h) n *= IS_FRONT_VFACE(face, 1.0h, -1.0h);
-                #endif
+                // Foliage cards already have baked up-facing normals. Keep them
+                // on BOTH sides; flipping a backface would turn its normal down.
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 Light light = GetMainLight(shadowCoord);
                 half ndl = dot(n, light.direction);
@@ -213,8 +211,9 @@ Shader "Dravio/Environment/Painterly Lit"
                     color += light.color * sheen * ramp * _SoftSheen * _BrightFantasy
                            * lerp(half3(1,1,1), saturate(albedo.rgb), 0.40h);
                     #if defined(_ALPHATEST_ON)
-                        // Backlit grass/leaves: thin warm transmission, shadow-aware.
-                        half transmission = saturate(-ndl) * 0.10h * _BrightFantasy
+                        // A small wrapped-light term softens grazing-angle leaves
+                        // without changing the baked up-facing card normals.
+                        half transmission = (1.0h - saturate(ndl)) * 0.07h * _BrightFantasy
                                             * light.shadowAttenuation * light.distanceAttenuation;
                         color += albedo.rgb * light.color * transmission;
                     #endif
