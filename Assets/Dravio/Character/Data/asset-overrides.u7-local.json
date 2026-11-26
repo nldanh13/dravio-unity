@@ -1,0 +1,11 @@
+{
+  "_comment": "Local U1-CHAR.7 run (run_u7_local.ps1) on 01_emberling .. 07_sparkwing. limbCount \"auto\" = rig only when the mesh measurement is unambiguous (2 or 4 feet, high confidence); otherwise the batch report states the measurement and the rig is refused (the model stays static). Canonical data does not state the limb count of these five species, so these are NOT GDD values: replace \"auto\" with the art director's number once confirmed. Emberling and sprout need nothing (\"bốn chân\" in their silhouette).",
+  "species": {
+    "droplet": {"limbCount": "auto", "yawOffset": null},
+    "zephyr": {"limbCount": "auto", "yawOffset": null},
+    "steamdrake": {"limbCount": "auto", "yawOffset": null},
+    "magma": {"limbCount": "auto", "yawOffset": null},
+    "sparkwing": {"limbCount": "auto", "yawOffset": null}
+  },
+  "files": {}
+}

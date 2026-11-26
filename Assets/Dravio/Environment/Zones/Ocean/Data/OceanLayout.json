@@ -1,0 +1,427 @@
+{
+ "version": 1,
+ "seed": 7401,
+ "zoneId": "ocean",
+ "camera": {
+  "anchorPosition": [
+   0.0,
+   15.262,
+   -20.2219
+  ],
+  "eulerAngles": [
+   32.0,
+   0.0,
+   0.0
+  ],
+  "orthographicSize": 6.0,
+  "rightPanelScreenHeights": 0.5,
+  "leftMarginScreenHeights": 0.05,
+  "topMarginScreenHeights": 0.06,
+  "bottomMarginScreenHeights": 0.05,
+  "minAspect": 1.7778,
+  "supportedAspects": [
+   "16:9",
+   "19.5:9",
+   "20:9"
+  ]
+ },
+ "placements": [
+  {
+   "asset": "SM_ENV_Ocean_Seabed",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Arch_Estuary",
+   "x": -5.0,
+   "y": 0.0,
+   "z": 6.9,
+   "yaw": 0.0,
+   "scale": 0.75,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Wall_Ruin",
+   "x": -1.6,
+   "y": 0.0,
+   "z": 7.3,
+   "yaw": 5,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Statue_Dragon",
+   "x": 1.4,
+   "y": 0.0,
+   "z": 7.0,
+   "yaw": -12,
+   "scale": 0.95,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Column_Sunken",
+   "x": 3.9,
+   "y": 0.0,
+   "z": 6.6,
+   "yaw": -20,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Column_Sunken",
+   "x": -2.9,
+   "y": 0.0,
+   "z": 6.5,
+   "yaw": 30,
+   "scale": 0.75,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_A",
+   "x": 6.1,
+   "y": 0.0,
+   "z": 6.9,
+   "yaw": 20,
+   "scale": 1.2,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": -0.3,
+   "y": 0.0,
+   "z": 8.7,
+   "yaw": 0.0,
+   "scale": 1.15,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": 3.0,
+   "y": 0.0,
+   "z": 9.0,
+   "yaw": 40,
+   "scale": 1.25,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": -3.9,
+   "y": 0.0,
+   "z": 8.5,
+   "yaw": -30,
+   "scale": 1.05,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": 6.9,
+   "y": 0.0,
+   "z": 8.3,
+   "yaw": 70,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_B",
+   "x": -6.3,
+   "y": 0.0,
+   "z": 1.9,
+   "yaw": 40,
+   "scale": 1.0,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Shell_Cluster",
+   "x": -5.9,
+   "y": 0.0,
+   "z": -3.9,
+   "yaw": 10,
+   "scale": 1.0,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Shell_Cluster",
+   "x": -3.4,
+   "y": 0.0,
+   "z": 3.6,
+   "yaw": 200,
+   "scale": 0.8,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": -6.6,
+   "y": 0.0,
+   "z": 4.4,
+   "yaw": 0.0,
+   "scale": 0.85,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Sea_Fan",
+   "x": -3.1,
+   "y": 0.0,
+   "z": -4.7,
+   "yaw": 15,
+   "scale": 0.8,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Brain",
+   "x": -1.2,
+   "y": 0.0,
+   "z": 3.1,
+   "yaw": 30,
+   "scale": 1.0,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Branch",
+   "x": 1.3,
+   "y": 0.0,
+   "z": 3.5,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Table",
+   "x": 0.5,
+   "y": 0.0,
+   "z": -3.9,
+   "yaw": 0.0,
+   "scale": 0.9,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Branch",
+   "x": -1.3,
+   "y": 0.0,
+   "z": -4.4,
+   "yaw": 70,
+   "scale": 0.75,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Sea_Fan",
+   "x": 1.9,
+   "y": 0.0,
+   "z": 4.7,
+   "yaw": -10,
+   "scale": 1.0,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Column_Fallen",
+   "x": -0.3,
+   "y": 0.0,
+   "z": 5.0,
+   "yaw": 8,
+   "scale": 0.75,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Crystal_Cool",
+   "x": 5.7,
+   "y": 0.0,
+   "z": 3.3,
+   "yaw": 15,
+   "scale": 1.0,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Crystal_Cool",
+   "x": 3.7,
+   "y": 0.0,
+   "z": -4.3,
+   "yaw": 120,
+   "scale": 0.7,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Anemone_Glow",
+   "x": 4.3,
+   "y": 0.0,
+   "z": 2.1,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Anemone_Glow",
+   "x": 6.3,
+   "y": 0.0,
+   "z": -1.4,
+   "yaw": 40,
+   "scale": 0.8,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_A",
+   "x": 5.4,
+   "y": 0.0,
+   "z": -3.9,
+   "yaw": 60,
+   "scale": 0.85,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Vent_Rock",
+   "x": 3.5,
+   "y": 0.0,
+   "z": 0.9,
+   "yaw": 0.0,
+   "scale": 0.9,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_A",
+   "x": -9.3,
+   "y": 0.0,
+   "z": -3.6,
+   "yaw": 10,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Table",
+   "x": -9.0,
+   "y": 0.0,
+   "z": 2.4,
+   "yaw": 40,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": -9.8,
+   "y": 0.0,
+   "z": 4.8,
+   "yaw": 0.0,
+   "scale": 1.25,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Sea_Fan",
+   "x": -8.4,
+   "y": 0.0,
+   "z": -0.8,
+   "yaw": 80,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Brain",
+   "x": -8.7,
+   "y": 0.0,
+   "z": -5.8,
+   "yaw": 120,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_B",
+   "x": 9.0,
+   "y": 0.0,
+   "z": -2.2,
+   "yaw": 200,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Coral_Branch",
+   "x": 9.3,
+   "y": 0.0,
+   "z": 2.9,
+   "yaw": 150,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Kelp",
+   "x": 10.2,
+   "y": 0.0,
+   "z": 0.6,
+   "yaw": 20,
+   "scale": 1.2,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Sea_Fan",
+   "x": 8.7,
+   "y": 0.0,
+   "z": 5.4,
+   "yaw": -30,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Crystal_Cool",
+   "x": 10.6,
+   "y": 0.0,
+   "z": -4.8,
+   "yaw": 200,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Rock_Reef_A",
+   "x": 11.6,
+   "y": 0.0,
+   "z": 4.2,
+   "yaw": 300,
+   "scale": 1.3,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Ocean_Cover_Estuary",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "ocean_estuary"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Cover_Reef",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "ocean_reef"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Cover_Cool_Pool",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "ocean_cool_pool"
+  },
+  {
+   "asset": "SM_ENV_Ocean_Cover_Edges",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
+  }
+ ],
+ "scene": {
+  "name": "Ocean_Environment",
+  "displayNameVi": "Thủy Vực",
+  "displayNameEn": "Ocean Realm",
+  "background": [
+   0.16,
+   0.46,
+   0.52
+  ]
+ }
+}

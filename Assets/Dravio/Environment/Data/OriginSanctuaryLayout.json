@@ -1,0 +1,434 @@
+{
+ "version": 2,
+ "seed": 5209,
+ "camera": {
+  "anchorPosition": [
+   0.0,
+   15.262,
+   -20.2219
+  ],
+  "eulerAngles": [
+   32.0,
+   0.0,
+   0.0
+  ],
+  "orthographicSize": 6.0,
+  "rightPanelScreenHeights": 0.5,
+  "leftMarginScreenHeights": 0.05,
+  "topMarginScreenHeights": 0.06,
+  "bottomMarginScreenHeights": 0.05,
+  "minAspect": 1.7778,
+  "supportedAspects": [
+   "16:9",
+   "19.5:9",
+   "20:9"
+  ]
+ },
+ "placements": [
+  {
+   "asset": "SM_ENV_Ground_Sanctuary",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Gate_Ancient",
+   "x": 0,
+   "y": 0.0,
+   "z": 7.5,
+   "yaw": 0.0,
+   "scale": 0.72,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Wall_Ruin_A",
+   "x": -4.3,
+   "y": 0.0,
+   "z": 7.5,
+   "yaw": 4,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Wall_Ruin_B",
+   "x": 4.5,
+   "y": 0.0,
+   "z": 7.4,
+   "yaw": -6,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Column_Intact",
+   "x": -3.2,
+   "y": 0.0,
+   "z": 6.1,
+   "yaw": 12,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Column_Broken",
+   "x": 3.4,
+   "y": 0.0,
+   "z": 6.0,
+   "yaw": -20,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -1.9,
+   "y": 0.0,
+   "z": 10.4,
+   "yaw": 30,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 2.6,
+   "y": 0.0,
+   "z": 10.1,
+   "yaw": 160,
+   "scale": 1.4,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -6.8,
+   "y": 0.0,
+   "z": 9.8,
+   "yaw": 80,
+   "scale": 1.6,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 7.2,
+   "y": 0.0,
+   "z": 9.6,
+   "yaw": 250,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Vine_Hanging",
+   "x": -0.85,
+   "y": 2.8,
+   "z": 7.55,
+   "yaw": 0.0,
+   "scale": 0.72,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Vine_Hanging",
+   "x": 1.2,
+   "y": 2.6,
+   "z": 7.55,
+   "yaw": 180,
+   "scale": 0.65,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Pond_Bank",
+   "x": -4.9,
+   "y": 0.0,
+   "z": -0.4,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Stepping_Stones",
+   "x": -2.9,
+   "y": 0.0,
+   "z": -2.6,
+   "yaw": -20,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Runestone_B",
+   "x": -6.5,
+   "y": 0.0,
+   "z": 3.7,
+   "yaw": 25,
+   "scale": 0.85,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_B",
+   "x": -6.6,
+   "y": 0.0,
+   "z": -4.1,
+   "yaw": 70,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_C",
+   "x": -3.3,
+   "y": 0.0,
+   "z": 2.9,
+   "yaw": 300,
+   "scale": 0.9,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Mushroom_Cluster_Glow",
+   "x": -5.9,
+   "y": 0.0,
+   "z": 2.6,
+   "yaw": 10,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -3.6,
+   "y": 0.0,
+   "z": -4.7,
+   "yaw": 40,
+   "scale": 0.85,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Runestone_A",
+   "x": -1.9,
+   "y": 0.0,
+   "z": 4.1,
+   "yaw": 18,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Runestone_A",
+   "x": 1.9,
+   "y": 0.0,
+   "z": 4.0,
+   "yaw": -18,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Mushroom_Cluster_Red",
+   "x": 1.6,
+   "y": 0.0,
+   "z": -4.4,
+   "yaw": 200,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_C",
+   "x": -1.4,
+   "y": 0.0,
+   "z": -4.6,
+   "yaw": 120,
+   "scale": 0.8,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Rock_Warm_Flat",
+   "x": 4.6,
+   "y": 0.0,
+   "z": 0.6,
+   "yaw": 15,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Rock_Warm_Flat",
+   "x": 5.6,
+   "y": 0.0,
+   "z": -3.4,
+   "yaw": -50,
+   "scale": 0.85,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Rock_Warm_Stack",
+   "x": 6.2,
+   "y": 0.0,
+   "z": 2.9,
+   "yaw": 200,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Rock_Warm_Stack",
+   "x": 3.7,
+   "y": 0.0,
+   "z": -2.4,
+   "yaw": 80,
+   "scale": 0.7,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Statue_Dragon",
+   "x": 5.7,
+   "y": 0.0,
+   "z": 5.9,
+   "yaw": -25,
+   "scale": 1.05,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Column_Fallen",
+   "x": 8.8,
+   "y": 0.0,
+   "z": -3.0,
+   "yaw": 30,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient",
+   "x": -9.9,
+   "y": 0.0,
+   "z": 3.2,
+   "yaw": 10,
+   "scale": 1.05,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Root_Cluster",
+   "x": -8.6,
+   "y": 0.0,
+   "z": 2.4,
+   "yaw": -20,
+   "scale": 0.7,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -9.7,
+   "y": 0.0,
+   "z": -1.4,
+   "yaw": 110,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_A",
+   "x": -9.2,
+   "y": 0.0,
+   "z": -4.6,
+   "yaw": 40,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Column_Broken",
+   "x": -9.3,
+   "y": 0.0,
+   "z": 6.8,
+   "yaw": 140,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient",
+   "x": 9.9,
+   "y": 0.0,
+   "z": 4.6,
+   "yaw": 200,
+   "scale": 0.95,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Root_Cluster",
+   "x": 9.0,
+   "y": 0.0,
+   "z": 3.6,
+   "yaw": 160,
+   "scale": 0.7,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_A",
+   "x": 8.9,
+   "y": 0.0,
+   "z": -1.7,
+   "yaw": 200,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 10.4,
+   "y": 0.0,
+   "z": -4.4,
+   "yaw": 10,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Column_Intact",
+   "x": 8.3,
+   "y": 0.0,
+   "z": 6.6,
+   "yaw": -35,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient_B",
+   "x": 12.8,
+   "y": 0.0,
+   "z": 8.0,
+   "yaw": 120,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient_B",
+   "x": -12.6,
+   "y": 0.0,
+   "z": 8.4,
+   "yaw": 60,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Cover_Origin_Meadow",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Cover_Origin_Pondbank",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Cover_Origin_Warm_Rocks",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Cover_Edges",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
+  }
+ ]
+}
