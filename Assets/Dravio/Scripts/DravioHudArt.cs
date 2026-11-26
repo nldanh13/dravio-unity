@@ -8,82 +8,23 @@ namespace Dravio
     // Art only. Existing buttons, targets, localized Text and listeners are preserved.
     internal static class DravioHudArt
     {
-        const string Root = "DravioUI/";
-        static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
-        static readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
-        static readonly string[] Functions = { "care", "biology", "dragons", "eggs", "world", "quests", "expedition", "inventory", "feed", "pet", "rest", "inspect", "build", "research", "health", "settings", "day", "night", "lock", "done", "warning", "upgrade", "reward", "hunger", "water", "energy", "temperature", "bond", "leaf", "close", "back", "next" };
-        static readonly string[] Items = { "gold", "wood", "seed", "stone", "crystal", "coral", "stardust", "fruit", "leaf", "aquatic", "aether", "starter", "elemental", "mystic", "astral", "blueprint", "egg" };
         static readonly Color Ivory = new Color(.98f,.93f,.81f);
         static readonly Color Ink = new Color(.13f,.10f,.06f);
-
-        static Texture2D Texture(string name)
-        {
-            if (!Textures.TryGetValue(name, out var tex))
-            {
-                tex = Resources.Load<Texture2D>(Root + name);
-                Textures[name] = tex;
-            }
-            return tex;
-        }
-
-        static Sprite Slice(string name)
-        {
-            if (Sprites.TryGetValue(name, out var sprite) && sprite != null) return sprite;
-            var t = Texture(name);
-            if (t == null) return null;
-            // Crop the transparent margins from the original source images.
-            // Coordinates normalized against their known source dimensions.
-            Rect rect = new Rect(0,0,t.width,t.height);
-            Vector4 border = new Vector4(60,42,60,42);
-            float ppu = 300f;
-            if (name == "danger")
-            {
-                rect = new Rect(0,t.height*.34f,t.width,t.height*.32f);
-                border = new Vector4(25,20,25,20);
-                ppu = 150f;
-            }
-            else if (name == "panel")
-            {
-                border = new Vector4(36,36,36,36);
-                ppu = 200f;
-            }
-            else if (name == "primary" || name == "reward" || name == "secondary")
-            {
-                rect = new Rect(t.width*.045f,t.height*.10f,t.width*.91f,t.height*.80f);
-            }
-            sprite = Sprite.Create(t,rect,new Vector2(.5f,.5f),ppu,0,SpriteMeshType.FullRect,border,false);
-            sprite.name = "Dravio UI " + name;
-            Sprites[name] = sprite;
-            return sprite;
-        }
-
-        internal static Sprite Icon(string id, bool item = false)
-        {
-            string key = (item ? "item/" : "function/") + id;
-            if (Sprites.TryGetValue(key,out var sprite) && sprite != null) return sprite;
-            int index = Array.IndexOf(item ? Items : Functions,id);
-            if (index < 0) return null;
-            var t = Texture(item ? "item_icons" : "function_icons");
-            if (t == null || t.width % 8 != 0) return null;
-            int size=t.width/8;
-            int row=index/8;
-            if (t.height < (row+1)*size) return null;
-            sprite=Sprite.Create(t,new Rect((index%8)*size,t.height-(row+1)*size,size,size),
-                                 new Vector2(.5f,.5f),100,0,SpriteMeshType.FullRect);
-            sprite.name=key;
-            Sprites[key]=sprite;
-            return sprite;
-        }
 
         static bool Skin(Image image,string style)
         {
             if(image==null)return false;
-            var sprite=Slice(style);
-            if(sprite==null)return false;
-            image.sprite=sprite;
-            image.type=Image.Type.Sliced;
-            image.preserveAspect=false;
+            // Keep the original Image, its raycast, mask and Button target identity.
+            // The mesh effect replaces its geometry; CanvasRenderer still applies
+            // the original Button's ColorBlock transitions.
+            image.sprite=null;
+            image.overrideSprite=null;
+            image.type=Image.Type.Simple;
+            image.material=null;
             image.color=Color.white;
+            var effect=image.GetComponent<DravioVectorSkin>();
+            if(effect==null)effect=image.gameObject.AddComponent<DravioVectorSkin>();
+            effect.SetStyle(style);
             return true;
         }
 
@@ -112,6 +53,8 @@ namespace Dravio
         {
             if(safe==null || panel==null)return;
             Skin(panel.GetComponent<Image>(),"panel");
+            var header=safe.Find("Header");
+            if(header!=null)Skin(header.GetComponent<Image>(),"header");
             var layout=panel.GetComponent<VerticalLayoutGroup>();
             if(layout!=null)layout.padding=new RectOffset(14,14,12,12);
             var nav=new HashSet<Button>(tabs ?? Array.Empty<Button>());
@@ -156,9 +99,8 @@ namespace Dravio
 
         static void AddIcon(Button button,string id,bool item)
         {
-            var sprite=Icon(id,item);
             var label=button.GetComponentInChildren<Text>(true);
-            if(sprite==null || label==null || button.transform.Find("Dravio Art Icon")!=null)return;
+            if(label==null || button.transform.Find("Dravio Art Icon")!=null)return;
             var go=new GameObject("Dravio Art Icon",typeof(RectTransform),typeof(Image));
             go.transform.SetParent(button.transform,false);
             var rt=go.GetComponent<RectTransform>();
@@ -167,11 +109,11 @@ namespace Dravio
             rt.anchoredPosition=new Vector2(12,0);
             rt.sizeDelta=new Vector2(21,21);
             var image=go.GetComponent<Image>();
-            image.sprite=sprite;image.preserveAspect=true;image.raycastTarget=false;
-            // Keep the translated label separate and leave room for the decorative icon.
-            var lr=label.rectTransform;
-            lr.offsetMin=new Vector2(35,lr.offsetMin.y);
-            lr.offsetMax=new Vector2(-9,lr.offsetMax.y);
+            image.raycastTarget=false;
+            Skin(image,"icon/"+id);
+            var effect=button.GetComponent<DravioVectorSkin>();
+            if(effect!=null)effect.ConfigureIconLayout(rt,label.rectTransform);
+            // The parent effect reserves space only when the button is wide enough.
         }
     }
 }

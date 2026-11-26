@@ -215,13 +215,6 @@ namespace Dravio
             for(int i=0;i<pages.Length;i++)
             {
                 pages[i].SetActive(i==page);
-                var colors=tabs[i].colors;
-                colors.normalColor=i==page?Accent:new Color(.19f,.29f,.25f);
-                colors.highlightedColor=i==page?new Color(.96f,.83f,.56f):new Color(.29f,.40f,.34f);
-                colors.selectedColor=colors.normalColor;
-                tabs[i].colors=colors;
-                var label=tabs[i].GetComponentInChildren<Text>(true);
-                if(label!=null)label.color=i==page?ButtonInk:Ivory;
                 DravioHudArt.ApplyTab(tabs[i],i==page);
             }
             if(collapseLabel!=null)collapseLabel.text=collapsed?(vi?"Mở":"Show"):(vi?"Ẩn":"Hide");

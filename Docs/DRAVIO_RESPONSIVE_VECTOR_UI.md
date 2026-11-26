@@ -1,0 +1,13 @@
+# Dravio responsive vector HUD — AI3
+
+Follow-up to PR #84 on dd63878. Runtime UI no longer depends on the copied PNG skin or 64px icon atlases. Original ArtSource PNGs and atlas sheets remain available as design references.
+
+- DravioVectorSkin is a UGUI BaseMeshEffect on the original Image. It builds beveled panels, buttons, tabs, slots, round controls, portrait frame, divider and progress frame/fill using vertex colors and geometry. Border and corner size are logical canvas units clamped for small rectangles, not image scaling. Outer silhouettes use a screen-scale-aware alpha fringe. Existing raycasts, RectMask2D, CanvasRenderer tint and Button listeners stay on the original GameObjects.
+- All 49 prior icon entries have vector drawings (shared symbols where appropriate); icon geometry fits a square inside its rectangle and no texture atlas is sampled. Existing actions and egg pack buttons use vector icons. On buttons narrower than 132 logical units icons are hidden to leave room for text. Item/status art is available for future views; it is not a claim that all views are implemented.
+- Existing responsive landscape canvas and safe-area behavior are preserved. Button selected-state styling no longer applies the legacy gold/green tint on top of the new skin.
+- PNGs are still appropriate for detailed illustrations and painterly art; if reintroduced as UI sprites use adequate source resolution, alpha, appropriate compression and 9-slice borders. This pass deliberately uses vector geometry rather than a dependency on SVG import packages.
+- Text remains existing localized UnityEngine.UI.Text; a TMP/SDF migration requires changing serialized references and verifying Vietnamese font coverage and is not included. Existing text scaling can still be imperfect. No portrait mode added.
+- Runtime progress/slot/portrait/divider styles are reusable primitives, not newly wired game systems. No gameplay, save, economy, scene, GLB or environment changes.
+
+## Acceptance
+Unity 6000.6.10f1: compile and run Dravio > UI > Validate Vector Skin Meshes. Open existing playable scene and test 1280x720, 1920x1080, 2560x1440, 2400x1080, 1024x768, and safe-area notch simulation. Check corners, clipping, hover/pressed/disabled state, tab selection, language, scrolling, Focus, hit targets, short/long labels and no icon on very narrow action rows. Check geometry and edge AA at actual device DPI; profile Canvas rebuild and batches. Progress fill is a primitive; bind its width or mask to actual value when implementing a meter. No Unity compile, visual capture or profiling has been run remotely.
