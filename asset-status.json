@@ -1,0 +1,244 @@
+{
+  "sourceCommit": "486ee633c7e4807a855f7aee95aa889117b5bbde",
+  "stats": {
+    "GLB_PRESENT": 17,
+    "SCENE_CONCEPT": 7,
+    "IMAGE_ONLY": 15
+  },
+  "assets": [
+    {
+      "id": "ArtSource/Dragons/images/01_emberling",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/01_emberling.jpg",
+      "model": "ArtSource/Dragons/images/01_emberling.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/02_droplet",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/02_droplet.jpg",
+      "model": "ArtSource/Dragons/images/02_droplet.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/03_sprout",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/03_sprout.jpg",
+      "model": "ArtSource/Dragons/images/03_sprout.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/04_zephyr",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/04_zephyr.jpg",
+      "model": "ArtSource/Dragons/images/04_zephyr.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/05_steamdrake",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/05_steamdrake.jpg",
+      "model": "ArtSource/Dragons/images/05_steamdrake.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/06_magma",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/06_magma.jpg",
+      "model": "ArtSource/Dragons/images/06_magma.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/07_sparkwing",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/07_sparkwing.jpg",
+      "model": "ArtSource/Dragons/images/07_sparkwing.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/08_frostfin",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/08_frostfin.jpg",
+      "model": "ArtSource/Dragons/images/08_frostfin.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/09_mossback",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/09_mossback.jpg",
+      "model": "ArtSource/Dragons/images/09_mossback.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/10_blossom",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/10_blossom.jpg",
+      "model": "ArtSource/Dragons/images/10_blossom.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/11_solaris",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/11_solaris.jpg",
+      "model": "ArtSource/Dragons/images/11_solaris.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/12_leviathan",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/12_leviathan.jpg",
+      "model": "ArtSource/Dragons/images/12_leviathan.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/13_amberhorn",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/13_amberhorn.jpg",
+      "model": "ArtSource/Dragons/images/13_amberhorn.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/14_aurorawing",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/14_aurorawing.jpg",
+      "model": "ArtSource/Dragons/images/14_aurorawing.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/15_celestia",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/15_celestia.jpg",
+      "model": "ArtSource/Dragons/images/15_celestia.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/16_gaia",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/16_gaia.jpg",
+      "model": "ArtSource/Dragons/images/16_gaia.glb"
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/01_origin_meadow",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/01_origin_meadow.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/02_origin_warm_rocks",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/02_origin_warm_rocks.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/03_origin_pondbank",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/03_origin_pondbank.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/04_ocean_estuary",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/04_ocean_estuary.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/05_ocean_cool_pool",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/05_ocean_cool_pool.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/06_ocean_reef",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/06_ocean_reef.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/07_sky_low_island",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/07_sky_low_island.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.jpg",
+      "model": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb"
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster.jpg",
+      "model": null
+    }
+  ]
+}
