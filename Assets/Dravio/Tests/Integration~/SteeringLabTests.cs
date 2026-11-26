@@ -82,6 +82,40 @@ namespace Dravio.Tests
                 Assert.That(lab.MinGap,Is.GreaterThanOrEqualTo(.02499));
             }
         }
+        [TestCase(LabScenario.HeadOn,5)]
+        [TestCase(LabScenario.Crossing,5)]
+        [TestCase(LabScenario.Crossing,30)]
+        [TestCase(LabScenario.Obstacle,30)]
+        [TestCase(LabScenario.MixedGroups,15)]
+        public void BroadPhasePreservesEveryStep(LabScenario scenario,int count)
+        {
+            var all=SteeringLab.Create(scenario,count);
+            var local=SteeringLab.Create(scenario,count,broadPhase:true);
+            double flock=scenario==LabScenario.MixedGroups ? .5 : 0;
+            var timer=System.Diagnostics.Stopwatch.StartNew();
+            for(int tick=0;tick<400;tick++)all.Step(LabMode.PredictiveSteering,flock:flock);
+            timer.Stop();double originalMs=timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
+            for(int tick=0;tick<400;tick++)local.Step(LabMode.PredictiveSteering,flock:flock);
+            timer.Stop();
+            // Per-step trajectory equality additionally checked in the interleaved replay below.
+            Assert.That(local.Agents.Select(a=>(a.Position.X,a.Position.Y,a.Velocity.X,a.Velocity.Y)),
+                Is.EqualTo(all.Agents.Select(a=>(a.Position.X,a.Position.Y,a.Velocity.X,a.Velocity.Y))));
+            Assert.That(local.Arrived,Is.EqualTo(all.Arrived));
+            Assert.That(local.StoppedAgentTicks,Is.EqualTo(all.StoppedAgentTicks));
+            Assert.That(local.SafetyRejects,Is.EqualTo(all.SafetyRejects));
+            Assert.That(local.MinGap,Is.EqualTo(all.MinGap));
+            Assert.That(local.DistanceTravelled,Is.EqualTo(all.DistanceTravelled));
+            Assert.That(local.SweptPairChecks,Is.LessThan(all.SweptPairChecks));
+            TestContext.Progress.WriteLine(FormattableString.Invariant(
+                $"LAB BROAD {scenario} n={all.Agents.Count}: checks={all.SweptPairChecks}->{local.SweptPairChecks}, cpu={originalMs:F2}->{timer.Elapsed.TotalMilliseconds:F2}ms, arrived={local.Arrived}"));
+            all=SteeringLab.Create(scenario,count);local=SteeringLab.Create(scenario,count,broadPhase:true);
+            for(int tick=0;tick<180;tick++)
+            {
+                all.Step(LabMode.PredictiveSteering,flock:flock);local.Step(LabMode.PredictiveSteering,flock:flock);
+                Assert.That(local.Agents.Select(a=>(a.Position.X,a.Position.Y)),Is.EqualTo(all.Agents.Select(a=>(a.Position.X,a.Position.Y))));
+            }
+        }
         [Test] public void InvalidStepRejected()
         {
             var lab=SteeringLab.Create(LabScenario.HeadOn);

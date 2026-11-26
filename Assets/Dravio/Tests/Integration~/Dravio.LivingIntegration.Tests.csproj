@@ -21,6 +21,8 @@
     <Compile Include="SteeringLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/AuthoredRouteBenchmark.cs" />
     <Compile Include="AuthoredNavigationLabTests.cs" />
+    <Compile Include="../../Editor/TechnologyLab/AdaptiveRouteLab.cs" />
+    <Compile Include="AdaptiveRouteLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/RoutedCrowdExperiment.cs" />
     <Compile Include="RoutedCrowdLabTests.cs" />
     <Compile Include="../../Editor/TechnologyLab/CreatureTechniqueLab.cs" />

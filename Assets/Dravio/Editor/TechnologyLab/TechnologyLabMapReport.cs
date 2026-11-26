@@ -49,8 +49,11 @@ namespace Dravio.EditorTools
                     }
                     report.AppendLine(map.zoneId+" spawn geometry parity mismatches="+parityMismatch);
                     foreach(var h in map.habitats)
-                    foreach(float step in new[]{.30f,.45f,.60f})
-                        report.AppendLine(AuthoredRouteBenchmark.Describe(AuthoredRouteBenchmark.Run(map,h.id,medium,step)));
+                    {
+                        foreach(float step in new[]{.30f,.45f,.60f})
+                            report.AppendLine(AuthoredRouteBenchmark.Describe(AuthoredRouteBenchmark.Run(map,h.id,medium,step)));
+                        report.AppendLine(AdaptiveRouteLab.Compare(map,h.id,medium));
+                    }
                 }
                 finally{Object.DestroyImmediate(data);}
             }

@@ -42,6 +42,8 @@ namespace Dravio.TechnologyLab
     {
         const double Epsilon=1e-8;
         const double Margin=.025;
+        const double Horizon=.8;
+        const double RiskGap=.25;
         static readonly double[] Angles={0,-25,25,-50,50,-75,75,-100,100,-135,135,180};
         static readonly double[] Speeds={1,.55};
         readonly LabAgent[] agents;
@@ -51,6 +53,9 @@ namespace Dravio.TechnologyLab
         readonly Func<LabVec,LabVec,bool> geometry;
         readonly Func<LabAgent,LabVec> waypoint;
         readonly LabVec[] targets;
+        readonly bool broadPhase;
+        readonly List<int>[] neighbors;
+        public long SweptPairChecks { get; private set; }
         public IReadOnlyList<LabAgent> Agents=>agents;
         public IReadOnlyList<LabObstacle> Obstacles=>obstacles;
         public double HalfExtent=>halfExtent;
@@ -62,10 +67,10 @@ namespace Dravio.TechnologyLab
         public double MinGap { get; private set; }=double.PositiveInfinity;
         public double DistanceTravelled { get; private set; }
         public SteeringLab(LabAgent[] input,LabObstacle[] obstacles,double halfExtent,
-            Func<LabVec,LabVec,bool> geometry=null,Func<LabAgent,LabVec> waypoint=null)
+            Func<LabVec,LabVec,bool> geometry=null,Func<LabAgent,LabVec> waypoint=null,bool broadPhase=false)
         {
             if(input==null || input.Length==0 || !(halfExtent>0) || !Finite(halfExtent))throw new ArgumentException("arena");
-            this.halfExtent=halfExtent;this.geometry=geometry;this.waypoint=waypoint;
+            this.halfExtent=halfExtent;this.geometry=geometry;this.waypoint=waypoint;this.broadPhase=broadPhase;
             this.obstacles=obstacles==null?Array.Empty<LabObstacle>():(LabObstacle[])obstacles.Clone();
             foreach(var o in this.obstacles)
                 if(!o.Center.Finite || !(o.Radius>0) || !Finite(o.Radius))throw new ArgumentException("obstacle");
@@ -87,6 +92,8 @@ namespace Dravio.TechnologyLab
                     if((agents[i].Position-agents[j].Position).Length+Epsilon<agents[i].Radius+agents[j].Radius+Margin)
                         throw new ArgumentException("initial overlap");
             planned=new LabVec[agents.Length];desired=new LabVec[agents.Length];targets=new LabVec[agents.Length];
+            neighbors=new List<int>[agents.Length];
+            for(int i=0;i<agents.Length;i++)neighbors[i]=new List<int>(agents.Length-1);
             UpdateMetrics();
         }
         static bool Finite(double x)=>!double.IsNaN(x)&&!double.IsInfinity(x);
@@ -106,13 +113,30 @@ namespace Dravio.TechnologyLab
                 if(SweptDistance(start,end,o.Center,o.Center)+Epsilon<radius+o.Radius+Margin)return false;
             return true;
         }
+        // Conservative broad phase: relative travel over the entire prediction horizon
+        // cannot close more than (speed A + speed B) * horizon. Preserve index order.
+        void BuildNeighbors()
+        {
+            for(int i=0;i<agents.Length;i++)neighbors[i].Clear();
+            for(int i=0;i<agents.Length;i++)
+            for(int j=i+1;j<agents.Length;j++)
+            {
+                var a=agents[i];var b=agents[j];
+                double limit=a.Radius+b.Radius+Margin+RiskGap+(a.Speed+b.Speed)*Horizon+1e-6;
+                if(broadPhase && (a.Position-b.Position).LengthSquared>limit*limit)continue;
+                neighbors[i].Add(j);neighbors[j].Add(i);
+            }
+        }
         bool Safe(int i,LabVec end)
         {
             var a=agents[i];
             if(!WorldClear(a.Position,end,a.Radius))return false;
-            for(int j=0;j<agents.Length;j++)
-                if(j!=i && SweptDistance(a.Position,end,agents[j].Position,planned[j])+Epsilon<
+            foreach(int j in neighbors[i])
+            {
+                SweptPairChecks++;
+                if(SweptDistance(a.Position,end,agents[j].Position,planned[j])+Epsilon<
                     a.Radius+agents[j].Radius+Margin)return false;
+            }
             return true;
         }
         LabVec Preferred(int i,double flock)
@@ -134,22 +158,22 @@ namespace Dravio.TechnologyLab
             var a=agents[i];var goal=targets[i]-a.Position;
             // A short predictive horizon biases choices away from a future conflict.
             // This is sampled steering, not ORCA, and the prediction itself is not a safety proof.
-            double horizon=.8;
+            double horizon=Horizon;
             double score=(goal.Length-(goal-velocity*dt).Length)/dt*2+
                 LabVec.Dot(velocity,preferred)*.30;
-            for(int j=0;j<agents.Length;j++)
+            foreach(int j in neighbors[i])
             {
-                if(j==i)continue;
+                SweptPairChecks++;
                 var other=agents[j];
                 double gap=SweptDistance(a.Position,a.Position+velocity*horizon,
                     other.Position,other.Position+desired[j]*horizon)-a.Radius-other.Radius-Margin;
-                if(gap<.25)score-=Math.Max(0,.25-gap)*5;
+                if(gap<RiskGap)score-=Math.Max(0,RiskGap-gap)*5;
             }
             // Anticipate static obstacles too. Symmetric angle ties keep a consistent passing side.
             foreach(var o in obstacles)
             {
                 double gap=SweptDistance(a.Position,a.Position+velocity*horizon,o.Center,o.Center)-a.Radius-o.Radius-Margin;
-                if(gap<.25)score-=Math.Max(0,.25-gap)*5;
+                if(gap<RiskGap)score-=Math.Max(0,RiskGap-gap)*5;
             }
             return score;
         }
@@ -165,6 +189,7 @@ namespace Dravio.TechnologyLab
                 if(!targets[i].Finite)targets[i]=a.Position;
                 desired[i]=a.Arrived?new LabVec():(targets[i]-a.Position).Unit*Math.Min(a.Speed,(targets[i]-a.Position).Length/dt);
             }
+            BuildNeighbors();
             // Rotate priority every tick. Already selected trajectories and all remaining stationary
             // bodies are reserved. Replacing a stationary trajectory only when all swept pairs are
             // safe preserves the invariant inductively; all positions commit together.
@@ -211,10 +236,10 @@ namespace Dravio.TechnologyLab
                     MinGap=Math.Min(MinGap,(agents[i].Position-o.Center).Length-agents[i].Radius-o.Radius);
             }
         }
-        public static SteeringLab Create(LabScenario scenario,int count=5)
+        public static SteeringLab Create(LabScenario scenario,int count=5,bool broadPhase=false)
         {
             if(scenario==LabScenario.HeadOn)
-                return new SteeringLab(new[]{new LabAgent(0,new LabVec(-3,0),new LabVec(3,0)),new LabAgent(1,new LabVec(3,0),new LabVec(-3,0))},null,6);
+                return new SteeringLab(new[]{new LabAgent(0,new LabVec(-3,0),new LabVec(3,0)),new LabAgent(1,new LabVec(3,0),new LabVec(-3,0))},null,6,broadPhase:broadPhase);
             if(count<2 || count>30)throw new ArgumentException("count");
             if(scenario!=LabScenario.Crossing && scenario!=LabScenario.Obstacle && scenario!=LabScenario.MixedGroups)
                 throw new ArgumentException("scenario");
@@ -227,7 +252,7 @@ namespace Dravio.TechnologyLab
                 agents[i]=new LabAgent(i,p,p*(-1),.24,1,group);
             }
             return new SteeringLab(agents,scenario==LabScenario.Obstacle?
-                new[]{new LabObstacle(new LabVec(0,0),1.15)}:null,6);
+                new[]{new LabObstacle(new LabVec(0,0),1.15)}:null,6,broadPhase:broadPhase);
         }
     }
 }
