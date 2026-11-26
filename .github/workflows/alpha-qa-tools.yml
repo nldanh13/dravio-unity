@@ -16,3 +16,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s scripts/qa -p 'test_*.py'
+      - name: Source readiness snapshot (generated scenes may be absent)
+        run: |
+          python scripts/qa/check_alpha_build.py --report-only > alpha-source-readiness.json
+          cat alpha-source-readiness.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: alpha-source-readiness
+          path: alpha-source-readiness.json
