@@ -16,7 +16,19 @@
 | `QuestRequirements(s, log?, pacing?, rules?)` | `QuestStatusView[]` | Bảng nhiệm vụ / hành trình |
 | `Overview(s, log?, pacing?, quests?)` | `ProgressionOverviewDto` | Màn tổng quan tiến trình dài hạn |
 | `Rules(pacing?, social?, quests?)` | `RuleFlagsDto` | UI biết hệ nào đang bật |
-| `ResearchLog.LastNightSampleMs(lastOnlineMs, nowMs, utcOffsetMinutes)` + `log.WriteNightJournal(s, sampleMs, nowMs, pacing)` | `ResearchFinding[]` (rỗng khi R11 tắt) | Trang "Nhật ký đêm" khi mở game sau một đêm offline (R11) |
+| `SanctuaryEconomy(s, nowMs)` | `SanctuaryEconomyDto` (gói Starter còn hôm nay, giá; dự án đã xây, giá và vật liệu dự án tiếp theo, `NextProjectBlockedBy`) | Cửa hàng gói, nút "Xây dự án Sanctuary" (ADR 0205) |
+| `ResearchLog.LastNightSampleMs(lastOnlineMs, nowMs, utcOffsetMinutes)` + `log.WriteNightJournal(s, sampleMs, nowMs, pacing)` | `ResearchFinding[]` | Chỉ cho test / mô phỏng. Ở game thật, dispatcher tự ghi nhật ký đêm khi quyết toán offline và phát event `nightJournalWritten` |
+
+`log` bỏ trống = sổ nghiên cứu của save (`GameState.Research`, Schema v9).
+
+### Lệnh và event U2.10 (ADR 0205)
+
+| Lệnh | Lỗi | Event |
+|---|---|---|
+| `BuildSanctuaryProjectCommand(requestId)` | `not-enough-gold`, `not-enough-materials`, `projects-maxed` | `sanctuaryProjectBuilt { index, costGoldMicro, materialEach }` |
+| `ObserveDragonCommand(requestId, uid, phase)` (phase = pha ngày đêm Sanctuary đang hiển thị) | `unknown-dragon`, `not-observable`, `observation-cooldown` | `dragonObserved { dragonUid, speciesId, findings, deferredByDailyLimit }` |
+| `BuyPackCommand(requestId, "starter")` (đã có) | thêm `pack-daily-limit` (gói thứ 6 trong ngày UTC) | `packBought` (giá 150 G) |
+| `AdvanceTimeCommand(Offline)` (đã có) | — | thêm `nightJournalWritten { sampleAtMs, findings, speciesIds }` khi offline qua 02:00 UTC |
 
 Tham số luật bỏ trống = bộ luật **Production** (đều tắt). `log` là `ResearchLog`. Ở production chưa có nơi lưu `ResearchLog` (Schema v9 chờ duyệt), nên truyền `null`. Khi thử nội bộ, tầng Platform có thể giữ một `ResearchLog` trong bộ nhớ, nhưng nó mất khi thoát.
 
@@ -107,7 +119,7 @@ Không có nút "Hoàn thành" ở production (`CanComplete` = false). Thủy V�
 
 | Bộ luật | Production | Đề xuất (test / mô phỏng) |
 |---|---|---|
-| `ResearchPacing` | `Production` (tắt) | `ProposedU210` (2 phát hiện/loài/ngày, Ethology ≥ 2 ngày); `UnpacedU29` để so sánh |
+| `ResearchPacing` | `Production` (từ ADR 0205: ghi phát hiện, 2/loài/ngày, Ethology ≥ 2 ngày, nhật ký đêm; **không** khóa Codex) | `ProposedU210NightJournal` (có khóa Codex); `Disabled` = hành vi U2.9; `UnpacedU29` để so sánh |
 | `SocialRules` | `Production` (không tác động gameplay) | `ProposedForReview` (±5 mục tiêu comfort C1) |
 | `QuestRules` | `Production` (không hoàn thành) | `ProposedForReview` (`CanComplete` khi Ready) |
 | Comfort drift, năng lượng, thiên tai | tắt (ADR 0202 / 0203) | không đổi ở U2.10 |

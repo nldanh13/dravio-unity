@@ -44,9 +44,9 @@ namespace Dravio.Domain.Behavior
     public sealed class ResearchPacing
     {
         public ResearchPacing(bool enabled, long observationCooldownMs, int speciesFindingsPerDay, int minDistinctDaysForEthology,
-            int observationsForFavoriteHabitat, int observationsForFavoriteDiet, bool nightJournal = false)
+            int observationsForFavoriteHabitat, int observationsForFavoriteDiet, bool nightJournal = false, bool gateCodex = true)
         {
-            NightJournal = nightJournal;
+            NightJournal = nightJournal; GateCodex = gateCodex;
             Enabled = enabled; ObservationCooldownMs = observationCooldownMs; SpeciesFindingsPerDay = speciesFindingsPerDay;
             MinDistinctDaysForEthology = minDistinctDaysForEthology; ObservationsForFavoriteHabitat = observationsForFavoriteHabitat;
             ObservationsForFavoriteDiet = observationsForFavoriteDiet;
@@ -70,13 +70,28 @@ namespace Dravio.Domain.Behavior
         /// </summary>
         public bool NightJournal { get; }
 
-        /// <summary>Bản chạy thật: TẮT. Khi tắt, Codex và hồ sơ cá thể hiển thị đầy đủ như hiện tại (không đổi trải nghiệm).</summary>
-        public static readonly ResearchPacing Production = new ResearchPacing(false, 30_000, 2, 2, 3, 3);
-        /// <summary>Đề xuất U2.10 (chỉ test, mô phỏng). 2 phát hiện/loài/ngày, Ethology cần ≥ 2 ngày.</summary>
+        /// <summary>
+        /// true = Codex / hồ sơ cá thể chỉ mở theo cấp nghiên cứu (R1–R9). false = sổ nghiên cứu vẫn ghi (quan sát, nhật ký đêm, cấp, tiến độ)
+        /// nhưng Codex giữ mở đủ như trước, để save cũ không "mất" phần Codex đã thấy.
+        /// </summary>
+        public bool GateCodex { get; }
+
+        /// <summary>Codex và hồ sơ cá thể bị khóa theo cấp nghiên cứu.</summary>
+        public bool CodexGated => Enabled && GateCodex;
+
+        /// <summary>
+        /// Bản chạy thật từ U2.10 (đã duyệt gói E1, E2, E5, R11): sổ nghiên cứu GHI (lệnh quan sát, nhật ký đêm, 2 phát hiện/loài/ngày, Ethology ≥ 2 ngày)
+        /// nhưng KHÔNG khóa Codex (<see cref="GateCodex"/> = false; khóa Codex R1–R9 vẫn chờ duyệt riêng).
+        /// <see cref="Disabled"/> giữ hành vi U2.9 (không ghi gì) cho test và cấu hình tắt.
+        /// </summary>
+        public static readonly ResearchPacing Production = new ResearchPacing(true, 30_000, 2, 2, 3, 3, nightJournal: true, gateCodex: false);
+        /// <summary>Tắt: Codex và hồ sơ cá thể hiển thị đầy đủ như trước U2.10.</summary>
+        public static readonly ResearchPacing Disabled = new ResearchPacing(false, 30_000, 2, 2, 3, 3);
+        /// <summary>U2.10 không có nhật ký đêm (để so sánh trước/sau R11).</summary>
         public static readonly ResearchPacing ProposedU210 = new ResearchPacing(true, 30_000, 2, 2, 3, 3);
-        /// <summary>Tương đương ResearchRules.ProposedForReview của U2.9 (không giới hạn ngày) — để so sánh trước/sau.</summary>
-        /// <summary>Đề xuất U2.10 + nhật ký đêm R11 (chỉ test, mô phỏng).</summary>
+        /// <summary>U2.10 + nhật ký đêm R11, có khóa Codex (để mô phỏng).</summary>
         public static readonly ResearchPacing ProposedU210NightJournal = new ResearchPacing(true, 30_000, 2, 2, 3, 3, nightJournal: true);
+        /// <summary>Tương đương ResearchRules.ProposedForReview của U2.9 (không giới hạn ngày) — để so sánh trước/sau.</summary>
         public static readonly ResearchPacing UnpacedU29 = new ResearchPacing(true, 30_000, 0, 0, 3, 3);
     }
 
@@ -154,6 +169,39 @@ namespace Dravio.Domain.Behavior
             return r;
         }
 
+        /// <summary>Bản sao sâu (dùng trong GameState.DeepClone).</summary>
+        public ResearchLog Clone()
+        {
+            var c = new ResearchLog();
+            foreach (SpeciesResearchRecord r in _species.Values)
+            {
+                SpeciesResearchRecord n = c.EnsureSpecies(r.SpeciesId);
+                n.Behaviors.UnionWith(r.Behaviors); n.Phases.UnionWith(r.Phases); n.Habitats.UnionWith(r.Habitats); n.Days.UnionWith(r.Days);
+                foreach (var kv in r.FindingsByDay) n.FindingsByDay[kv.Key] = kv.Value;
+            }
+            foreach (IndividualResearchRecord r in _individuals.Values)
+            {
+                IndividualResearchRecord n = c.EnsureIndividual(r.Uid, r.SpeciesId);
+                n.ActivePhases.UnionWith(r.ActivePhases); n.RestPhases.UnionWith(r.RestPhases); n.Revealed.UnionWith(r.Revealed);
+                n.Observations = r.Observations; n.SeenInFavoriteHabitat = r.SeenInFavoriteHabitat; n.SeenFeeding = r.SeenFeeding; n.LastObservedAtMs = r.LastObservedAtMs;
+            }
+            return c;
+        }
+
+        /// <summary>Chỉ giữ MaxFindingDaysKept ngày gần nhất của bộ đếm phát hiện (gọi khi ghi, để save không phình).</summary>
+        internal void TrimFindingDays()
+        {
+            foreach (SpeciesResearchRecord r in _species.Values)
+                while (r.FindingsByDay.Count > ResearchSchemaDraft.MaxFindingDaysKept)
+                {
+                    string first = null;
+                    foreach (string k in r.FindingsByDay.Keys) { first = k; break; }
+                    r.FindingsByDay.Remove(first);
+                }
+        }
+
+        public bool IsEmpty => _species.Count == 0 && _individuals.Count == 0;
+
         /// <summary>Bỏ ghi chép cá thể không còn trong kho (bán, thả). Ghi chép cấp loài không bao giờ mất (như Codex).</summary>
         public int PruneIndividuals(GameState s)
         {
@@ -201,10 +249,14 @@ namespace Dravio.Domain.Behavior
         {
             var o = new List<ResearchFinding>();
             if (d == null || d.Behavior == null || d.ZoneId == null) return o;
+            if (!SpeciesCatalog.TryGet(d.SpeciesId, out _)) return o;
             SpeciesResearchRecord r = SpeciesRecord(d.SpeciesId);
-            if (r == null || !r.Behaviors.Contains(d.Behavior.Value)) o.Add(new ResearchFinding(ResearchFindingKind.Behavior, WireBehavior(d.Behavior.Value)));
+            // Chỉ ghi điều validator chấp nhận (save luôn nạp lại được): tập tính loài làm được, microhabitat bản địa.
+            if ((r == null || !r.Behaviors.Contains(d.Behavior.Value)) && Research.ObservableBehaviors(d.SpeciesId).Contains(d.Behavior.Value))
+                o.Add(new ResearchFinding(ResearchFindingKind.Behavior, WireBehavior(d.Behavior.Value)));
             if (r == null || !r.Phases.Contains(d.Phase)) o.Add(new ResearchFinding(ResearchFindingKind.Phase, WirePhase(d.Phase)));
-            if (d.HabitatId != null && (r == null || !r.Habitats.Contains(d.HabitatId))) o.Add(new ResearchFinding(ResearchFindingKind.Habitat, d.HabitatId));
+            if (d.HabitatId != null && (r == null || !r.Habitats.Contains(d.HabitatId)) && BehaviorCatalog.Has(SpeciesCatalog.GetBiology(d.SpeciesId).HabitatRules, d.HabitatId))
+                o.Add(new ResearchFinding(ResearchFindingKind.Habitat, d.HabitatId));
             return o;
         }
 
@@ -238,6 +290,7 @@ namespace Dravio.Domain.Behavior
         public ResearchObservationResult Observe(GameState s, BehaviorDecision d, long nowMs, ResearchPacing pacing)
         {
             string why = Observability(d, nowMs, pacing);
+            if (why == "ok" && s != null && Progression.Codex.Find(s, d.SpeciesId) == null) why = "not-observable";
             if (why != "ok") return new ResearchObservationResult { Recorded = false, Reason = why };
             var findings = new List<ResearchFinding>();
             string day = JsCompat.UtcDay(nowMs);
@@ -267,6 +320,7 @@ namespace Dravio.Domain.Behavior
             if (d.Behavior == DragonBehavior.Eat || d.Behavior == DragonBehavior.SeekFood) ind.SeenFeeding = true;
             foreach (IndividualTrait t in reveals)
                 if (ind.Revealed.Add(t)) findings.Add(new ResearchFinding(ResearchFindingKind.Individual, t.ToWire()));
+            TrimFindingDays();
             return new ResearchObservationResult { Recorded = true, Reason = "ok", Findings = findings, DeferredByDailyLimit = deferred };
         }
 
@@ -293,24 +347,31 @@ namespace Dravio.Domain.Behavior
         /// mỗi loài có rồng đang ngủ/nghỉ ở sinh cảnh được tối đa một phát hiện mới (tập tính trước, rồi pha), tính vào giới hạn ngày của nowMs.
         /// Không tính là một lần quan sát cá thể (không hồi, không hé lộ nét cá thể), không thêm ngày ghi chép, không đổi GameState.
         /// </summary>
-        public List<ResearchFinding> WriteNightJournal(GameState s, long nightSampleMs, long nowMs, ResearchPacing pacing)
+        public List<ResearchFinding> WriteNightJournal(GameState s, long nightSampleMs, long nowMs, ResearchPacing pacing) =>
+            WriteNightJournal(s, nightSampleMs, nowMs, pacing, out _);
+
+        /// <summary>Như trên; <paramref name="speciesIds"/> là loài của từng phát hiện (cùng thứ tự).</summary>
+        public List<ResearchFinding> WriteNightJournal(GameState s, long nightSampleMs, long nowMs, ResearchPacing pacing, out List<string> speciesIds)
         {
             var o = new List<ResearchFinding>();
+            speciesIds = new List<string>();
             if (s == null || pacing == null || !pacing.Enabled || !pacing.NightJournal || nightSampleMs > nowMs) return o;
             string day = JsCompat.UtcDay(nowMs);
             var done = new HashSet<string>(StringComparer.Ordinal);
             foreach (BehaviorDecision d in BehaviorEngine.DecideAll(s, nightSampleMs, DayPhase.Night))
             {
                 if (d == null || !d.Visible || d.Behavior == null || d.ZoneId == null || IsActiveObservation(d)) continue;
-                if (!done.Add(d.SpeciesId) || FindingsLeftToday(d.SpeciesId, nowMs, pacing) <= 0) continue;
+                if (!done.Add(d.SpeciesId) || FindingsLeftToday(d.SpeciesId, nowMs, pacing) <= 0 || Progression.Codex.Find(s, d.SpeciesId) == null) continue;
                 SpeciesResearchRecord sr = EnsureSpecies(d.SpeciesId);
                 ResearchFinding f;
-                if (sr.Behaviors.Add(d.Behavior.Value)) f = new ResearchFinding(ResearchFindingKind.Behavior, WireBehavior(d.Behavior.Value));
+                if (Research.ObservableBehaviors(d.SpeciesId).Contains(d.Behavior.Value) && sr.Behaviors.Add(d.Behavior.Value)) f = new ResearchFinding(ResearchFindingKind.Behavior, WireBehavior(d.Behavior.Value));
                 else if (sr.Phases.Add(d.Phase)) f = new ResearchFinding(ResearchFindingKind.Phase, WirePhase(d.Phase));
                 else continue;
                 sr.FindingsByDay[day] = (sr.FindingsByDay.TryGetValue(day, out int n) ? n : 0) + 1;
                 o.Add(f);
+                speciesIds.Add(d.SpeciesId);
             }
+            TrimFindingDays();
             return o;
         }
 
@@ -440,7 +501,7 @@ namespace Dravio.Domain.Behavior
         public List<IndividualEntry> Individuals = new List<IndividualEntry>();
     }
 
-    /// <summary>Bản nháp migration v8 → v9 và validator cho khối research (ADR 0204 R8). Không được gọi từ Persistence.</summary>
+    /// <summary>Migration v8 → v9 (khối rỗng), làm sạch khi nạp và validator cho khối research (ADR 0204 R8, Schema v9).</summary>
     public static class ResearchSchemaDraft
     {
         public const int DraftSchemaVersion = 9;
@@ -449,6 +510,54 @@ namespace Dravio.Domain.Behavior
 
         /// <summary>Migration v8 → v9: tạo khối rỗng, KHÔNG suy diễn từ Codex (người chơi chưa quan sát gì). Không chạm vào dữ liệu v8.</summary>
         public static ResearchLogSnapshot MigrateFromV8(GameState v8) => new ResearchLogSnapshot();
+
+        /// <summary>
+        /// Khi nạp save: bỏ mọi mục sổ nghiên cứu mà validator sẽ từ chối (loài không có trong Codex, tập tính / sinh cảnh không hợp, cá thể đã bán,
+        /// trùng, ngày sai) thay vì làm hỏng cả save. Sổ nghiên cứu không ảnh hưởng vàng hay rồng, nên cắt bớt là an toàn.
+        /// </summary>
+        public static ResearchLogSnapshot Sanitize(ResearchLogSnapshot snap, GameState s)
+        {
+            var o = new ResearchLogSnapshot();
+            if (snap == null) return o;
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var species = new List<ResearchLogSnapshot.SpeciesEntry>();
+            foreach (var e in snap.Species)
+            {
+                if (e?.SpeciesId == null || !SpeciesCatalog.TryGet(e.SpeciesId, out _) || Progression.Codex.Find(s, e.SpeciesId) == null || !seen.Add(e.SpeciesId)) continue;
+                List<DragonBehavior> observable = Research.ObservableBehaviors(e.SpeciesId);
+                IReadOnlyList<string> rules = SpeciesCatalog.GetBiology(e.SpeciesId).HabitatRules;
+                var c = new ResearchLogSnapshot.SpeciesEntry { SpeciesId = e.SpeciesId };
+                foreach (string b in e.Behaviors) if (ResearchLog.TryParseBehavior(b, out DragonBehavior x) && observable.Contains(x)) c.Behaviors.Add(b);
+                foreach (string p in e.Phases) if (ResearchLog.TryParsePhase(p, out _)) c.Phases.Add(p);
+                foreach (string h in e.Habitats) if (BehaviorCatalog.Has(rules, h)) c.Habitats.Add(h);
+                foreach (string d in e.Days) if (JsCompat.IsUtcDayPattern(d)) c.Days.Add(d);
+                foreach (var kv in e.FindingsByDay) if (JsCompat.IsUtcDayPattern(kv.Key) && kv.Value >= 0) c.FindingsByDay.Add(kv);
+                c.FindingsByDay.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
+                if (c.FindingsByDay.Count > MaxFindingDaysKept) c.FindingsByDay.RemoveRange(0, c.FindingsByDay.Count - MaxFindingDaysKept);
+                species.Add(c);
+            }
+            species.Sort((a, b) => string.CompareOrdinal(a.SpeciesId, b.SpeciesId));
+            o.Species.AddRange(species);
+            seen.Clear();
+            var inds = new List<ResearchLogSnapshot.IndividualEntry>();
+            foreach (var e in snap.Individuals)
+            {
+                DragonState d = e?.Uid == null ? null : s.FindDragon(e.Uid);
+                if (d == null || d.Location.Kind == LocationKind.Released || d.SpeciesId != e.SpeciesId || e.Observations < 0 || !seen.Add(e.Uid)) continue;
+                var c = new ResearchLogSnapshot.IndividualEntry
+                {
+                    Uid = e.Uid, SpeciesId = e.SpeciesId, Observations = e.Observations, SeenInFavoriteHabitat = e.SeenInFavoriteHabitat,
+                    SeenFeeding = e.SeenFeeding, LastObservedAtMs = e.LastObservedAtMs,
+                };
+                foreach (string p in e.ActivePhases) if (ResearchLog.TryParsePhase(p, out _)) c.ActivePhases.Add(p);
+                foreach (string p in e.RestPhases) if (ResearchLog.TryParsePhase(p, out _)) c.RestPhases.Add(p);
+                foreach (string t in e.Revealed) if (ResearchLog.TryParseTrait(t, out _)) c.Revealed.Add(t);
+                inds.Add(c);
+            }
+            inds.Sort((a, b) => string.CompareOrdinal(a.Uid, b.Uid));
+            o.Individuals.AddRange(inds);
+            return o;
+        }
 
         /// <summary>Lỗi cấu trúc của khối research so với state (rỗng = hợp lệ).</summary>
         public static List<string> Validate(ResearchLogSnapshot snap, GameState s)
@@ -594,7 +703,7 @@ namespace Dravio.Domain.Behavior
             }
 
             var sections = new List<CodexSection>();
-            if (!pacing.Enabled) { if (e != null) sections.AddRange(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }); }
+            if (!pacing.CodexGated) { if (e != null) sections.AddRange(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }); }
             else
             {
                 if (tier >= ResearchTier.Sighted) sections.Add(CodexSection.Identity);
@@ -611,7 +720,7 @@ namespace Dravio.Domain.Behavior
             foreach (DragonState d in s.Dragons) if (d.SpeciesId == speciesId && d.Location.Kind != LocationKind.Released) individuals++;
             return new SpeciesResearchProfile
             {
-                SpeciesId = speciesId, Gated = pacing.Enabled, Tier = tier, RevealedSections = sections, ObservableBehaviors = observable,
+                SpeciesId = speciesId, Gated = pacing.CodexGated, Tier = tier, RevealedSections = sections, ObservableBehaviors = observable,
                 ObservedBehaviors = seen, ObservedPhases = phases, NativeHabitats = b.HabitatRules,
                 ObservedHabitats = r != null ? new List<string>(r.Habitats) : new List<string>(), CircadianCovered = circadian,
                 DistinctDays = days, RequiredDistinctDays = needDays, EthologyProgressPct = parts == 0 ? 0 : have * 100 / parts, NextStepKey = next,
@@ -627,10 +736,10 @@ namespace Dravio.Domain.Behavior
             PersonalityProfile p = PersonalityProfiles.Of(d);
             IndividualResearchRecord r = log?.IndividualRecord(uid);
             var revealed = new List<IndividualTrait>();
-            if (!pacing.Enabled) revealed.AddRange(new[] { IndividualTrait.Archetype, IndividualTrait.Chronotype, IndividualTrait.FavoriteHabitat, IndividualTrait.FavoriteDiet });
+            if (!pacing.CodexGated) revealed.AddRange(new[] { IndividualTrait.Archetype, IndividualTrait.Chronotype, IndividualTrait.FavoriteHabitat, IndividualTrait.FavoriteDiet });
             else if (r != null) revealed.AddRange(r.Revealed);
             string next = "research.individual.next.done";
-            if (pacing.Enabled)
+            if (pacing.CodexGated)
             {
                 if (!revealed.Contains(IndividualTrait.Archetype)) next = "research.individual.next.observe";
                 else if (!revealed.Contains(IndividualTrait.Chronotype)) next = "research.individual.next.observeOtherPhase";
@@ -639,7 +748,7 @@ namespace Dravio.Domain.Behavior
             }
             return new IndividualResearchProfile
             {
-                Uid = uid, SpeciesId = d.SpeciesId, Gated = pacing.Enabled, Observations = r?.Observations ?? 0, RevealedTraits = revealed,
+                Uid = uid, SpeciesId = d.SpeciesId, Gated = pacing.CodexGated, Observations = r?.Observations ?? 0, RevealedTraits = revealed,
                 Archetype = revealed.Contains(IndividualTrait.Archetype) ? d.Personality : (Personality?)null,
                 FavoriteHabitatId = revealed.Contains(IndividualTrait.FavoriteHabitat) ? p.FavoriteHabitatId : null,
                 FavoriteDiet = revealed.Contains(IndividualTrait.FavoriteDiet) ? p.FavoriteDiet : (DietId?)null,

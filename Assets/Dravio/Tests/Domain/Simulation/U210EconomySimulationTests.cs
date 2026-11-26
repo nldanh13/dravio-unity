@@ -16,7 +16,8 @@ namespace Dravio.Domain.Tests.Simulation
 {
     /// <summary>
     /// U2.10 Workstream D — mô phỏng 7 / 30 / 90 ngày, 7 kiểu người chơi, 3 lịch chơi, biến thể trước/sau (ADR 0204 E1–E6).
-    /// CI chạy bất biến ngắn. Báo cáo đầy đủ chỉ sinh khi đặt DRAVIO_U210_SIM_OUT=&lt;file.md&gt; (DRAVIO_SIM_SEEDS, mặc định 20).
+    /// CI chạy bất biến ngắn. Báo cáo đầy đủ chỉ sinh khi đặt DRAVIO_U210_SIM_OUT=&lt;file.md&gt; (DRAVIO_SIM_SEEDS, mặc định 20;
+    /// lọc bằng DRAVIO_SIM_POLICIES, DRAVIO_SIM_VARIANTS = no-projects,live, DRAVIO_SIM_SCHEDULES = tên lịch). Các seed chạy song song, kết quả không đổi.
     /// </summary>
     public sealed class U210EconomySimulationTests
     {
@@ -62,14 +63,15 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         [Test]
-        public void Proposed_variant_caps_starter_flipping()
+        public void Starter_trader_is_held_to_five_starter_packs_a_day_by_the_real_rules()
         {
             Schedule sc = EconomySimulationTests.Schedules[2];
-            RunResult before = new EconomySimulator(Policy.StarterTrader, sc, 4).Run(new double[] { 24 * 7 });
-            RunResult after = new EconomySimulator(Policy.StarterTrader, sc, 4, EconomyVariant.ProposedU210).Run(new double[] { 24 * 7 });
-            Assert.That(after.At[168].PacksBought, Is.LessThanOrEqualTo(5 * 8 + 1), "≤ 5 Starter / ngày UTC");
-            Assert.That(after.At[168].SoldG, Is.LessThan(before.At[168].SoldG));
-            Assert.That(after.At[168].VirtualSinkG, Is.GreaterThan(0));
+            var sim = new EconomySimulator(Policy.StarterTrader, sc, 4);
+            RunResult r = sim.Run(new double[] { 24 * 7 });
+            Assert.That(r.At[168].PacksBought, Is.InRange(1, PackCatalog.StarterDailyLimit * 8), "≤ 5 Starter / ngày UTC, 8 ngày UTC chạm tới");
+            Assert.That(r.At[168].SpentPacksG, Is.EqualTo(r.At[168].PacksBought * 150L), "Starter 150 G");
+            Assert.That(r.At[168].VirtualSinkG, Is.Zero, "E1/E2 là luật thật, không còn quỹ ảo");
+            Assert.That(GameStateValidator.Validate(sim.State).IsValid, Is.True, GameStateValidator.Validate(sim.State).ToString());
         }
 
         [Test]
@@ -90,20 +92,22 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         [Test]
-        public void Proposed_full_variant_adds_a_long_term_sink_and_lets_morning_players_finish_the_day_night_cycle()
+        public void Sanctuary_projects_are_a_real_long_term_sink_for_gold_and_expedition_materials()
         {
             Schedule morning = EconomySimulationTests.Schedules[0];
             double h90 = 24 * 90;
-            var cur = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.Current);
-            var pro = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.ProposedFull);
-            RunResult a = cur.Run(new[] { h90 }), b = pro.Run(new[] { h90 });
+            var cur = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.NoProjects);
+            var live = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.Live);
+            RunResult a = cur.Run(new[] { h90 }), b = live.Run(new[] { h90 });
             Assert.That(a.At[h90].UpgradeLevels, Is.GreaterThan(0), "người chơi có mua nâng cấp");
-            Assert.That(b.At[h90].Projects, Is.GreaterThan(0));
-            Assert.That(b.At[h90].GoldG - b.At[h90].VirtualSinkG, Is.LessThan(a.At[h90].GoldG - a.At[h90].VirtualSinkG), "dự án Sanctuary hút bớt vàng tồn");
-            Assert.That(b.At[h90].Ethology, Is.GreaterThan(a.At[h90].Ethology), "nhật ký đêm: người chơi buổi sáng vẫn hoàn thành chu kỳ ngày đêm");
+            Assert.That(b.At[h90].Projects, Is.GreaterThan(SanctuaryProjectCatalog.FirstMaterialProject), "đã qua các dự án cần vật liệu");
+            Assert.That(b.At[h90].Projects, Is.EqualTo(live.State.SanctuaryProjectsBuilt));
+            Assert.That(b.At[h90].ProjectMaterials, Is.GreaterThan(0), "dự án tiêu gỗ và hạt giống");
+            Assert.That(b.At[h90].GoldG, Is.LessThan(a.At[h90].GoldG), "dự án Sanctuary hút bớt vàng tồn");
+            Assert.That(b.At[h90].Ethology, Is.GreaterThan(0), "nhật ký đêm: người chơi buổi sáng vẫn hoàn thành chu kỳ ngày đêm");
             Assert.That(b.At[h90].Species, Is.EqualTo(a.At[h90].Species).Within(2), "điểm tiêu không làm chậm sưu tầm");
-            Assert.That(GameStateValidator.Validate(pro.State).IsValid, Is.True, GameStateValidator.Validate(pro.State).ToString());
-            Assert.That(ResearchSchemaDraft.Validate(pro.Research.ToSnapshot(), pro.State), Is.Empty);
+            Assert.That(GameStateValidator.Validate(live.State).IsValid, Is.True, GameStateValidator.Validate(live.State).ToString());
+            Assert.That(ResearchSchemaDraft.Validate(live.Research.ToSnapshot(), live.State), Is.Empty);
         }
 
         // ------------------------------------------------------------------ báo cáo
@@ -123,8 +127,8 @@ namespace Dravio.Domain.Tests.Simulation
         private static double Balance(Snapshot x) => x.GoldG - x.VirtualSinkG;
         /// <summary>Nguồn vàng: sản xuất + bán + thưởng thành tựu.</summary>
         private static double Faucets(Snapshot x) => x.EarnedG + x.SoldG + x.RewardsG;
-        /// <summary>Điểm tiêu: gói + lai + nâng cấp + quỹ ảo (chênh giá đề xuất và dự án Sanctuary).</summary>
-        private static double Sinks(Snapshot x) => x.SpentPacksG + x.SpentBreedG + x.SpentUpgradesG + x.VirtualSinkG;
+        /// <summary>Điểm tiêu: gói + lai + nâng cấp + dự án Sanctuary + quỹ ảo (chỉ E3 thử nghiệm).</summary>
+        private static double Sinks(Snapshot x) => x.SpentPacksG + x.SpentBreedG + x.SpentUpgradesG + x.ProjectsG + x.VirtualSinkG;
 
         private static string Label(double h) => h == 24 ? "1 ngày" : (h / 24) + " ngày";
 
@@ -135,30 +139,34 @@ namespace Dravio.Domain.Tests.Simulation
             if (outPath == null) Assert.Ignore("Đặt DRAVIO_U210_SIM_OUT để sinh báo cáo U2.10.");
             int seeds = int.TryParse(Environment.GetEnvironmentVariable("DRAVIO_SIM_SEEDS"), out int n) ? n : 20;
             string only = Environment.GetEnvironmentVariable("DRAVIO_SIM_POLICIES");
+            string onlyVariants = Environment.GetEnvironmentVariable("DRAVIO_SIM_VARIANTS");
+            string onlySchedules = Environment.GetEnvironmentVariable("DRAVIO_SIM_SCHEDULES");
+            var variants = new[] { EconomyVariant.NoProjects, EconomyVariant.Live }.Where(v => onlyVariants == null || onlyVariants.Split(',').Contains(v.Name)).ToList();
             var sb = new StringBuilder();
             sb.AppendLine("<!-- Sinh bởi U210EconomySimulationTests.Write_u210_economy_report_when_requested; seeds = " + seeds + " -->");
             sb.AppendLine();
             sb.AppendLine("### Tóm tắt (trung vị, " + seeds + " seed)");
             sb.AppendLine();
-            sb.AppendLine("| Người chơi | Lịch | Biến thể | Số dư 7 ng | Số dư 30 ng | Số dư 90 ng | Nguồn 90 ng | Tiêu 90 ng | Tiêu / nguồn | Ngày thu nhập đang giữ | Bán 90 ng | Nâng cấp (cấp) | Dự án | Loài | Ô codex |");
-            sb.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+            sb.AppendLine("| Người chơi | Lịch | Biến thể | Số dư 7 ng | Số dư 30 ng | Số dư 90 ng | Nguồn 90 ng | Tiêu 90 ng | Tiêu / nguồn | Ngày thu nhập đang giữ | Bán 90 ng | Nâng cấp (cấp) | Dự án | Gỗ + hạt cho dự án | Loài | Ô codex |");
+            sb.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
             var detail = new StringBuilder();
             var policies = ((Policy[])Enum.GetValues(typeof(Policy))).Where(p => p != Policy.Idle && (only == null || only.Split(',').Contains(p.ToString()))).ToList();
             foreach (Policy p in policies)
-                foreach (Schedule sc in EconomySimulationTests.Schedules)
-                    foreach (EconomyVariant v in new[] { EconomyVariant.Current, EconomyVariant.ProposedFull })
+                foreach (Schedule sc in EconomySimulationTests.Schedules.Where(x => onlySchedules == null || onlySchedules.Split(',').Contains(x.Name)))
+                    foreach (EconomyVariant v in variants)
                     {
-                        var sims = Enumerable.Range(1, seeds).Select(i => new EconomySimulator(p, sc, i, v)).ToList();
-                        var runs = sims.Select(x => x.Run(Horizons)).ToList();
+                        // Mỗi seed độc lập và tất định: chạy song song, gom theo thứ tự seed (kết quả không phụ thuộc số luồng).
+                        var runs = new RunResult[seeds];
+                        System.Threading.Tasks.Parallel.For(0, seeds, i => runs[i] = new EconomySimulator(p, sc, i + 1, v).Run(Horizons));
                         Func<double, Func<Snapshot, double>, double, double> P = (h, f, q) => Pct(runs.Select(r => f(r.At[h])), q);
                         double last = Horizons.Last();
                         sb.AppendLine($"| {p} | {sc.Name} | {v.Name} | {F(P(168, Balance, .5))} | {F(P(720, Balance, .5))} | {F(P(last, Balance, .5))} " +
                             $"| {F(P(last, Faucets, .5))} | {F(P(last, Sinks, .5))} | {P(last, x => Sinks(x) / Math.Max(1, Faucets(x)), .5).ToString("0.00", CultureInfo.InvariantCulture)} " +
-                            $"| {F(P(last, x => Balance(x) / Math.Max(1, Faucets(x) / (x.Hours / 24)), .5))} | {F(P(last, x => x.SoldG, .5))} | {F(P(last, x => x.UpgradeLevels, .5))} | {F(P(last, x => x.Projects, .5))} " +
+                            $"| {F(P(last, x => Balance(x) / Math.Max(1, Faucets(x) / (x.Hours / 24)), .5))} | {F(P(last, x => x.SoldG, .5))} | {F(P(last, x => x.UpgradeLevels, .5))} | {F(P(last, x => x.Projects, .5))} | {F(P(last, x => x.ProjectMaterials, .5))} " +
                             $"| {F(P(last, x => x.Species, .5))} | {F(P(last, x => x.Cells, .5))} |");
                         detail.AppendLine($"#### {p} — {sc.Name} — {v.Name}");
                         detail.AppendLine();
-                        detail.AppendLine("| Mốc | Số dư sau quỹ ảo G (P10 / trung vị / P90) | Vàng SX | Bán | Chi gói | Chi lai | Chi nâng cấp | Dự án (G) | Quỹ ảo | G/s | Rồng | Loài | Ô codex | Thành tựu |" + (p == Policy.Researcher ? " Profiled | LifeCycle | Ethology | Cá thể hiểu rõ | Quan sát | Vật liệu dùng | Thế giới |" : ""));
+                        detail.AppendLine("| Mốc | Số dư G (P10 / trung vị / P90) | Vàng SX | Bán | Chi gói | Chi lai | Chi nâng cấp | Dự án (G) | Quỹ ảo | G/s | Rồng | Loài | Ô codex | Thành tựu |" + (p == Policy.Researcher ? " Profiled | LifeCycle | Ethology | Cá thể hiểu rõ | Quan sát | Vật liệu dùng | Thế giới |" : ""));
                         detail.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|" + (p == Policy.Researcher ? "---|---|---|---|---|---|---|" : ""));
                         foreach (double h in Horizons)
                         {
@@ -174,14 +182,14 @@ namespace Dravio.Domain.Tests.Simulation
                         detail.AppendLine(string.Join(" · ", PackCatalog.All.Select(pk =>
                         {
                             var hs = runs.Select(r => r.FirstAffordHours[pk.Id]).Where(x => x.HasValue).Select(x => x.Value).ToList();
-                            return $"{pk.Id}: {F(Pct(hs, .5))} h ({hs.Count * 100 / runs.Count}%)";
+                            return $"{pk.Id}: {F(Pct(hs, .5))} h ({hs.Count * 100 / runs.Length}%)";
                         })));
                         if (p == Policy.Researcher)
                         {
                             foreach (string z in new[] { "ocean", "sky" })
                             {
                                 var hs = runs.Select(r => r.ZoneUnlockHours[z]).Where(x => x.HasValue).Select(x => x.Value / 24).ToList();
-                                detail.AppendLine($"Mở {z} theo đề xuất nhiệm vụ: trung vị ngày {F(Pct(hs, .5))} (P10 {F(Pct(hs, .1))}, P90 {F(Pct(hs, .9))}); {hs.Count * 100 / runs.Count}% seed mở trong 90 ngày.");
+                                detail.AppendLine($"Mở {z} theo đề xuất nhiệm vụ: trung vị ngày {F(Pct(hs, .5))} (P10 {F(Pct(hs, .1))}, P90 {F(Pct(hs, .9))}); {hs.Count * 100 / runs.Length}% seed mở trong 90 ngày.");
                                 detail.AppendLine();
                             }
                         }
@@ -209,7 +217,7 @@ namespace Dravio.Domain.Tests.Simulation
             double ev0 = EvMult(0), ev8 = EvMult(8);
             sb.AppendLine($"E[hệ số bán theo biến thể]: luck 0 = {ev0:0.0000}, luck 8 = {ev8:0.0000}");
             sb.AppendLine();
-            sb.AppendLine("| Gói | Giá hiện tại | EV bán Adult (luck 0) | EV/giá hiện tại | EV/giá luck 8 | Giá đề xuất | EV/giá đề xuất (luck 0 / 8) |");
+            sb.AppendLine("| Gói | Giá trước U2.10 | EV bán Adult (luck 0) | EV/giá trước | EV/giá trước, luck 8 | Giá từ U2.10 | EV/giá từ U2.10 (luck 0 / 8) |");
             sb.AppendLine("|---|---|---|---|---|---|---|");
             foreach (PackDef pk in PackCatalog.All)
             {
@@ -220,12 +228,12 @@ namespace Dravio.Domain.Tests.Simulation
                     if (sp.Count == 0) continue;
                     ev += PackCatalog.Odds(pk, r) / 100.0 * sp.Average(x => (double)x.BaseSellG);
                 }
-                long proposed = pk.Id == "starter" ? EconomyVariant.ProposedU210.StarterPriceG : pk.PriceG;
-                sb.AppendLine($"| {pk.Id} | {pk.PriceG} | {ev * ev0:0.0} | {ev * ev0 / pk.PriceG:0.00} | {ev * ev8 / pk.PriceG:0.00} | {proposed} | {ev * ev0 / proposed:0.00} / {ev * ev8 / proposed:0.00} |");
+                long before = pk.Id == "starter" ? ProgressCatalog.TutorialPackPriceG : pk.PriceG;
+                sb.AppendLine($"| {pk.Id} | {before} | {ev * ev0:0.0} | {ev * ev0 / before:0.00} | {ev * ev8 / before:0.00} | {pk.PriceG} | {ev * ev0 / pk.PriceG:0.00} / {ev * ev8 / pk.PriceG:0.00} |");
             }
             sb.AppendLine();
             double child = (75 + 80 + 380) / 3.0 * ev0;
-            sb.AppendLine($"Lai Emberling × Sprout: EV con Adult = {child:0.0} G; EV/phí: 80 G → {child / 80:0.00}; đề xuất {EconomyVariant.ProposedU210.CommonBreedFeeG} G → {child / EconomyVariant.ProposedU210.CommonBreedFeeG:0.00}");
+            sb.AppendLine($"Lai Emberling × Sprout: EV con Adult = {child:0.0} G; EV/phí: 80 G → {child / 80:0.00}; đề xuất {EconomyVariant.E3BreedFee.CommonBreedFeeG} G → {child / EconomyVariant.E3BreedFee.CommonBreedFeeG:0.00}");
             sb.AppendLine();
             sb.AppendLine("| Nâng cấp | Tổng chi tới cấp tối đa (G) | Cấp 1 (G) | Tác dụng ở G1 |");
             sb.AppendLine("|---|---|---|---|");

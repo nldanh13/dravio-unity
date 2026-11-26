@@ -3,6 +3,15 @@ using Dravio.Domain.Core;
 
 namespace Dravio.Domain
 {
+    /// <summary>U2.10 E1: bộ đếm gói Starter theo ngày UTC. Day = null khi chưa mua gói nào.</summary>
+    public sealed class PackDailyState
+    {
+        /// <summary>"YYYY-MM-DD" (UTC) của lần mua gần nhất, hoặc null.</summary>
+        public string Day { get; set; }
+        public int StarterBought { get; set; }
+        public PackDailyState Clone() => (PackDailyState)MemberwiseClone();
+    }
+
     /// <summary>Zone vật lý (ADR 0003): 3 zone, mỗi zone 5 chỗ ở P0; microhabitat là cấu hình trong zone.</summary>
     public sealed class ZoneState
     {
@@ -243,6 +252,12 @@ namespace Dravio.Domain
         public List<DisasterState> Disasters { get; set; } = new List<DisasterState>();
         /// <summary>(hazard) Đồng hồ kiểm hazard + cooldown theo thế giới. Schema v8.</summary>
         public HazardState Hazard { get; set; } = new HazardState();
+        /// <summary>(packDaily) U2.10 E1: số gói Starter mua bằng vàng trong ngày UTC <see cref="PackDailyState.Day"/>. Schema v9.</summary>
+        public PackDailyState PackDaily { get; set; } = new PackDailyState();
+        /// <summary>(sanctuaryProjectsBuilt) U2.10 E5: số dự án Sanctuary đã xây (0 … SanctuaryProjectCatalog.Max). Schema v9.</summary>
+        public int SanctuaryProjectsBuilt { get; set; }
+        /// <summary>(research) U2.10 R1–R11: sổ nghiên cứu (tập tính, pha, sinh cảnh theo loài; tiến trình cá thể). Schema v9.</summary>
+        public Behavior.ResearchLog Research { get; set; } = new Behavior.ResearchLog();
 
         /// <summary>Bản sao sâu. Dispatch làm việc trên bản sao để lệnh bị từ chối không đổi state gốc.</summary>
         public GameState DeepClone()
@@ -269,6 +284,8 @@ namespace Dravio.Domain
             if (HealthCases != null) { c.HealthCases = new List<HealthCase>(HealthCases.Count); foreach (var h in HealthCases) c.HealthCases.Add(h?.Clone()); }
             if (Disasters != null) { c.Disasters = new List<DisasterState>(Disasters.Count); foreach (var x in Disasters) c.Disasters.Add(x?.Clone()); }
             c.Hazard = Hazard?.Clone();
+            c.PackDaily = PackDaily?.Clone();
+            c.Research = Research?.Clone();
             return c;
         }
 

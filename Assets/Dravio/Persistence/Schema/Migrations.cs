@@ -156,6 +156,17 @@ namespace Dravio.Persistence.Schema
                 }
                 return next;
             }),
+            // U2.10 (chỉ bản Unity): giới hạn gói Starter theo ngày (chưa mua hôm nay), 0 dự án Sanctuary và sổ nghiên cứu rỗng.
+            // KHÔNG suy diễn quan sát từ Codex (người chơi chưa quan sát gì), không đổi vàng, rồng, vật liệu, Codex hay nhiệm vụ.
+            new MigrationStep(8, 9, state =>
+            {
+                foreach (string k in new[] { "packDaily", "sanctuaryProjectsBuilt", "research" })
+                    if (state.ContainsKey(k)) throw new InvalidOperationException("v8 state already has " + k);
+                return state.ShallowCopy()
+                    .Set("packDaily", new JsonObject().Set("day", JsonValue.Null).Set("starterBought", JsonValue.From(0L)))
+                    .Set("sanctuaryProjectsBuilt", JsonValue.From(0L))
+                    .Set("research", new JsonObject().Set("species", new JsonArray()).Set("individuals", new JsonArray()));
+            }),
         });
 
         public static MigrateResult Migrate(int fromVersion, JsonObject input) => Migrate(fromVersion, input, Steps, SaveSchema.CurrentVersion);

@@ -54,23 +54,43 @@ namespace Dravio.Domain.Tests
         // ================================================================== Workstream A — Research
 
         [Test]
-        public void Production_research_pacing_is_off_and_keeps_current_codex_behaviour()
+        public void Disabled_research_pacing_keeps_the_U29_codex_behaviour()
         {
-            Assert.That(ResearchPacing.Production.Enabled, Is.False);
+            Assert.That(ResearchPacing.Disabled.Enabled, Is.False);
             GameState s = WithDragons(At("a", "emberling", "origin_meadow"));
             var log = new ResearchLog();
             BehaviorDecision d = BehaviorEngine.Decide(s, "a", Day0 + 12 * Hour, DayPhase.Day);
-            ResearchObservationResult r = log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Production);
+            ResearchObservationResult r = log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Disabled);
             Assert.That(r.Recorded, Is.False);
             Assert.That(r.Reason, Is.EqualTo("research-disabled"));
-            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, null);
+            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, ResearchPacing.Disabled);
             Assert.That(p.Gated, Is.False);
             Assert.That(p.RevealedSections, Is.EquivalentTo(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }));
-            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, null);
+            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, ResearchPacing.Disabled);
             Assert.That(ind.Archetype, Is.EqualTo(Personality.Calm));
             Assert.That(ind.FavoriteHabitatId, Is.Not.Null);
             Assert.That(ind.FavoriteDiet, Is.Not.Null);
-            Assert.That(ResearchProgress.Opportunities(s, Day0 + 12 * Hour, DayPhase.Day, log, null), Is.Empty);
+            Assert.That(ResearchProgress.Opportunities(s, Day0 + 12 * Hour, DayPhase.Day, log, ResearchPacing.Disabled), Is.Empty);
+        }
+
+        [Test]
+        public void Production_research_records_findings_but_keeps_the_codex_fully_open()
+        {
+            Assert.That(ResearchPacing.Production.Enabled, Is.True);
+            Assert.That(ResearchPacing.Production.NightJournal, Is.True);
+            Assert.That(ResearchPacing.Production.CodexGated, Is.False);
+            GameState s = WithDragons(At("a", "emberling", "origin_meadow"));
+            var log = new ResearchLog();
+            BehaviorDecision d = BehaviorEngine.Decide(s, "a", Day0 + 12 * Hour, DayPhase.Day);
+            Assert.That(log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Production).Recorded, Is.True);
+            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, null);
+            Assert.That(p.Gated, Is.False);
+            Assert.That(p.RevealedSections, Is.EquivalentTo(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }));
+            Assert.That(p.ObservedPhases, Does.Contain(DayPhase.Day));
+            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, null);
+            Assert.That(ind.Gated, Is.False);
+            Assert.That(ind.FavoriteHabitatId, Is.Not.Null);
+            Assert.That(ResearchProgress.Opportunities(s, Day0 + 13 * Hour, DayPhase.Day, log, null), Is.Not.Empty);
         }
 
         [Test]
@@ -194,7 +214,7 @@ namespace Dravio.Domain.Tests
             Assert.That(migrated.Species, Is.Empty);
             Assert.That(migrated.Individuals, Is.Empty);
             Assert.That(MiniJson.Diff(before, StateJson.ToJson(s)), Is.Null);
-            Assert.That(s.SchemaVersion, Is.EqualTo(8));
+            Assert.That(s.SchemaVersion, Is.EqualTo(ContentInfo.SchemaVersion));
         }
 
         private static string Dump(ResearchLogSnapshot s) =>
@@ -213,7 +233,7 @@ namespace Dravio.Domain.Tests
             Assert.That(ResearchLog.LastNightSampleMs(Day0 + 3 * Hour, morning), Is.Null, "không offline qua 02:00");
             Assert.That(ResearchLog.LastNightSampleMs(Day0 - 8 * Hour, morning, utcOffsetMinutes: 7 * 60), Is.EqualTo(Day0 - 5 * Hour), "02:00 giờ Sanctuary (UTC+7)");
 
-            foreach (ResearchPacing off in new[] { ResearchPacing.Production, ResearchPacing.ProposedU210 })
+            foreach (ResearchPacing off in new[] { ResearchPacing.Disabled, ResearchPacing.ProposedU210 })
                 Assert.That(new ResearchLog().WriteNightJournal(s, night, morning, off), Is.Empty);
 
             var log = new ResearchLog();
@@ -453,7 +473,7 @@ namespace Dravio.Domain.Tests
         public void Quest_requirements_that_need_research_data_are_unknown_when_research_is_off()
         {
             GameState s = AquaticReady(out ResearchLog log);
-            QuestStatusView v = QuestProposals.Evaluate(s, log, null, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
+            QuestStatusView v = QuestProposals.Evaluate(s, log, ResearchPacing.Disabled, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
             QuestRequirementStatus circ = v.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.CircadianRecords);
             Assert.That(circ.State, Is.EqualTo(RequirementState.Unknown));
             Assert.That(circ.Detail, Is.EqualTo("research-disabled"));
