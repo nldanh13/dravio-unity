@@ -171,6 +171,7 @@ namespace Dravio
         bool restoreFit;
         Vector3 savedCamera;
         float savedSize;
+        float followZoom=1f;
         string messageEn="",messageVi="";
         bool Ready=>active && !viewSuspended && focus && !paused && session!=null && session.Status==SessionStatus.Ready && !session.Hidden && session.State!=null;
         GameState State=>session?.State;
@@ -1187,6 +1188,7 @@ namespace Dravio
             if(!Ready || selected==null || !residents.ContainsKey(selected) || cameraView==null || !cameraView.orthographic)return;
             if(following){StopFollow();return;}
             savedCamera=cameraView.transform.position;savedSize=cameraView.orthographicSize;
+            followZoom=1f;
             restoreFit=cameraFit!=null && cameraFit.enabled;
             if(restoreFit)cameraFit.enabled=false;
             following=true;
@@ -1195,16 +1197,54 @@ namespace Dravio
         void LateUpdate()
         {
             if(!following || cameraView==null)return;
-            if(selected==null || !residents.TryGetValue(selected,out var r)){StopFollow();return;}
-            var t=cameraView.transform;float size=Mathf.Min(savedSize,1.8f);
-            var subject=r.position+Vector3.up*.45f;
+            if(!Ready || selected==null || !residents.TryGetValue(selected,out var r)){StopFollow();return;}
+            var t=cameraView.transform;
             var free=cameraFit!=null?cameraFit.FreeViewport:new Rect(0,0,1,1);
+            // Fit the live visual, not its collision radius or canonical size. Retain
+            // the established overview as the upper bound, and keep the UI area free.
+            float size=Mathf.Min(savedSize,1.8f);
+            var subject=r.position+Vector3.up*.45f;
+            if(manager.TryGet(selected,out var visual))
+            {
+                var bounds=visual.WorldBounds();
+                var e=bounds.extents;
+                float width=ProjectedExtent(e,t.right),height=ProjectedExtent(e,t.up);
+                if(width>0f && height>0f && !float.IsInfinity(width+height))
+                {
+                    subject=bounds.center;
+                    // At default zoom the projected bounds occupy at most 40% of
+                    // the free width/height, unless limited by the overview clamp.
+                    size=Mathf.Max(width/Mathf.Max(.05f,free.width*cameraView.aspect*.4f),
+                        height/Mathf.Max(.05f,free.height*.4f));
+                }
+            }
+            ReadFollowZoom(free);
+            size=Mathf.Clamp(size*followZoom,Mathf.Min(.55f,savedSize),savedSize);
             float depth=Vector3.Dot(subject-savedCamera,t.forward);
             var target=subject-t.forward*depth-t.right*((free.center.x-.5f)*2f*size*cameraView.aspect)
                 -t.up*((free.center.y-.5f)*2f*size);
             float blend=1f-Mathf.Exp(-8f*Time.unscaledDeltaTime);
             t.position=Vector3.Lerp(t.position,target,blend);
             cameraView.orthographicSize=Mathf.Lerp(cameraView.orthographicSize,size,blend);
+        }
+        static float ProjectedExtent(Vector3 e,Vector3 axis)=>
+            Mathf.Abs(axis.x)*e.x+Mathf.Abs(axis.y)*e.y+Mathf.Abs(axis.z)*e.z;
+        void ReadFollowZoom(Rect free)
+        {
+            var mouse=Mouse.current;
+            if(mouse==null)return;
+            float scroll=mouse.scroll.ReadValue().y;
+            if(Mathf.Approximately(scroll,0f))return;
+            Vector2 point=mouse.position.ReadValue();
+            var viewport=cameraView.ScreenToViewportPoint(point);
+            if(!free.Contains(new Vector2(viewport.x,viewport.y)))return;
+            if(EventSystem.current!=null)
+            {
+                uiHits.Clear();EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position=point},uiHits);
+                if(uiHits.Any(h=>h.module is GraphicRaycaster))return;
+            }
+            float steps=Mathf.Clamp(scroll/120f,-3f,3f);
+            followZoom=Mathf.Clamp(followZoom*Mathf.Exp(-steps*.22f),.65f,2.2f);
         }
         void StopFollow()
         {
