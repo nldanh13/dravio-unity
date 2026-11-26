@@ -56,6 +56,7 @@ namespace Dravio
             collapse.onClick.AddListener(()=>{collapsed=!collapsed;ApplyVisibility();});
             RepairLayout();
             ApplyArtDirection();
+            DravioHudArt.Apply(safeRoot, panel, tabs, language, collapse);
             PrioritizeEggClaims();
             Select(0);
             Localize();
@@ -221,6 +222,7 @@ namespace Dravio
                 tabs[i].colors=colors;
                 var label=tabs[i].GetComponentInChildren<Text>(true);
                 if(label!=null)label.color=i==page?ButtonInk:Ivory;
+                DravioHudArt.ApplyTab(tabs[i],i==page);
             }
             if(collapseLabel!=null)collapseLabel.text=collapsed?(vi?"Mở":"Show"):(vi?"Ẩn":"Hide");
         }
