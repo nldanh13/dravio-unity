@@ -127,7 +127,7 @@ namespace Dravio.Domain.Tests
             // (không có lệnh tự tạo thiên tai hay tự khai báo hồi phục — GDD tr. 9).
             var commandTypes = typeof(GameCommand).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(GameCommand)) && !t.IsAbstract).Select(t => t.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
             Assert.That(commandTypes, Is.EqualTo(new[] { "AdvanceTimeCommand", "AssessCaseCommand", "BuildSanctuaryProjectCommand", "BulkSellCommand", "BuyDecorationCommand", "BuyPackCommand", "BuyTutorialPackCommand", "BuyUpgradeCommand",
-                "ClaimBreedCommand", "ClaimExpeditionCommand", "ClaimPackCommand", "ConsumeFoodCommand", "DischargeDragonCommand", "FeedCommand", "LockDragonCommand", "MoveDragonCommand",
+                "ClaimBreedCommand", "ClaimExpeditionCommand", "ClaimPackCommand", "CompleteQuestCommand", "ConsumeFoodCommand", "DischargeDragonCommand", "FeedCommand", "LockDragonCommand", "MoveDragonCommand",
                 "MoveToShelterCommand", "ObserveDragonCommand", "PetCommand", "RenameDragonCommand", "ReviewCaseCommand",
                 "SellDragonCommand", "SetCarePlanCommand", "SetProductionSlotCommand", "SetTutorialStatusCommand", "StartBreedCommand", "StartCareCommand", "StartExpeditionCommand", "SurveyHabitatCommand", "TapEggCommand",
                 "ToggleDecorationCommand", "UnlockHabitatCommand", "UnlockZoneCommand", "ViewBiologyProfileCommand" }));

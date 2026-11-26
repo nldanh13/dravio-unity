@@ -1,6 +1,7 @@
 # U2.10 — Quest Progression Matrix
 
 > Quyết định và phần chờ duyệt: [ADR 0204](../adr/0204-u2-10-research-social-progression.md) mục C (Q1–Q8).
+> **Cập nhật U2.11:** nhiệm vụ đã chạy thật (lệnh `completeQuest`, ADR 0206). Ma trận mới: `Docs/u2.11/WORLD_PROGRESSION.md`. Phần dưới là trạng thái lúc U2.10.
 > **Trạng thái:** catalog + evaluator chỉ đọc (`Assets/Dravio/Domain/Progression/QuestProposals.cs`). Production TẮT (`QuestRules.Production`): không nhiệm vụ nào được hoàn thành, `completedQuests` không đổi, Thủy Vực và Thiên Giới vẫn khóa như ADR 0201.
 > **Nguồn:** ADR 0201 để nội dung hai nhiệm vụ cổng là "TBD". GDD 3.1 không có trong repo; nội dung dưới đây là đề xuất.
 

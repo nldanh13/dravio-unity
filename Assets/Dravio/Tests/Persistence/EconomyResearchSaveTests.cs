@@ -61,7 +61,7 @@ namespace Dravio.Persistence.Tests
             LoadOutcome r = mgr.Load();
             Assert.That((r.Kind, r.Save.MigratedFrom), Is.EqualTo((LoadKind.Loaded, (int?)8)), r.Kind.ToString());
             GameState m = r.Save.State;
-            Assert.That((m.SchemaVersion, m.PackDaily.Day, m.PackDaily.StarterBought, m.SanctuaryProjectsBuilt, m.Research.IsEmpty), Is.EqualTo((9, (string)null, 0, 0, true)));
+            Assert.That((m.SchemaVersion, m.PackDaily.Day, m.PackDaily.StarterBought, m.SanctuaryProjectsBuilt, m.Research.IsEmpty), Is.EqualTo((10, (string)null, 0, 0, true)));
             Assert.That((m.Player.Gold.Micro, m.Player.Inventory["wood"]), Is.EqualTo((MicroGold.FromWholeGold(12_345).Micro, 7L)));
             // Bỏ phần v9 thêm vào thì trùng từng byte với state v8 (trừ schemaVersion).
             JsonObject strippedBack = (JsonObject)((JsonObject)JsonParser.Parse(PFix.EnvelopeAt(8, m))).Get("state");
