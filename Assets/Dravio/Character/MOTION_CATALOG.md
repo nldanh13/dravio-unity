@@ -75,7 +75,7 @@ Có trong `rig.json` ▸ `motion`, `*_animqa.json` ▸ `motionEnvelope`, và cat
 | flightSpan, flightVerticalExtent | sải cánh và chiều cao khi bay: khoảng không tối thiểu cần trống |
 | groundHeight / Length / Width | khoảng chiếm chỗ trên cạn |
 | takeOffRootOffset, landRootOffset | độ cao root so với tư thế Fly ở cuối TakeOff / đầu Land |
-| Swim, SwimSurface, Fly `groundSpeed` | tốc độ danh nghĩa theo số Strouhal 0,3 của nhịp đuôi/cánh đo trên model (U1-CHAR.7b). Nếu không có bone chóp thì dùng số thân mỗi chu kỳ (`motionDefaults`). Xem [BIOMECHANICS_RESEARCH.md](BIOMECHANICS_RESEARCH.md). **Chờ art director xác nhận** |
+| Swim, SwimSurface, Fly `groundSpeed` | tốc độ danh nghĩa theo số Strouhal 0,3 của nhịp đuôi/cánh đo trên model (U1-CHAR.7b). Khi bơi chỉ áp dụng nếu biên độ đuôi trong dải cá (A/L 0,1–0,3). Ngoài dải, hoặc không có bone chóp, dùng số thân mỗi chu kỳ (`motionDefaults`). Xem [BIOMECHANICS_RESEARCH.md](BIOMECHANICS_RESEARCH.md). **Chờ art director xác nhận** |
 | maxTurnGround / Water / Air | tốc độ quay khuyến nghị: Ground 180 °/s, Water 90 °/s (mặc định pipeline). Air tính cho từng model từ vòng nghiêng 30° ở tốc độ bay danh nghĩa, tối đa 180 °/s; loài không bay giữ 60 °/s |
 | transitionsChecked, transitionMaxDeg | số chuyển tiếp đã kiểm và độ lệch lớn nhất |
 

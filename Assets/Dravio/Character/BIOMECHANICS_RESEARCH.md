@@ -13,7 +13,7 @@ Tài liệu này ghi lại các nghiên cứu đã dùng để đặt tham số 
 | # | Quy luật | Nguồn | Áp dụng | Ở đâu |
 |---|---|---|---|---|
 | 1 | Sải bước tương đối và Froude: λ/h ≈ 2,3·Fr^0,3, Fr = v²/(g·h) | Alexander 1976; Alexander & Jayes 1983 | Chu kỳ Walk/Run tính từ sải bước đã author và chiều cao hông của model (`cadence: froude`) | `rig_archetype.py` ▸ `_froude_cadence`, `rig_geometry.froude_cadence` |
-| 2 | Số Strouhal khi bơi/bay hành trình: St = f·A/U ≈ 0,2–0,4 | Taylor, Nudds & Thomas 2003; Triantafyllou et al. 1993 | Tốc độ danh nghĩa Swim/Fly tính từ biên độ đỉnh-đỉnh đo được ở chóp đuôi/chóp cánh, St = 0,3 | `rig_archetype.py` (khối `motion.biomechanics`) |
+| 2 | Số Strouhal khi bơi/bay hành trình: St = f·A/U ≈ 0,2–0,4 | Taylor, Nudds & Thomas 2003; Triantafyllou et al. 1993 | Tốc độ danh nghĩa Fly tính từ biên độ đỉnh-đỉnh đo được ở chóp cánh, St = 0,3. Swim chỉ dùng St khi biên độ đuôi nằm trong dải của cá (A/L 0,1–0,3, Saadat et al. 2017); ngoài dải thì giữ sải 0,6 thân mỗi nhịp (cá: 0,6–0,7) và gắn cờ | `rig_archetype.py` (khối `motion.biomechanics`) |
 | 3 | Đổi tốc độ bằng tần số, giữ biên độ | cá dạng anguilliform/carangiform (Sci. Rep. 2023 tổng hợp) | Xác nhận thiết kế sẵn có: `PlaybackRate = speed / groundSpeed` cho Swim/Fly, nên St giữ nguyên khi Sanctuary đổi tốc độ | `DragonAnimationMap.PlaybackRate` (không sửa) |
 | 4 | Vòng nghiêng cân bằng: tan φ = V·ω/g; chim bồ câu nghiêng đúng theo lý thuyết khí động | Ros et al. 2011 (PNAS); nghiên cứu GPS/IMU trên bồ câu | Góc nghiêng khi bay phụ thuộc tốc độ và tốc độ quay; giới hạn quay trên không của từng model suy từ góc nghiêng tối đa | `MotionShapeSolver.CoordinatedBankDeg`; `motion.maxTurnRateDegPerSec.air` |
 | 5 | Ổn định ánh nhìn: đầu chim gần như bất động trước chuyển động xoay của thân (phản xạ vestibulo-collic) | Theunissen & Troje 2017 (Front. Neurosci.) | Cổ và đầu xoay ngược để bù góc nghiêng thân (`headRollStabilisation` = 1) | `DragonMotionShaper`, `MotionShapeSolver.HeadRollCompensation` |
@@ -35,6 +35,14 @@ Tài liệu này ghi lại các nghiên cứu đã dùng để đặt tham số 
 ## 3. Kết quả trên SAMPLE
 
 Bảng trước/sau của từng model: [`scripts/art/character/TEST_REPORT_U7b.md`](../../../scripts/art/character/TEST_REPORT_U7b.md).
+
+Tóm tắt (9 model, tất cả PASS, ngưỡng không đổi):
+- **Walk/Run** của rig bốn chân: 32/20 → 22/12 khung (Fr 0,02 / 0,37).
+- **Fly:** St 0,06 → 0,30, tốc độ danh nghĩa 4,58 → 0,99 m/s.
+- **TakeOff:** tỉ lệ vận tốc lúc rời đất khoảng 0,3 → 0,85.
+- **Land:** ngóc thân khi hãm.
+- **Swim:** biên độ đuôi của SAMPLE nằm ngoài dải cá (Droplet 0,46; Frostfin, Leviathan, Steamdrake 0,06–0,07), nên giữ sải mặc định và gắn cờ.
+- **Bảng theo model:** `reports_u7b_sample/motion-report.md`.
 
 ## 4. Giới hạn và quyết định chờ art director
 
