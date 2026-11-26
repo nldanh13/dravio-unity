@@ -142,7 +142,7 @@ namespace Dravio.Domain.Tests
             Assert.That(Gold(s) - Gold(r.State) + earned, Is.EqualTo(80 * G), "Common + Common = 80 G");
             BreedingEgg egg = r.State.BreedingNest;
             Assert.That(egg.ParentIds, Is.EqualTo(new[] { "pa", "pb" }));
-            Assert.That(new[] { "emberling", "sprout", "magma" }, Does.Contain(egg.SpeciesId));
+            Assert.That(new[] { "emberling", "sprout", "magma" }, Has.Member(egg.SpeciesId));
             Assert.That(egg.DurationMs, Is.EqualTo(BreedingRules.HatchSeconds(SpeciesCatalog.Get(egg.SpeciesId).Rarity, 0) * 1000));
             Assert.That((egg.Status, egg.FinishAtMs), Is.EqualTo((EggStatus.Incubating, clock.NowMs() + egg.DurationMs)));
             Assert.That(r.State.Dragons.Where(d => d.Uid == "pa" || d.Uid == "pb").Select(d => d.Activity), Is.All.EqualTo(DragonActivity.Breeding));

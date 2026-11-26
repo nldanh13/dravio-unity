@@ -253,7 +253,7 @@ namespace Dravio.Domain.Tests
             Assert.That(r.State.Relations.SharedMs("a", "c") + r.State.Relations.SharedMs("a", "st") + r.State.Relations.SharedMs("b", "st"), Is.Zero, "khác chỗ / trong kho không tính");
             SocialRelation rel = SocialEcology.Relation(r.State, r.State.FindDragon("a"), r.State.FindDragon("b"));
             Assert.That((rel.Familiarity, rel.Tier), Is.EqualTo((20 + 10 + 5, RelationTier.Acquainted)), "cùng chỗ 20 + cùng loài 10 + 5 giờ");
-            Assert.That(rel.Sources, Does.Contain(FamiliaritySource.SharedTime));
+            Assert.That(rel.Sources, Has.Member(FamiliaritySource.SharedTime));
             // Không đổi vàng / XP: so với cùng lần quyết toán khi bỏ quan hệ.
             GameState noRel = s.DeepClone(); noRel.Relations = null;
             DispatchResult plain = CommandDispatcher.Dispatch(noRel, Online(), clock);
