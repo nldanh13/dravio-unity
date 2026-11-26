@@ -62,7 +62,9 @@ namespace Dravio
         private string messageEn="",messageVi="";
         public bool HasFood => state!=null && foodId!=null && state.Food.Drops.Any(d=>d.Id==foodId);
         public Vector3 FoodPosition => fruit!=null?fruit.transform.position:spawn;
-        private bool CanSend => state!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
+        private bool worldSwitching;
+        public void SetWorldSwitching(bool value){worldSwitching=value;Refresh();}
+        private bool CanSend => !worldSwitching && state!=null && focused && !paused && (!persistentMode || (Session!=null && Session.Status==SessionStatus.Ready && !Session.Hidden));
         public bool CanInteract => CanSend && state.FindDragon(uid)!=null;
 
         public void Configure(Text goldLabel,Text progressLabel,Text noticeLabel,GameObject fruitVisual)

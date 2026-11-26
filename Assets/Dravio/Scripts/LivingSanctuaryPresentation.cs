@@ -105,7 +105,11 @@ namespace Dravio
         bool feedPending;
         GameSession session;
         GameState lastState;
-        string selected,travelHabitat,foodId,foodUid;
+        string selected,travelHabitat,travelZone,foodId,foodUid;
+        bool connectedWorlds,viewSuspended;
+        public bool WorldViewAvailable=>active;
+        string ViewZone=>locations?.zoneId??ConnectedWorldPolicy.Origin;
+        public void EnableConnectedWorlds()=>connectedWorlds=true;
         Vector3 foodPoint;
         float consumeAfter;
         bool vi=true,active,following,focus=true,paused,previousReady;
@@ -115,7 +119,7 @@ namespace Dravio
         Vector3 savedCamera;
         float savedSize;
         string messageEn="",messageVi="";
-        bool Ready=>active && focus && !paused && session!=null && session.Status==SessionStatus.Ready && !session.Hidden && session.State!=null;
+        bool Ready=>active && !viewSuspended && focus && !paused && session!=null && session.Status==SessionStatus.Ready && !session.Hidden && session.State!=null;
         GameState State=>session?.State;
         DragonState Selected=>State?.FindDragon(selected);
 
@@ -182,7 +186,27 @@ namespace Dravio
             if(fruit!=null && active)fruit.SetActive(false);
         }
 
-        bool Presentable(DragonState d)=>LivingResidentPolicy.InOriginView(State,d);
+        public void SuspendWorldView()
+        {
+            if(!active)return;
+            viewSuspended=true;StopFollow();
+            foreach(var r in residents.Values)ReleasePoint(r);
+            residents.Clear();unavailable.Clear();sync.Clear();frames.Clear();
+            ClearFood();interactions=null;cameraView=null;cameraFit=null;manager.viewCamera=null;
+            lastState=null;
+#if UNITY_EDITOR
+            controllerTrace?.Stop();
+#endif
+            RefreshButtons();
+        }
+        public bool BindWorldView(SanctuaryLocationData data,EnvironmentInteractions points,Camera camera)
+        {
+            if(!active || data==null || camera==null || !ConnectedWorldPolicy.CanVisit(State,data.zoneId))return false;
+            locations=data;navigation=new SanctuaryNavigationSurface(data);interactions=points;
+            cameraView=camera;cameraFit=camera.GetComponent<SanctuaryCameraFit>();manager.viewCamera=camera;
+            viewSuspended=false;lastState=null;decisionsDirty=true;travelZone=null;travelHabitat=null;RefreshRoster();return true;
+        }
+        bool Presentable(DragonState d)=>ConnectedWorldPolicy.InView(State,d,ViewZone);
         bool ClearPoint(Vector3 point,string habitat,string except)
         {
             if(navigation==null || !navigation.Clear(point,habitat,NavigationMedium.Ground))return false;
@@ -249,7 +273,7 @@ namespace Dravio
                 if(entry==null || entry.prefab==null){unavailable[d.Uid]="missing-model";RemoveResident(d.Uid);continue;}
                 if(!residents.TryGetValue(d.Uid,out var resident))
                 {
-                    var spawn=locations.SpawnPointsIn(d.Location.HabitatId).FirstOrDefault(p=>ClearPoint(p.Position,d.Location.HabitatId,d.Uid));
+                    var spawn=locations.SpawnPointsIn(d.Location.HabitatId).FirstOrDefault(p=>(string.IsNullOrEmpty(p.medium)||p.medium=="ground") && ClearPoint(p.Position,d.Location.HabitatId,d.Uid));
                     if(spawn==null){unavailable[d.Uid]="no-safe-spawn";continue;}
                     resident=new Resident{uid=d.Uid,habitat=d.Location.HabitatId,position=spawn.Position,rotation=spawn.Rotation,rest=1f,occupant=nextOccupant++};
                     residents.Add(d.Uid,resident);
@@ -563,7 +587,7 @@ namespace Dravio
         }
         void Update()
         {
-            if(!active)return;
+            if(!active || viewSuspended)return;
             if(session==null && host.Session!=null){session=host.Session;session.DomainEvents+=OnEvents;}
             if(interactions==null && LivingEnvironment.Active!=null)interactions=LivingEnvironment.Active.interactions;
             if(!ReferenceEquals(lastState,State))RefreshRoster();
@@ -674,7 +698,7 @@ namespace Dravio
         void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();if(manager.IsLive(id))sync.React(id,DragonReaction.Called);}RefreshProfile();}
         void NextDragon()
         {
-            if(State==null)return;
+            if(!Ready)return;
             var ids=State.Dragons.Where(d=>d.Location.Kind!=LocationKind.Released).Select(d=>d.Uid).ToArray();
             string next=LivingResidentPolicy.NextUid(ids,selected);
             if(next!=null)Select(next);
@@ -749,6 +773,7 @@ namespace Dravio
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
             decisionsDirty=true;
+            if(viewSuspended)return;
             foreach(var e in events)
             {
                 if(e is FoodSpawned f && feedPending && foodRequestedUid!=null && foodId==null)
@@ -769,7 +794,7 @@ namespace Dravio
         }
         void ToggleSleep()
         {
-            if(selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep &&
+            if(Ready && selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep &&
                 r.decision?.Role==BehaviorRole.Presentation && !IsFoodTarget(r))
             {
                 r.manualRestUntil=r.manualRestUntil>NowMs?0:NowMs+15000;
@@ -788,17 +813,19 @@ namespace Dravio
             if(Send(id=>new ViewBiologyProfileCommand(id,d.SpeciesId)))Message("Profile recorded.","Đã ghi nhận hồ sơ loài.");
         }
         List<TravelOption> TravelOptions()=>State==null || Selected==null?new List<TravelOption>():
-            Ecosystem.TravelOptions(State,selected).Where(o=>o.ZoneId=="origin").ToList();
+            Ecosystem.TravelOptions(State,selected).Where(o=>connectedWorlds?ConnectedWorldPolicy.ScenePath(o.ZoneId)!=null:o.ZoneId=="origin").ToList();
         void NextTravel()
         {
             var options=TravelOptions();if(options.Count==0)return;
-            travelHabitat=options[(options.FindIndex(o=>o.HabitatId==travelHabitat)+1)%options.Count].HabitatId;RefreshProfile();
+            var next=options[(options.FindIndex(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat))+1)%options.Count];
+            travelZone=next.ZoneId;travelHabitat=next.HabitatId;RefreshProfile();
         }
         void Move()
         {
             if(Selected==null || travelHabitat==null)return;
-            string who=selected,habitat=travelHabitat;
-            if(Send(id=>new MoveDragonCommand(id,who,MoveTarget.Zone("origin",habitat))))Message("Moved to habitat.","Đã chuyển sinh cảnh.");
+            string who=selected,habitat=travelHabitat,zone=travelZone;
+            if(zone==null || !TravelOptions().Any(o=>ConnectedWorldPolicy.MatchesDestination(o,zone,habitat)&&o.Blocked==null))return;
+            if(Send(id=>new MoveDragonCommand(id,who,MoveTarget.Zone(zone,habitat))))Message("Moved to habitat: "+zone,"Đã chuyển sinh cảnh: "+zone);
         }
         void Store()
         {
@@ -862,13 +889,14 @@ namespace Dravio
                 "missing-model"=>vi?"Thiếu model đúng loài":"Missing species model",
                 "ground-only"=>vi?"Chưa hỗ trợ môi trường di chuyển của loài":"Locomotion medium not implemented",
                 _=>vi?"Không có điểm đặt an toàn":"No safe spawn"};
-            profile.text=title.text+"\nUID: "+d.Uid+"\n"+snapshot.Mutation+" · "+d.Personality+"\n"+snapshot.Status+
+            profile.text=title.text+"\n"+(vi?"Thế giới đang xem: ":"Viewing: ")+ViewZone+"\nUID: "+d.Uid+"\n"+snapshot.Mutation+" · "+d.Personality+"\n"+snapshot.Status+
                 " · "+(snapshot.HabitatId??snapshot.ZoneId??"—")+"\n"+(vi?"Phù hợp: ":"Suitability: ")+(snapshot.Suitability?.ToString()??"—")+
                 "\n"+visual+"\n"+(vi?"Hiển thị: ":"Visual residents: ")+residents.Count;
             var options=TravelOptions();
-            if(!options.Any(o=>o.HabitatId==travelHabitat))travelHabitat=options.FirstOrDefault()?.HabitatId;
-            var option=options.FirstOrDefault(o=>o.HabitatId==travelHabitat);
-            travel.text=option==null?"—":option.HabitatId+" · "+option.Score+"/100\n"+
+            if(!options.Any(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat)))
+            {var first=options.FirstOrDefault();travelZone=first?.ZoneId;travelHabitat=first?.HabitatId;}
+            var option=options.FirstOrDefault(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat));
+            travel.text=option==null?"—":option.ZoneId+" / "+option.HabitatId+" · "+option.Score+"/100\n"+
                 (option.Blocked.HasValue?option.Blocked.Value.ToWire():(vi?"Có thể chuyển":"Available"));
             var traits=BehaviorQueries.Personality(State,d.Uid);
             var ecology=BehaviorQueries.Ecology(State,d.Uid);
@@ -959,7 +987,7 @@ namespace Dravio
             if(!ready || d==null){nextTravel.interactable=move.interactable=store.interactable=false;return;}
             var options=TravelOptions();
             nextTravel.interactable=options.Count>1;
-            move.interactable=options.Any(o=>o.HabitatId==travelHabitat && o.Blocked==null);
+            move.interactable=options.Any(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat) && o.Blocked==null);
             store.interactable=Ecosystem.Actions(State,d.Uid,State.Clock.LastProcessedAtMs).MoveToStorage==null;
         }
     }

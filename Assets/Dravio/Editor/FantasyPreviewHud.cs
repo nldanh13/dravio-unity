@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -43,6 +44,7 @@ namespace Dravio.Editor
             if(biology==null || biology.locomotion==null || biology.dietIds==null ||
                 biology.thermalBands==null || biology.habitatRules==null)
                 throw new InvalidOperationException("Emberling biology incomplete.");
+            var environmentRoots=playable?SceneManager.GetActiveScene().GetRootGameObjects().Where(x=>x!=dragon && x.GetComponentInChildren<EventSystem>(true)==null).ToArray():Array.Empty<GameObject>();
             // On this new scene only, replace the old visual placeholder HUD.
             foreach(var old in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
                 if(old.renderMode!=RenderMode.WorldSpace)
@@ -164,7 +166,8 @@ namespace Dravio.Editor
             var rosterInspect=Button(ui,roster,playable?"Inspect selected":"Inspect Emberling",playable?"Quan sát rồng đã chọn":"Quan sát Emberling",46);
             Text livingProfile=null,livingTravel=null;
             Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null,researchObserve=null,projectBuild=null;
-            Text projectStatus=null;
+            Text projectStatus=null,worldViewStatus=null;
+            Button worldOrigin=null,worldOcean=null,worldSky=null;
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
@@ -213,6 +216,12 @@ namespace Dravio.Editor
 
                 management=Page(host,"Management");
                 Label(ui,management,"Sanctuary overview","Tổng quan khu bảo tồn",18,Gold,TextAnchor.MiddleLeft,36);
+                worldViewStatus=Label(ui,management,"World view","Thế giới đang xem",14,Paper,TextAnchor.UpperLeft,130,false);
+                worldOrigin=Button(ui,management,"Visit Origin","Xem Khởi Nguyên",46);
+                worldOcean=Button(ui,management,"Visit Ocean","Xem Thủy Vực",46);
+                worldSky=Button(ui,management,"Visit Sky","Xem Thiên Giới",46);
+                worldOrigin.interactable=worldOcean.interactable=worldSky.interactable=false;
+                Label(ui,management,"Visiting does not move dragons. Move them separately in Dragons.","Xem thế giới không chuyển rồng. Chuyển riêng ở mục Rồng.",14,Muted,TextAnchor.MiddleLeft,66);
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
@@ -278,6 +287,12 @@ namespace Dravio.Editor
                         feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observeDragon,nextTravel,moveDragon,storeDragon);
                     living.ConfigureResearch(researchObserve);
                     session.ConfigureLiving(living);
+                    if(SceneManager.GetActiveScene().path==ConnectedWorldPolicy.OriginScene)
+                    {
+                        living.EnableConnectedWorlds();
+                        var worlds=hostGo.AddComponent<ConnectedWorldController>();
+                        worlds.Configure(persistence,living,session,environmentRoots,worldViewStatus,worldOrigin,worldOcean,worldSky);
+                    }
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyRocks.onClick,session.SurveyRocks);
