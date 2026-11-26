@@ -396,13 +396,15 @@ namespace Dravio
                     (r.medium==NavigationMedium.Swim?b==DragonBehavior.Swim:b==DragonBehavior.Fly));
             r.fallback=move?"same-medium-review":"same-medium-hold; care pose unavailable";
             if(!SpatialVisualReady(r,move)||dt<=0)return;
+            if(!SpatialClear(r,SanctuaryNavigationSurface.Point(r.position)))
+            {r.fallback="current-spatial-envelope-blocked";ResetRoute(r);return;}
             if(r.route==null || !r.route.Success)
             {
                 if(Time.unscaledTime<r.retryAt||routeBudget<=0)return;
                 var label=r.medium==NavigationMedium.Swim?"swim":"air";
                 var points=locations.SpawnPointsIn(r.habitat).Where(x=>x.medium==label).OrderBy(x=>x.id,StringComparer.Ordinal).ToArray();
                 if(points.Length==0)return;
-                var candidate=points[r.spatialDestination++%points.Length];
+                var candidate=points[(r.spatialDestination++ & int.MaxValue)%points.Length];
                 if((candidate.Position-r.position).sqrMagnitude<.04f||!SpatialClear(r,SanctuaryNavigationSurface.Point(candidate.Position)))
                 {r.retryAt=Time.unscaledTime+.5f;return;}
                 routeBudget--;plannedRoutes++;
@@ -535,7 +537,9 @@ namespace Dravio
             var delta=waypoint-r.position;delta.y=0f;
             if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
             var next=Vector3.MoveTowards(r.position,waypoint,.55f*dt);
-            if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat))
+            if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat) ||
+                (spatialForView && !SanctuaryRoutePlanner.SegmentClear(SanctuaryNavigationSurface.Point(r.position),
+                    SanctuaryNavigationSurface.Point(next),p=>Separated(SanctuaryNavigationSurface.Vector(p),r.uid),.025f)))
             {
                 // Stop, never slide through a moving resident. Replan after a short cooldown.
                 r.route=null;r.routeIndex=0;r.routeState="dynamic-block";r.routeFailed=false;
