@@ -13,6 +13,16 @@ namespace Dravio.Navigation
         public static NavPoint Point(Vector3 v)=>new NavPoint(v.x,v.y,v.z);
         public static Vector3 Vector(NavPoint p)=>new Vector3(p.X,p.Y,p.Z);
 
+        public bool HasAuthoredVolume(string habitat,NavigationMedium medium)
+        {
+            if(data==null || data.volumes==null || (medium!=NavigationMedium.Swim && medium!=NavigationMedium.Air))return false;
+            string mode=medium==NavigationMedium.Swim?"swim":"fly";
+            foreach(var volume in data.volumes)
+                if(volume!=null && volume.habitatId==habitat && volume.medium==mode && volume.yMax>volume.yMin &&
+                    volume.polygonXZ!=null && volume.polygonXZ.Length>=6)return true;
+            return false;
+        }
+
         public bool Clear(Vector3 point,string habitat,NavigationMedium medium,float clearance=.25f)
         {
             if(data==null || string.IsNullOrEmpty(habitat) || !Point(point).Finite || clearance<0f || float.IsNaN(clearance))return false;

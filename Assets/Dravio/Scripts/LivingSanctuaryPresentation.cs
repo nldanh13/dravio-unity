@@ -304,7 +304,7 @@ namespace Dravio
         bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
         {
             speed=0f;turnRate=0f;
-            if((target-r.position).sqrMagnitude<.0036f){ResetRoute(r);return true;}
+            if((target-r.position).sqrMagnitude<.0036f && ClearPoint(target,r.habitat,r.uid)){ResetRoute(r);return true;}
             if(!r.walking){r.routeFailed=true;r.routeState="no-walk-clip";return false;}
             if(manager.TryGet(r.uid,out var live) &&
                 (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
@@ -312,7 +312,11 @@ namespace Dravio
             var points=r.route.Waypoints;
             while(r.routeIndex<points.Count && (SanctuaryNavigationSurface.Vector(points[r.routeIndex])-r.position).sqrMagnitude<.0036f)
                 r.routeIndex++;
-            if(r.routeIndex>=points.Count){ResetRoute(r);return true;}
+            if(r.routeIndex>=points.Count)
+            {
+                if(ClearPoint(target,r.habitat,r.uid)){ResetRoute(r);return true;}
+                r.route=null;r.routeIndex=0;r.routeState="dynamic-goal-block";r.retryAt=Time.unscaledTime+.45f;return false;
+            }
             var waypoint=SanctuaryNavigationSurface.Vector(points[r.routeIndex]);
             var delta=waypoint-r.position;delta.y=0f;
             if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
@@ -370,7 +374,14 @@ namespace Dravio
             if(behavior==DragonBehavior.SeekFood)
             {r.fallback="food-not-assigned-to-visible-marker";return DragonBehaviorIntent.Idle;}
             if(AutonomousPresentationPolicy.RequiresUnimplementedMedium(behavior))
-            {r.fallback="medium-not-implemented";return DragonBehaviorIntent.Rest;}
+            {
+                // Do not animate movement in a medium without an authored volume and a certified transition.
+                var medium=behavior==DragonBehavior.Swim?NavigationMedium.Swim:
+                    behavior==DragonBehavior.Fly?NavigationMedium.Air:NavigationMedium.Burrow;
+                r.fallback=medium==NavigationMedium.Burrow?"burrow-transition-not-certified":
+                    navigation.HasAuthoredVolume(r.habitat,medium)?"medium-transition-not-certified":"no-authored-3d-volume";
+                return DragonBehaviorIntent.Rest;
+            }
             if(behavior==DragonBehavior.Sleep)return DragonBehaviorIntent.Sleep;
             if(behavior==DragonBehavior.Idle)return DragonBehaviorIntent.Idle;
             // Approach authored points only for compatible behaviors, using the existing reservations.

@@ -28,6 +28,7 @@ namespace Dravio.Tests
             var r=SanctuaryRoutePlanner.Plan(a,b,NavigationMedium.Ground,Clear);
             Assert.That(r.Status,Is.EqualTo(RouteStatus.Found));Valid(r,a,b,Clear);
             Assert.That(r.Waypoints.Any(p=>Math.Abs(p.Z)>=1.5f),Is.True);
+            Assert.That(r.Waypoints.Count,Is.LessThan(16),"checked shortcut smoothing");
             var again=SanctuaryRoutePlanner.Plan(a,b,NavigationMedium.Ground,Clear);
             Assert.That(again.Waypoints.Select(x=>(x.X,x.Y,x.Z)),Is.EqualTo(r.Waypoints.Select(x=>(x.X,x.Y,x.Z))));
         }

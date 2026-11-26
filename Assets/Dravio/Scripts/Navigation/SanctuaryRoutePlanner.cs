@@ -75,6 +75,18 @@ namespace Dravio.Navigation
             for(int i=0;i<=n;i++)if(!clear(NavPoint.Lerp(a,b,(float)i/n)))return false;
             return true;
         }
+        static IReadOnlyList<NavPoint> Smooth(NavPoint start,List<NavPoint> path,Func<NavPoint,bool> clear)
+        {
+            var result=new List<NavPoint>();var previous=start;int i=0;
+            while(i<path.Count)
+            {
+                int chosen=i;
+                for(int j=Math.Min(i+4,path.Count-1);j>i;j--)
+                    if(SegmentClear(previous,path[j],clear)){chosen=j;break;}
+                result.Add(path[chosen]);previous=path[chosen];i=chosen+1;
+            }
+            return result;
+        }
         public static RouteResult Plan(NavPoint start,NavPoint goal,NavigationMedium medium,
             Func<NavPoint,bool> clear, float step=.45f,int maxExpanded=768)
         {
@@ -100,7 +112,9 @@ namespace Dravio.Navigation
                 {
                     var path=new List<NavPoint>{goal};var cursor=node;
                     while(cursor.hasParent){path.Add(At(cursor.cell));cursor=nodes[cursor.parent];}
-                    path.Reverse();return new RouteResult(RouteStatus.Found,path,expanded);
+                    path.Reverse();
+                    // Short checked shortcuts reduce stair-step turns without unbounded all-pairs work.
+                    return new RouteResult(RouteStatus.Found,Smooth(start,path,clear),expanded);
                 }
                 // Cardinal neighbors only: no diagonal corner cutting. Full edge checked at <= 0.1m.
                 for(int axis=0;axis<(spatial?3:2);axis++)
