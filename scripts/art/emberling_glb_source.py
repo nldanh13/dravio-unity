@@ -53,7 +53,7 @@ def import_normalized(source, yaw_degrees):
     worlds = {o: o.matrix_world.copy() for o in meshes}
     yaw = Matrix.Rotation(math.radians(yaw_degrees), 4, 'Z')
     # glTF importer uses Blender Z-up; front is assumed -Y after the supplied yaw.
-    # Do not remesh, weld, decimate, project UVs, or replace material slots.
+    # Do not remesh, decimate, project UVs, or replace material slots (positions are welded below, UVs kept).
     for o in meshes:
         if o.data.users > 1:
             o.data = o.data.copy()
@@ -68,6 +68,20 @@ def import_normalized(source, yaw_degrees):
         if 'FINISHED' not in bpy.ops.object.join():
             raise RuntimeError("Failed to join GLB meshes")
     skin = bpy.context.object
+    # CHAR.9: generated GLBs (Hunyuan/Gemini -> GLB) also split NORMALS at every UV seam, so merge_vertices above
+    # leaves thousands of open boundary edges and bone heat weights nothing (measured on ArtSource 01_emberling:
+    # 7 390 boundary edges, 0 / 16 253 vertices weighted). Weld coincident positions only: UVs and materials are
+    # per face-corner and are kept exactly; no remesh, no decimation.
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(skin.data)
+    before = sum(1 for e in bm.edges if e.is_boundary)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5 * max(skin.dimensions))
+    after = sum(1 for e in bm.edges if e.is_boundary)
+    bm.to_mesh(skin.data)
+    bm.free()
+    skin.data.update()
+    print(f"GLB seam weld: boundary edges {before} -> {after}")
     skin.name = "Emberling_Baby_Body_GLB"
     skin.data.name = "Emberling_SourceMesh"
     for o in list(bpy.context.scene.objects):

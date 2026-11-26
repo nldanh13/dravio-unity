@@ -1,0 +1,170 @@
+{
+  "name": "PRP_02_tree_blossom_sky",
+  "category": "tree",
+  "profile": "prop_large",
+  "collider": "mesh",
+  "source": "<work>/assets/PRP_02_tree_blossom_sky/PRP_02_tree_blossom_sky_Prepared.glb",
+  "source_sha256_before": "607843cd10f6a2bad7c395c79e3d30151ef8dd7ec358c6c4c44871545f981da7",
+  "source_triangles": 40000,
+  "scale": {
+    "factor": 1.0,
+    "source": "source units (unverified real-world size)"
+  },
+  "pivot": "bottom-centre",
+  "lods": [
+    {
+      "level": 0,
+      "triangles": 10000,
+      "target": 10000,
+      "in_budget": true,
+      "rest_deviation": {
+        "mean_m": 0.0013743827190478809,
+        "p95_m": 0.006388155997696599,
+        "max_m": 0.02606131025655847,
+        "mean_rel": 0.0004292516819513504,
+        "p95_rel": 0.0019951696631332148,
+        "max_rel": 0.00813955320191564,
+        "bbox_diag_m": 3.201810911491426
+      },
+      "decimate_ratio": 0.25,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "uv_stats": {
+        "faces": 10000,
+        "uv_area_used": 0.57425,
+        "zero_area_faces": 0,
+        "flipped_faces": 4928,
+        "faces_outside_0_1": 0,
+        "area_ratio_p05": 0.6529257281707395,
+        "area_ratio_p50": 1.0122456046836472,
+        "area_ratio_p95": 1.3356116274256637
+      },
+      "material_slots": [
+        "PBR_Material"
+      ],
+      "texture_drift": {
+        "image": "Image_0",
+        "samples": 10000,
+        "mean_abs_srgb8": 1.7069833893061834,
+        "p95_abs_srgb8": 6.945357889987905,
+        "max_abs_srgb8": 125.83105452993227
+      }
+    },
+    {
+      "level": 1,
+      "triangles": 4000,
+      "target": 4000,
+      "in_budget": true,
+      "rest_deviation": {
+        "mean_m": 0.004805506913492877,
+        "p95_m": 0.01457621638225664,
+        "max_m": 0.054073967097372735,
+        "mean_rel": 0.00150087155248479,
+        "p95_rel": 0.004552491319815928,
+        "max_rel": 0.016888557317141725,
+        "bbox_diag_m": 3.201810911491426
+      },
+      "decimate_ratio": 0.1,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "uv_stats": {
+        "faces": 4000,
+        "uv_area_used": 0.52586,
+        "zero_area_faces": 0,
+        "flipped_faces": 1908,
+        "faces_outside_0_1": 0,
+        "area_ratio_p05": 0.5958551481049986,
+        "area_ratio_p50": 0.9948713781526928,
+        "area_ratio_p95": 1.3668516726640154
+      },
+      "material_slots": [
+        "PBR_Material"
+      ],
+      "texture_drift": {
+        "image": "Image_0",
+        "samples": 4000,
+        "mean_abs_srgb8": 3.204133311799981,
+        "p95_abs_srgb8": 12.519029373006935,
+        "max_abs_srgb8": 96.70965662280315
+      }
+    },
+    {
+      "level": 2,
+      "triangles": 1200,
+      "target": 1200,
+      "in_budget": true,
+      "rest_deviation": {
+        "mean_m": 0.012361592646579782,
+        "p95_m": 0.03333337259049699,
+        "max_m": 0.08512925392153926,
+        "mean_rel": 0.0038608128300811075,
+        "p95_rel": 0.010410787367505744,
+        "max_rel": 0.0265878455270444,
+        "bbox_diag_m": 3.201810911491426
+      },
+      "decimate_ratio": 0.03,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "uv_stats": {
+        "faces": 1200,
+        "uv_area_used": 0.42626,
+        "zero_area_faces": 0,
+        "flipped_faces": 549,
+        "faces_outside_0_1": 0,
+        "area_ratio_p05": 0.618037410179734,
+        "area_ratio_p50": 0.9889521369833713,
+        "area_ratio_p95": 1.37721208552254
+      },
+      "material_slots": [
+        "PBR_Material"
+      ],
+      "texture_drift": {
+        "image": "Image_0",
+        "samples": 1200,
+        "mean_abs_srgb8": 5.698817513235451,
+        "p95_abs_srgb8": 23.106745119632894,
+        "max_abs_srgb8": 104.618322991233
+      }
+    }
+  ],
+  "warnings": [],
+  "rigged": false,
+  "size": {
+    "x": 1.867645025253296,
+    "y": 1.7038459777832031,
+    "z": 1.9647910594940186,
+    "height": 1.9647910594940186,
+    "footprintRadius": 0.933822512626648,
+    "bounds_min": [
+      -0.933822512626648,
+      -0.8519229888916016,
+      0.0
+    ],
+    "bounds_max": [
+      0.933822512626648,
+      0.8519229888916016,
+      1.9647910594940186
+    ]
+  },
+  "colliderData": {
+    "type": "mesh",
+    "boxCenter": [
+      0.0,
+      0.0,
+      0.9823955297470093
+    ],
+    "boxSize": [
+      1.867645025253296,
+      1.7038459777832031,
+      1.9647910594940186
+    ],
+    "mesh": "PRP_02_tree_blossom_sky_Collider",
+    "meshTriangles": 1000
+  },
+  "fbx": "PRP_02_tree_blossom_sky_Prop.fbx",
+  "source_sha256_after": "607843cd10f6a2bad7c395c79e3d30151ef8dd7ec358c6c4c44871545f981da7",
+  "source_unchanged": true
+}

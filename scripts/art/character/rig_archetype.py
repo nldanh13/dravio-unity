@@ -66,6 +66,20 @@ _QA = json.loads(BUDGETS.read_text(encoding='utf-8')).get('animationQa', {})
 DEFORM_LIMITS = {'max_stretch_p999': _QA.get('maxStretchP999', 1.6), 'min_compress_p001': _QA.get('minCompressP001', 0.45)}
 
 
+
+# CHAR.8: transition bands measured in metres, not edge rings. On dense generated meshes 2 rings is ~1 cm and the
+# thigh/shoulder rotation becomes a rubber band; the band is widened to LEG_BAND_REL x body height (min 2 rings).
+import os as _os
+LEG_BAND_REL = float(_os.environ.get('DRAVIO_LEG_BAND_REL', '0'))
+
+
+def metric_rings(obj, E, height, rel, minimum):
+    if rel <= 0 or len(E) == 0:
+        return minimum
+    co = np.array([v.co[:] for v in obj.data.vertices])
+    le = float(np.median(np.linalg.norm(co[E[:, 0]] - co[E[:, 1]], axis=1)))
+    return max(minimum, int(round(rel * height / max(le, 1e-6))))
+
 def deep_merge(a, b):
     out = dict(a)
     for k, v in b.items():
@@ -455,7 +469,8 @@ def mask_weights(obj, arm, an, legs, max_inf=4):
     if legs:
         uppers = [col[c['upper']] for c in legs.values() if c['upper'] in col]
         distal = [col[c[x]] for c in legs.values() for x in ('lower', 'foot') if c[x] in col]
-        band = rg.border_mask(an.labels, E, rings=2, pair=('body', 'leg'))
+        leg_rings = metric_rings(obj, E, an.h, LEG_BAND_REL, 2)
+        band = rg.border_mask(an.labels, E, rings=leg_rings, pair=('body', 'leg'))
         upper_only = W[:, distal].sum(axis=1) < 0.02 if distal else np.ones(len(W), bool)
         band &= (labs == 'body') | ((labs == 'leg') & upper_only)
         trunk = {'Spine', 'Chest', 'Pelvis'} | {arm.data.bones[c['upper']].parent.name for c in legs.values()
@@ -469,7 +484,7 @@ def mask_weights(obj, arm, an, legs, max_inf=4):
                 for u in uppers:
                     if own is None or u != col.get(own['upper']):
                         A[i, u] = 0.0
-            W = rg.smooth_weights(W, A, E, iterations=6, alpha=0.5, active=band)
+            W = rg.smooth_weights(W, A, E, iterations=max(6, 3 * leg_rings), alpha=0.5, active=band)
     # Same for body/neck and neck/head (Spine/Chest/Neck/Head shared in the band).
     tail_share = tuple({'Pelvis', 'TailRoot', 'Tail1'} | ({tail_parent} if tail and tidx and tail_parent else set()))
     for pair, shared in ((('body', 'tail'), tail_share),

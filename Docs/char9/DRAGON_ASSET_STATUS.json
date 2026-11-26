@@ -1,0 +1,1355 @@
+{
+ "generated": "CHAR.9",
+ "pipeline": "u1-char8-v2 (rig v7 = rig v6 + U1-CHAR.7/7b/8 + CHAR.8 limb measurement)",
+ "sourceCommit": "0561a42 (ArtSource), main 42650fa",
+ "statusScale": [
+  "SOURCE_AVAILABLE",
+  "INSPECTED",
+  "NEEDS_FIX",
+  "OPTIMIZED",
+  "RIGGED",
+  "ANIMATION_QA_PASS",
+  "UNITY_READY",
+  "UNITY_VERIFIED",
+  "ANDROID_VERIFIED",
+  "APPROVED"
+ ],
+ "summary": {
+  "species": 16,
+  "realGlb": 16,
+  "sample": 0,
+  "rigged": 16,
+  "animationQaPass": 0,
+  "unityReady": 1,
+  "unityVerified": 0,
+  "androidVerified": 0,
+  "approved": 0,
+  "stageVariantsTarget": 48,
+  "stageSpecificModels": 0
+ },
+ "species": [
+  {
+   "species": "amberhorn",
+   "source": "ArtSource/Dragons/images/13_amberhorn.glb",
+   "sourceSha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "12/19 clips over stretch 1.6 (worst 3.394 in Burrow); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "silhouetteVi",
+   "bones": 26,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Curious",
+    "DigPrep",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Burrow",
+    "BurrowEnter",
+    "Drink",
+    "Eat",
+    "Happy",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_amberhorn_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_amberhorn_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_amberhorn_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "aurorawing",
+   "source": "ArtSource/Dragons/images/14_aurorawing.glb",
+   "sourceSha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "12/19 clips over stretch 1.6 (worst 2.938 in Sleep); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    23999,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Land",
+    "LookAround",
+    "Rest",
+    "Run",
+    "Sleep",
+    "TakeOff",
+    "Wake"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_aurorawing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_aurorawing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_aurorawing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "blossom",
+   "source": "ArtSource/Dragons/images/10_blossom.glb",
+   "sourceSha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "14/20 clips over stretch 1.6 (worst 3.084 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    24000,
+    9999,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Perch",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Land",
+    "Perch",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_blossom_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_blossom_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_blossom_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "celestia",
+   "source": "ArtSource/Dragons/images/15_celestia.glb",
+   "sourceSha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "13/19 clips over stretch 1.6 (worst 5.309 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Land",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_celestia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_celestia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_celestia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "droplet",
+   "source": "ArtSource/Dragons/images/02_droplet.glb",
+   "sourceSha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "14/21 clips over stretch 1.6 (worst 4.401 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 28,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_droplet_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_droplet_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_droplet_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "emberling",
+   "source": "ArtSource/Dragons/images/01_emberling.glb",
+   "sourceSha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "UNITY_READY",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "9/15 clips over stretch 1.6 (worst 3.439 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "silhouetteVi",
+   "bones": 26,
+   "lodTriangles": [
+    24000,
+    9999,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_emberling_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_emberling_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_emberling_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   },
+   "unityReadyAsset": "Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx",
+   "unityReadyContract": "EmberlingAssetAudit / EmberlingModelPipeline (Origin gameplay scene generator)",
+   "unityReadyDeformation": {
+    "Idle": {
+     "stretchP999": 1.345,
+     "compressP001": 0.784,
+     "groundPenRel": 0.0012
+    },
+    "Walk": {
+     "stretchP999": 2.659,
+     "compressP001": 0.442,
+     "groundPenRel": 0.0
+    },
+    "Eat": {
+     "stretchP999": 3.326,
+     "compressP001": 0.392,
+     "groundPenRel": 0.0
+    },
+    "Doze": {
+     "stretchP999": 3.317,
+     "compressP001": 0.413,
+     "groundPenRel": 0.0
+    },
+    "Happy": {
+     "stretchP999": 1.97,
+     "compressP001": 0.429,
+     "groundPenRel": 0.0
+    }
+   }
+  },
+  {
+   "species": "frostfin",
+   "source": "ArtSource/Dragons/images/08_frostfin.glb",
+   "sourceSha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "8/13 clips over stretch 1.6 (worst 3.095 in Happy); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "aquatic",
+   "limbCount": 0,
+   "limbCountSource": "canonical: no walking limbs",
+   "bones": 17,
+   "lodTriangles": [
+    24000,
+    9999,
+    3999
+   ],
+   "clips": [
+    "Curious",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Sleep",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "Wake"
+   ],
+   "clipsOverStretchLimit": [
+    "Curious",
+    "Eat",
+    "Happy",
+    "Idle",
+    "Rest",
+    "Sleep",
+    "Swim",
+    "Wake"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_frostfin_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_frostfin_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_frostfin_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "gaia",
+   "source": "ArtSource/Dragons/images/16_gaia.glb",
+   "sourceSha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "16/21 clips over stretch 1.6 (worst 13.437 in Swim); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 27,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "LookAround",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_gaia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_gaia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_gaia_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "leviathan",
+   "source": "ArtSource/Dragons/images/12_leviathan.glb",
+   "sourceSha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "9/13 clips over stretch 1.6 (worst 8.475 in Sleep); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "serpentine",
+   "limbCount": 0,
+   "limbCountSource": "canonical: no walking limbs",
+   "bones": 19,
+   "lodTriangles": [
+    24000,
+    9999,
+    4000
+   ],
+   "clips": [
+    "Curious",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Sleep",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "Wake"
+   ],
+   "clipsOverStretchLimit": [
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Rest",
+    "Sleep",
+    "Swim",
+    "Wake"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_leviathan_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_leviathan_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_leviathan_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "magma",
+   "source": "ArtSource/Dragons/images/06_magma.glb",
+   "sourceSha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "12/19 clips over stretch 1.6 (worst 3.53 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 26,
+   "lodTriangles": [
+    24000,
+    9999,
+    3999
+   ],
+   "clips": [
+    "Bask",
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Curious",
+    "DigPrep",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_magma_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_magma_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_magma_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "mossback",
+   "source": "ArtSource/Dragons/images/09_mossback.glb",
+   "sourceSha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "15/21 clips over stretch 1.6 (worst 10.983 in Swim); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 26,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_mossback_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_mossback_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_mossback_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "solaris",
+   "source": "ArtSource/Dragons/images/11_solaris.glb",
+   "sourceSha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "11/19 clips over stretch 1.6 (worst 2.368 in Sleep); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Land",
+    "Rest",
+    "Run",
+    "Sleep",
+    "TakeOff",
+    "Wake"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_solaris_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_solaris_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_solaris_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "sparkwing",
+   "source": "ArtSource/Dragons/images/07_sparkwing.glb",
+   "sourceSha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "14/19 clips over stretch 1.6 (worst 6.145 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Land",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_sparkwing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_sparkwing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_sparkwing_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "sprout",
+   "source": "ArtSource/Dragons/images/03_sprout.glb",
+   "sourceSha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "14/19 clips over stretch 1.6 (worst 4.401 in Run); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "quadruped",
+   "limbCount": 4,
+   "limbCountSource": "silhouetteVi",
+   "bones": 26,
+   "lodTriangles": [
+    24000,
+    9999,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Curious",
+    "DigPrep",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Happy",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Wake",
+    "Walk"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_sprout_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_sprout_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_sprout_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "steamdrake",
+   "source": "ArtSource/Dragons/images/05_steamdrake.glb",
+   "sourceSha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "14/21 clips over stretch 1.6 (worst 4.359 in Swim); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "serpentine",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 31,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Greet",
+    "Happy",
+    "Idle",
+    "LookAround",
+    "Nuzzle",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "clipsOverStretchLimit": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "Swim",
+    "SwimIdle",
+    "SwimSurface",
+    "Wake",
+    "Walk",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_steamdrake_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_steamdrake_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_steamdrake_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  },
+  {
+   "species": "zephyr",
+   "source": "ArtSource/Dragons/images/04_zephyr.glb",
+   "sourceSha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+   "realGlb": true,
+   "sample": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "RIGGED",
+    "NEEDS_FIX"
+   ],
+   "statusNotes": {
+    "NEEDS_FIX": "8/20 clips over stretch 1.6 (worst 1.972 in Glide); see ANIMATION_QA_REPORT.md",
+    "ANIMATION_QA_PASS": "not reached",
+    "UNITY_VERIFIED": "NOT RUN",
+    "ANDROID_VERIFIED": "NOT RUN",
+    "APPROVED": "owner only"
+   },
+   "archetype": "winged",
+   "limbCount": 4,
+   "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+   "bones": 32,
+   "lodTriangles": [
+    24000,
+    10000,
+    4000
+   ],
+   "clips": [
+    "Bask",
+    "Curious",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Glide",
+    "Greet",
+    "Happy",
+    "Idle",
+    "Land",
+    "LookAround",
+    "Nuzzle",
+    "Perch",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Stretch",
+    "TakeOff",
+    "Wake",
+    "Walk"
+   ],
+   "clipsOverStretchLimit": [
+    "Drink",
+    "Fly",
+    "Glide",
+    "Land",
+    "Perch",
+    "Run",
+    "Sleep",
+    "TakeOff"
+   ],
+   "stages": {
+    "Baby": {
+     "model": "DRG_zephyr_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Juvenile": {
+     "model": "DRG_zephyr_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    },
+    "Adult": {
+     "model": "DRG_zephyr_Unstaged (shared)",
+     "stageSpecificModel": false,
+     "status": "MISSING_STAGE_MODEL"
+    }
+   }
+  }
+ ]
+}

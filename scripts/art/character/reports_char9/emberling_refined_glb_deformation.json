@@ -1,0 +1,57 @@
+{
+ "metric": "scripts/art/character/measure_skin_deformation.py: edge length / rest length on the skinned mesh, every 2nd frame (anim_qa limits: stretch p99.9 <= 1.6, compress p0.1 >= 0.45, ground penetration <= 0.01 of height)",
+ "legacyBoundsFittedHeatRig": {
+  "Idle": {
+   "stretchP999": 3.543,
+   "compressP001": 0.315,
+   "groundPenRel": 0.0458
+  },
+  "Walk": {
+   "stretchP999": 24.324,
+   "compressP001": 0.241,
+   "groundPenRel": 1.1211
+  },
+  "Eat": {
+   "stretchP999": 24.335,
+   "compressP001": 0.289,
+   "groundPenRel": 0.7545
+  },
+  "Doze": {
+   "stretchP999": 52.359,
+   "compressP001": 0.249,
+   "groundPenRel": 1.7257
+  },
+  "Happy": {
+   "stretchP999": 8.97,
+   "compressP001": 0.148,
+   "groundPenRel": 0.0699
+  }
+ },
+ "rigV7ContractExport_committed": {
+  "Idle": {
+   "stretchP999": 1.345,
+   "compressP001": 0.784,
+   "groundPenRel": 0.0012
+  },
+  "Walk": {
+   "stretchP999": 2.659,
+   "compressP001": 0.442,
+   "groundPenRel": 0.0
+  },
+  "Eat": {
+   "stretchP999": 3.326,
+   "compressP001": 0.392,
+   "groundPenRel": 0.0
+  },
+  "Doze": {
+   "stretchP999": 3.317,
+   "compressP001": 0.413,
+   "groundPenRel": 0.0
+  },
+  "Happy": {
+   "stretchP999": 1.97,
+   "compressP001": 0.429,
+   "groundPenRel": 0.0
+  }
+ }
+}
