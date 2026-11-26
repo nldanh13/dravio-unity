@@ -1078,6 +1078,12 @@ namespace Dravio
                     if(Social!=null&&Social.Contains(p.DragonUid))StopSocial("pet-event");
                     sync.React(p.DragonUid,DragonReaction.Petted);
                 }
+                else if(e is ExpeditionStarted trip)
+                {
+                    if(Social!=null&&Social.Contains(trip.DragonUid))StopSocial("expedition-start");
+                    if(foodUid==trip.DragonUid)ClearFood(); // visual marker only; canonical food expires normally
+                    if(selected==trip.DragonUid)StopFollow();
+                }
                 else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
             }
         }
