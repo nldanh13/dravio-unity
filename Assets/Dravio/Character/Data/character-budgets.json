@@ -237,6 +237,15 @@
         ],
         "profile": "prop_small",
         "collider": "box"
+      },
+      {
+        "category": "egg",
+        "keywords": [
+          "egg",
+          "trung"
+        ],
+        "profile": "prop_small",
+        "collider": "convex"
       }
     ]
   }

@@ -1,0 +1,230 @@
+{
+ "generated": "CHAR.9",
+ "worlds": {
+  "origin": {
+   "habitats": [
+    "origin_meadow",
+    "origin_warm_rocks",
+    "origin_pondbank"
+   ],
+   "models": [
+    "SM_ENV_Column_Broken.fbx",
+    "SM_ENV_Column_Fallen.fbx",
+    "SM_ENV_Column_Intact.fbx",
+    "SM_ENV_Cover_Edges.fbx",
+    "SM_ENV_Cover_Origin_Meadow.fbx",
+    "SM_ENV_Cover_Origin_Pondbank.fbx",
+    "SM_ENV_Cover_Origin_Warm_Rocks.fbx",
+    "SM_ENV_Fern.fbx",
+    "SM_ENV_Flower_Patch_Blue.fbx",
+    "SM_ENV_Flower_Patch_Gold.fbx",
+    "SM_ENV_Flower_Patch_Pink.fbx",
+    "SM_ENV_Gate_Ancient.fbx",
+    "SM_ENV_Grass_Tuft_A.fbx",
+    "SM_ENV_Grass_Tuft_B.fbx",
+    "SM_ENV_Ground_Sanctuary.fbx",
+    "SM_ENV_Mushroom_Cluster_Glow.fbx",
+    "SM_ENV_Mushroom_Cluster_Red.fbx",
+    "SM_ENV_Pond_Bank.fbx",
+    "SM_ENV_Pond_Small.fbx",
+    "SM_ENV_Rock_Mossy_A.fbx",
+    "SM_ENV_Rock_Mossy_B.fbx",
+    "SM_ENV_Rock_Mossy_C.fbx",
+    "SM_ENV_Rock_Warm_Flat.fbx",
+    "SM_ENV_Rock_Warm_Stack.fbx",
+    "SM_ENV_Root_Cluster.fbx",
+    "SM_ENV_Runestone_A.fbx",
+    "SM_ENV_Runestone_B.fbx",
+    "SM_ENV_Shrub_Round.fbx",
+    "SM_ENV_Statue_Dragon.fbx",
+    "SM_ENV_Stepping_Stones.fbx",
+    "SM_ENV_Tree_Ancient.fbx",
+    "SM_ENV_Tree_Ancient_B.fbx",
+    "SM_ENV_Vine_Hanging.fbx",
+    "SM_ENV_Wall_Ruin_A.fbx",
+    "SM_ENV_Wall_Ruin_B.fbx"
+   ],
+   "textures": [
+    "T_ENV_FX_Ring.png",
+    "T_ENV_FX_SoftDot.png",
+    "T_ENV_Foliage.png",
+    "T_ENV_Ground.png",
+    "T_ENV_PropsAtlas.png",
+    "T_ENV_PropsEmission.png",
+    "T_ENV_Water.png"
+   ],
+   "data": [
+    "OriginSanctuaryColliders.json",
+    "OriginSanctuaryLayout.json",
+    "OriginSanctuaryLiving.json",
+    "OriginSanctuaryLocations.json",
+    "OriginSanctuaryManifest.json"
+   ],
+   "sceneBuilder": "Dravio/Environment/Build Everything -> Environment/Scenes/OriginSanctuary_Environment.unity; gameplay: EmberlingModelPipeline -> Scenes/OriginLongTermGameplay.unity (needs Art/Models/EmberlingRefinedGLB.fbx, added in CHAR.9)",
+   "policyScene": "Assets/Dravio/Scenes/OriginLongTermGameplay.unity",
+   "sceneFileInRepo": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "UNITY_READY"
+   ],
+   "statusNotes": "procedural U1-ENV kit (code-built), concept-aligned in style only; scene must be generated in Unity",
+   "locationData": "habitat walk areas, spawns, feeding / resting / drinking / interaction points, colliders in the *Locations*.json / *Living*.json / *Colliders*.json above (U1-ENV.2-4)",
+   "unityVerified": "NOT RUN",
+   "androidVerified": "NOT RUN"
+  },
+  "ocean": {
+   "habitats": [
+    "ocean_estuary",
+    "ocean_cool_pool",
+    "ocean_reef"
+   ],
+   "models": [
+    "SM_ENV_Ocean_Anemone_Glow.fbx",
+    "SM_ENV_Ocean_Arch_Estuary.fbx",
+    "SM_ENV_Ocean_Column_Fallen.fbx",
+    "SM_ENV_Ocean_Column_Sunken.fbx",
+    "SM_ENV_Ocean_Coral_Brain.fbx",
+    "SM_ENV_Ocean_Coral_Branch.fbx",
+    "SM_ENV_Ocean_Coral_Table.fbx",
+    "SM_ENV_Ocean_Cover_Cool_Pool.fbx",
+    "SM_ENV_Ocean_Cover_Edges.fbx",
+    "SM_ENV_Ocean_Cover_Estuary.fbx",
+    "SM_ENV_Ocean_Cover_Reef.fbx",
+    "SM_ENV_Ocean_Crystal_Cool.fbx",
+    "SM_ENV_Ocean_Kelp.fbx",
+    "SM_ENV_Ocean_Rock_Reef_A.fbx",
+    "SM_ENV_Ocean_Rock_Reef_B.fbx",
+    "SM_ENV_Ocean_Sea_Fan.fbx",
+    "SM_ENV_Ocean_Seabed.fbx",
+    "SM_ENV_Ocean_Shell_Cluster.fbx",
+    "SM_ENV_Ocean_Statue_Dragon.fbx",
+    "SM_ENV_Ocean_Vent_Rock.fbx",
+    "SM_ENV_Ocean_Wall_Ruin.fbx"
+   ],
+   "textures": [
+    "T_ENV_FX_Bubble.png",
+    "T_ENV_FX_Caustics.png",
+    "T_ENV_FX_LightShaft.png",
+    "T_ENV_Ocean_Foliage.png",
+    "T_ENV_Ocean_Ground.png",
+    "T_ENV_Ocean_PropsAtlas.png",
+    "T_ENV_Ocean_PropsEmission.png"
+   ],
+   "data": [
+    "OceanColliders.json",
+    "OceanLayout.json",
+    "OceanLiving.json",
+    "OceanLocations.json",
+    "OceanManifest.json"
+   ],
+   "sceneBuilder": "ZoneEnvironmentBuilder (Ocean) -> Environment/Scenes/Ocean_Environment.unity",
+   "policyScene": "Assets/Dravio/Environment/Scenes/Ocean_Environment.unity",
+   "sceneFileInRepo": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "UNITY_READY"
+   ],
+   "statusNotes": "procedural U1-ENV.4 kit; scene generated in Unity",
+   "locationData": "habitat walk areas, spawns, feeding / resting / drinking / interaction points, colliders in the *Locations*.json / *Living*.json / *Colliders*.json above (U1-ENV.2-4)",
+   "unityVerified": "NOT RUN",
+   "androidVerified": "NOT RUN"
+  },
+  "sky": {
+   "habitats": [
+    "sky_low_island"
+   ],
+   "models": [
+    "SM_ENV_Sky_Bridge.fbx",
+    "SM_ENV_Sky_Cloud_Puff.fbx",
+    "SM_ENV_Sky_Cloud_Sea.fbx",
+    "SM_ENV_Sky_Column.fbx",
+    "SM_ENV_Sky_Column_Broken.fbx",
+    "SM_ENV_Sky_Cover_East.fbx",
+    "SM_ENV_Sky_Cover_Main.fbx",
+    "SM_ENV_Sky_Cover_Shrine.fbx",
+    "SM_ENV_Sky_Gate.fbx",
+    "SM_ENV_Sky_Island_Main.fbx",
+    "SM_ENV_Sky_Islet_East.fbx",
+    "SM_ENV_Sky_Islet_Float_A.fbx",
+    "SM_ENV_Sky_Islet_Float_B.fbx",
+    "SM_ENV_Sky_Islet_Shrine.fbx",
+    "SM_ENV_Sky_Runestone.fbx",
+    "SM_ENV_Sky_Shrine.fbx",
+    "SM_ENV_Sky_Shrub.fbx",
+    "SM_ENV_Sky_Spire_Perch.fbx",
+    "SM_ENV_Sky_Tree_Blossom.fbx"
+   ],
+   "textures": [
+    "T_ENV_FX_CloudWisp.png",
+    "T_ENV_FX_Petal.png",
+    "T_ENV_Sky_Foliage.png",
+    "T_ENV_Sky_Ground.png",
+    "T_ENV_Sky_PropsAtlas.png",
+    "T_ENV_Sky_PropsEmission.png",
+    "T_ENV_Sky_Water.png"
+   ],
+   "data": [
+    "SkyColliders.json",
+    "SkyLayout.json",
+    "SkyLiving.json",
+    "SkyLocations.json",
+    "SkyManifest.json"
+   ],
+   "sceneBuilder": "ZoneEnvironmentBuilder (Sky) -> Environment/Scenes/Sky_Environment.unity",
+   "policyScene": "Assets/Dravio/Environment/Scenes/Sky_Environment.unity",
+   "sceneFileInRepo": false,
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "UNITY_READY"
+   ],
+   "statusNotes": "procedural U1-ENV.4 kit; scene generated in Unity",
+   "locationData": "habitat walk areas, spawns, feeding / resting / drinking / interaction points, colliders in the *Locations*.json / *Living*.json / *Colliders*.json above (U1-ENV.2-4)",
+   "unityVerified": "NOT RUN",
+   "androidVerified": "NOT RUN"
+  }
+ },
+ "props": {
+  "blossom_sky_tree": {
+   "source": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb",
+   "status": [
+    "SOURCE_AVAILABLE",
+    "INSPECTED",
+    "OPTIMIZED",
+    "NEEDS_FIX"
+   ],
+   "notes": "LOD 10000/4000/1200 + mesh collider 1000; validation PASS_WITH_WARNINGS (loose vertices / open edges after decimation: prop path does not weld before decimate)"
+  },
+  "concept_only": [
+   "tree_sanctuary_oak",
+   "bush_wildflower_cluster",
+   "rock_mossy_boulder",
+   "rock_volcanic_amber",
+   "cliff_floating_island",
+   "shrine_water_basin",
+   "lilypad_lotus_cluster",
+   "crystal_glacial_cluster",
+   "coral_reef_cluster",
+   "dragon_nest_pedestal",
+   "aether_fruit_basket",
+   "ancient_dragon_statue",
+   "mossy_arch_ruin",
+   "glowing_rune_stone",
+   "sanctuary_treasure_chest"
+  ],
+  "concept_only_status": "SOURCE_AVAILABLE as image only (no GLB yet) - cannot enter the 3D pipeline"
+ },
+ "sanctuary": {
+  "styleSamples": [
+   "sky_star_observatory",
+   "origin_lantern_row",
+   "ocean_coral_arch"
+  ],
+  "catalog": "Assets/Dravio/Environment/SANCTUARY_PREFABS.md (20 projects, prefab ids PF_SANC_<id>)",
+  "built": 3,
+  "planned": 17,
+  "status": "style samples UNITY_READY (FBX + JSON + Editor prefab builder), owner style review pending; 17 planned"
+ }
+}
