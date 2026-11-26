@@ -43,7 +43,7 @@ Mỗi archetype có một controller `Animation/DragonBase_<archetype>.controlle
 | Tham số | Kiểu | Giá trị |
 |---|---|---|
 | `Locomotion` | int | Idle 0, Walk 1, Run 2, Swim 3, Fly 4, Burrow 5, Sleep 6, **Rest 7, Bask 8**; U1-CHAR.7: **SwimIdle 9, SwimRest 10, SwimSurface 11, Perch 12, Glide 13** |
-| `Action` | int | None 0, Eat 1, Happy 2, **Drink 3, Wake 4, Stretch 5, LookAround 6, Curious 7**; U1-CHAR.7: **Greet 8, TakeOff 9, Land 10, WaterEnter 11, WaterExit 12, DigPrep 13, BurrowEnter 14, BurrowEmerge 15** |
+| `Action` | int | None 0, Eat 1, Happy 2, **Drink 3, Wake 4, Stretch 5, LookAround 6, Curious 7**; U1-CHAR.7: **Greet 8, TakeOff 9, Land 10, WaterEnter 11, WaterExit 12, DigPrep 13, BurrowEnter 14, BurrowEmerge 15**; U1-CHAR.8: **Nuzzle 16** |
 | `Speed`, `PlaybackRate` | float | state di chuyển chạy theo tốc độ mặt đất |
 | **`Tempo`** | float | state tại chỗ và one-shot chạy theo nhịp của tính cách |
 
@@ -124,3 +124,7 @@ Nguồn: `Environment/Data/OriginSanctuaryLiving.json` ▸ `interactionPoints[].
 ## 7. U1-CHAR.7: chuyển động theo môi trường
 
 Clip cho nước, không trung, chỗ đậu, dưới đất và Greet; chuyển tiếp giữa các môi trường; shaper nghiêng/ngóc/uốn; metadata cho Environment: [MOTION_CATALOG.md](MOTION_CATALOG.md). Hợp đồng tích hợp: [MOTION_API.md](MOTION_API.md).
+
+## 8. U1-CHAR.8: tương tác đôi và biểu cảm
+
+Clip **Nuzzle** (75 khung, mọi loài, chỉ cổ và đầu), các hành động đôi (Greet, Play, RestTogether, Nuzzle, Nurture), biểu cảm, nghiêng thân theo dốc, sự kiện chuyển động và tối ưu mobile: xem [SOCIAL_ANIMATION.md](SOCIAL_ANIMATION.md).

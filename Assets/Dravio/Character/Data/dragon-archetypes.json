@@ -28,7 +28,8 @@
     "Perch",
     "DigPrep",
     "BurrowEnter",
-    "BurrowEmerge"
+    "BurrowEmerge",
+    "Nuzzle"
   ],
   "templates": {
     "quadruped": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors",
@@ -60,7 +61,8 @@
         "Drink",
         "Stretch",
         "Bask",
-        "Greet"
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -104,7 +106,8 @@
         "SwimRest",
         "SwimSurface",
         "WaterEnter",
-        "WaterExit"
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -160,7 +163,8 @@
         "Greet",
         "DigPrep",
         "BurrowEnter",
-        "BurrowEmerge"
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -204,7 +208,8 @@
         "Stretch",
         "Bask",
         "Greet",
-        "Perch"
+        "Perch",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -262,7 +267,8 @@
         "SwimRest",
         "SwimSurface",
         "WaterEnter",
-        "WaterExit"
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -306,7 +312,8 @@
         "Greet",
         "DigPrep",
         "BurrowEnter",
-        "BurrowEmerge"
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -351,7 +358,8 @@
         "Drink",
         "Stretch",
         "Bask",
-        "Greet"
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -392,7 +400,8 @@
         "Curious",
         "Greet",
         "SwimIdle",
-        "SwimRest"
+        "SwimRest",
+        "Nuzzle"
       ],
       "walkingLimbs": false,
       "flightWings": false,
@@ -436,7 +445,8 @@
         "SwimRest",
         "SwimSurface",
         "WaterEnter",
-        "WaterExit"
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -482,7 +492,8 @@
         "Stretch",
         "Bask",
         "Greet",
-        "Perch"
+        "Perch",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -527,7 +538,8 @@
         "Drink",
         "Stretch",
         "Bask",
-        "Greet"
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -576,7 +588,8 @@
         "Curious",
         "Greet",
         "SwimIdle",
-        "SwimRest"
+        "SwimRest",
+        "Nuzzle"
       ],
       "walkingLimbs": false,
       "flightWings": false,
@@ -618,7 +631,8 @@
         "Greet",
         "DigPrep",
         "BurrowEnter",
-        "BurrowEmerge"
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -661,7 +675,8 @@
         "Drink",
         "Stretch",
         "Bask",
-        "Greet"
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -710,7 +725,8 @@
         "Drink",
         "Stretch",
         "Bask",
-        "Greet"
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -764,7 +780,8 @@
         "SwimRest",
         "SwimSurface",
         "WaterEnter",
-        "WaterExit"
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,

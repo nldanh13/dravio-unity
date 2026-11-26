@@ -40,7 +40,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
-PIPELINE_VERSION = 'u1-char7b-v1'
+PIPELINE_VERSION = 'u1-char8-v1'
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
 # Every script and data file whose change must re-process an asset (cache fingerprint).
 PIPELINE_FILES = ['batch_import.py', 'char_common.py', 'inspect_character.py', 'prepare_character.py',
@@ -241,6 +241,7 @@ def motion_block(rigged, qa):
     m = rigged.get('motion') or {}
     body, off, turn = m.get('body', {}), m.get('rootOffsets_m', {}), m.get('maxTurnRateDegPerSec', {})
     env = (qa or {}).get('motionEnvelope') or {}
+    ev, wl = m.get('events') or {}, m.get('water') or {}
     tr = (qa or {}).get('transitions') or []
     f = lambda v: float(v) if v is not None else 0.0  # noqa: E731
     return {
@@ -251,6 +252,10 @@ def motion_block(rigged, qa):
         'swimVerticalExtent': f(env.get('swimVerticalExtent_m')), 'swimWidth': f(env.get('swimWidth_m')),
         'flightSpan': f(env.get('flightSpan_m')), 'flightVerticalExtent': f(env.get('flightVerticalExtent_m')),
         'transitionsChecked': len(tr), 'transitionMaxDeg': max((t.get('poseErrorDeg', 0.0) for t in tr), default=0.0),
+        # U1-CHAR.8: normalized event times inside the transition clips (VFX/audio cues) and the surface waterline
+        'takeOffLiftOff': f(ev.get('TakeOff.liftOff')), 'landTouchDown': f(ev.get('Land.touchDown')),
+        'waterEnterContact': f(ev.get('WaterEnter.contact')), 'waterExitLeave': f(ev.get('WaterExit.leave')),
+        'surfaceWaterline': f(wl.get('surfaceWaterline_m')), 'headAboveWater': f(wl.get('headAboveWater_m')),
     }
 
 

@@ -16,12 +16,13 @@ namespace Dravio.Character
     }
 
     /// <summary>One-shot clip over the current state. Values match the Animator "Action" int parameter (0 = none).
-    /// U1-CHAR.6 appended Drink .. Curious; U1-CHAR.7 appended Greet and the medium transitions (TakeOff .. BurrowEmerge).
-    /// Existing values never change.</summary>
+    /// U1-CHAR.6 appended Drink .. Curious; U1-CHAR.7 appended Greet and the medium transitions (TakeOff .. BurrowEmerge);
+    /// U1-CHAR.8 appended Nuzzle (head and neck reach toward a partner). Existing values never change.</summary>
     public enum DragonInteraction
     {
         None = 0, Eat = 1, Happy = 2, Drink = 3, Wake = 4, Stretch = 5, LookAround = 6, Curious = 7,
         Greet = 8, TakeOff = 9, Land = 10, WaterEnter = 11, WaterExit = 12, DigPrep = 13, BurrowEnter = 14, BurrowEmerge = 15,
+        Nuzzle = 16,
     }
 
     /// <summary>The medium a dragon is shown in (U1-CHAR.7). The Sanctuary owns where the dragon is; this is only
@@ -53,7 +54,58 @@ namespace Dravio.Character
         Underground,
         /// <summary>A simple social greeting (look at the other dragon with lookTarget).</summary>
         Greet,
+        // ---- U1-CHAR.8 (appended) ----
+        /// <summary>Set by the social coordinator while a pair act runs: hold the medium's idle, no repeats or idle
+        /// variations (the coordinator cues the one-shots). Not meant to be sent by the Sanctuary.</summary>
+        Social,
     }
+
+    /// <summary>
+    /// U1-CHAR.8: a two-dragon act the Sanctuary asks for (both frames name each other as partner with the same act).
+    /// Presentation only: it creates no relationship and changes no Domain state. Who meets whom, where they stand and
+    /// when the act ends are the Sanctuary's decisions.
+    /// </summary>
+    public enum DragonSocialAct
+    {
+        None = 0,
+        /// <summary>Face each other and greet (the responder answers after a short latency).</summary>
+        Greet,
+        /// <summary>Play bouts: play bow invitation, then turn-taking with role reversal (Bekoff).</summary>
+        Play,
+        /// <summary>Lie down next to each other, breathing in phase, occasional glances.</summary>
+        RestTogether,
+        /// <summary>One reaches its head toward the other's; the other answers.</summary>
+        Nuzzle,
+        /// <summary>An older dragon (Juvenile/Adult) with a Baby: the older one watches and nuzzles, the Baby plays around it.</summary>
+        Nurture,
+    }
+
+    /// <summary>Role inside a pair act (deterministic: older stage leads, then UID order).</summary>
+    public enum DragonSocialRole { None = 0, Leader, Responder, Guardian, Young }
+
+    /// <summary>Where a pair act is.</summary>
+    public enum DragonSocialPhase
+    {
+        None = 0,
+        /// <summary>The partner is not shown or does not name this dragon with the same act.</summary>
+        WaitingForPartner,
+        /// <summary>Further apart (or closer) than the act's spacing: the Sanctuary should bring them to desiredSpacing.</summary>
+        OutOfRange,
+        /// <summary>In range but one of them is busy (transition, one-shot, asleep, different medium).</summary>
+        Preparing,
+        /// <summary>The act is playing.</summary>
+        Acting,
+        /// <summary>A one-off act (Greet, Nuzzle) finished; the pair keeps looking at each other until the Sanctuary ends it.</summary>
+        Done,
+        /// <summary>The act cannot be shown for this pair (see note): e.g. Nurture without a Baby, different media.</summary>
+        Rejected,
+    }
+
+    /// <summary>
+    /// U1-CHAR.8: expression shown through head, neck, tail, ear fins and gaze (no face rig is assumed; eyelids
+    /// only where the mesh has blink shape keys). Chosen from the running clip, the social act and the personality.
+    /// </summary>
+    public enum DragonExpression { Neutral = 0, Happy, Playful, Curious, Alert, Calm, Shy, Affection, Sleepy }
 
     /// <summary>A player interaction the Sanctuary reports; the shown response depends on personality and clips.</summary>
     public enum DragonReaction { None = 0, Petted, Fed, Called }
