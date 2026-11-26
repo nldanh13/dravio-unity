@@ -3,7 +3,27 @@ guid: cbca7ad53da15544aaf11f0c5d9a9858
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Sky_Foliage
+    second: {fileID: 2100000, guid: 7d79ce84e6c11ff4794a8c1d11400096, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Sky_Ground
+    second: {fileID: 2100000, guid: 9de75e914f50e3b4886d938c9047f18b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Sky_Props
+    second: {fileID: 2100000, guid: 7c35a6fcbd92349448840f6fbbcca51a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ENV_Sky_Water
+    second: {fileID: 2100000, guid: 48e7bb6f070c58742bb38f508858afa7, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

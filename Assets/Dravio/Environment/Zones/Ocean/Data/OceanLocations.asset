@@ -1,0 +1,850 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf184f7dabdf24442b53689c5642055c, type: 3}
+  m_Name: OceanLocations
+  m_EditorClassIdentifier: Assembly-CSharp::Dravio.EnvironmentArt.SanctuaryLocationData
+  version: 1
+  zoneId: ocean
+  flatRectXZ:
+  - -8.6
+  - -7
+  - 8.6
+  - 7.4
+  walkClearance: 0.45
+  habitats:
+  - id: ocean_estuary
+    zoneId: ocean
+    displayNameVi: "C\u1EEDa s\xF4ng Th\u1EE7y V\u1EF1c"
+    displayNameEn: Ocean Estuary
+    defaultUnlocked: 0
+    requiresDiscovery: 
+    polygonXZ:
+    - -7
+    - -5.4
+    - -2.3
+    - -5.4
+    - -2.6
+    - -1.4
+    - -2.2
+    - 2.2
+    - -2.7
+    - 5.8
+    - -7
+    - 5.8
+    centerXZ:
+    - -3.967
+    - 0.267
+    areaM2: 51.14
+    swimPolygonXZ:
+    - -7
+    - -5.4
+    - -2.3
+    - -5.4
+    - -2.6
+    - -1.4
+    - -2.2
+    - 2.2
+    - -2.7
+    - 5.8
+    - -7
+    - 5.8
+  - id: ocean_reef
+    zoneId: ocean
+    displayNameVi: "R\u1EA1n san h\xF4 Th\u1EE7y V\u1EF1c"
+    displayNameEn: Ocean Reef
+    defaultUnlocked: 0
+    requiresDiscovery: 
+    polygonXZ:
+    - 2.4
+    - -5.4
+    - 2.8
+    - -1
+    - 2.4
+    - 2.4
+    - 2.9
+    - 5.8
+    - -2.7
+    - 5.8
+    - -2.2
+    - 2.2
+    - -2.6
+    - -1.4
+    - -2.3
+    - -5.4
+    centerXZ:
+    - 0.087
+    - 0.375
+    areaM2: 56.55
+    swimPolygonXZ:
+    - 2.4
+    - -5.4
+    - 2.8
+    - -1
+    - 2.4
+    - 2.4
+    - 2.9
+    - 5.8
+    - -2.7
+    - 5.8
+    - -2.2
+    - 2.2
+    - -2.6
+    - -1.4
+    - -2.3
+    - -5.4
+  - id: ocean_cool_pool
+    zoneId: ocean
+    displayNameVi: "V\u1EF1c m\xE1t Th\u1EE7y V\u1EF1c"
+    displayNameEn: Ocean Cool Pool
+    defaultUnlocked: 0
+    requiresDiscovery: 
+    polygonXZ:
+    - 7
+    - -5.4
+    - 7
+    - 5.8
+    - 2.9
+    - 5.8
+    - 2.4
+    - 2.4
+    - 2.8
+    - -1
+    - 2.4
+    - -5.4
+    centerXZ:
+    - 4.083
+    - 0.367
+    areaM2: 49.11
+    swimPolygonXZ:
+    - 7
+    - -5.4
+    - 7
+    - 5.8
+    - 2.9
+    - 5.8
+    - 2.4
+    - 2.4
+    - 2.8
+    - -1
+    - 2.4
+    - -5.4
+  spawnPoints:
+  - id: ocean_estuary.spawn_01
+    habitatId: ocean_estuary
+    kind: dragon
+    medium: seabed
+    x: -5.2
+    y: 0
+    z: -1.8
+    yaw: 160
+  - id: ocean_estuary.spawn_02
+    habitatId: ocean_estuary
+    kind: dragon
+    medium: seabed
+    x: -4
+    y: 0
+    z: 1.2
+    yaw: 190
+  - id: ocean_estuary.spawn_03
+    habitatId: ocean_estuary
+    kind: dragon
+    medium: swim
+    x: -5.6
+    y: 1.3
+    z: 2.9
+    yaw: 170
+  - id: ocean_estuary.spawn_04
+    habitatId: ocean_estuary
+    kind: dragon
+    medium: swim
+    x: -3.6
+    y: 0.9
+    z: -3.3
+    yaw: 200
+  - id: ocean_estuary.spawn_05
+    habitatId: ocean_estuary
+    kind: dragon
+    medium: swim
+    x: -6
+    y: 1.7
+    z: -0.4
+    yaw: 150
+  - id: ocean_reef.spawn_01
+    habitatId: ocean_reef
+    kind: dragon
+    medium: swim
+    x: 0
+    y: 1.2
+    z: 0.2
+    yaw: 180
+  - id: ocean_reef.spawn_02
+    habitatId: ocean_reef
+    kind: dragon
+    medium: swim
+    x: -1
+    y: 0.9
+    z: -1.6
+    yaw: 170
+  - id: ocean_reef.spawn_03
+    habitatId: ocean_reef
+    kind: dragon
+    medium: swim
+    x: 1.2
+    y: 1.4
+    z: -1.2
+    yaw: 190
+  - id: ocean_reef.spawn_04
+    habitatId: ocean_reef
+    kind: dragon
+    medium: swim
+    x: -0.6
+    y: 1.8
+    z: 1.6
+    yaw: 175
+  - id: ocean_reef.spawn_05
+    habitatId: ocean_reef
+    kind: dragon
+    medium: swim
+    x: 0.9
+    y: 1
+    z: 1.9
+    yaw: 185
+  - id: ocean_cool_pool.spawn_01
+    habitatId: ocean_cool_pool
+    kind: dragon
+    medium: swim
+    x: 4.6
+    y: 1.2
+    z: 0.2
+    yaw: 200
+  - id: ocean_cool_pool.spawn_02
+    habitatId: ocean_cool_pool
+    kind: dragon
+    medium: swim
+    x: 5.9
+    y: 1.6
+    z: 1.4
+    yaw: 210
+  - id: ocean_cool_pool.spawn_03
+    habitatId: ocean_cool_pool
+    kind: dragon
+    medium: swim
+    x: 4
+    y: 0.9
+    z: -1.8
+    yaw: 190
+  - id: ocean_cool_pool.spawn_04
+    habitatId: ocean_cool_pool
+    kind: dragon
+    medium: swim
+    x: 6
+    y: 1.3
+    z: -2.6
+    yaw: 205
+  - id: ocean_cool_pool.spawn_05
+    habitatId: ocean_cool_pool
+    kind: dragon
+    medium: swim
+    x: 4.1
+    y: 1.6
+    z: 3.4
+    yaw: 195
+  transitions:
+  - id: ocean_estuary__ocean_reef_01
+    habitatA: ocean_estuary
+    habitatB: ocean_reef
+    x: -2.45
+    y: 1
+    z: -3
+    radius: 0.9
+  - id: ocean_estuary__ocean_reef_02
+    habitatA: ocean_estuary
+    habitatB: ocean_reef
+    x: -2.35
+    y: 1
+    z: 1.6
+    radius: 0.9
+  - id: ocean_reef__ocean_cool_pool_03
+    habitatA: ocean_reef
+    habitatB: ocean_cool_pool
+    x: 2.65
+    y: 1
+    z: -2.4
+    radius: 0.9
+  - id: ocean_reef__ocean_cool_pool_04
+    habitatA: ocean_reef
+    habitatB: ocean_cool_pool
+    x: 2.5
+    y: 1
+    z: 1.4
+    radius: 0.9
+  perchPoints: []
+  waterAreas: []
+  obstacles:
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Arch_Estuary
+    polygonXZ:
+    - -3.931
+    - 6.469
+    - -2.994
+    - 6.469
+    - -2.994
+    - 7.331
+    - -3.931
+    - 7.331
+    top: 3.45
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Arch_Estuary
+    polygonXZ:
+    - -7.006
+    - 6.469
+    - -6.069
+    - 6.469
+    - -6.069
+    - 7.331
+    - -7.006
+    - 7.331
+    top: 3.45
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Arch_Estuary
+    polygonXZ:
+    - -6.987
+    - 6.562
+    - -3.013
+    - 6.562
+    - -3.013
+    - 7.238
+    - -6.987
+    - 7.238
+    top: 4.575
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Arch_Estuary
+    polygonXZ:
+    - -7.303
+    - 5.609
+    - -6.777
+    - 5.897
+    - -7.047
+    - 6.391
+    - -7.573
+    - 6.103
+    top: 0.45
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Wall_Ruin
+    polygonXZ:
+    - -3.152
+    - 7.12
+    - -0.103
+    - 6.853
+    - -0.048
+    - 7.48
+    - -3.097
+    - 7.747
+    top: 2.16
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Statue_Dragon
+    polygonXZ:
+    - 0.722
+    - 6.079
+    - 2.394
+    - 6.434
+    - 2.078
+    - 7.921
+    - 0.406
+    - 7.566
+    top: 3.04
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Column_Sunken
+    polygonXZ:
+    - 3.745
+    - 5.957
+    - 4.543
+    - 6.445
+    - 4.055
+    - 7.243
+    - 3.257
+    - 6.755
+    top: 1.87
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Column_Sunken
+    polygonXZ:
+    - -3.422
+    - 6.24
+    - -2.64
+    - 5.978
+    - -2.378
+    - 6.76
+    - -3.16
+    - 7.022
+    top: 1.65
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_A
+    polygonXZ:
+    - 4.7
+    - 6.388
+    - 6.843
+    - 5.608
+    - 7.5
+    - 7.412
+    - 5.357
+    - 8.192
+    top: 1.2
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_B
+    polygonXZ:
+    - -7.151
+    - 1.896
+    - -6.156
+    - 1.061
+    - -5.449
+    - 1.904
+    - -6.444
+    - 2.739
+    top: 0.7
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Brain
+    polygonXZ:
+    - -2.165
+    - 2.878
+    - -0.91
+    - 2.153
+    - -0.235
+    - 3.322
+    - -1.49
+    - 4.047
+    top: 0.8
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Branch
+    polygonXZ:
+    - 0.85
+    - 3.05
+    - 1.75
+    - 3.05
+    - 1.75
+    - 3.95
+    - 0.85
+    - 3.95
+    top: 1.2
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Table
+    polygonXZ:
+    - 0.297
+    - -4.103
+    - 0.703
+    - -4.103
+    - 0.703
+    - -3.697
+    - 0.297
+    - -3.697
+    top: 0.81
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Table
+    polygonXZ:
+    - -0.265
+    - -4.62
+    - 1.265
+    - -4.62
+    - 1.265
+    - -3.18
+    - -0.265
+    - -3.18
+    top: 0.936
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Branch
+    polygonXZ:
+    - -1.733
+    - -4.198
+    - -1.502
+    - -4.833
+    - -0.867
+    - -4.602
+    - -1.098
+    - -3.967
+    top: 0.9
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Column_Fallen
+    polygonXZ:
+    - -2.058
+    - 4.887
+    - 0.913
+    - 4.47
+    - 1.012
+    - 5.175
+    - -1.959
+    - 5.593
+    top: 0.45
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Crystal_Cool
+    polygonXZ:
+    - 5.052
+    - 3.008
+    - 6.115
+    - 2.723
+    - 6.348
+    - 3.592
+    - 5.285
+    - 3.877
+    top: 1.4
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Crystal_Cool
+    polygonXZ:
+    - 3.62
+    - -3.809
+    - 3.235
+    - -4.476
+    - 3.78
+    - -4.791
+    - 4.165
+    - -4.124
+    top: 0.98
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Anemone_Glow
+    polygonXZ:
+    - 3.875
+    - 1.675
+    - 4.725
+    - 1.675
+    - 4.725
+    - 2.525
+    - 3.875
+    - 2.525
+    top: 0.5
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Anemone_Glow
+    polygonXZ:
+    - 5.821
+    - -1.442
+    - 6.342
+    - -1.879
+    - 6.779
+    - -1.358
+    - 6.258
+    - -0.921
+    top: 0.4
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_A
+    polygonXZ:
+    - 4.407
+    - -3.541
+    - 5.215
+    - -4.939
+    - 6.393
+    - -4.259
+    - 5.585
+    - -2.861
+    top: 0.85
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Vent_Rock
+    polygonXZ:
+    - 2.96
+    - 0.405
+    - 4.04
+    - 0.405
+    - 4.04
+    - 1.395
+    - 2.96
+    - 1.395
+    top: 0.72
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_A
+    polygonXZ:
+    - -10.482
+    - -4.285
+    - -8.424
+    - -4.648
+    - -8.118
+    - -2.915
+    - -10.176
+    - -2.552
+    top: 1.1
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Table
+    polygonXZ:
+    - -9.349
+    - 2.369
+    - -8.969
+    - 2.051
+    - -8.651
+    - 2.431
+    - -9.031
+    - 2.749
+    top: 0.99
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Table
+    polygonXZ:
+    - -10.282
+    - 2.327
+    - -8.849
+    - 1.125
+    - -7.718
+    - 2.473
+    - -9.151
+    - 3.675
+    top: 1.144
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Brain
+    polygonXZ:
+    - -8.9
+    - -4.931
+    - -9.552
+    - -6.061
+    - -8.5
+    - -6.669
+    - -7.848
+    - -5.539
+    top: 0.72
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_B
+    polygonXZ:
+    - 9.799
+    - -1.905
+    - 8.577
+    - -1.461
+    - 8.201
+    - -2.495
+    - 9.423
+    - -2.939
+    top: 0.7
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Coral_Branch
+    polygonXZ:
+    - 9.481
+    - 3.576
+    - 8.624
+    - 3.081
+    - 9.119
+    - 2.224
+    - 9.976
+    - 2.719
+    top: 1.32
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Crystal_Cool
+    polygonXZ:
+    - 11.204
+    - -4.589
+    - 10.273
+    - -4.25
+    - 9.996
+    - -5.011
+    - 10.927
+    - -5.35
+    top: 1.26
+  - id: 
+    habitatId: 
+    source: SM_ENV_Ocean_Rock_Reef_A
+    polygonXZ:
+    - 11.883
+    - 2.61
+    - 13.118
+    - 4.75
+    - 11.317
+    - 5.79
+    - 10.082
+    - 3.65
+    top: 1.3
+  volumes:
+  - id: ocean_estuary.swim
+    habitatId: ocean_estuary
+    medium: swim
+    polygonXZ:
+    - -7
+    - -5.4
+    - -2.3
+    - -5.4
+    - -2.6
+    - -1.4
+    - -2.2
+    - 2.2
+    - -2.7
+    - 5.8
+    - -7
+    - 5.8
+    yMin: 0.3
+    yMax: 3
+  - id: ocean_reef.swim
+    habitatId: ocean_reef
+    medium: swim
+    polygonXZ:
+    - 2.4
+    - -5.4
+    - 2.8
+    - -1
+    - 2.4
+    - 2.4
+    - 2.9
+    - 5.8
+    - -2.7
+    - 5.8
+    - -2.2
+    - 2.2
+    - -2.6
+    - -1.4
+    - -2.3
+    - -5.4
+    yMin: 0.3
+    yMax: 3
+  - id: ocean_cool_pool.swim
+    habitatId: ocean_cool_pool
+    medium: swim
+    polygonXZ:
+    - 7
+    - -5.4
+    - 7
+    - 5.8
+    - 2.9
+    - 5.8
+    - 2.4
+    - 2.4
+    - 2.8
+    - -1
+    - 2.4
+    - -5.4
+    yMin: 0.3
+    yMax: 3
+  walkAreas:
+  - id: ocean_estuary.seabed
+    habitatId: ocean_estuary
+    displayNameVi: "\u0110\xE1y c\xE1t"
+    polygonXZ:
+    - -7
+    - -5.4
+    - -2.3
+    - -5.4
+    - -2.6
+    - -1.4
+    - -2.2
+    - 2.2
+    - -2.7
+    - 5.8
+    - -7
+    - 5.8
+    y: 0
+  - id: ocean_reef.seabed
+    habitatId: ocean_reef
+    displayNameVi: "\u0110\xE1y c\xE1t"
+    polygonXZ:
+    - 2.4
+    - -5.4
+    - 2.8
+    - -1
+    - 2.4
+    - 2.4
+    - 2.9
+    - 5.8
+    - -2.7
+    - 5.8
+    - -2.2
+    - 2.2
+    - -2.6
+    - -1.4
+    - -2.3
+    - -5.4
+    y: 0
+  - id: ocean_cool_pool.seabed
+    habitatId: ocean_cool_pool
+    displayNameVi: "\u0110\xE1y c\xE1t"
+    polygonXZ:
+    - 7
+    - -5.4
+    - 7
+    - 5.8
+    - 2.9
+    - 5.8
+    - 2.4
+    - 2.4
+    - 2.8
+    - -1
+    - 2.4
+    - -5.4
+    y: 0
+  restPoints:
+  - id: ocean_estuary.rest_01
+    habitatId: ocean_estuary
+    source: SM_ENV_Ocean_Rock_Reef_B
+    x: -6.3
+    y: 0.64
+    z: 1.9
+  - id: ocean_estuary.rest_02
+    habitatId: ocean_estuary
+    source: SM_ENV_Ocean_Seabed
+    x: -4.6
+    y: 0
+    z: -3.6
+  - id: ocean_reef.rest_03
+    habitatId: ocean_reef
+    source: SM_ENV_Ocean_Coral_Table
+    x: 0.5
+    y: 0.94
+    z: -3.9
+  - id: ocean_reef.rest_04
+    habitatId: ocean_reef
+    source: SM_ENV_Ocean_Column_Fallen
+    x: -0.3
+    y: 0.5
+    z: 5
+  - id: ocean_cool_pool.rest_05
+    habitatId: ocean_cool_pool
+    source: SM_ENV_Ocean_Rock_Reef_A
+    x: 5.4
+    y: 0.69
+    z: -3.9
+  - id: ocean_cool_pool.rest_06
+    habitatId: ocean_cool_pool
+    source: SM_ENV_Ocean_Seabed
+    x: 5
+    y: 0
+    z: -0.8
+  areaLinks: []
+  zoneGates:
+  - id: origin_ocean_estuary.gate
+    worldEdgeId: origin_ocean_estuary
+    habitatId: ocean_estuary
+    toZoneId: origin
+    toHabitatId: origin_pondbank
+    requires:
+    - swim
+    medium: swim
+    source: SM_ENV_Ocean_Arch_Estuary
+    x: -5
+    y: 1
+    z: 5.2
+    radius: 1.1
+    lockedInG1: 1
