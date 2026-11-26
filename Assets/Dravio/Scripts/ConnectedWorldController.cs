@@ -26,9 +26,46 @@ namespace Dravio
         bool switching,configured;
         string current=ConnectedWorldPolicy.Origin,feedback="";
         float hour,nextRefresh;
+        AudioListener ownedListener;
+        Camera listenerCamera;
         public void Configure(DravioSessionHost h,LivingSanctuaryPresentation p,SanctuaryDomainPreview a,
             GameObject[] roots,Text status,Button origin,Button ocean,Button sky)
         {host=h;presentation=p;adapter=a;originEnvironmentRoots=roots;viewStatus=status;originButton=origin;oceanButton=ocean;skyButton=sky;}
+        // Keep a single fallback listener in the persistent shell, not a camera root
+        // that is disabled during additive world transitions. No scene regeneration needed.
+        void Awake()
+        {
+            if(gameObject.scene.path==ConnectedWorldPolicy.OriginScene)
+                RefreshAudioListener();
+        }
+        void RefreshAudioListener()
+        {
+            var other=UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Exclude)
+                .Any(x=>x!=ownedListener && x.isActiveAndEnabled);
+            if(other)
+            {
+                if(ownedListener!=null)ownedListener.enabled=false;
+                listenerCamera=null;
+                return;
+            }
+            if(ownedListener==null)
+            {
+                var root=new GameObject("Dravio Runtime Audio Listener");
+                root.transform.SetParent(transform,false);
+                ownedListener=root.AddComponent<AudioListener>();
+            }
+            listenerCamera=Camera.main;
+            if(listenerCamera!=null)
+                ownedListener.transform.SetPositionAndRotation(listenerCamera.transform.position,listenerCamera.transform.rotation);
+            ownedListener.enabled=true;
+        }
+        void LateUpdate()
+        {
+            if(ownedListener==null||!ownedListener.enabled)return;
+            if(listenerCamera==null||!listenerCamera.isActiveAndEnabled)listenerCamera=Camera.main;
+            if(listenerCamera!=null)
+                ownedListener.transform.SetPositionAndRotation(listenerCamera.transform.position,listenerCamera.transform.rotation);
+        }
         void Start()
         {
             shell=gameObject.scene;
@@ -51,6 +88,7 @@ namespace Dravio
                     UnityEngine.Object.FindObjectsByType<DravioSessionHost>(FindObjectsInactive.Include).Length==1;
             }
             if(!configured){feedback="World shell configuration invalid / Cấu hình thế giới chưa hợp lệ";Refresh();return;}
+            RefreshAudioListener();
             rootStates=new bool[originEnvironmentRoots.Length];
             originButton.onClick.AddListener(()=>Visit(ConnectedWorldPolicy.Origin));
             oceanButton.onClick.AddListener(()=>Visit(ConnectedWorldPolicy.Ocean));
@@ -97,6 +135,7 @@ namespace Dravio
             {
                 SceneManager.SetActiveScene(shell);
                 foreach(var root in remote.GetRootGameObjects())root.SetActive(false);
+                RefreshAudioListener();
                 var unload=SceneManager.UnloadSceneAsync(remote);
                 if(unload!=null)yield return unload;
                 if(remote.isLoaded)
@@ -107,6 +146,7 @@ namespace Dravio
                 }
                 remote=default;
             }
+            RefreshAudioListener();
             if(zone==ConnectedWorldPolicy.Origin){RestoreOrigin();yield break;}
             // Recheck entitlement after unload; no scene load if canonical state changed.
             if(!CanEnter(zone)){feedback="World unavailable / Thế giới chưa sẵn sàng";RestoreOrigin();yield break;}
@@ -116,6 +156,7 @@ namespace Dravio
             if(load==null){feedback="Load failed / Không tải được scene";RestoreOrigin();yield break;}
             yield return load;
             remote=SceneManager.GetSceneByPath(ConnectedWorldPolicy.ScenePath(zone));
+            RefreshAudioListener();
             bool bound=false;
             try{bound=CanEnter(zone)&&TryBind(remote,zone);}
             catch(Exception e){Debug.LogException(e);}
@@ -167,6 +208,6 @@ namespace Dravio
             catch(Exception e){Debug.LogException(e);configured=false;feedback="Origin restore failed / Lỗi khôi phục";}
             finally{Finish();}
         }
-        void Finish(){switching=false;adapter.SetWorldSwitching(false);Refresh();}
+        void Finish(){RefreshAudioListener();switching=false;adapter.SetWorldSwitching(false);Refresh();}
     }
 }
