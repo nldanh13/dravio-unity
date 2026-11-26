@@ -20,21 +20,18 @@ namespace Dravio.Domain.Catalog
         public static readonly IReadOnlyList<string> MaterialIds = Array.AsReadOnly(new[] { "wood", "seed" });
 
         // Số nguyên chính xác (không dùng Math.Pow: kết quả phải giống hệt nhau trên mọi nền tảng): floor(BaseG × 5ⁿ / 4ⁿ).
-        private static readonly long[] Costs = BuildCosts();
-
-        private static long[] BuildCosts()
+        internal static long[] BuildCosts()
         {
             var o = new long[Max];
             for (int n = 0; n < Max; n++) o[n] = (long)(BaseG * System.Numerics.BigInteger.Pow(5, n) / System.Numerics.BigInteger.Pow(4, n));
             return o;
         }
 
-        /// <summary>Giá vàng của dự án thứ n (0-based); null khi đã xây đủ.</summary>
-        public static long? CostG(int n)
-        {
-            if (n < 0 || n >= Max) return null;
-            return Costs[n];
-        }
+        /// <summary>
+        /// Giá vàng của dự án thứ n (0-based); null khi đã xây đủ. Game thật: <see cref="SanctuaryCostCurve.Production"/> (floor(20 000 × 1,25ⁿ), không đổi từ U2.10).
+        /// U2.15b: chỉ mô phỏng / test mới đổi được đường cong, qua <see cref="SanctuaryCostCurve.Use"/>.
+        /// </summary>
+        public static long? CostG(int n) => SanctuaryCostCurve.Current.CostG(n);
 
         /// <summary>
         /// Số lượng cơ sở của dự án thứ n (công thức E5 giữ nguyên: 0 cho hai dự án đầu, rồi 1 + n / 5). U2.13: với vật liệu theo thế giới,
@@ -47,6 +44,49 @@ namespace Dravio.Domain.Catalog
         /// <see cref="SanctuaryMaterialRules.Current"/> (game thật: <see cref="SanctuaryMaterialRules.PerWorld"/>).
         /// </summary>
         public static ProjectMaterials Materials(GameState s, int n) => SanctuaryMaterialRules.Current.For(s, n);
+    }
+
+    /// <summary>
+    /// U2.15b (issue #75, CHỈ NGHIÊN CỨU) — bảng giá vàng 60 dự án Sanctuary. Game thật luôn dùng <see cref="Production"/> = đường cong U2.10
+    /// (floor(20 000 × 1,25ⁿ) G, tổng ≈ 52,2 tỉ G); chủ dự án chưa duyệt đổi giá. Các đường cong ứng viên chỉ nằm trong thư mục test và chỉ áp dụng
+    /// trong phạm vi <see cref="Use"/> (theo luồng, như <see cref="SkyCloudBalance.Use"/>). Save chỉ lưu số dự án đã xây, không lưu giá.
+    /// </summary>
+    public sealed class SanctuaryCostCurve
+    {
+        private readonly long[] _costs;
+
+        public SanctuaryCostCurve(string id, IReadOnlyList<long> costsG)
+        {
+            if (costsG == null || costsG.Count != SanctuaryProjectCatalog.Max) throw new ArgumentException("cost curve needs " + SanctuaryProjectCatalog.Max + " entries", nameof(costsG));
+            _costs = new long[costsG.Count];
+            for (int i = 0; i < _costs.Length; i++)
+            {
+                if (costsG[i] <= 0 || costsG[i] > long.MaxValue / 1_000_000) throw new ArgumentOutOfRangeException(nameof(costsG));
+                _costs[i] = costsG[i];
+            }
+            Id = id;
+        }
+
+        public string Id { get; }
+
+        public long? CostG(int n) => n < 0 || n >= _costs.Length ? (long?)null : _costs[n];
+
+        /// <summary>Game thật: U2.10 E5 (ADR 0204), không đổi.</summary>
+        public static readonly SanctuaryCostCurve Production = new SanctuaryCostCurve("x1.25", SanctuaryProjectCatalog.BuildCosts());
+
+        [ThreadStatic] private static SanctuaryCostCurve _current;
+        public static SanctuaryCostCurve Current => _current ?? Production;
+
+        /// <summary>Áp dụng một đường cong cho luồng hiện tại tới khi Dispose (chỉ mô phỏng / test). Lồng được.</summary>
+        public static IDisposable Use(SanctuaryCostCurve curve) => new Scope(curve);
+
+        private sealed class Scope : IDisposable
+        {
+            private readonly SanctuaryCostCurve _previous;
+            private bool _done;
+            public Scope(SanctuaryCostCurve c) { _previous = _current; _current = c; }
+            public void Dispose() { if (_done) return; _done = true; _current = _previous; }
+        }
     }
 
     /// <summary>Vật liệu một dự án Sanctuary cần: mỗi ID trong <see cref="Ids"/> đúng <see cref="Each"/> đơn vị.</summary>
