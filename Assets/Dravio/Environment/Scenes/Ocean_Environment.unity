@@ -18,8 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0.2248, g: 0.5008, b: 0.5368, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 18
-  m_LinearFogEnd: 48
+  m_LinearFogStart: 22
+  m_LinearFogEnd: 56
   m_AmbientSkyColor: {r: 0.477, g: 0.758, b: 0.8225, a: 1}
   m_AmbientEquatorColor: {r: 0.34, g: 0.56, b: 0.58, a: 1}
   m_AmbientGroundColor: {r: 0.2, g: 0.3, b: 0.32, a: 1}
@@ -2912,7 +2912,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: 1.2, y: 2.6, z: -0.8}
-  m_LocalScale: {x: 2.1, y: 6.5, z: 1}
+  m_LocalScale: {x: 1.7, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}
@@ -6230,7 +6230,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: -1.6, y: 2.6, z: 2.2}
-  m_LocalScale: {x: 2.6, y: 6.5, z: 1}
+  m_LocalScale: {x: 2, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}
@@ -6640,7 +6640,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: -3.9, y: 2.6, z: -1.6}
-  m_LocalScale: {x: 2.2, y: 6.5, z: 1}
+  m_LocalScale: {x: 1.8, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}
@@ -7240,53 +7240,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dravio.EnvironmentArt.EnvironmentScrollingFx
   timeOfDay: {fileID: 1340142643}
   tint: {r: 0.8, g: 1, b: 1, a: 1}
-  fullLightIntensity: 1.05
+  fullLightIntensity: 1.1644
   entries:
   - renderer: {fileID: 22675166}
     kind: caustics
-    alpha: 0.22
+    alpha: 0.11
     scroll: {x: 0.018, y: 0.011}
     tiling: {x: 5, y: 3.8636363}
     pulseSeconds: 0
     phase: 0
   - renderer: {fileID: 1608935727}
     kind: light_shaft
-    alpha: 0.26
+    alpha: 0.13
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
     phase: 0
   - renderer: {fileID: 640996826}
     kind: light_shaft
-    alpha: 0.22
+    alpha: 0.11
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
     phase: 0
   - renderer: {fileID: 485901485}
     kind: light_shaft
-    alpha: 0.2
+    alpha: 0.1
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
     phase: 0
   - renderer: {fileID: 151715186}
     kind: light_shaft
-    alpha: 0.17
+    alpha: 0.08
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
     phase: 0
   - renderer: {fileID: 1764889378}
     kind: light_shaft
-    alpha: 0.13
+    alpha: 0.065
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
     phase: 0
   - renderer: {fileID: 2020098585}
     kind: light_shaft
-    alpha: 0.1
+    alpha: 0.05
     scroll: {x: 0, y: 0}
     tiling: {x: 1, y: 1}
     pulseSeconds: 7
@@ -18858,7 +18858,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: -5.6, y: 2.6, z: 1}
-  m_LocalScale: {x: 2.8, y: 6.5, z: 1}
+  m_LocalScale: {x: 2.2, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}
@@ -19446,7 +19446,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: 3.6, y: 2.6, z: 2.8}
-  m_LocalScale: {x: 2, y: 6.5, z: 1}
+  m_LocalScale: {x: 1.6, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}
@@ -20299,7 +20299,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.15643448, w: 0.98768836}
   m_LocalPosition: {x: 6, y: 2.6, z: 0.4}
-  m_LocalScale: {x: 1.8, y: 6.5, z: 1}
+  m_LocalScale: {x: 1.5, y: 6.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 799289665}

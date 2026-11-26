@@ -22,7 +22,7 @@ LAYOUT_VERSION = 1
 SEED = 8803
 DISPLAY_VI, DISPLAY_EN = "Thiên Giới", "Sky Realm"
 SCENE = {"name": "Sky_Environment", "displayNameVi": DISPLAY_VI, "displayNameEn": DISPLAY_EN,
-         "background": [0.70, 0.82, 0.96]}
+         "background": [0.60, 0.75, 0.93]}  # ENV Alpha: deeper blue so white clouds separate
 HID = "sky_low_island"
 
 # ------------------------------------------------------------ walk areas
@@ -100,8 +100,13 @@ def hero_props():
 
 
 BLENDER_COLLIDERS = {
+    # ENV Alpha (#79): the arch is a semicircle of voussoirs (spring 3.88, radius 2.05) whose keystone top is at
+    # 3.88 + 2.05 + 0.98 / 2 = 6.42 (build_gate). The lintel box stops at 6.1, so the perch on the keystone
+    # (sky_low_island.perch_06, y 4.49 = 6.42 x 0.7) hit a collider 0.22 m lower in Unity. The keystone box below
+    # (the keystone itself: 0.8 x 0.86 x 0.98 at z 5.93) puts the collider top on the mesh.
     "SM_ENV_Sky_Gate": [("box", (-2.05, 0, 2.3), (1.25, 1.15, 4.6), 0), ("box", (2.05, 0, 2.3), (1.25, 1.15, 4.6), 0),
-                        ("box", (0, 0, 5.3), (5.3, 0.9, 1.6), 0), ("box", (2.9, 1.2, 0.3), (0.8, 0.75, 0.6), 0.5)],
+                        ("box", (0, 0, 5.3), (5.3, 0.9, 1.6), 0), ("box", (0, 0, 5.93), (0.8, 0.86, 0.98), 0),
+                        ("box", (2.9, 1.2, 0.3), (0.8, 0.75, 0.6), 0.5)],
     "SM_ENV_Sky_Column": [("box", (0, 0, 1.8), (1.1, 1.1, 3.6), 0)],
     "SM_ENV_Sky_Column_Broken": [("box", (0, 0, 1.1), (1.1, 1.1, 2.2), 0.2)],
     "SM_ENV_Sky_Shrine": [("box", (0, 0, 1.3), (2.3, 2.3, 2.6), 0), ("box", (0, 0, 2.86), (1.5, 1.5, 0.52), 0)],
@@ -200,7 +205,7 @@ AUDIO_LOOPS = {
     "chimes": ("AMB_Sky_Chimes_Loop", "audioInsects", "sky_shrine"),
 }
 AUDIO_EMITTERS = [{"id": "sky_shrine", "x": -6.1, "y": SHRINE_Y, "z": 4.2, "innerRadius": 2.5, "outerRadius": 10.0}]
-FOG = {"mode": "linear", "start": 26.0, "end": 60.0}
+FOG = {"mode": "linear", "start": 32.0, "end": 72.0}  # ENV Alpha: haze only on the far islets
 FX = []
 
 SKY_FOG_DAY = list(SCENE["background"])
@@ -210,10 +215,12 @@ def _grade(g, k):
     n = zc.nightness(k)
     day = 1.0 - n
     g["lightColor"] = zc.mix(k["lightColor"], [1.0, 0.97, 0.92], 0.35 * day)
-    g["lightIntensity"] = k["lightIntensity"] * 1.06
-    g["ambientSky"] = zc.mix(k["ambientSky"], [0.78, 0.88, 1.0], 0.35 * day)
-    g["ambientEquator"] = zc.mix(k["ambientEquator"], [0.72, 0.80, 0.92], 0.4 * day)
-    g["ambientGround"] = zc.mix(k["ambientGround"], [0.55, 0.55, 0.66], 0.35 * day)  # light bounced off clouds
+    # ENV Alpha (#79): owner QA saw blown-out whites. Key 1.06 -> 0.96 of Origin, fill pulled toward a cooler,
+    # darker sky blue; the cloud bounce from below stays (it is what makes the island undersides readable).
+    g["lightIntensity"] = k["lightIntensity"] * 0.96
+    g["ambientSky"] = zc.mix(k["ambientSky"], [0.66, 0.77, 0.95], 0.35 * day)
+    g["ambientEquator"] = zc.mix(k["ambientEquator"], [0.60, 0.68, 0.84], 0.4 * day)
+    g["ambientGround"] = zc.mix(k["ambientGround"], [0.50, 0.50, 0.62], 0.35 * day)  # light bounced off clouds
     fog = zc.mix(k["fogColor"], SKY_FOG_DAY, 0.7 * day)
     g["fogColor"] = zc.mix(fog, [0.10, 0.12, 0.30], 0.5 * n)
     g["wind"] = min(1.6, k["wind"] * 1.35 + 0.15)

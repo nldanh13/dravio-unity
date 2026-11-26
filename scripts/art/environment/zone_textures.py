@@ -6,8 +6,8 @@ valid; every tile and foliage cell is simply repainted for the zone:
 
     python scripts/art/environment/zone_textures.py <out_dir> ocean|sky
 
-  T_ENV_<Zone>_PropsAtlas.png    1024^2  4x4 atlas (ENV_<Zone>_Props)
-  T_ENV_<Zone>_PropsEmission.png  512^2  glow (crystals, anemones, glyphs)
+  T_ENV_<Zone>_PropsAtlas.png     512^2  4x4 atlas (ENV_<Zone>_Props), painted at 1024^2, box-filtered
+  T_ENV_<Zone>_PropsEmission.png  128^2  glow (crystals, anemones, glyphs), painted at 1024^2, box-filtered
   T_ENV_<Zone>_Foliage.png       1024x512 alpha-clipped cards
   T_ENV_<Zone>_Ground.png         512^2  seamless sand / cloud-meadow
   T_ENV_Sky_Water.png             256^2  seamless cloud sea (Sky only, water shader)
@@ -15,6 +15,12 @@ valid; every tile and foliage cell is simply repainted for the zone:
             T_ENV_FX_Bubble (64^2)
   Sky FX:   T_ENV_FX_CloudWisp (128^2), T_ENV_FX_Petal (64^2)
 Atlas tile -> meaning per zone is listed in OCEAN_TILES / SKY_TILES.
+
+ENV Alpha (issue #79): the zone scenes must fit the Unity validator's 6 MiB RGBA32 + mips estimate
+(ZoneEnvironmentBuilder.BudgetProblems: width * height * 4 * 1.333 per texture). At 1024^2 the atlas alone was
+5.33 MiB (scene 11.1 MiB). Every map is still PAINTED at its original size (same seeds, same brushes) and then
+box-filtered to OUTPUT_SIZE, so the layout (UVs are fractions of the atlas) and the look are unchanged, only the
+texel density drops. Ground (largest screen area) and foliage (alpha-clipped edges) keep their size.
 """
 import math
 import os
@@ -29,6 +35,21 @@ from png_io import write_png  # noqa: E402
 
 T = pt.T
 H = pt.hex_rgb
+
+# Output size per map (square); maps not listed keep their painted size.
+OUTPUT_SIZE = {"PropsAtlas": 512, "PropsEmission": 128}
+
+
+def box_downscale(img, size):
+    """Area-mean downscale of a uint8 (H, W, C) image by an integer factor (deterministic, no resampling ringing)."""
+    h, w, c = img.shape
+    f = h // size
+    if f <= 1:
+        return img
+    assert h == w and h % size == 0, (h, w, size)
+    m = img.astype(np.float32).reshape(size, f, size, f, c).mean(axis=(1, 3))
+    return (m + 0.5).astype(np.uint8)
+
 
 # Atlas slot -> what it is painted as, per zone (documentation + tests).
 OCEAN_TILES = {
@@ -581,6 +602,8 @@ def generate_zone(zone, out_dir):
     s_atlas, s_fol, s_ground, s_water = SEEDS[zone]
     Z = zone.capitalize()
     props, emission = build_atlas(zone, s_atlas)
+    props = box_downscale(props, OUTPUT_SIZE["PropsAtlas"])
+    emission = box_downscale(emission, OUTPUT_SIZE["PropsEmission"])
     files = {
         f"T_ENV_{Z}_PropsAtlas.png": props,
         f"T_ENV_{Z}_PropsEmission.png": emission,

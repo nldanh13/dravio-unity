@@ -307,22 +307,22 @@
     0.88,
     0.74
    ],
-   "lightIntensity": 1.18,
-   "shadowStrength": 0.65,
+   "lightIntensity": 1.22,
+   "shadowStrength": 0.72,
    "ambientSky": [
-    0.78,
-    0.84,
-    0.94
+    0.7,
+    0.77,
+    0.9
    ],
    "ambientEquator": [
-    0.66,
-    0.7,
-    0.58
+    0.59,
+    0.63,
+    0.51
    ],
    "ambientGround": [
-    0.38,
-    0.34,
-    0.29
+    0.32,
+    0.28,
+    0.24
    ],
    "fogColor": [
     0.72,
@@ -349,29 +349,29 @@
    "lightAzimuth": -38.0,
    "lightColor": [
     1.0,
-    0.92,
-    0.78
+    0.91,
+    0.75
    ],
-   "lightIntensity": 1.35,
-   "shadowStrength": 0.75,
+   "lightIntensity": 1.42,
+   "shadowStrength": 0.82,
    "ambientSky": [
-    0.8,
-    0.86,
-    0.95
+    0.7,
+    0.78,
+    0.92
    ],
    "ambientEquator": [
-    0.66,
-    0.72,
-    0.58
+    0.58,
+    0.64,
+    0.5
    ],
    "ambientGround": [
-    0.4,
-    0.36,
-    0.3
+    0.33,
+    0.28,
+    0.23
    ],
    "fogColor": [
-    0.7,
-    0.8,
+    0.68,
+    0.79,
     0.66
    ],
    "nightGlow": 0.0,
@@ -397,22 +397,22 @@
     0.84,
     0.62
    ],
-   "lightIntensity": 1.2,
-   "shadowStrength": 0.72,
+   "lightIntensity": 1.24,
+   "shadowStrength": 0.78,
    "ambientSky": [
-    0.8,
-    0.8,
-    0.86
+    0.72,
+    0.72,
+    0.82
    ],
    "ambientEquator": [
-    0.7,
-    0.66,
-    0.52
+    0.62,
+    0.58,
+    0.46
    ],
    "ambientGround": [
-    0.4,
     0.33,
-    0.26
+    0.27,
+    0.21
    ],
    "fogColor": [
     0.78,
