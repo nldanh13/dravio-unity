@@ -1,0 +1,732 @@
+{
+ "tool": "scripts/art/vis1/audit_artsource.py",
+ "blender": "5.3.0",
+ "files": [
+  {
+   "path": "ArtSource/Dragons/images/01_emberling.glb",
+   "bytes": 3942888,
+   "sha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 25201,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.532,
+    1.986,
+    1.208
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/02_droplet.glb",
+   "bytes": 3953936,
+   "sha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 24776,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.877,
+    1.989,
+    1.028
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/03_sprout.glb",
+   "bytes": 4184268,
+   "sha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 24954,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.988,
+    0.73,
+    1.488
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/04_zephyr.glb",
+   "bytes": 4524668,
+   "sha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 27817,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.78,
+    1.987,
+    1.309
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/05_steamdrake.glb",
+   "bytes": 4142736,
+   "sha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 24230,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.574,
+    1.988,
+    1.129
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/06_magma.glb",
+   "bytes": 3648020,
+   "sha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 26013,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.608,
+    1.986,
+    1.199
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/07_sparkwing.glb",
+   "bytes": 3627404,
+   "sha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 25572,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.885,
+    1.988,
+    1.149
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/08_frostfin.glb",
+   "bytes": 3501148,
+   "sha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 25201,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.989,
+    0.753,
+    1.737
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/09_mossback.glb",
+   "bytes": 3560776,
+   "sha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 24145,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.661,
+    1.988,
+    1.121
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/10_blossom.glb",
+   "bytes": 3900628,
+   "sha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 25876,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.472,
+    1.987,
+    1.13
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/11_solaris.glb",
+   "bytes": 3502444,
+   "sha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 27721,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.76,
+    1.987,
+    1.313
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/12_leviathan.glb",
+   "bytes": 3833836,
+   "sha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 26671,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.775,
+    1.06,
+    1.988
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/13_amberhorn.glb",
+   "bytes": 4277448,
+   "sha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 24926,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.559,
+    1.986,
+    1.197
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/14_aurorawing.glb",
+   "bytes": 3376524,
+   "sha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 27842,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.803,
+    1.986,
+    1.465
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/15_celestia.glb",
+   "bytes": 3508848,
+   "sha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 25572,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.962,
+    1.988,
+    1.199
+   ]
+  },
+  {
+   "path": "ArtSource/Dragons/images/16_gaia.glb",
+   "bytes": 4717212,
+   "sha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 26233,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.717,
+    1.988,
+    1.119
+   ]
+  },
+  {
+   "path": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb",
+   "bytes": 4069008,
+   "sha256": "fc00a2308edf9e8be332bd705a7f772597ccb51ec5af337dd15dafc595fcb6dc",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 28388,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.868,
+    1.704,
+    1.965
+   ]
+  },
+  {
+   "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.cloud_garden.glb",
+   "bytes": 6777420,
+   "sha256": "c4574d7f11e406a139edf1f9fa16422cdc3bea878b5ae8e5f26075f6e259c127",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 37364,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.988,
+    1.986,
+    1.377
+   ]
+  },
+  {
+   "path": "ArtSource/SanctuaryProjects/origin/origin_lantern_row.glb",
+   "bytes": 3220832,
+   "sha256": "ff362fa45a86b3458c52b4839dce4914f4f9878d30e5f9b5eba575aaa20a88fc",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 29364,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    0.829,
+    0.876,
+    1.986
+   ]
+  },
+  {
+   "path": "ArtSource/SanctuaryProjects/origin/origin_meadow_arbor.glb",
+   "bytes": 4625456,
+   "sha256": "3f13448a22e66c92840a4f2f748f8500d000b869999c787ddb3e9e60084ca01e",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 42244,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.981,
+    1.424,
+    1.835
+   ]
+  },
+  {
+   "path": "ArtSource/SanctuaryProjects/origin/origin_mossy_steps.glb",
+   "bytes": 3255504,
+   "sha256": "3d793700d071686205ff10e28ebd2eff4f6a70b1fa4c2c2baf2776a38672dfae",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 26024,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.988,
+    1.859,
+    1.04
+   ]
+  },
+  {
+   "path": "ArtSource/SanctuaryProjects/origin/origin_trail_shrine.glb",
+   "bytes": 3295724,
+   "sha256": "825815d4c5e9c90a334818f456c279a41d371a65916ad653d8dd615be98b3391",
+   "meshes": 1,
+   "triangles": 40000,
+   "vertices": 26849,
+   "materials": 1,
+   "images": [
+    {
+     "name": "Image_0",
+     "size": [
+      2048,
+      2048
+     ]
+    },
+    {
+     "name": "Image_1",
+     "size": [
+      2048,
+      2048
+     ]
+    }
+   ],
+   "vertexColors": false,
+   "armatures": 0,
+   "actions": 0,
+   "sizeBlenderXYZ": [
+    1.533,
+    1.57,
+    1.987
+   ]
+  }
+ ]
+}

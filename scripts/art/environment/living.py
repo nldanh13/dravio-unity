@@ -34,9 +34,13 @@ PHASES = [  # [start, end) in hours; night wraps over midnight
 
 # ENV Alpha (#79, "Origin looks flat"): day key a little stronger and warmer, trilight fill ~12 % lower and
 # cooler on top / warmer below, shadows deeper: same hues, more modelling and depth. Feeds Ocean / Sky grading too.
-DAY_SUN = {"elev": 46.0, "azim": -38.0, "color": (1.0, 0.91, 0.75), "intensity": 1.42}
-DAY_AMBIENT = {"sky": (0.70, 0.78, 0.92), "equator": (0.58, 0.64, 0.50), "ground": (0.33, 0.28, 0.23)}
-DAY_FOG = (0.68, 0.79, 0.66)
+# VIS.1 (Issue #80) Origin grade, on top of ENV Alpha (#79): golden key light, cooler sky fill,
+# warm bounce, warm haze, same sun direction and #79's deeper shadow strengths. Total daylight is
+# ~20 % below #79 so sunlit grass and stone keep their painted values instead of clipping.
+# Ocean / Sky keep the #79 day through ZONE_DAY_KEYFRAMES below (VIS.1 is Origin-only for now).
+DAY_SUN = {"elev": 46.0, "azim": -38.0, "color": (1.0, 0.86, 0.66), "intensity": 1.12}
+DAY_AMBIENT = {"sky": (0.56, 0.66, 0.84), "equator": (0.50, 0.56, 0.48), "ground": (0.34, 0.28, 0.22)}
+DAY_FOG = (0.80, 0.84, 0.70)
 
 
 def K(hour, elev, azim, color, intensity, shadow, sky, equator, ground, fog, glow=0.0, floor_cut=0.0,
@@ -75,12 +79,12 @@ KEYFRAMES = [
       glow=0.7, floor_cut=0.5, wind=0.5, fireflies=0.3, rings=0.2, crickets=0.4, frogs=0.2, wind_bed=0.3),
     K(6.0, 9, 74, (1.0, 0.66, 0.50), 0.62, 0.45, (0.70, 0.62, 0.72), (0.62, 0.52, 0.50), (0.30, 0.25, 0.24), (0.78, 0.62, 0.60),
       glow=0.35, floor_cut=0.2, wind=0.7, fireflies=0.1, dust=0.35, rings=0.4, birds=1.0, crickets=0.15, wind_bed=0.4),
-    K(8.0, 30, 40, (1.0, 0.88, 0.74), 1.22, 0.72, (0.70, 0.77, 0.90), (0.59, 0.63, 0.51), (0.32, 0.28, 0.24), (0.72, 0.79, 0.68),
+    K(8.0, 30, 40, (1.0, 0.88, 0.74), 0.98, 0.72, (0.56, 0.60, 0.68), (0.48, 0.50, 0.42), (0.27, 0.24, 0.21), (0.72, 0.79, 0.68),
       dust=0.55, rings=0.5, birds=0.85, wind_bed=0.5),
     K(DEFAULT_HOUR, DAY_SUN["elev"], DAY_SUN["azim"], DAY_SUN["color"], DAY_SUN["intensity"], 0.82,
       DAY_AMBIENT["sky"], DAY_AMBIENT["equator"], DAY_AMBIENT["ground"], DAY_FOG,
       dust=0.45, rings=0.5, birds=0.6, insects=0.7, wind_bed=0.6),
-    K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.24, 0.78, (0.72, 0.72, 0.82), (0.62, 0.58, 0.46), (0.33, 0.27, 0.21), (0.78, 0.76, 0.60),
+    K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.0, 0.78, (0.58, 0.58, 0.62), (0.50, 0.48, 0.38), (0.29, 0.24, 0.19), (0.78, 0.76, 0.60),
       wind=1.1, dust=0.8, rings=0.5, birds=0.6, insects=0.8, wind_bed=0.7),
     K(18.3, 7, -78, (1.0, 0.56, 0.34), 0.78, 0.55, (0.66, 0.50, 0.58), (0.68, 0.48, 0.42), (0.30, 0.22, 0.20), (0.86, 0.56, 0.46),
       glow=0.45, floor_cut=0.2, wind=0.9, fireflies=0.35, dust=0.55, rings=0.45, birds=0.3, crickets=0.35, insects=0.3, wind_bed=0.5),
@@ -93,6 +97,17 @@ KEYFRAMES = [
     K(21.0, 32, 34, MOON, 0.38, 0.40, NIGHT_SKY, NIGHT_EQ, NIGHT_GROUND, NIGHT_FOG,
       glow=1.0, floor_cut=0.75, wind=0.6, fireflies=1.0, rings=0.25, crickets=1.0, frogs=0.9, wind_bed=0.3, moon=True),
 ]
+
+# ENV Alpha (#79) day keys that Ocean / Sky are graded from (zone_common.graded_keyframes).
+_ZONE_DAY = {
+    8.0: K(8.0, 30, 40, (1.0, 0.88, 0.74), 1.22, 0.72, (0.70, 0.77, 0.90), (0.59, 0.63, 0.51), (0.32, 0.28, 0.24),
+           (0.72, 0.79, 0.68), dust=0.55, rings=0.5, birds=0.85, wind_bed=0.5),
+    DEFAULT_HOUR: K(DEFAULT_HOUR, 46.0, -38.0, (1.0, 0.91, 0.75), 1.42, 0.82, (0.70, 0.78, 0.92), (0.58, 0.64, 0.50),
+                    (0.33, 0.28, 0.23), (0.68, 0.79, 0.66), dust=0.45, rings=0.5, birds=0.6, insects=0.7, wind_bed=0.6),
+    16.5: K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.24, 0.78, (0.72, 0.72, 0.82), (0.62, 0.58, 0.46), (0.33, 0.27, 0.21),
+            (0.78, 0.76, 0.60), wind=1.1, dust=0.8, rings=0.5, birds=0.6, insects=0.8, wind_bed=0.7),
+}
+ZONE_DAY_KEYFRAMES = [_ZONE_DAY.get(k["hour"], k) for k in KEYFRAMES]
 
 SCALAR_KEYS = ["lightElevation", "lightAzimuth", "lightIntensity", "shadowStrength", "nightGlow", "ambientFloorCut",
                "wind", "fireflies", "dust", "pondRings", "audioBirds", "audioCrickets", "audioFrogs", "audioInsects",
