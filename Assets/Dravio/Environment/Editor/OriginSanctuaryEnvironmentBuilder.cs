@@ -134,6 +134,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (waterOk)
             {
                 mats["ENV_Water"].SetTexture("_BaseMap", water);
+                mats["ENV_Water"].SetFloat("_WaterDetail", 1f);
                 mats["ENV_Water"].renderQueue = (int)RenderQueue.Transparent;
             }
             else ConfigureLitFallback(mats["ENV_Water"], water, null, false, true);

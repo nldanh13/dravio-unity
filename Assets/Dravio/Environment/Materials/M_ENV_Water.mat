@@ -33,6 +33,7 @@ Material:
     - _Opacity: 0.82
     - _ShoreOpacity: 0.55
     - _SparkleStrength: 0.6
+    - _WaterDetail: 1
     m_Colors:
     - _DeepColor: {r: 0.12999997, g: 0.41999996, b: 0.5, a: 1}
     - _FoamColor: {r: 0.93, g: 0.97999996, b: 0.92, a: 1}
