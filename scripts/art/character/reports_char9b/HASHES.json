@@ -1,0 +1,17 @@
+{
+ "note": "SHA-256 at the CHAR.9b commit. FBX = export_emberling_legacy_contract.py output of the batch_import.py run (PIPELINE_VERSION u1-char9b-v1) on 01_emberling.glb; FBX export is not byte-reproducible (timestamps), so re-export changes the hash but not the QA numbers.",
+ "fbxBytes": 5925196,
+ "sha256": {
+  "Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx": "0e27862d4ceb017d5f884c5a240ee043f514a37b071cb3925466982b920710ab",
+  "ArtSource/Dragons/images/01_emberling.glb": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+  "Assets/Dravio/Character/Data/asset-overrides.char8-production.json": "6f06338fcce506008d67cb0ccf0a98a9d6d1b080c9c6f26ca3473ac15934570d",
+  "Assets/Dravio/Character/Data/character-budgets.json": "cc80726e1534d77b36eafa27c5583d13151e1cdaf04347bc115bce8ce026011f",
+  "scripts/art/character/repair_chibi_rig.py": "06943c32d5fefc48fed214411a06dd92641a5bc919fa9e25a622fdd8f903fadb",
+  "scripts/art/character/export_emberling_legacy_contract.py": "4f8449a5e5528d50d62bb908d41542763e8bc00728d5852023014344be8dd4a8",
+  "scripts/art/character/batch_import.py": "6acac4e052c4b3934ab913f2ab1e78459322ffd7f7480781bc93a6793a051f06",
+  "scripts/art/character/rig_archetype.py": "bb0067c81605c192ad29e318f3f69045bcbb6f122ef2a6444b850598ea0c1252",
+  "scripts/art/character/anim_qa.py": "46759a9cffbd38394a2c72731614032d267fd770331abdf7eb15075bbe0e105e",
+  "Assets/Dravio/Editor/EmberlingModelPipeline.cs": "ba6f2804167d81f9935fdb8bf3dc019d7fbe66808e529f74e9ce3da3e6489d92",
+  "Assets/Dravio/Editor/EmberlingAssetAudit.cs": "f3a15248b115e0f2eb3e91601bf831ef5ddb3656c07c2ca3b3816f06e51b8cd4"
+ }
+}

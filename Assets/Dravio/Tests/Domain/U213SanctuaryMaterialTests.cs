@@ -65,7 +65,10 @@ namespace Dravio.Domain.Tests
             Assert.That(SanctuaryProjectCatalog.Materials(origin, 8).Fallback, Is.True);
             Assert.That(Ids(SanctuaryProjectCatalog.Materials(ocean, 8)), Is.EqualTo("crystal+coral"));
             Assert.That(Ids(SanctuaryProjectCatalog.Materials(ocean, 14)), Is.EqualTo("crystal+coral"), "Thiên Giới chưa mở → lùi về Thủy Vực");
-            Assert.That(Ids(SanctuaryProjectCatalog.Materials(sky, 14)), Is.EqualTo("crystal+coral"), "bảng sky_cloud chưa duyệt → chưa có nguồn bụi sao → lùi");
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+                Assert.That(Ids(SanctuaryProjectCatalog.Materials(sky, 14)), Is.EqualTo("crystal+coral"), "đối chứng U2.14: bảng tắt → chưa có nguồn bụi sao → lùi");
+            // U2.15: production = bảng A (khối dưới giữ Use(ProposedA) để kiểm rõ ràng; cùng kết quả với production).
+            Assert.That(Ids(SanctuaryProjectCatalog.Materials(sky, 14)), Is.EqualTo("stardust"));
             using (SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
             {
                 ProjectMaterials m = SanctuaryProjectCatalog.Materials(sky, 14);

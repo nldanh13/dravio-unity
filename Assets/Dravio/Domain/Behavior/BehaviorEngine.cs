@@ -16,6 +16,37 @@ namespace Dravio.Domain.Behavior
         public long Weight { get; }
     }
 
+    /// <summary>U2.15: nguồn giao phần ăn.</summary>
+    public enum FoodAssignmentSource
+    {
+        /// <summary>Chưa rồng nào ăn được lúc này (phần ăn vẫn chờ tới khi hết hạn).</summary>
+        None,
+        /// <summary>Luật B: chính rồng được chọn.</summary>
+        Target,
+        /// <summary>Luật A (không có mục tiêu, hoặc mục tiêu không ăn được).</summary>
+        Fallback,
+    }
+
+    /// <summary>U2.15: snapshot giao phần ăn (<see cref="BehaviorEngine.AssignmentOf"/>).</summary>
+    public sealed class FoodAssignment
+    {
+        public FoodAssignment(string foodId, string targetDragonUid, string assignedDragonUid, FoodAssignmentSource source, string targetBlockedReason)
+        {
+            FoodId = foodId; TargetDragonUid = targetDragonUid; AssignedDragonUid = assignedDragonUid; Source = source; TargetBlockedReason = targetBlockedReason;
+        }
+        public string FoodId { get; }
+        /// <summary>Rồng được chọn trên lệnh feed (null = không ưu tiên).</summary>
+        public string TargetDragonUid { get; }
+        /// <summary>Rồng sẽ tìm ăn (SeekFood) lúc này; null = chưa ai.</summary>
+        public string AssignedDragonUid { get; }
+        public FoodAssignmentSource Source { get; }
+        /// <summary>
+        /// Có mục tiêu nhưng mục tiêu không nhận: <c>unknown-dragon</c>, <c>released</c>, <c>wrong-place</c>, <c>busy</c>, <c>cooldown</c>, <c>wrong-diet</c>,
+        /// <c>food-expired</c>, <c>target-has-other-food</c> (mục tiêu đã được giao drop sớm hết hạn hơn). null nếu không mục tiêu hoặc mục tiêu nhận.
+        /// </summary>
+        public string TargetBlockedReason { get; }
+    }
+
     /// <summary>
     /// Quyết định hành vi của một rồng tại một thời điểm. Snapshot chỉ đọc, không giữ tham chiếu vào GameState.
     /// <see cref="Visible"/> = false: rồng không ở sinh cảnh (kho, đang lai, đang thám hiểm) và <see cref="Behavior"/> là null.
@@ -112,8 +143,13 @@ namespace Dravio.Domain.Behavior
         }
 
         /// <summary>
-        /// Mỗi drop còn hạn trong microhabitat được giao cho tối đa một rồng (không tranh nhau): drop hết hạn sớm trước;
-        /// rồng thích đúng loại thức ăn đó trước, rồi theo UID (ordinal). Kết quả: uid → foodId.
+        /// Mỗi drop còn hạn trong microhabitat được giao cho tối đa một rồng (không tranh nhau). Kết quả: uid → foodId.
+        /// <para>
+        /// U2.15 luật B (issue #74), hai lượt, thứ tự drop: hết hạn sớm trước, rồi ID (ordinal).
+        /// Lượt 1 — drop có <see cref="FoodDrop.TargetDragonUid"/>: giao cho chính mục tiêu nếu nó ở microhabitat này, chưa được giao drop khác và <see cref="CanEat"/>.
+        /// Lượt 2 — mọi drop còn lại (không mục tiêu, hoặc mục tiêu không ăn được): luật A — rồng thích đúng loại thức ăn trước, rồi UID (ordinal).
+        /// Không drop nào có mục tiêu → lượt 1 rỗng → kết quả trùng luật A từng ô (parity TS b33ec7a).
+        /// </para>
         /// </summary>
         public static Dictionary<string, string> AssignFood(GameState s, string zoneId, string habitatId, long nowMs)
         {
@@ -126,8 +162,20 @@ namespace Dravio.Domain.Behavior
             foreach (DragonState d in s.Dragons)
                 if (d.Location.Kind == LocationKind.Zone && d.Location.ZoneId == zoneId && d.Location.HabitatId == habitatId) here.Add(d);
             here.Sort((a, b) => string.CompareOrdinal(a.Uid, b.Uid));
+            var taken = new HashSet<string>(StringComparer.Ordinal);
+            // Lượt 1: rồng được chọn.
             foreach (FoodDrop f in drops)
             {
+                if (f.TargetDragonUid == null) continue;
+                DragonState t = here.Find(d => d.Uid == f.TargetDragonUid);
+                if (t == null || result.ContainsKey(t.Uid) || !CanEat(t, f, nowMs)) continue;
+                result[t.Uid] = f.Id;
+                taken.Add(f.Id);
+            }
+            // Lượt 2: luật A cho phần còn lại.
+            foreach (FoodDrop f in drops)
+            {
+                if (taken.Contains(f.Id)) continue;
                 DragonState best = null; bool bestFav = false;
                 foreach (DragonState d in here)
                 {
@@ -138,6 +186,38 @@ namespace Dravio.Domain.Behavior
                 if (best != null) result[best.Uid] = f.Id;
             }
             return result;
+        }
+
+        /// <summary>
+        /// U2.15: phần ăn <paramref name="foodId"/> đang được giao cho ai tại <paramref name="nowMs"/> và vì sao (cho UI cho ăn). Hàm thuần, không đổi state.
+        /// null nếu không có drop đó trong state (đã ăn, hết hạn và đã dọn, hoặc ID sai).
+        /// </summary>
+        public static FoodAssignment AssignmentOf(GameState s, string foodId, long nowMs)
+        {
+            FoodDrop f = s?.Food?.Drops?.Find(x => x.Id == foodId);
+            if (f == null) return null;
+            string assigned = null;
+            if (f.ExpiresAtMs > nowMs)
+                foreach (var kv in AssignFood(s, f.ZoneId, f.HabitatId, nowMs))
+                    if (kv.Value == f.Id) { assigned = kv.Key; break; }
+            FoodAssignmentSource src = assigned == null ? FoodAssignmentSource.None
+                : f.TargetDragonUid != null && assigned == f.TargetDragonUid ? FoodAssignmentSource.Target : FoodAssignmentSource.Fallback;
+            return new FoodAssignment(f.Id, f.TargetDragonUid, assigned, src,
+                f.TargetDragonUid == null || src == FoodAssignmentSource.Target ? null : TargetBlock(s, f, nowMs, assigned));
+        }
+
+        /// <summary>Lý do mục tiêu không nhận drop (khóa ổn định), theo thứ tự kiểm của <see cref="CanEat"/>.</summary>
+        private static string TargetBlock(GameState s, FoodDrop f, long nowMs, string assigned)
+        {
+            if (f.ExpiresAtMs <= nowMs) return "food-expired";
+            DragonState t = s.FindDragon(f.TargetDragonUid);
+            if (t == null) return "unknown-dragon";
+            if (t.Location.Kind == LocationKind.Released) return "released";
+            if (t.Location.Kind != LocationKind.Zone || t.Location.ZoneId != f.ZoneId || t.Location.HabitatId != f.HabitatId) return "wrong-place";
+            if (t.Activity != DragonActivity.Idle) return "busy";
+            if (t.LastFeedXpAtMs.HasValue && nowMs - t.LastFeedXpAtMs.Value < CareRules.FeedXpCooldownMs) return "cooldown";
+            if (!BehaviorCatalog.Has(SpeciesCatalog.GetBiology(t.SpeciesId).DietIds, f.DietId)) return "wrong-diet";
+            return "target-has-other-food";
         }
 
         // ------------------------------------------------------------------ quyết định

@@ -19,7 +19,7 @@
   "realGlb": 16,
   "sample": 0,
   "rigged": 16,
-  "animationQaPass": 0,
+  "animationQaPass": 1,
   "unityReady": 1,
   "unityVerified": 0,
   "androidVerified": 0,
@@ -451,12 +451,12 @@
     "SOURCE_AVAILABLE",
     "INSPECTED",
     "RIGGED",
-    "UNITY_READY",
-    "NEEDS_FIX"
+    "ANIMATION_QA_PASS",
+    "UNITY_READY"
    ],
    "statusNotes": {
-    "NEEDS_FIX": "9/15 clips over stretch 1.6 (worst 3.439 in Run); see ANIMATION_QA_REPORT.md",
-    "ANIMATION_QA_PASS": "not reached",
+    "ANIMATION_QA_PASS": "CHAR.9b: Blender verified, linear skinning (as Unity), 15/15 rig v7 clips and 5/5 contract clips on export and re-imported FBX, limits unchanged; Docs/char9b/CHAR9B_EMBERLING_REPORT.md",
+    "NEEDS_FIX": "cleared for rig/animation; mesh validation warnings from CHAR.8 remain (UV flipped ~41%, LOD1/2 non-manifold, LOD2 loose vertices, 2048 texture)",
     "UNITY_VERIFIED": "NOT RUN",
     "ANDROID_VERIFIED": "NOT RUN",
     "APPROVED": "owner only"
@@ -487,17 +487,7 @@
     "Wake",
     "Walk"
    ],
-   "clipsOverStretchLimit": [
-    "Bask",
-    "Drink",
-    "Eat",
-    "Rest",
-    "Run",
-    "Sleep",
-    "Stretch",
-    "Wake",
-    "Walk"
-   ],
+   "clipsOverStretchLimit": [],
    "stages": {
     "Baby": {
      "model": "DRG_emberling_Unstaged (shared)",
@@ -519,31 +509,40 @@
    "unityReadyContract": "EmberlingAssetAudit / EmberlingModelPipeline (Origin gameplay scene generator)",
    "unityReadyDeformation": {
     "Idle": {
-     "stretchP999": 1.345,
-     "compressP001": 0.784,
-     "groundPenRel": 0.0012
+     "stretchP999": 1.086,
+     "compressP001": 0.927,
+     "groundPenRel": 0.0008,
+     "footSlideRel": 0.0
     },
     "Walk": {
-     "stretchP999": 2.659,
-     "compressP001": 0.442,
-     "groundPenRel": 0.0
+     "stretchP999": 1.33,
+     "compressP001": 0.607,
+     "groundPenRel": 0.0,
+     "footSlideRel": 0.0029
     },
     "Eat": {
-     "stretchP999": 3.326,
-     "compressP001": 0.392,
-     "groundPenRel": 0.0
+     "stretchP999": 1.409,
+     "compressP001": 0.494,
+     "groundPenRel": 0.0,
+     "footSlideRel": 0.0
     },
     "Doze": {
-     "stretchP999": 3.317,
-     "compressP001": 0.413,
-     "groundPenRel": 0.0
+     "stretchP999": 1.317,
+     "compressP001": 0.543,
+     "groundPenRel": 0.0082,
+     "footSlideRel": 0.0015
     },
     "Happy": {
-     "stretchP999": 1.97,
-     "compressP001": 0.429,
-     "groundPenRel": 0.0
+     "stretchP999": 1.161,
+     "compressP001": 0.726,
+     "groundPenRel": 0.0,
+     "footSlideRel": 0.0
     }
-   }
+   },
+   "skinningMeasured": "linear",
+   "pipelineVersion": "u1-char9b-v1 (rig v7 + repair_chibi_rig.py)",
+   "unityReadyDeformationSource": "anim_qa.py on the re-imported FBX (scripts/art/character/reports_char9b/reimport_EmberlingRefinedGLB_animqa.json); CHAR.9 numbers were a stricter worst-frame metric on the unrepaired rig",
+   "unityReadySha256": "0e27862d4ceb017d5f884c5a240ee043f514a37b071cb3925466982b920710ab"
   },
   {
    "species": "frostfin",
@@ -1351,5 +1350,7 @@
     }
    }
   }
- ]
+ ],
+ "skinningNote": "CHAR.9b: rig v7 enables Preserve Volume (dual quaternion) in Blender; Unity skins linearly. Only Emberling has been re-measured with linear skinning. The other 15 species numbers are dual quaternion and must be re-measured.",
+ "updated": "CHAR.9b"
 }

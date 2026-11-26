@@ -487,12 +487,18 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
-        public void Sky_cloud_route_stays_blocked_until_its_reward_table_is_approved()
+        public void Sky_cloud_route_is_blocked_only_when_the_legacy_disabled_table_is_in_scope()
         {
             (GameState s, _) = NewGame();
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                QuestStatusView off = QuestProposals.Evaluate(s).Single(x => x.QuestId == "Q_EXPEDITION_CLOUD");
+                Assert.That(off.State, Is.EqualTo(QuestState.Locked));
+                Assert.That(off.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.EqualTo(RequirementState.Blocked));
+            }
+            // U2.15: bảng A đã duyệt → yêu cầu "tuyến có thưởng" không còn bị chặn (vẫn khóa bởi thế giới sky chưa mở).
             QuestStatusView v = QuestProposals.Evaluate(s).Single(x => x.QuestId == "Q_EXPEDITION_CLOUD");
-            Assert.That(v.State, Is.EqualTo(QuestState.Locked));
-            Assert.That(v.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.EqualTo(RequirementState.Blocked));
+            Assert.That(v.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.Not.EqualTo(RequirementState.Blocked));
         }
 
         [Test]

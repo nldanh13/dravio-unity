@@ -33,22 +33,34 @@ namespace Dravio.Domain.Core
         internal override bool IsWellFormed() => WireNames.IsDefined(Mode);
     }
 
-    /// <summary>Người chơi thả một viên thức ăn vào microhabitat (chưa cho XP; XP đến từ <see cref="ConsumeFoodCommand"/>).</summary>
+    /// <summary>
+    /// Người chơi thả một viên thức ăn vào microhabitat (chưa cho XP; XP đến từ <see cref="ConsumeFoodCommand"/>).
+    /// <para>
+    /// U2.15 (luật cho ăn B, issue #74): <see cref="TargetDragonUid"/> tùy chọn = rồng người chơi đang chọn. Phần ăn được giao cho rồng đó trước nếu nó
+    /// ăn được (<see cref="Behavior.BehaviorEngine.CanEat"/>: ở đúng microhabitat, rảnh, hết hồi 8 s, đúng chế độ ăn); không thì luật A hiện tại
+    /// (rồng thích loại đó, rồi UID nhỏ). Mục tiêu không tồn tại / bận / sai chỗ KHÔNG làm lệnh bị từ chối: lệnh vẫn thả phần ăn và dùng luật A.
+    /// null (mặc định, mọi lệnh cũ) = luật A đúng như U2.14 và TS b33ec7a. Mục tiêu chỉ sống trong bộ nhớ của phần ăn (≤ 12 s), không vào save (Schema v10).
+    /// </para>
+    /// </summary>
     public sealed class FeedCommand : GameCommand
     {
-        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId) : base(requestId)
+        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId) : this(requestId, dietId, zoneId, habitatId, null) { }
+
+        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId, string targetDragonUid) : base(requestId)
         {
-            DietId = dietId; ZoneId = zoneId; HabitatId = habitatId;
+            DietId = dietId; ZoneId = zoneId; HabitatId = habitatId; TargetDragonUid = targetDragonUid;
         }
         public DietId DietId { get; }
         public string ZoneId { get; }
         public string HabitatId { get; }
+        /// <summary>U2.15: rồng được chọn (ưu tiên ăn). null = không ưu tiên (luật A). Nếu có phải là ID hợp lệ (1–64 ký tự), không thì lệnh sai dạng.</summary>
+        public string TargetDragonUid { get; }
         public override string Type => "feed";
         internal override bool IsWellFormed()
         {
             bool diet = false;
             foreach (DietId d in CareRules.DietIds) if (d == DietId) diet = true;
-            return diet && IsId(ZoneId) && IsId(HabitatId);
+            return diet && IsId(ZoneId) && IsId(HabitatId) && (TargetDragonUid == null || IsId(TargetDragonUid));
         }
     }
 

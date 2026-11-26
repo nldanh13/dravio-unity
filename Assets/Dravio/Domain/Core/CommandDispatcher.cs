@@ -332,11 +332,12 @@ namespace Dravio.Domain.Core
                 HabitatId = c.HabitatId,
                 SpawnedAtMs = nowMs,
                 ExpiresAtMs = nowMs + CareRules.FoodTtlMs,
+                TargetDragonUid = c.TargetDragonUid,
             };
             s.Food.LastSpawnAtMs = nowMs;
             s.Food.Drops.Add(drop);
             s.Player.Stats.TotalFeedClicks += 1;
-            events.Add(new FoodSpawned(drop.Id, drop.DietId, drop.ZoneId, drop.HabitatId, drop.ExpiresAtMs));
+            events.Add(new FoodSpawned(drop.Id, drop.DietId, drop.ZoneId, drop.HabitatId, drop.ExpiresAtMs, drop.TargetDragonUid));
             return null;
         }
 
@@ -363,7 +364,7 @@ namespace Dravio.Domain.Core
             dragon.XpSec = grown.xpMs / 1000.0;
             dragon.LastFeedXpAtMs = nowMs;
             int gained = BondRules.GainBond(dragon, nowMs);
-            events.Add(new FoodConsumed(drop.Id, dragon.Uid, xpSec));
+            events.Add(new FoodConsumed(drop.Id, dragon.Uid, xpSec, drop.TargetDragonUid));
             foreach (StageChange sc in grown.stageChanges) events.Add(new StageChanged(dragon.Uid, sc.From, sc.To));
             if (gained == 1) events.Add(new BondChanged(dragon.Uid, bondBefore, dragon.Bond, BondSource.Feed));
             s.Food.Drops.RemoveAll(f => f.Id == drop.Id);

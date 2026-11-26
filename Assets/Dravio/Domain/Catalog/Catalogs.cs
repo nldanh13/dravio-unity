@@ -345,8 +345,8 @@ namespace Dravio.Domain.Catalog
     public static class ExpeditionCatalog
     {
         /// <summary>
-        /// Ba tuyến (thứ tự cố định). U2.13: tuyến <c>sky_cloud</c> lấy từ <see cref="SkyCloudBalance.Current"/>; trong game thật bảng chưa duyệt nên
-        /// tuyến vẫn không có vật liệu (route-rewards-undefined).
+        /// Ba tuyến (thứ tự cố định). U2.13: tuyến <c>sky_cloud</c> lấy từ <see cref="SkyCloudBalance.Current"/>; U2.15: game thật dùng bảng A đã duyệt
+        /// (bụi sao 2–4, 45 phút). Chỉ trong phạm vi <c>SkyCloudBalance.Use(Disabled)</c> tuyến mới không có vật liệu (route-rewards-undefined).
         /// </summary>
         public static IReadOnlyList<ExpeditionRoute> Routes => SkyCloudBalance.Current.Routes;
 
