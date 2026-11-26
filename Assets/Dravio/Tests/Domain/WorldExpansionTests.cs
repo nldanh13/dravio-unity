@@ -39,7 +39,7 @@ namespace Dravio.Domain.Tests
             return s;
         }
 
-        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return c; }
+        private static GameState With(GameState s, params DragonState[] ds) { GameState c = s.DeepClone(); c.Dragons.AddRange(ds); return Dravio.Domain.Tests.Support.Fixtures.Normalize(c); }
         private static DragonState A(string uid, string species, Action<DragonState> extra = null) => Adult(uid, species, extra);
 
         // ---------------- thế giới & sinh cảnh ----------------
@@ -210,10 +210,13 @@ namespace Dravio.Domain.Tests
             Fail(st.State, new ClaimExpeditionCommand(Rid()), clock, DomainErrorCode.ExpeditionNotReady);
             clock.Set(job.FinishAtMs);
             DispatchResult c = Ok(st.State, new ClaimExpeditionCommand("claim-1"), clock);
-            foreach (var kv in job.Rewards) Assert.That(c.State.Player.Inventory[kv.Key], Is.EqualTo(kv.Value));
+            // U2.11: chuyến đầu tiên của tuyến đạt mốc thám hiểm 1 → thêm 2 đơn vị mỗi vật liệu của tuyến (gỗ, hạt giống), một lần.
+            foreach (string m in new[] { "wood", "seed" })
+                Assert.That(c.State.Player.Inventory[m], Is.EqualTo(job.Rewards.Where(kv => kv.Key == m).Sum(kv => kv.Value) + 2), m);
+            Assert.That(c.Events.OfType<Dravio.Domain.Progression.ExplorationMilestoneReached>().Single().Claims, Is.EqualTo(1));
             Assert.That((c.State.Expedition, c.State.FindDragon("x").Activity), Is.EqualTo(((ExpeditionJob)null, DragonActivity.Idle)));
             DispatchResult dup = CommandDispatcher.Dispatch(c.State, new ClaimExpeditionCommand("claim-1"), clock);
-            Assert.That((dup.Duplicate, dup.State.Player.Inventory.Values.Sum()), Is.EqualTo((true, (long)total)));
+            Assert.That((dup.Duplicate, dup.State.Player.Inventory.Values.Sum()), Is.EqualTo((true, (long)total + 4)));
             Fail(c.State, new ClaimExpeditionCommand(Rid()), clock, DomainErrorCode.NoExpedition);
             Assert.That(c.State.Expedition, Is.Null, "không tự khởi hành tiếp");
         }

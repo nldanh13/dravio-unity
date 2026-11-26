@@ -58,6 +58,51 @@ def winged():
     return join([body] + wings)
 
 
+def quad(height=None, leaf=False, ear_fins=False, flat_tail=False):
+    body = mta.primitive_blockout()
+    extra = []
+    if leaf:  # sprout-like stand-in: a leaf blade on the head
+        extra.append(cube((0, -0.42, 0.86), (0.04, 0.10, 0.012), (math.radians(35), 0, 0)))
+    if ear_fins:  # lateral fins at the head
+        for sign in (-1, 1):
+            extra.append(cube((sign * 0.22, -0.38, 0.72), (0.09, 0.05, 0.008), (0, math.radians(sign * 25), 0)))
+    if flat_tail:
+        extra.append(cube((0, 0.88, 0.25), (0.12, 0.10, 0.015)))
+    o = join([body] + extra)
+    if height:
+        s = height / o.dimensions.z
+        o.scale = (s, s, s)
+        bpy.ops.object.transform_apply(scale=True)
+    return o
+
+
+def winged_v2():
+    """Quadruped blockout with thin wing membranes rooted on the shoulders."""
+    body = mta.primitive_blockout()
+    wings = []
+    for sign in (-1, 1):
+        wings.append(cube((sign * 0.20, -0.12, 0.60), (0.08, 0.10, 0.03)))  # shoulder root
+        wings.append(cube((sign * 0.50, -0.05, 0.66), (0.26, 0.17, 0.010), (0, math.radians(sign * 12), 0)))
+    return join([body] + wings)
+
+
+def serpent_legs():
+    """Long body with four short limbs and a dorsal ridge."""
+    parts = []
+    for i in range(24):
+        t = i / 23
+        parts.append(sphere((0.10 * math.sin(t * 2 * math.pi), -0.9 + 1.9 * t, 0.20 + 0.02 * math.sin(t * 6)),
+                            (0.12 * (1 - 0.6 * t) + 0.03, 0.12, 0.11 * (1 - 0.6 * t) + 0.03), 24))
+        if 0.15 < t < 0.75 and i % 2 == 0:
+            parts.append(cube((0.10 * math.sin(t * 2 * math.pi), -0.9 + 1.9 * t, 0.33), (0.008, 0.05, 0.04)))
+    parts.append(sphere((0, -1.0, 0.24), (0.12, 0.15, 0.1)))
+    for y in (-0.55, 0.15):
+        for sign in (-1, 1):
+            parts.append(cyl((sign * 0.15, y, 0.09), 0.04, 0.18, verts=16))
+            parts.append(sphere((sign * 0.15, y - 0.02, 0.02), (0.05, 0.06, 0.025), 16))
+    return join(parts)
+
+
 def serpent():
     parts = []
     for i in range(22):
@@ -124,8 +169,11 @@ def main():
     out = a.out_dir
     out.mkdir(parents=True, exist_ok=True)
     plan = [
-        ('SAMPLE_emberling_Baby', lambda: mta.primitive_blockout(), 120000),
-        ('SAMPLE_zephyr', winged, 90000),
+        ('SAMPLE_emberling_Baby', lambda: quad(height=0.90), 120000),
+        ('SAMPLE_zephyr', winged_v2, 90000),
+        ('SAMPLE_sprout_Baby', lambda: quad(leaf=True), 90000),
+        ('SAMPLE_droplet_Baby', lambda: quad(ear_fins=True, flat_tail=True), 70000),
+        ('SAMPLE_steamdrake_Juvenile', serpent_legs, 80000),
         ('SAMPLE_leviathan_Adult', serpent, 80000),
         ('SAMPLE_frostfin_Juvenile', aquatic, 60000),
         ('SAMPLE_magma_Baby', lambda: mta.primitive_blockout(), 50000),

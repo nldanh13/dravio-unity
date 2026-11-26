@@ -37,6 +37,13 @@ namespace Dravio.Character.Editor
             mi.animationType = ModelImporterAnimationType.Generic;
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             mi.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+            // U1-CHAR.8 mobile: the pipeline bakes a key on every frame; keyframe reduction with small error bounds
+            // (degrees / percent) removes the redundant keys (memory) without visible change. First import only.
+            mi.animationCompression = ModelImporterAnimationCompression.Optimal;
+            mi.animationRotationError = 0.5f;
+            mi.animationPositionError = 0.5f;
+            mi.animationScaleError = 0.5f;
+            mi.resampleCurves = true;
             if (assetPath.StartsWith(ImportedEnvironmentFolder, StringComparison.Ordinal))
             {
                 mi.animationType = ModelImporterAnimationType.None; // static props are never rigged

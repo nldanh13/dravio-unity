@@ -41,7 +41,7 @@ namespace Dravio
         [SerializeField] private SanctuaryDomainPreview domain;
         public void ConfigureDomain(SanctuaryDomainPreview session) { domain=session; }
         public bool IsInspecting => current == Activity.Inspect;
-        public void SetVietnamese(bool value) { vietnamese=value; if(domain!=null)domain.SetVietnamese(value); RefreshStatus(); }
+        public void SetVietnamese(bool value) { vietnamese=value; if(domain!=null)domain.SetVietnamese(value); if(isActiveAndEnabled)RefreshStatus(); }
 
         public void Configure(Animator a, DragonTurntable t, Text label,
             Button feedButton, Button petButton, Button sleepButton, Button inspectButton, Button resumeButton)

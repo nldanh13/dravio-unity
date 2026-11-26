@@ -9,6 +9,9 @@ on:
       - 'Assets/Dravio/Persistence/**'
       - 'Assets/Dravio/Platform/**'
       - 'Assets/Dravio/Tests/**'
+      - 'Assets/Dravio/Character/**'
+      - 'Assets/Dravio/Scripts/**'
+      - 'Assets/Dravio/Editor/**'
       - '.github/workflows/domain-persistence-tests.yml'
   pull_request:
     paths:
@@ -16,6 +19,9 @@ on:
       - 'Assets/Dravio/Persistence/**'
       - 'Assets/Dravio/Platform/**'
       - 'Assets/Dravio/Tests/**'
+      - 'Assets/Dravio/Character/**'
+      - 'Assets/Dravio/Scripts/**'
+      - 'Assets/Dravio/Editor/**'
       - '.github/workflows/domain-persistence-tests.yml'
   workflow_dispatch:
 
@@ -40,6 +46,12 @@ jobs:
         run: dotnet test "Assets/Dravio/Tests/Domain/DotNet~/Dravio.Domain.Tests.csproj"
       - name: Persistence & platform tests (U2.2)
         run: dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj"
+      - name: Character runtime bookkeeping tests (outside Unity)
+        run: dotnet test "Assets/Dravio/Character/Tests/DotNet~/Dravio.Character.Tests.csproj"
+      - name: Character MonoBehaviour type-check against UnityEngine stubs (not a Unity compile)
+        run: dotnet build "Assets/Dravio/Character/Tests/DotNet~/TypeCheck/Dravio.Character.TypeCheck.csproj"
+      - name: Living Sanctuary projection policy tests (outside Unity)
+        run: dotnet test "Assets/Dravio/Tests/Integration~/Dravio.LivingIntegration.Tests.csproj" --logger "console;verbosity=detailed"
       - name: SIGKILL test of the file save store
         if: runner.os == 'Linux'
         run: bash "Assets/Dravio/Tests/Persistence/Tools~/KillTest/kill-test.sh" 30
@@ -81,6 +93,6 @@ jobs:
       - name: TypeScript reads saves written by C#
         run: |
           export DRAVIO_EXPORT_DIR="$RUNNER_TEMP/csharp-saves"
-          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests|FullyQualifiedName~ProgressSaveTests|FullyQualifiedName~BreedingSaveTests|FullyQualifiedName~SanctuarySaveTests|FullyQualifiedName~ExpeditionSaveTests"
+          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests|FullyQualifiedName~ProgressSaveTests|FullyQualifiedName~BreedingSaveTests|FullyQualifiedName~SanctuarySaveTests|FullyQualifiedName~ExpeditionSaveTests|FullyQualifiedName~HealthSaveTests|FullyQualifiedName~EconomyResearchSaveTests|FullyQualifiedName~WorldProgressionSaveTests"
           cp "Assets/Dravio/Tests/Persistence/Tools~/verify-csharp-saves.test.ts" ts/tests/unit/zz-verify-csharp-saves.test.ts
           (cd ts && npx vitest run tests/unit/zz-verify-csharp-saves.test.ts)

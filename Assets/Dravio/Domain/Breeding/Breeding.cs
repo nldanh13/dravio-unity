@@ -45,8 +45,8 @@ namespace Dravio.Domain.Breeding
 
     /// <summary>
     /// Luật lai tạo P0 (GDD 3.1 trang 8; ADR 0003; port nguyên văn src/engine/genetics/breeding.ts @ b33ec7a).
-    /// Ngưỡng health ≥ 80 / mobility ≥ 80 / comfort ≥ 60 và "không có HealthCase mở" của ADR 0003 KHÔNG được kiểm vì GameState
-    /// chưa có dữ liệu sức khỏe (TD-05) — giống bản TS, không giả lập "khỏe" bằng giá trị mặc định.
+    /// checkBreed giữ nguyên bản TS (golden parity). Ngưỡng health ≥ 80 / mobility ≥ 80 / comfort ≥ 60 và "không có HealthCase mở" của ADR 0003
+    /// được kiểm ở tầng lệnh từ U2.6 (<see cref="Hatchery.HealthBlock"/>), bằng dữ liệu vitals thật — không giả lập "khỏe".
     /// </summary>
     public static class BreedingRules
     {
