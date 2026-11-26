@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "status": "original procedural 3D art candidates, not production assets",
+  "coordinateSystem": "glTF Y up; front +Z; base near Y=0; meters",
+  "assets": [
+    {
+      "name": "Origin_Fairytale_Cottage",
+      "triangles": 3968,
+      "vertices": 11904,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -1.8160940408706665,
+          0,
+          -1.434999942779541
+        ],
+        "max": [
+          1.8160940408706665,
+          3.5399999618530273,
+          1.475000023841858
+        ]
+      },
+      "bytes": 429608,
+      "blob": "1dc033df446be827ea7eaa41d61c12d8f688db6f"
+    },
+    {
+      "name": "Origin_Fairytale_Lookout",
+      "triangles": 2072,
+      "vertices": 6216,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.9900000095367432,
+          0.019999999552965164,
+          -0.9900000095367432
+        ],
+        "max": [
+          0.9900000095367432,
+          3.6398684978485107,
+          0.9900000095367432
+        ]
+      },
+      "bytes": 224852,
+      "blob": "6e082b8c86bc0d59dd02d1866adff34359c9af6c"
+    },
+    {
+      "name": "Origin_Soft_Hills",
+      "triangles": 1920,
+      "vertices": 5760,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -8.5,
+          0,
+          -5
+        ],
+        "max": [
+          9,
+          3.493000030517578,
+          2.5
+        ]
+      },
+      "bytes": 208340,
+      "blob": "0c204822db94ec67344822a3b15334928db06b8e"
+    }
+  ],
+  "scope": "source only; not placed; no gameplay use",
+  "checks": "finite positions, unit normals, nondegenerate generated triangles, GLB binary alignment; no external validator/render/import"
+}
