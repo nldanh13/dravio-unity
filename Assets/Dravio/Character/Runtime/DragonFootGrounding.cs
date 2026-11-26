@@ -49,7 +49,7 @@ namespace Dravio.Character
         {
             if (interaction == DragonInteraction.Happy) return false;
             return shown == DragonLocomotion.Idle || shown == DragonLocomotion.Walk || shown == DragonLocomotion.Run
-                || shown == DragonLocomotion.Sleep;
+                || shown == DragonLocomotion.Sleep || shown == DragonLocomotion.Rest || shown == DragonLocomotion.Bask;
         }
 
         public void Configure(DragonVisualCatalog.IkChain[] chains)
