@@ -93,6 +93,6 @@ jobs:
       - name: TypeScript reads saves written by C#
         run: |
           export DRAVIO_EXPORT_DIR="$RUNNER_TEMP/csharp-saves"
-          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests|FullyQualifiedName~ProgressSaveTests|FullyQualifiedName~BreedingSaveTests|FullyQualifiedName~SanctuarySaveTests|FullyQualifiedName~ExpeditionSaveTests|FullyQualifiedName~HealthSaveTests"
+          dotnet test "Assets/Dravio/Tests/Persistence/DotNet~/Dravio.Persistence.Tests.csproj" --filter "FullyQualifiedName~CrossRuntimeExportTests|FullyQualifiedName~WorldSaveCompatTests|FullyQualifiedName~ProgressSaveTests|FullyQualifiedName~BreedingSaveTests|FullyQualifiedName~SanctuarySaveTests|FullyQualifiedName~ExpeditionSaveTests|FullyQualifiedName~HealthSaveTests|FullyQualifiedName~EconomyResearchSaveTests|FullyQualifiedName~WorldProgressionSaveTests"
           cp "Assets/Dravio/Tests/Persistence/Tools~/verify-csharp-saves.test.ts" ts/tests/unit/zz-verify-csharp-saves.test.ts
           (cd ts && npx vitest run tests/unit/zz-verify-csharp-saves.test.ts)

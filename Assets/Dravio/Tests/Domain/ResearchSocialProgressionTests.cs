@@ -54,23 +54,43 @@ namespace Dravio.Domain.Tests
         // ================================================================== Workstream A — Research
 
         [Test]
-        public void Production_research_pacing_is_off_and_keeps_current_codex_behaviour()
+        public void Disabled_research_pacing_keeps_the_U29_codex_behaviour()
         {
-            Assert.That(ResearchPacing.Production.Enabled, Is.False);
+            Assert.That(ResearchPacing.Disabled.Enabled, Is.False);
             GameState s = WithDragons(At("a", "emberling", "origin_meadow"));
             var log = new ResearchLog();
             BehaviorDecision d = BehaviorEngine.Decide(s, "a", Day0 + 12 * Hour, DayPhase.Day);
-            ResearchObservationResult r = log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Production);
+            ResearchObservationResult r = log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Disabled);
             Assert.That(r.Recorded, Is.False);
             Assert.That(r.Reason, Is.EqualTo("research-disabled"));
-            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, null);
+            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, ResearchPacing.Disabled);
             Assert.That(p.Gated, Is.False);
             Assert.That(p.RevealedSections, Is.EquivalentTo(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }));
-            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, null);
+            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, ResearchPacing.Disabled);
             Assert.That(ind.Archetype, Is.EqualTo(Personality.Calm));
             Assert.That(ind.FavoriteHabitatId, Is.Not.Null);
             Assert.That(ind.FavoriteDiet, Is.Not.Null);
-            Assert.That(ResearchProgress.Opportunities(s, Day0 + 12 * Hour, DayPhase.Day, log, null), Is.Empty);
+            Assert.That(ResearchProgress.Opportunities(s, Day0 + 12 * Hour, DayPhase.Day, log, ResearchPacing.Disabled), Is.Empty);
+        }
+
+        [Test]
+        public void Production_research_records_findings_but_keeps_the_codex_fully_open()
+        {
+            Assert.That(ResearchPacing.Production.Enabled, Is.True);
+            Assert.That(ResearchPacing.Production.NightJournal, Is.True);
+            Assert.That(ResearchPacing.Production.CodexGated, Is.False);
+            GameState s = WithDragons(At("a", "emberling", "origin_meadow"));
+            var log = new ResearchLog();
+            BehaviorDecision d = BehaviorEngine.Decide(s, "a", Day0 + 12 * Hour, DayPhase.Day);
+            Assert.That(log.Observe(s, d, Day0 + 12 * Hour, ResearchPacing.Production).Recorded, Is.True);
+            SpeciesResearchProfile p = ResearchProgress.Species(s, "emberling", log, null);
+            Assert.That(p.Gated, Is.False);
+            Assert.That(p.RevealedSections, Is.EquivalentTo(new[] { CodexSection.Identity, CodexSection.Habitat, CodexSection.Physiology, CodexSection.Behavior }));
+            Assert.That(p.ObservedPhases, Does.Contain(DayPhase.Day));
+            IndividualResearchProfile ind = ResearchProgress.Individual(s, "a", log, null);
+            Assert.That(ind.Gated, Is.False);
+            Assert.That(ind.FavoriteHabitatId, Is.Not.Null);
+            Assert.That(ResearchProgress.Opportunities(s, Day0 + 13 * Hour, DayPhase.Day, log, null), Is.Not.Empty);
         }
 
         [Test]
@@ -194,7 +214,7 @@ namespace Dravio.Domain.Tests
             Assert.That(migrated.Species, Is.Empty);
             Assert.That(migrated.Individuals, Is.Empty);
             Assert.That(MiniJson.Diff(before, StateJson.ToJson(s)), Is.Null);
-            Assert.That(s.SchemaVersion, Is.EqualTo(8));
+            Assert.That(s.SchemaVersion, Is.EqualTo(ContentInfo.SchemaVersion));
         }
 
         private static string Dump(ResearchLogSnapshot s) =>
@@ -213,7 +233,7 @@ namespace Dravio.Domain.Tests
             Assert.That(ResearchLog.LastNightSampleMs(Day0 + 3 * Hour, morning), Is.Null, "không offline qua 02:00");
             Assert.That(ResearchLog.LastNightSampleMs(Day0 - 8 * Hour, morning, utcOffsetMinutes: 7 * 60), Is.EqualTo(Day0 - 5 * Hour), "02:00 giờ Sanctuary (UTC+7)");
 
-            foreach (ResearchPacing off in new[] { ResearchPacing.Production, ResearchPacing.ProposedU210 })
+            foreach (ResearchPacing off in new[] { ResearchPacing.Disabled, ResearchPacing.ProposedU210 })
                 Assert.That(new ResearchLog().WriteNightJournal(s, night, morning, off), Is.Empty);
 
             var log = new ResearchLog();
@@ -433,27 +453,33 @@ namespace Dravio.Domain.Tests
         public void Aquatic_quest_can_be_satisfied_with_origin_content_only_but_never_unlocks_the_world_by_itself()
         {
             GameState s = AquaticReady(out ResearchLog log);
+            s.Research = log;
             var json = StateJson.ToJson(s);
+            // U2.11: tiền đề Q_ORIGIN_FIELD_NOTES phải được NHẬN trước (không còn tính "Ready").
             QuestStatusView v = QuestProposals.Evaluate(s, log, ResearchPacing.ProposedU210, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
             Assert.That(v.Requirements.Where(r => r.State != RequirementState.Met).Select(r => r.Def.Kind + ":" + r.Current + "/" + r.Target), Is.Empty);
-            Assert.That(v.State, Is.EqualTo(QuestState.Ready));
-            Assert.That(v.CanComplete, Is.False, "production không tự hoàn thành");
-            Assert.That(MiniJson.Diff(json, StateJson.ToJson(s)), Is.Null);
-            Assert.That(s.CompletedQuests, Is.Empty);
-            // Lệnh canonical vẫn từ chối: nhiệm vụ chưa được ghi nhận.
-            Fail(s, new UnlockZoneCommand(Rid(), "ocean"), new FixedClock(Day0 + 3 * Day), DomainErrorCode.UnlockRequirementMissing);
-            // Khi có hệ nhiệm vụ (đã duyệt), hoàn thành đi qua hàm engine canonical rồi lệnh unlockZone kiểm đủ điều kiện như cũ.
-            Assert.That(QuestProposals.Evaluate(s, log, ResearchPacing.ProposedU210, QuestRules.ProposedForReview).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION").CanComplete, Is.True);
-            GameState w = s.DeepClone();
-            Assert.That(WorldExpansion.ApplyQuestComplete(w, "QUEST_AQUATIC_EXPLORATION", null), Is.Null);
-            Ok(w, new UnlockZoneCommand(Rid(), "ocean"), new FixedClock(Day0 + 3 * Day));
+            Assert.That((v.State, v.LockedBy.Single(), v.CanComplete), Is.EqualTo((QuestState.Locked, "quest:Q_ORIGIN_FIELD_NOTES", false)));
+            Assert.That(MiniJson.Diff(json, StateJson.ToJson(s)), Is.Null, "đánh giá không đổi state");
+            var clock = new FixedClock(Day0 + 3 * Day);
+            Fail(s, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock, DomainErrorCode.QuestLocked);
+            GameState notes = Ok(s, new CompleteQuestCommand(Rid(), "Q_ORIGIN_FIELD_NOTES"), clock).State;
+            Assert.That((notes.CompletedSideQuests.Single(), notes.CompletedQuests.Count), Is.EqualTo(("Q_ORIGIN_FIELD_NOTES", 0)));
+            // Lệnh canonical vẫn từ chối: nhiệm vụ cổng chưa được nhận.
+            Fail(notes, new UnlockZoneCommand(Rid(), "ocean"), clock, DomainErrorCode.UnlockRequirementMissing);
+            DispatchResult done = Ok(notes, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock);
+            Assert.That(done.State.CompletedQuests, Is.EqualTo(new[] { "QUEST_AQUATIC_EXPLORATION" }));
+            Assert.That((done.State.Player.Inventory["wood"], done.State.Player.Inventory["seed"]), Is.EqualTo((0L, 0L)), "vật liệu giao bị trừ");
+            Assert.That(done.State.FindZone("ocean").Unlocked, Is.False, "hoàn thành nhiệm vụ không tự mở thế giới");
+            Assert.That(done.State.Player.Gold.Micro - notes.Player.Gold.Micro, Is.EqualTo(done.Events.OfType<TimeAdvanced>().Sum(e => e.GoldMicro)), "không thưởng vàng");
+            Fail(done.State, new CompleteQuestCommand(Rid(), "QUEST_AQUATIC_EXPLORATION"), clock, DomainErrorCode.QuestAlreadyCompleted);
+            Ok(done.State, new UnlockZoneCommand(Rid(), "ocean"), clock);
         }
 
         [Test]
         public void Quest_requirements_that_need_research_data_are_unknown_when_research_is_off()
         {
             GameState s = AquaticReady(out ResearchLog log);
-            QuestStatusView v = QuestProposals.Evaluate(s, log, null, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
+            QuestStatusView v = QuestProposals.Evaluate(s, log, ResearchPacing.Disabled, null).Single(x => x.QuestId == "QUEST_AQUATIC_EXPLORATION");
             QuestRequirementStatus circ = v.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.CircadianRecords);
             Assert.That(circ.State, Is.EqualTo(RequirementState.Unknown));
             Assert.That(circ.Detail, Is.EqualTo("research-disabled"));
@@ -484,7 +510,8 @@ namespace Dravio.Domain.Tests
         {
             (GameState s, _) = NewGame();
             ProgressionOverviewDto o = ProgressionQueries.Overview(s);
-            Assert.That(o.Rules.ResearchPacingEnabled || o.Rules.SocialGameplayEffectsEnabled || o.Rules.QuestCompletionEnabled ||
+            Assert.That(o.Rules.QuestCompletionEnabled, Is.True, "U2.11: nhiệm vụ chạy thật");
+            Assert.That(o.Rules.ResearchPacingEnabled || o.Rules.SocialGameplayEffectsEnabled ||
                 o.Rules.ComfortDriftEnabled || o.Rules.NaturalDisastersEnabled || o.Rules.EnergyDrainEnabled, Is.False);
             Assert.That(o.SpeciesTotal, Is.EqualTo(16));
             Assert.That(o.CodexCellsTotal, Is.EqualTo(64));

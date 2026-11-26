@@ -1,6 +1,8 @@
 # ADR 0204 — U2.10: nghiên cứu, sinh thái xã hội, tiến trình thế giới và cân bằng kinh tế
 
 - **Trạng thái:** Đề xuất. Đang chờ chủ dự án duyệt. Mọi luật có tác động gameplay đều **TẮT** ở production.
+- **Cập nhật:** E1, E2, E5 và R11 (kèm R8 khối `research` của Schema v9 và R9 lệnh `observeDragon`) đã được duyệt và chạy thật, xem **ADR 0205**. Phần còn lại vẫn là đề xuất.
+- **Cập nhật U2.11:** Q1, Q2, Q5, Q7 (nhiệm vụ thật, lệnh `completeQuest`) và S7 (độ quen theo thời gian, Schema v10) chạy thật, xem **ADR 0206**. S8, R1–R7 (khóa Codex), E3, E4 vẫn là đề xuất.
 - **Phạm vi:** Bản Unity (`nldanh13/dravio-unity`), giai đoạn U2.10, nhánh `feat/u2-research-social-progression` (base `feat/u5-autonomous-ecosystem` @ `8352b6d`, đã chứa U2.6 / U2.9 / U5.3, Schema v8). Domain C# thuần, không UnityEngine.
 - **Nguồn đã dùng:** ADR 0201 (mở thế giới, vật liệu, nhiệm vụ TBD), ADR 0202 (P1–P8, D7), ADR 0203 (A–D, đặc biệt D1–D5 và báo cáo "nghiên cứu quá nhanh"), `ECONOMY_AUDIT.md` (U2.7), catalog canonical (`SpeciesCatalog`, `G0BiologyData`, `HabitatCatalog`, `WorldGraph`, `ExpeditionCatalog`, `WorldUnlockCatalog`, `PackCatalog`, `EconomyTables`, `BreedingCatalog`), Behavioral Engine U2.9.
 - **Giới hạn nguồn:** **GDD 3.1 không có trong repo Unity** (chỉ nằm ở repo TS `nldanh13/dravio`, phiên này không đọc được). Theo các tài liệu đã có trong repo, GDD không định lượng tập tính xã hội, nhịp nghiên cứu hay nội dung hai nhiệm vụ mở thế giới. **Vì vậy mọi con số trong ADR này là đề xuất**, cần đối chiếu với GDD khi duyệt.

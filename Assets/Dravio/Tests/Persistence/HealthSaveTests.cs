@@ -93,7 +93,7 @@ namespace Dravio.Persistence.Tests
             LoadOutcome r = mgr.Load();
             Assert.That((r.Kind, r.Save.MigratedFrom), Is.EqualTo((LoadKind.Loaded, (int?)7)), r.Kind.ToString());
             GameState m = r.Save.State;
-            Assert.That((m.SchemaVersion, m.HealthCases.Count, m.Disasters.Count, m.Hazard.ForegroundMs, m.Hazard.ChecksDone), Is.EqualTo((8, 0, 0, 0L, 0L)));
+            Assert.That((m.SchemaVersion, m.HealthCases.Count, m.Disasters.Count, m.Hazard.ForegroundMs, m.Hazard.ChecksDone), Is.EqualTo((10, 0, 0, 0L, 0L)));
             foreach (DragonState d in m.Dragons)
                 Assert.That((d.Vitals.Health, d.Vitals.Energy, d.Vitals.Comfort, d.Vitals.Mobility, d.Vitals.Hydration), Is.EqualTo((100, 100, 100, 100, 100)), d.Uid);
             Assert.That((m.FindDragon("sh").Location.Kind, m.FindDragon("cr").Location.CaseId, m.FindDragon("cr").Activity), Is.EqualTo((LocationKind.Shelter, "legacy", DragonActivity.Care)),
@@ -110,7 +110,7 @@ namespace Dravio.Persistence.Tests
         }
 
         [Test]
-        public void Older_saves_v1_and_v2_still_load_through_every_step_to_v8()
+        public void Older_saves_v1_and_v2_still_load_through_every_step_to_v10()
         {
             foreach (string f in new[] { "save-schema-v1.json", "save-schema-v2.json" })
             {
@@ -118,7 +118,7 @@ namespace Dravio.Persistence.Tests
                 store.Slots[SaveSlot.Main] = PFix.Fixture(f);
                 LoadOutcome r = new SaveManager(store, () => PFix.T0).Load();
                 Assert.That(r.Kind, Is.EqualTo(LoadKind.Loaded), f);
-                Assert.That(r.Save.State.SchemaVersion, Is.EqualTo(8), f);
+                Assert.That(r.Save.State.SchemaVersion, Is.EqualTo(10), f);
                 Assert.That(r.Save.State.Dragons.All(d => d.Vitals != null && d.Vitals.Health == 100), Is.True, f);
             }
         }

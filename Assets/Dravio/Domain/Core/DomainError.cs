@@ -98,6 +98,17 @@ namespace Dravio.Domain.Core
         [WireName("care-plan-wrong-site")] CarePlanWrongSite,
         [WireName("care-plan-unsuitable")] CarePlanUnsuitable,
         [WireName("no-disaster-warning")] NoDisasterWarning,
+        // ---- U2.10: kinh tế và nghiên cứu (ADR 0204, đã duyệt E1, E2, E5, R11) ----
+        [WireName("pack-daily-limit")] PackDailyLimit,
+        [WireName("projects-maxed")] ProjectsMaxed,
+        [WireName("not-enough-materials")] NotEnoughMaterials,
+        [WireName("not-observable")] NotObservable,
+        [WireName("observation-cooldown")] ObservationCooldown,
+        // ---- U2.11: nhiệm vụ (ADR 0206) ----
+        [WireName("unknown-quest")] UnknownQuest,
+        [WireName("quest-locked")] QuestLocked,
+        [WireName("quest-not-ready")] QuestNotReady,
+        [WireName("quest-completed")] QuestAlreadyCompleted,
     }
 
     /// <summary>Lỗi nghiệp vụ trả về từ dispatch. Không phải exception: lệnh bị từ chối là luồng bình thường.</summary>

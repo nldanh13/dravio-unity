@@ -33,7 +33,7 @@ namespace Dravio.Persistence.Schema
     /// Migration theo schemaVersion (src/persistence/migrations.ts; ADR 0006, 0007, 0009, 0013).
     /// v1 → v2 thêm discoveries (ghi bù khám phá cho sinh cảnh đã mở, ADR 0010); v2 → v4 thêm tutorial,
     /// pendingPack, unlockedAchievements, claimedAchievements; số 3 là bí danh tiền phát hành của v1 và được dành riêng.
-    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng); v7 → v8 (U2.6) thêm vitals cho mọi rồng, healthCases, disasters, hazard.
+    /// v4 → v5 (U2.5, implementation mới chỉ ở bản Unity) thêm breedingNest = null; v5 → v6 (U2.7) thêm codex; v6 → v7 (U2.8) thêm expedition, completedQuests, grantedRewards, rewardQueue (rỗng); v7 → v8 (U2.6) thêm vitals cho mọi rồng, healthCases, disasters, hazard; v8 → v9 (U2.10) packDaily, sanctuaryProjectsBuilt, research; v9 → v10 (U2.11) completedSideQuests, expeditionsClaimed, relations.
     /// </summary>
     public static class Migrations
     {
@@ -155,6 +155,28 @@ namespace Dravio.Persistence.Schema
                     next.Set("dragons", fixedDragons);
                 }
                 return next;
+            }),
+            // U2.10 (chỉ bản Unity): giới hạn gói Starter theo ngày (chưa mua hôm nay), 0 dự án Sanctuary và sổ nghiên cứu rỗng.
+            // KHÔNG suy diễn quan sát từ Codex (người chơi chưa quan sát gì), không đổi vàng, rồng, vật liệu, Codex hay nhiệm vụ.
+            new MigrationStep(8, 9, state =>
+            {
+                foreach (string k in new[] { "packDaily", "sanctuaryProjectsBuilt", "research" })
+                    if (state.ContainsKey(k)) throw new InvalidOperationException("v8 state already has " + k);
+                return state.ShallowCopy()
+                    .Set("packDaily", new JsonObject().Set("day", JsonValue.Null).Set("starterBought", JsonValue.From(0L)))
+                    .Set("sanctuaryProjectsBuilt", JsonValue.From(0L))
+                    .Set("research", new JsonObject().Set("species", new JsonArray()).Set("individuals", new JsonArray()));
+            }),
+            // U2.11 (chỉ bản Unity): chưa nhiệm vụ phụ nào, chưa đếm chuyến thám hiểm, chưa có thời gian sống chung. KHÔNG suy diễn từ dữ liệu cũ
+            // (chuyến đã nhận trước v10 không được thưởng mốc bù), không đổi vàng, rồng, vật liệu, Codex, nhiệm vụ cổng hay sổ nghiên cứu.
+            new MigrationStep(9, 10, state =>
+            {
+                foreach (string k in new[] { "completedSideQuests", "expeditionsClaimed", "relations" })
+                    if (state.ContainsKey(k)) throw new InvalidOperationException("v9 state already has " + k);
+                return state.ShallowCopy()
+                    .Set("completedSideQuests", new JsonArray())
+                    .Set("expeditionsClaimed", new JsonObject())
+                    .Set("relations", new JsonObject().Set("pairs", new JsonArray()));
             }),
         });
 

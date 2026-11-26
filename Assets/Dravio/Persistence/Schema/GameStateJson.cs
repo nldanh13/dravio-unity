@@ -8,7 +8,7 @@ using Dravio.Persistence.Json;
 namespace Dravio.Persistence.Schema
 {
     /// <summary>
-    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v8 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6)), trường phẳng như src/types/state.ts.
+    /// Ánh xạ GameState (C#) ↔ state JSON của Dravio Save Schema v9 (= v4 của TS + breedingNest (U2.5) + codex (U2.7) + expedition (U2.8) + vitals / healthCases / disasters / hazard (U2.6) + packDaily / sanctuaryProjectsBuilt / research (U2.10) + completedSideQuests / expeditionsClaimed / relations (U2.11)), trường phẳng như src/types/state.ts.
     /// PlayerState của C# được trải phẳng thành goldMicro, goldRemainder, totalGoldEarnedMicro, inventory,
     /// upgrades, pityCount, stats, settings. Trường optional (undefined trong TS) bị bỏ khỏi JSON khi null.
     /// Thứ tự khóa theo createInitialState của TS (checksum không phụ thuộc thứ tự vì canonicalJson sắp xếp khóa).
@@ -25,6 +25,10 @@ namespace Dravio.Persistence.Schema
             "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue",
             // v8 (U2.6), chỉ có ở bản Unity
             "healthCases", "disasters", "hazard",
+            // v9 (U2.10), chỉ có ở bản Unity
+            "packDaily", "sanctuaryProjectsBuilt", "research",
+            // v10 (U2.11), chỉ có ở bản Unity
+            "completedSideQuests", "expeditionsClaimed", "relations",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -108,6 +112,8 @@ namespace Dravio.Persistence.Schema
             o.Set("rewardQueue", queue);
             o.Set("claimedAchievements", Arr(s.ClaimedAchievements));
             HealthToJson(s, o);
+            if (s.SchemaVersion >= 9) U210ToJson(s, o);
+            if (s.SchemaVersion >= 10) U211ToJson(s, o);
             o.Set("processedRequestIds", Arr(s.ProcessedRequestIds));
             o.Set("pityCount", N(p.PityCount));
             GameStats st = p.Stats;
@@ -563,7 +569,143 @@ namespace Dravio.Persistence.Schema
             }
             else errors.Add("rewardQueue: invalid");
             HealthFromJson(o, s, errors);
+            if (s.SchemaVersion >= 9) U210FromJson(o, s, errors);
+            if (s.SchemaVersion >= 10) U211FromJson(o, s, errors);
             return s;
+        }
+
+        // ---------------- v10 (U2.11): nhiệm vụ phụ, bộ đếm thám hiểm, quan hệ ----------------
+
+        private static void U211ToJson(GameState s, JsonObject o)
+        {
+            o.Set("completedSideQuests", Arr(s.CompletedSideQuests));
+            var claimed = new JsonObject();
+            if (s.ExpeditionsClaimed != null) foreach (var kv in s.ExpeditionsClaimed) claimed.Set(kv.Key, N(kv.Value));
+            o.Set("expeditionsClaimed", claimed);
+            // Ghi bản đã làm sạch (như khi nạp), giống sổ nghiên cứu.
+            Dravio.Domain.Behavior.RelationLogSnapshot snap = (s.Relations ?? new Dravio.Domain.Behavior.RelationLog()).ToSnapshot();
+            if (s.Dragons != null) snap = Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s);
+            var pairs = new JsonArray();
+            foreach (var p in snap.Pairs) pairs.Add(new JsonObject().Set("a", S(p.A)).Set("b", S(p.B)).Set("sharedMs", N(p.SharedMs)));
+            o.Set("relations", new JsonObject().Set("pairs", pairs));
+        }
+
+        private static void U211FromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            s.CompletedSideQuests = new Reader(errors).StrList(o, "completedSideQuests", "completedSideQuests: invalid") ?? new List<string>();
+            s.ExpeditionsClaimed = new SortedDictionary<string, int>(StringComparer.Ordinal);
+            if (o.Get("expeditionsClaimed") is JsonObject ec)
+            {
+                foreach (var kv in ec)
+                    if (Reader.AsSafeLong(kv.Value, out long n) && n >= 0 && n <= int.MaxValue) s.ExpeditionsClaimed[kv.Key] = (int)n;
+                    else { errors.Add("expeditionsClaimed: invalid"); break; }
+            }
+            else errors.Add("expeditionsClaimed: invalid");
+            // Quan hệ chỉ trình diễn: khối hỏng hay mục lạ bị BỎ khi nạp, không làm hỏng save.
+            s.Relations = new Dravio.Domain.Behavior.RelationLog();
+            if (s.Dragons == null || !(o.Get("relations") is JsonObject ro) || !(ro.Get("pairs") is JsonArray pa)) return;
+            var snap = new Dravio.Domain.Behavior.RelationLogSnapshot();
+            foreach (JsonValue x in pa)
+            {
+                if (!(x is JsonObject e) || !(e.Get("a") is JsonString a) || !(e.Get("b") is JsonString b) || !Reader.AsSafeLong(e.Get("sharedMs"), out long ms)) continue;
+                snap.Pairs.Add(new Dravio.Domain.Behavior.RelationLogSnapshot.Pair { A = a.Value, B = b.Value, SharedMs = ms });
+            }
+            s.Relations = Dravio.Domain.Behavior.RelationLog.FromSnapshot(Dravio.Domain.Behavior.RelationLog.Sanitize(snap, s));
+        }
+
+        // ---------------- v9 (U2.10): giới hạn gói theo ngày, dự án Sanctuary, sổ nghiên cứu ----------------
+
+        private static void U210ToJson(GameState s, JsonObject o)
+        {
+            PackDailyState pd = s.PackDaily ?? new PackDailyState();
+            o.Set("packDaily", new JsonObject().Set("day", pd.Day == null ? JsonValue.Null : S(pd.Day)).Set("starterBought", N(pd.StarterBought)));
+            o.Set("sanctuaryProjectsBuilt", N(s.SanctuaryProjectsBuilt));
+            // Ghi bản đã làm sạch (như khi nạp): save ghi ra luôn đọc lại được, kể cả nếu sổ nghiên cứu lệch state ở đâu đó.
+            Dravio.Domain.Behavior.ResearchLogSnapshot snap = (s.Research ?? new Dravio.Domain.Behavior.ResearchLog()).ToSnapshot();
+            if (s.Dragons != null && s.Codex != null) snap = Dravio.Domain.Behavior.ResearchSchemaDraft.Sanitize(snap, s);
+            o.Set("research", ResearchToJson(snap));
+        }
+
+        private static JsonObject ResearchToJson(Dravio.Domain.Behavior.ResearchLogSnapshot snap)
+        {
+            var species = new JsonArray();
+            foreach (var e in snap.Species)
+            {
+                var fbd = new JsonObject();
+                foreach (var kv in e.FindingsByDay) fbd.Set(kv.Key, N(kv.Value));
+                species.Add(new JsonObject().Set("speciesId", S(e.SpeciesId)).Set("behaviors", Arr(e.Behaviors)).Set("phases", Arr(e.Phases))
+                    .Set("habitats", Arr(e.Habitats)).Set("days", Arr(e.Days)).Set("findingsByDay", fbd));
+            }
+            var inds = new JsonArray();
+            foreach (var e in snap.Individuals)
+                inds.Add(new JsonObject().Set("uid", S(e.Uid)).Set("speciesId", S(e.SpeciesId)).Set("observations", N(e.Observations))
+                    .Set("seenInFavoriteHabitat", JsonValue.From(e.SeenInFavoriteHabitat)).Set("seenFeeding", JsonValue.From(e.SeenFeeding))
+                    .Set("lastObservedAtMs", N(e.LastObservedAtMs)).Set("activePhases", Arr(e.ActivePhases)).Set("restPhases", Arr(e.RestPhases))
+                    .Set("revealed", Arr(e.Revealed)));
+            return new JsonObject().Set("species", species).Set("individuals", inds);
+        }
+
+        private static void U210FromJson(JsonObject o, GameState s, List<string> errors)
+        {
+            var r = new Reader(new List<string>());
+            s.PackDaily = null;
+            if (o.Get("packDaily") is JsonObject pd)
+            {
+                JsonValue day = pd.Get("day");
+                s.PackDaily = new PackDailyState { Day = day is JsonString ds ? ds.Value : null, StarterBought = r.IntOr(pd, "starterBought", "x", -1) };
+                if (!(day is JsonString) && !(day is JsonNull)) r.Errors.Add("x");
+            }
+            else r.Errors.Add("x");
+            if (r.Errors.Count > 0) errors.Add("packDaily: invalid");
+            s.SanctuaryProjectsBuilt = new Reader(errors).IntOr(o, "sanctuaryProjectsBuilt", "sanctuaryProjectsBuilt: out of range", -1);
+            // Sổ nghiên cứu không chạm vàng, rồng hay vật liệu: khối hỏng hoặc mục không hợp lệ bị BỎ khi nạp, không làm hỏng save (ADR 0204 R8).
+            s.Research = new Dravio.Domain.Behavior.ResearchLog();
+            if (s.Dragons == null || s.Codex == null) return;
+            Dravio.Domain.Behavior.ResearchLogSnapshot snap = ResearchFromJson(o.Get("research"));
+            if (snap == null) return;
+            s.Research = Dravio.Domain.Behavior.ResearchLog.FromSnapshot(Dravio.Domain.Behavior.ResearchSchemaDraft.Sanitize(snap, s));
+        }
+
+        private static Dravio.Domain.Behavior.ResearchLogSnapshot ResearchFromJson(JsonValue v)
+        {
+            if (!(v is JsonObject o) || !(o.Get("species") is JsonArray sa) || !(o.Get("individuals") is JsonArray ia)) return null;
+            var snap = new Dravio.Domain.Behavior.ResearchLogSnapshot();
+            var r = new Reader(new List<string>());
+            foreach (JsonValue x in sa)
+            {
+                if (!(x is JsonObject e)) continue;
+                var se = new Dravio.Domain.Behavior.ResearchLogSnapshot.SpeciesEntry
+                {
+                    SpeciesId = e.Get("speciesId") is JsonString sp ? sp.Value : null,
+                    Behaviors = r.StrList(e, "behaviors", "x") ?? new List<string>(),
+                    Phases = r.StrList(e, "phases", "x") ?? new List<string>(),
+                    Habitats = r.StrList(e, "habitats", "x") ?? new List<string>(),
+                    Days = r.StrList(e, "days", "x") ?? new List<string>(),
+                };
+                if (e.Get("findingsByDay") is JsonObject f)
+                    foreach (var kv in f)
+                        if (Reader.AsSafeLong(kv.Value, out long n) && n >= 0 && n <= int.MaxValue) se.FindingsByDay.Add(new KeyValuePair<string, int>(kv.Key, (int)n));
+                snap.Species.Add(se);
+            }
+            foreach (JsonValue x in ia)
+            {
+                if (!(x is JsonObject e)) continue;
+                var ir = new Reader(new List<string>());
+                var ie = new Dravio.Domain.Behavior.ResearchLogSnapshot.IndividualEntry
+                {
+                    Uid = e.Get("uid") is JsonString u ? u.Value : null,
+                    SpeciesId = e.Get("speciesId") is JsonString sp ? sp.Value : null,
+                    Observations = ir.IntOr(e, "observations", "x", -1),
+                    SeenInFavoriteHabitat = e.Get("seenInFavoriteHabitat") is JsonBool b1 && b1.Value,
+                    SeenFeeding = e.Get("seenFeeding") is JsonBool b2 && b2.Value,
+                    LastObservedAtMs = ir.LongOr(e, "lastObservedAtMs", "x", 0),
+                    ActivePhases = ir.StrList(e, "activePhases", "x") ?? new List<string>(),
+                    RestPhases = ir.StrList(e, "restPhases", "x") ?? new List<string>(),
+                    Revealed = ir.StrList(e, "revealed", "x") ?? new List<string>(),
+                };
+                if (ir.Errors.Count == 0) snap.Individuals.Add(ie);
+            }
+            return snap;
         }
 
         private static Genotype GenotypeFromJson(JsonValue v, Reader r)

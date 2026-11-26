@@ -335,7 +335,7 @@ namespace Dravio.Persistence.Tests
         public void Newer_version_and_unrecoverable_saves_stop_the_session_and_StartFresh_keeps_the_broken_data()
         {
             var store = new MemorySaveStore();
-            store.Slots[SaveSlot.Main] = PFix.EnvelopeAt(9);
+            store.Slots[SaveSlot.Main] = PFix.EnvelopeAt(11);
             GameSession newer = new SessionRig(store, PFix.T0).NewSession();
             Assert.That(newer.Status, Is.EqualTo(SessionStatus.NewerVersion));
             Assert.That(store.Writes, Is.EqualTo(0));

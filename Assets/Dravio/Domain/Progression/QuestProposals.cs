@@ -7,10 +7,10 @@ using Dravio.Domain.Economy;
 
 namespace Dravio.Domain.Progression
 {
-    // U2.10 Workstream C — World Progression (ADR 0204 Q1–Q8, ĐỀ XUẤT, CHỈ ĐỌC).
-    // Điền nội dung cho QUEST_AQUATIC_EXPLORATION / QUEST_SKY_EXPLORATION (ADR 0201: "TBD") và thêm nhiệm vụ nghiên cứu, bảo tồn, thám hiểm.
-    // KHÔNG gọi WorldExpansion.ApplyQuestComplete, KHÔNG đổi GameState. Mở thế giới vẫn chỉ qua lệnh unlockZone với đủ điều kiện canonical
-    // (hướng dẫn, 3 sinh cảnh Khởi Nguyên, nhiệm vụ, thế giới trước). Không có yêu cầu vàng hay chờ đồng hồ.
+    // U2.10 Workstream C — World Progression (ADR 0204 Q1–Q8): catalog + evaluator.
+    // U2.11 (ADR 0206): CHẠY THẬT. Lệnh completeQuest (QuestSystem.Complete) kiểm Evaluate(...).CanComplete, trừ vật liệu giao, ghi nhiệm vụ cổng qua
+    // WorldExpansion.ApplyQuestComplete hoặc nhiệm vụ phụ vào completedSideQuests (Schema v10). Mở thế giới vẫn chỉ qua lệnh unlockZone với đủ điều kiện
+    // canonical (hướng dẫn, 3 sinh cảnh Khởi Nguyên, nhiệm vụ, thế giới trước). Không có yêu cầu vàng hay chờ đồng hồ, không thưởng vàng.
 
     public enum QuestCategory
     {
@@ -20,6 +20,8 @@ namespace Dravio.Domain.Progression
         [WireName("research")] Research,
         [WireName("conservation")] Conservation,
         [WireName("expedition")] Expedition,
+        /// <summary>U2.11: quan hệ giữa các rồng.</summary>
+        [WireName("social")] Social,
     }
 
     /// <summary>
@@ -45,6 +47,10 @@ namespace Dravio.Domain.Progression
         [WireName("speciesRecordedInRealm")] SpeciesRecordedInRealm,
         /// <summary>Tuyến thám hiểm có thể khởi hành (mở thế giới + bảng thưởng đã duyệt). Dùng để thể hiện tuyến khóa, không để vượt khóa.</summary>
         [WireName("routeAvailable")] RouteAvailable,
+        /// <summary>U2.11: số cặp rồng (chưa thả) có quan hệ ≥ bậc cho trước (độ quen gồm thời gian sống chung).</summary>
+        [WireName("relationPairs")] RelationPairs,
+        /// <summary>U2.11: số chuyến thám hiểm đã nhận trên tuyến (Param).</summary>
+        [WireName("expeditionsClaimed")] ExpeditionsClaimed,
     }
 
     public enum RequirementState
@@ -59,10 +65,13 @@ namespace Dravio.Domain.Progression
 
     public sealed class QuestRequirementDef
     {
-        internal QuestRequirementDef(QuestRequirementKind kind, int target, string param = null, ResearchTier tier = ResearchTier.Unknown, Realm? realm = null, Locomotion? locomotion = null)
+        internal QuestRequirementDef(QuestRequirementKind kind, int target, string param = null, ResearchTier tier = ResearchTier.Unknown, Realm? realm = null, Locomotion? locomotion = null,
+            RelationTier relation = RelationTier.Friend)
         {
-            Kind = kind; Target = target; Param = param; Tier = tier; Realm = realm; Locomotion = locomotion;
+            Kind = kind; Target = target; Param = param; Tier = tier; Realm = realm; Locomotion = locomotion; Relation = relation;
         }
+        /// <summary>Bậc quan hệ tối thiểu (RelationPairs).</summary>
+        public RelationTier Relation { get; }
         public QuestRequirementKind Kind { get; }
         public int Target { get; }
         /// <summary>ID vật liệu (MaterialDelivery), tuyến (RouteAvailable).</summary>
@@ -89,10 +98,13 @@ namespace Dravio.Domain.Progression
 
     public sealed class QuestProposalDef
     {
-        internal QuestProposalDef(string id, QuestCategory cat, string[] requiresZones, string[] prerequisites, QuestRewardKind reward, params QuestRequirementDef[] reqs)
+        internal QuestProposalDef(string id, QuestCategory cat, string[] requiresZones, string[] prerequisites, QuestRewardKind reward, string rewardId, params QuestRequirementDef[] reqs)
         {
-            Id = id; Category = cat; RequiresZones = Array.AsReadOnly(requiresZones); Prerequisites = Array.AsReadOnly(prerequisites); Reward = reward; Requirements = Array.AsReadOnly(reqs);
+            Id = id; Category = cat; RequiresZones = Array.AsReadOnly(requiresZones); Prerequisites = Array.AsReadOnly(prerequisites); Reward = reward; RewardId = rewardId; Requirements = Array.AsReadOnly(reqs);
         }
+        /// <summary>U2.11: ID phần thưởng ổn định (note.*, blueprint.*, title.*, zone.*). Thưởng dẫn xuất từ nhiệm vụ đã hoàn thành, không lưu riêng.</summary>
+        public string RewardId { get; }
+        public string RewardNameKey => "reward." + RewardId + ".name";
         public string Id { get; }
         public QuestCategory Category { get; }
         /// <summary>Thế giới phải mở để nhiệm vụ hiện (nội dung chỉ dùng thế giới này, không vòng lặp với khóa thế giới).</summary>
@@ -105,12 +117,15 @@ namespace Dravio.Domain.Progression
         public string NameKey => "quest." + Id + ".name";
     }
 
-    /// <summary>Bộ luật nhiệm vụ. Production TẮT: không nhiệm vụ nào được hoàn thành bởi hệ đề xuất.</summary>
+    /// <summary>Bộ luật nhiệm vụ. U2.11 (ADR 0206): Production BẬT, lệnh completeQuest hoàn thành được nhiệm vụ đủ yêu cầu.</summary>
     public sealed class QuestRules
     {
         public QuestRules(bool enabled) { Enabled = enabled; }
         public bool Enabled { get; }
-        public static readonly QuestRules Production = new QuestRules(false);
+        public static readonly QuestRules Production = new QuestRules(true);
+        /// <summary>Hành vi trước U2.11 (chỉ đọc, không hoàn thành được) — cho test so sánh.</summary>
+        public static readonly QuestRules Disabled = new QuestRules(false);
+        /// <summary>Bí danh cũ của U2.10 (bộ luật bật để duyệt). Giữ cho API mô phỏng.</summary>
         public static readonly QuestRules ProposedForReview = new QuestRules(true);
     }
 
@@ -127,7 +142,7 @@ namespace Dravio.Domain.Progression
     public enum QuestState
     {
         [WireName("completed")] Completed,
-        /// <summary>Đủ mọi yêu cầu. Production không tự hoàn thành (QuestRules tắt).</summary>
+        /// <summary>Đủ mọi yêu cầu: người chơi gửi lệnh completeQuest để nhận (không tự hoàn thành).</summary>
         [WireName("ready")] Ready,
         [WireName("inProgress")] InProgress,
         /// <summary>Thế giới / nhiệm vụ trước chưa xong.</summary>
@@ -143,7 +158,8 @@ namespace Dravio.Domain.Progression
         public IReadOnlyList<string> LockedBy { get; internal set; }
         public IReadOnlyList<QuestRequirementStatus> Requirements { get; internal set; }
         public QuestRewardKind Reward { get; internal set; }
-        /// <summary>Luôn false ở production (QuestRules tắt). Hoàn thành thật cần lệnh mới sau khi ADR 0204 được duyệt.</summary>
+        public string RewardId { get; internal set; }
+        /// <summary>true = lệnh completeQuest sẽ thành công (Ready và QuestRules bật).</summary>
         public bool CanComplete { get; internal set; }
         public int ProgressPct { get; internal set; }
     }
@@ -158,48 +174,69 @@ namespace Dravio.Domain.Progression
         private static QuestRequirementDef Research(int n, ResearchTier t, Realm? realm = null) => new QuestRequirementDef(QuestRequirementKind.ResearchTier, n, tier: t, realm: realm);
         private static QuestRequirementDef Material(string id, int n) => new QuestRequirementDef(QuestRequirementKind.MaterialDelivery, n, param: id);
 
-        /// <summary>Catalog đề xuất (thứ tự hiển thị). Chỉ dùng ID vật liệu, tuyến, microhabitat, loài canonical.</summary>
+        /// <summary>Catalog nhiệm vụ (thứ tự hiển thị và thứ tự lưu). Chỉ dùng ID vật liệu, tuyến, microhabitat, loài canonical.</summary>
         public static readonly IReadOnlyList<QuestProposalDef> All = Array.AsReadOnly(new[]
         {
             // ---- Khởi Nguyên ----
-            new QuestProposalDef("Q_ORIGIN_FIELD_NOTES", QuestCategory.Origin, Origin, None, QuestRewardKind.CodexNote,
+            new QuestProposalDef("Q_ORIGIN_FIELD_NOTES", QuestCategory.Origin, Origin, None, QuestRewardKind.CodexNote, "note.origin_field_notes",
                 Research(2, ResearchTier.Profiled, Realm.Land)),
-            new QuestProposalDef("Q_ORIGIN_FOREST_SURVEY", QuestCategory.Expedition, Origin, None, QuestRewardKind.DecorBlueprint,
+            new QuestProposalDef("Q_ORIGIN_FOREST_SURVEY", QuestCategory.Expedition, Origin, None, QuestRewardKind.DecorBlueprint, "blueprint.forest_lantern",
                 new QuestRequirementDef(QuestRequirementKind.AdultWithLocomotion, 1, locomotion: Locomotion.Walk),
                 Material("wood", 3), Material("seed", 2)),
             // ---- Thủy Vực (cổng canonical) — chỉ dùng nội dung Khởi Nguyên ----
-            new QuestProposalDef("QUEST_AQUATIC_EXPLORATION", QuestCategory.Aquatic, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.WorldGate,
+            new QuestProposalDef("QUEST_AQUATIC_EXPLORATION", QuestCategory.Aquatic, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.WorldGate, "zone.ocean",
                 Research(3, ResearchTier.LifeCycle, Realm.Land),
                 new QuestRequirementDef(QuestRequirementKind.AdultWithLocomotion, 1, locomotion: Locomotion.Swim),
                 new QuestRequirementDef(QuestRequirementKind.CircadianRecords, 2),
                 Material("wood", 6), Material("seed", 4)),
             // ---- Thiên Giới (cổng canonical) — dùng nội dung Khởi Nguyên + Thủy Vực ----
-            new QuestProposalDef("QUEST_SKY_EXPLORATION", QuestCategory.Sky, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.WorldGate,
+            new QuestProposalDef("QUEST_SKY_EXPLORATION", QuestCategory.Sky, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.WorldGate, "zone.sky",
                 Research(1, ResearchTier.Ethology, Realm.Ocean),
                 new QuestRequirementDef(QuestRequirementKind.SpeciesRecordedInRealm, 2, realm: Realm.Ocean),
                 new QuestRequirementDef(QuestRequirementKind.AdultWithLocomotion, 1, locomotion: Locomotion.Fly),
                 Material("crystal", 4), Material("coral", 4)),
             // ---- Nghiên cứu ----
-            new QuestProposalDef("Q_RESEARCH_NIGHT_WATCH", QuestCategory.Research, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.Title,
+            new QuestProposalDef("Q_RESEARCH_NIGHT_WATCH", QuestCategory.Research, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.Title, "title.night_watcher",
                 new QuestRequirementDef(QuestRequirementKind.CircadianRecords, 4)),
-            new QuestProposalDef("Q_RESEARCH_PERSONALITIES", QuestCategory.Research, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.CodexNote,
+            new QuestProposalDef("Q_RESEARCH_PERSONALITIES", QuestCategory.Research, Origin, new[] { "Q_ORIGIN_FIELD_NOTES" }, QuestRewardKind.CodexNote, "note.personalities",
                 new QuestRequirementDef(QuestRequirementKind.IndividualsKnown, 4)),
-            new QuestProposalDef("Q_RESEARCH_ETHOLOGIST", QuestCategory.Research, Origin, new[] { "Q_RESEARCH_NIGHT_WATCH" }, QuestRewardKind.Title,
+            new QuestProposalDef("Q_RESEARCH_ETHOLOGIST", QuestCategory.Research, Origin, new[] { "Q_RESEARCH_NIGHT_WATCH" }, QuestRewardKind.Title, "title.ethologist",
                 Research(3, ResearchTier.Ethology)),
+            // U2.11: nghiên cứu ở thế giới mới (chỉ hiện khi thế giới đó đã mở).
+            new QuestProposalDef("Q_RESEARCH_TIDE_JOURNAL", QuestCategory.Research, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.CodexNote, "note.tide_journal",
+                new QuestRequirementDef(QuestRequirementKind.SpeciesRecordedInRealm, 3, realm: Realm.Ocean)),
+            new QuestProposalDef("Q_RESEARCH_SKY_CHRONICLE", QuestCategory.Research, OriginOceanSky, new[] { "QUEST_SKY_EXPLORATION" }, QuestRewardKind.Title, "title.sky_chronicler",
+                new QuestRequirementDef(QuestRequirementKind.SpeciesRecordedInRealm, 2, realm: Realm.Sky)),
             // ---- Bảo tồn ----
-            new QuestProposalDef("Q_CONSERVE_AT_HOME", QuestCategory.Conservation, Origin, None, QuestRewardKind.DecorBlueprint,
+            new QuestProposalDef("Q_CONSERVE_AT_HOME", QuestCategory.Conservation, Origin, None, QuestRewardKind.DecorBlueprint, "blueprint.meadow_arbor",
                 new QuestRequirementDef(QuestRequirementKind.ResidentsAtHome, 3),
                 new QuestRequirementDef(QuestRequirementKind.ResidentsThriving, 5)),
-            new QuestProposalDef("Q_CONSERVE_TIDES", QuestCategory.Conservation, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.DecorBlueprint,
+            new QuestProposalDef("Q_CONSERVE_TIDES", QuestCategory.Conservation, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.DecorBlueprint, "blueprint.tide_pool",
                 new QuestRequirementDef(QuestRequirementKind.ResidentsThriving, 3, realm: Realm.Ocean)),
+            new QuestProposalDef("Q_CONSERVE_SKIES", QuestCategory.Conservation, OriginOceanSky, new[] { "QUEST_SKY_EXPLORATION" }, QuestRewardKind.DecorBlueprint, "blueprint.cloud_garden",
+                new QuestRequirementDef(QuestRequirementKind.ResidentsThriving, 3, realm: Realm.Sky)),
+            // ---- Quan hệ (U2.11) ----
+            new QuestProposalDef("Q_SOCIAL_FIRST_FRIENDS", QuestCategory.Social, Origin, None, QuestRewardKind.Title, "title.friend_of_dragons",
+                new QuestRequirementDef(QuestRequirementKind.RelationPairs, 2, relation: RelationTier.Friend)),
+            new QuestProposalDef("Q_SOCIAL_CLOSE_BOND", QuestCategory.Social, Origin, new[] { "Q_SOCIAL_FIRST_FRIENDS" }, QuestRewardKind.CodexNote, "note.close_bonds",
+                new QuestRequirementDef(QuestRequirementKind.RelationPairs, 1, relation: RelationTier.Close)),
             // ---- Thám hiểm theo khả năng sinh học ----
-            new QuestProposalDef("Q_EXPEDITION_REEF", QuestCategory.Expedition, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.CodexNote,
+            new QuestProposalDef("Q_EXPEDITION_PATHFINDER", QuestCategory.Expedition, Origin, new[] { "Q_ORIGIN_FOREST_SURVEY" }, QuestRewardKind.DecorBlueprint, "blueprint.trail_marker",
+                new QuestRequirementDef(QuestRequirementKind.ExpeditionsClaimed, 5, param: "origin_forest")),
+            new QuestProposalDef("Q_EXPEDITION_REEF", QuestCategory.Expedition, OriginOcean, new[] { "QUEST_AQUATIC_EXPLORATION" }, QuestRewardKind.CodexNote, "note.reef_survey",
                 new QuestRequirementDef(QuestRequirementKind.AdultWithLocomotion, 1, locomotion: Locomotion.Swim, realm: Realm.Ocean),
                 Material("coral", 3)),
-            new QuestProposalDef("Q_EXPEDITION_CLOUD", QuestCategory.Expedition, OriginOceanSky, new[] { "QUEST_SKY_EXPLORATION" }, QuestRewardKind.CodexNote,
+            new QuestProposalDef("Q_EXPEDITION_CLOUD", QuestCategory.Expedition, OriginOceanSky, new[] { "QUEST_SKY_EXPLORATION" }, QuestRewardKind.CodexNote, "note.cloud_terrace",
                 new QuestRequirementDef(QuestRequirementKind.RouteAvailable, 1, param: "sky_cloud"),
                 new QuestRequirementDef(QuestRequirementKind.AdultWithLocomotion, 1, locomotion: Locomotion.Fly, realm: Realm.Sky)),
         });
+
+        /// <summary>Đã nhận hoàn thành (cổng: completedQuests; phụ: completedSideQuests).</summary>
+        public static bool IsCompleted(GameState s, string id) =>
+            WorldUnlockCatalog.IsQuestId(id) ? s.CompletedQuests?.Contains(id) == true : s.CompletedSideQuests?.Contains(id) == true;
+
+        /// <summary>ID nhiệm vụ phụ (không phải cổng canonical) — tập hợp hợp lệ của completedSideQuests.</summary>
+        public static bool IsSideQuestId(string id) => id != null && Get(id) != null && !WorldUnlockCatalog.IsQuestId(id);
 
         public static QuestProposalDef Get(string id)
         {
@@ -215,6 +252,7 @@ namespace Dravio.Domain.Progression
         {
             var e = new List<string>();
             var ids = new HashSet<string>(StringComparer.Ordinal);
+            var rewardIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (QuestProposalDef q in All)
             {
                 if (!ids.Add(q.Id)) e.Add(q.Id + ": duplicate");
@@ -251,9 +289,18 @@ namespace Dravio.Domain.Progression
                         if (!any) e.Add(q.Id + ": no species with " + req.Locomotion.Value + " can live in open zones");
                     }
                     if (req.Kind == QuestRequirementKind.RouteAvailable && !ExpeditionCatalog.TryGet(req.Param, out _)) e.Add(q.Id + ": unknown route " + req.Param);
+                    if (req.Kind == QuestRequirementKind.ExpeditionsClaimed)
+                    {
+                        if (!ExpeditionCatalog.TryGet(req.Param, out ExpeditionRoute rt)) e.Add(q.Id + ": unknown route " + req.Param);
+                        else if (!open.Contains(rt.ZoneId) || !rt.RewardsDefined) e.Add(q.Id + ": route " + req.Param + " not open or has no rewards");
+                    }
                 }
                 // Tiền đề không vòng.
                 if (Reaches(q.Id, q.Id, new HashSet<string>(StringComparer.Ordinal), first: true)) e.Add(q.Id + ": prerequisite cycle");
+                // U2.11: thưởng có ID, không trùng; nhiệm vụ cổng thưởng zone.<thế giới nó mở>.
+                if (string.IsNullOrEmpty(q.RewardId)) e.Add(q.Id + ": no reward id");
+                else if (!rewardIds.Add(q.RewardId)) e.Add(q.Id + ": duplicate reward id " + q.RewardId);
+                if ((q.Reward == QuestRewardKind.WorldGate) != q.IsCanonicalGate) e.Add(q.Id + ": world gate reward must match canonical gate");
             }
             return e;
         }
@@ -275,6 +322,7 @@ namespace Dravio.Domain.Progression
 
         // ------------------------------------------------------------------ đánh giá
 
+        /// <summary><paramref name="log"/> null = sổ nghiên cứu của save (<see cref="GameState.Research"/>).</summary>
         public static List<QuestStatusView> Evaluate(GameState s, ResearchLog log = null, ResearchPacing pacing = null, QuestRules rules = null)
         {
             var o = new List<QuestStatusView>();
@@ -286,11 +334,12 @@ namespace Dravio.Domain.Progression
         {
             pacing = pacing ?? ResearchPacing.Production;
             rules = rules ?? QuestRules.Production;
+            log = log ?? s.Research;
             var locked = new List<string>();
             foreach (string z in q.RequiresZones) if (s.FindZone(z)?.Unlocked != true) locked.Add("zone:" + z);
+            // U2.11: tiền đề phải được NHẬN hoàn thành (không còn tính "Ready"), như mọi chuỗi nhiệm vụ.
             foreach (string p in q.Prerequisites)
-                if (!(WorldUnlockCatalog.IsQuestId(p) ? s.CompletedQuests.Contains(p) : Evaluate(s, Get(p), log, pacing, rules).State is QuestState st && (st == QuestState.Completed || st == QuestState.Ready)))
-                    locked.Add("quest:" + p);
+                if (!IsCompleted(s, p)) locked.Add("quest:" + p);
             var reqs = new List<QuestRequirementStatus>();
             int pctSum = 0;
             foreach (QuestRequirementDef r in q.Requirements)
@@ -299,12 +348,12 @@ namespace Dravio.Domain.Progression
                 reqs.Add(st);
                 pctSum += st.State == RequirementState.Met ? 100 : st.Target > 0 ? Math.Min(99, st.Current * 100 / st.Target) : 0;
             }
-            bool completed = q.IsCanonicalGate && s.CompletedQuests.Contains(q.Id);
+            bool completed = IsCompleted(s, q.Id);
             bool allMet = reqs.TrueForAll(x => x.State == RequirementState.Met);
             QuestState state = completed ? QuestState.Completed : locked.Count > 0 ? QuestState.Locked : allMet ? QuestState.Ready : QuestState.InProgress;
             return new QuestStatusView
             {
-                QuestId = q.Id, Category = q.Category, State = state, IsCanonicalGate = q.IsCanonicalGate, LockedBy = locked, Requirements = reqs, Reward = q.Reward,
+                QuestId = q.Id, Category = q.Category, State = state, IsCanonicalGate = q.IsCanonicalGate, LockedBy = locked, Requirements = reqs, Reward = q.Reward, RewardId = q.RewardId,
                 CanComplete = rules.Enabled && state == QuestState.Ready, ProgressPct = completed ? 100 : q.Requirements.Count == 0 ? 0 : pctSum / q.Requirements.Count,
             };
         }
@@ -381,6 +430,17 @@ namespace Dravio.Domain.Progression
                         foreach (string h in rec.Habitats) if (RealmOfHabitat(h) == r.Realm.Value) any = true;
                         if (any) n++;
                     }
+                    break;
+                case QuestRequirementKind.RelationPairs:
+                {
+                    var kept = new List<DragonState>(Kept(s));
+                    for (int i = 0; i < kept.Count; i++)
+                        for (int j = i + 1; j < kept.Count; j++)
+                            if (SocialEcology.Relation(s, kept[i], kept[j]).Tier >= r.Relation) n++;
+                    break;
+                }
+                case QuestRequirementKind.ExpeditionsClaimed:
+                    n = s.ExpeditionsClaimed != null && s.ExpeditionsClaimed.TryGetValue(r.Param, out int claimed) ? claimed : 0;
                     break;
                 case QuestRequirementKind.RouteAvailable:
                     ExpeditionCatalog.TryGet(r.Param, out ExpeditionRoute route);

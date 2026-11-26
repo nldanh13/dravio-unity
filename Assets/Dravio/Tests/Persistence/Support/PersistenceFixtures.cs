@@ -57,7 +57,7 @@ namespace Dravio.Persistence.Tests.Support
         public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
 
         /// <summary>
-        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 → 8 của C# (breedingNest, codex, expedition, vitals / healthCases / disasters / hazard).
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 → 8 → 9 → 10 của C# (breedingNest, codex, expedition, vitals / healthCases / disasters / hazard, packDaily / sanctuaryProjectsBuilt / research, completedSideQuests / expeditionsClaimed / relations).
         /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
         /// </summary>
         public static JsonObject AsUnity(JsonObject tsV4State)
@@ -68,10 +68,11 @@ namespace Dravio.Persistence.Tests.Support
         }
 
         /// <summary>
-        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition và trạng thái mở thế giới (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
+        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition, trạng thái mở thế giới, sức khỏe và khối U2.10 (giới hạn gói, dự án, sổ nghiên cứu) (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
         /// schemaVersion = 4. Trang trí đã mua vẫn nằm trong zones.decorationIds — TS chấp nhận chuỗi bất kỳ ở đó.
         /// </summary>
-        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue", "healthCases", "disasters", "hazard" };
+        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue", "healthCases", "disasters", "hazard",
+            "packDaily", "sanctuaryProjectsBuilt", "research", "completedSideQuests", "expeditionsClaimed", "relations" };
 
         public static JsonObject AsV4(JsonObject unityState)
         {
@@ -141,6 +142,8 @@ namespace Dravio.Persistence.Tests.Support
         {
             JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
             JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 10) foreach (string k in new[] { "completedSideQuests", "expeditionsClaimed", "relations" }) s.Remove(k);
+            if (version < 9) foreach (string k in new[] { "packDaily", "sanctuaryProjectsBuilt", "research" }) s.Remove(k);
             if (version < 8)
             {
                 foreach (string k in new[] { "healthCases", "disasters", "hazard" }) s.Remove(k);

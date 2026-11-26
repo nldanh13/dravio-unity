@@ -21,7 +21,7 @@ Chỉ `Dravio.Platform.Unity` chạm vào UnityEngine và đọc đồng hồ h�
 
 `DravioSessionHost` **chưa được gắn vào Scene nào**: U2.2 không sửa Scene hay UI. Lớp trình bày sau này thêm component này vào một GameObject khởi động, rồi đọc `Session.State`, `Session.Status` và đăng ký `Session.Changed`.
 
-## 2. Save Schema v8 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới + sức khỏe / thiên tai)
+## 2. Save Schema v10 (v4 của TS + `breedingNest` + `codex` + `expedition` + trạng thái mở thế giới + sức khỏe / thiên tai + giới hạn gói / dự án / sổ nghiên cứu + nhiệm vụ phụ / bộ đếm thám hiểm / quan hệ)
 
 Envelope có các trường `{ format: "dravio-save", schemaVersion: 8, contentVersion, savedAtMs, revision, checksum, state }`.
 
@@ -61,9 +61,20 @@ Envelope có các trường `{ format: "dravio-save", schemaVersion: 8, contentV
 **U2.6 — Schema v8** thêm `vitals` cho từng rồng (`{ health, energy, comfort, mobility, hydration }`, số nguyên 0–100), `healthCases` (mảng ca: `caseId, dragonId, eventId?, cause, site, severity, symptoms, assessed, carePlanId?, createdAtMs, startedAtMs, durationMs, finishAtMs, nextReviewAtMs, phase, progress, reviewed, status`), `disasters` (mảng sự kiện mở: `id, hazard, zoneId, severity, phase, createdAtMs, forecastProgressMs, struckAtMs, caseIds, sheltered[{ uid, habitatId, producing, auto }]`) và `hazard` (`{ foregroundMs, checksDone, cooldownUntilMs: { zoneId: ms } }`). Xem ADR 0202.
 - **Migration 7 → 8**: thêm `healthCases = []`, `disasters = []`, `hazard = { 0, 0, {} }` và `vitals` 100 cho mọi rồng (kể cả rồng đã thả). Không đổi trường nào khác, kể cả rồng ở `shelter` / `care` từ save cũ (ADR 0202 D8). Bản gốc nằm trong `archive:schema-7`.
 - **Validator v8**: xem Domain README mục 5e. Sửa tay chỉ số, rút ngắn chăm sóc, đặt kế hoạch khi chưa nhận định, trỏ ca sang rồng khác hay trú ẩn rồng không tồn tại đều bị từ chối (`invalid-state`).
+
+**U2.10 — Schema v9** thêm `packDaily` (`{ day: "YYYY-MM-DD" | null, starterBought }`: số gói Starter mua bằng vàng trong ngày UTC, tối đa 5), `sanctuaryProjectsBuilt` (0–60) và `research` (`{ species: [{ speciesId, behaviors, phases, habitats, days, findingsByDay }], individuals: [{ uid, speciesId, observations, seenInFavoriteHabitat, seenFeeding, lastObservedAtMs, activePhases, restPhases, revealed }] }`). Xem ADR 0205.
+
+- **Migration 8 → 9**: `packDaily = { day: null, starterBought: 0 }`, `sanctuaryProjectsBuilt = 0`, `research` rỗng. Không đổi trường nào của v8; save gốc giữ ở `archive:schema-8`.
+- **Sổ nghiên cứu không bao giờ làm mất save**: khối `research` được làm sạch khi nạp và khi ghi (bỏ mục không hợp lệ); khối hỏng hẳn thành sổ rỗng. `packDaily` / `sanctuaryProjectsBuilt` sửa tay sai bị từ chối (`invalid-state`).
+- Ảnh v4 cho TS bỏ ba khóa này (`EconomyResearchSaveTests`).
+
+**U2.11 — Schema v10** thêm `completedSideQuests` (ID nhiệm vụ phụ, thứ tự catalog), `expeditionsClaimed` (`{ routeId: số chuyến đã nhận }`) và `relations` (`{ pairs: [{ a, b, sharedMs }] }`). Xem ADR 0206.
+- **Migration 9 → 10**: ba khối rỗng, không suy diễn từ dữ liệu cũ. Save gốc giữ ở `archive:schema-9`.
+- **Quan hệ không bao giờ làm mất save**: `relations` được làm sạch khi nạp và khi ghi; khối hỏng thành rỗng. `completedSideQuests` / `expeditionsClaimed` sửa tay sai bị từ chối.
+- Ảnh v4 cho TS bỏ ba khóa này (`WorldProgressionSaveTests`).
 - **Ảnh chiếu v4 cho TS**: bỏ `vitals`, `healthCases`, `disasters`, `hazard`. Chỉ chiếu được khi không có ca mở hay sự kiện mở; save có ca chỉ xuất `.unity.json` (TS từ chối `newer-version`).
 - **Lưu ngay** sau `moveToShelter`, `assessCase`, `setCarePlan`, `startCare`, `reviewCase`, `dischargeDragon`, và sau tick có `hazardForecast`, `disasterStruck`, `healthCaseOpened`, `dragonSheltered`, `disasterClosed`, `careCompleted` (tắt app ngay sau đó không làm mất hay tạo lại ca).
-- Migration: 1 → 2 → 4 → 5 → 6 → 7 → 8. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
+- Migration: 1 → 2 → 4 → 5 → 6 → 7 → 8 → 9 → 10. Số 3 là bí danh tiền phát hành của v1. Thứ tự kiểm: checksum trên state gốc → migrate → validate. Bản gốc được giữ vĩnh viễn trong `archive:schema-N`. Save do bản mới hơn ghi sẽ khóa ghi cả phiên.
 
 ## 3. Lưu nguyên tử, backup, phục hồi
 
