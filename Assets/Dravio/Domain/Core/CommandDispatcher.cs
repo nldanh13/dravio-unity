@@ -143,7 +143,7 @@ namespace Dravio.Domain.Core
                 {
                     string route = s.Expedition?.RouteId;
                     DomainErrorCode? e = Expeditions.ApplyClaim(s, nowMs, events);
-                    if (e == null && route != null) Exploration.OnClaimed(s, route, events);
+                    if (e == null && route != null) Exploration.OnClaimed(s, route, nowMs, events);
                     return e;
                 });
                 case ToggleDecorationCommand c: return ToError(SanctuaryRules.ApplyToggleDecoration(s, c.ZoneId, c.DecorationId, c.Active, events));

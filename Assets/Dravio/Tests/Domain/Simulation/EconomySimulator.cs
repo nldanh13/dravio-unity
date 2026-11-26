@@ -73,6 +73,16 @@ namespace Dravio.Domain.Tests.Simulation
         public bool RunExpeditions;
         /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
         public ResearchPacing Pacing;
+        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, tức tuyến tắt).</summary>
+        public SkyCloudBalance Sky;
+        /// <summary>U2.13: luật vật liệu dự án Sanctuary (null = <see cref="SanctuaryMaterialRules.Production"/>, vật liệu theo thế giới).</summary>
+        public SanctuaryMaterialRules ProjectMaterials;
+        /// <summary>U2.13: biến thể Live với một bảng sky_cloud (chỉ mô phỏng).</summary>
+        public static EconomyVariant LiveWithSky(SkyCloudBalance sky) =>
+            new EconomyVariant { Name = "live+" + sky.Id, BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky };
+        /// <summary>U2.13: biến thể Live với bảng sky_cloud và luật vật liệu dự án (chỉ mô phỏng).</summary>
+        public static EconomyVariant LiveWith(SkyCloudBalance sky, SanctuaryMaterialRules materials) =>
+            new EconomyVariant { Name = "live+" + sky.Id + "+" + materials.Mode, BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky, ProjectMaterials = materials };
         public static readonly EconomyVariant Baseline = new EconomyVariant();
         /// <summary>Có mua nâng cấp, KHÔNG có dự án Sanctuary (để thấy riêng tác dụng của E5).</summary>
         public static readonly EconomyVariant NoProjects = new EconomyVariant { Name = "no-projects", BuyUpgrades = true };
@@ -118,6 +128,16 @@ namespace Dravio.Domain.Tests.Simulation
         /// <summary>Giá dự án Sanctuary kế tiếp (G), 0 khi đã xây đủ.</summary>
         public long NextProjectCostG;
         public long Wood, Seed, Crystal, Coral;
+        // U2.13
+        public long Stardust;
+        /// <summary>Chuyến đã nhận theo tuyến.</summary>
+        public int ForestClaims, ReefClaims, SkyClaims;
+        public bool OwnsAurorawing, Codex16;
+        /// <summary>Vật liệu đã dùng cho dự án Sanctuary theo ID; số dự án đã dùng vật liệu lùi.</summary>
+        public Dictionary<string, long> ProjectMaterialsById = new Dictionary<string, long>();
+        public int FallbackProjects;
+        /// <summary>Dự án kế tiếp bị chặn vì thiếu vật liệu (không phải vàng) lúc chụp.</summary>
+        public bool NextBlockedByMaterials;
     }
 
     public sealed class RunResult
@@ -129,6 +149,9 @@ namespace Dravio.Domain.Tests.Simulation
         public Dictionary<string, double?> ZoneUnlockHours = new Dictionary<string, double?> { ["ocean"] = null, ["sky"] = null };
         /// <summary>U2.11: giờ nhận từng nhiệm vụ (lệnh completeQuest thật).</summary>
         public Dictionary<string, double> QuestHours = new Dictionary<string, double>();
+        /// <summary>U2.13: giờ trứng Aurorawing được trao (grantedRewards) và giờ nở / nhận vào kho; null nếu chưa.</summary>
+        public double? AurorawingGrantedHours, AurorawingOwnedHours, Codex16Hours;
+        public int AurorawingGrants;
     }
 
     /// <summary>
@@ -156,6 +179,9 @@ namespace Dravio.Domain.Tests.Simulation
         private long _spentUpgrades, _projectsG, _lastOnlineMs;
         private int _projects;
         private long _projectMaterials;
+        /// <summary>U2.13: vật liệu đã dùng cho dự án theo ID; số dự án dùng vật liệu lùi (thế giới chưa mở).</summary>
+        private readonly Dictionary<string, long> _projectMaterialsById = new Dictionary<string, long>(StringComparer.Ordinal);
+        private int _fallbackProjects;
         private long _questMaterials, _milestoneMaterials;
         private int _questsDone;
         private long _tickInSession;
@@ -203,7 +229,14 @@ namespace Dravio.Domain.Tests.Simulation
                     }
                     if (e is AchievementUnlocked a) _rewards += a.RewardGoldMicro;
                     if (e is UpgradeBought ub) _spentUpgrades += ub.CostGoldMicro;
-                    if (e is SanctuaryProjectBuilt sp) { _projectsG += sp.CostGoldMicro; _projects++; _materialsSpent += 2L * sp.MaterialEach; _projectMaterials += 2L * sp.MaterialEach; }
+                    if (e is SanctuaryProjectBuilt sp)
+                    {
+                        _projectsG += sp.CostGoldMicro; _projects++;
+                        long used = (long)sp.MaterialEach * sp.MaterialIds.Count;
+                        _materialsSpent += used; _projectMaterials += used;
+                        foreach (string m in sp.MaterialIds) _projectMaterialsById[m] = (_projectMaterialsById.TryGetValue(m, out long u) ? u : 0) + sp.MaterialEach;
+                        if (sp.MaterialIds.Count > 0 && sp.MaterialEach > 0 && !SanctuaryMaterialRules.WorldMaterials(SanctuaryProjectContent.Get(sp.Index).ZoneId).SequenceEqual(sp.MaterialIds)) _fallbackProjects++;
+                    }
                     if (e is QuestRewarded qr)
                     {
                         _questsDone++;
@@ -212,10 +245,17 @@ namespace Dravio.Domain.Tests.Simulation
                         _result.QuestHours[qr.QuestId] = (_now - Start) / 3_600_000.0;
                     }
                     if (e is ExplorationMilestoneReached em) _milestoneMaterials += em.Bonus.Sum(kv => (long)kv.Value);
+                    if (e is RewardEggGranted rg && rg.RewardId == SkyCloudBalance.AurorawingEggRewardId)
+                    {
+                        _result.AurorawingGrants++;
+                        _result.AurorawingGrantedHours = _result.AurorawingGrantedHours ?? (_now - Start) / 3_600_000.0;
+                    }
                     if (e is DragonHatched dh && !dh.Tutorial && r.State.FindDragon(dh.DragonUid)?.Origin == DragonOrigin.Breed) _bred++;
                 }
                 _s = r.State;
                 if (_s.Player.Gold.Micro < 0) throw new InvalidOperationException("negative gold");
+                if (_result.AurorawingOwnedHours == null && _s.Dragons.Any(d => d.SpeciesId == SkyCloudBalance.AurorawingSpeciesId)) _result.AurorawingOwnedHours = (_now - Start) / 3_600_000.0;
+                if (_result.Codex16Hours == null && _s.UnlockedAchievements.Contains("ACH_CODEX_16")) _result.Codex16Hours = (_now - Start) / 3_600_000.0;
             }
             AfterCommand?.Invoke(_s, _now);
             return r;
@@ -224,6 +264,13 @@ namespace Dravio.Domain.Tests.Simulation
         private string Rid() => "sim-" + (++_rid);
 
         public RunResult Run(double[] horizonsHours)
+        {
+            using (SkyCloudBalance.Use(_variant.Sky ?? SkyCloudBalance.Production))
+            using (SanctuaryMaterialRules.Use(_variant.ProjectMaterials ?? SanctuaryMaterialRules.Production))
+                return RunCore(horizonsHours);
+        }
+
+        private RunResult RunCore(double[] horizonsHours)
         {
             double maxH = horizonsHours.Max();
             var marks = new SortedSet<double>(horizonsHours);
@@ -309,7 +356,13 @@ namespace Dravio.Domain.Tests.Simulation
                 sn.ClosePairs = PairsAtLeast(RelationTier.Close);
                 sn.NextProjectCostG = SanctuaryProjectCatalog.CostG(_s.SanctuaryProjectsBuilt) ?? 0;
                 long Inv(string m) => _s.Player.Inventory.TryGetValue(m, out long v) ? v : 0;
-                sn.Wood = Inv("wood"); sn.Seed = Inv("seed"); sn.Crystal = Inv("crystal"); sn.Coral = Inv("coral");
+                sn.Wood = Inv("wood"); sn.Seed = Inv("seed"); sn.Crystal = Inv("crystal"); sn.Coral = Inv("coral"); sn.Stardust = Inv(SkyCloudBalance.MaterialId);
+                sn.ForestClaims = Exploration.Claimed(_s, "origin_forest"); sn.ReefClaims = Exploration.Claimed(_s, "ocean_reef"); sn.SkyClaims = Exploration.Claimed(_s, SkyCloudBalance.RouteId);
+                sn.OwnsAurorawing = _s.Dragons.Any(d => d.SpeciesId == SkyCloudBalance.AurorawingSpeciesId && d.Location.Kind != LocationKind.Released);
+                sn.Codex16 = _s.UnlockedAchievements.Contains("ACH_CODEX_16");
+                sn.ProjectMaterialsById = new Dictionary<string, long>(_projectMaterialsById);
+                sn.FallbackProjects = _fallbackProjects;
+                sn.NextBlockedByMaterials = SanctuaryProjects.Check(_s) == DomainErrorCode.NotEnoughMaterials;
             }
             if (_policy == Policy.Researcher || _policy == Policy.Guided || _policy == Policy.Casual)
             {
@@ -603,9 +656,12 @@ namespace Dravio.Domain.Tests.Simulation
             {
                 // Muốn xây dự án mà thiếu gỗ / hạt giống: ưu tiên tuyến có các vật liệu đó (người chơi thật chọn tuyến theo thứ mình cần).
                 IEnumerable<ExpeditionRoute> routes = ExpeditionCatalog.Routes.Reverse();
-                if (_variant.BuildProjects && SanctuaryProjectCatalog.MaterialIds.Any(m => (_s.Player.Inventory.TryGetValue(m, out long have) ? have : 0) <
-                        Math.Max(4, SanctuaryProjectCatalog.MaterialEach(_s.SanctuaryProjectsBuilt))))
-                    routes = routes.OrderByDescending(r => r.Materials.Count(m => SanctuaryProjectCatalog.MaterialIds.Contains(m)));
+                // U2.13: vật liệu dự án kế tiếp theo thế giới (SanctuaryProjectCatalog.Materials).
+                IReadOnlyList<string> need = _variant.BuildProjects && _s.SanctuaryProjectsBuilt < SanctuaryProjectCatalog.Max
+                    ? SanctuaryProjectCatalog.Materials(_s, _s.SanctuaryProjectsBuilt).Ids : new string[0];
+                int needEach = _s.SanctuaryProjectsBuilt < SanctuaryProjectCatalog.Max ? SanctuaryProjectCatalog.Materials(_s, _s.SanctuaryProjectsBuilt).Each : 0;
+                if (need.Any(m => (_s.Player.Inventory.TryGetValue(m, out long have) ? have : 0) < Math.Max(4, needEach)))
+                    routes = routes.OrderByDescending(r => r.Materials.Count(m => need.Contains(m)));
                 foreach (ExpeditionRoute route in routes)
                 {
                     if (!Dravio.Domain.Expedition.Expeditions.RouteOpen(_s, route) || !route.RewardsDefined) continue;

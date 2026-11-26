@@ -9,10 +9,15 @@ namespace Dravio.Domain.Progression
     /// <summary>Một mốc thưởng thám hiểm của một tuyến: nhận chuyến thứ <see cref="Claims"/> thì được thưởng một lần.</summary>
     public sealed class ExplorationMilestoneDef
     {
-        internal ExplorationMilestoneDef(string routeId, int claims, int bonusEach, string rewardId)
+        internal ExplorationMilestoneDef(string routeId, int claims, int bonusEach, string rewardId, string eggRewardId = null, string eggSpeciesId = null)
         {
-            RouteId = routeId; Claims = claims; BonusEach = bonusEach; RewardId = rewardId;
+            RouteId = routeId; Claims = claims; BonusEach = bonusEach; RewardId = rewardId; EggRewardId = eggRewardId; EggSpeciesId = eggSpeciesId;
         }
+        /// <summary>U2.13: trứng thưởng một lần (ID trong grantedRewards), null = không có trứng.</summary>
+        public string EggRewardId { get; }
+        public string EggSpeciesId { get; }
+        /// <summary>Trứng thưởng luôn Normal, không tính pity (như trứng thế giới).</summary>
+        public MutationType EggMutation => MutationType.Normal;
         public string RouteId { get; }
         /// <summary>Số chuyến đã nhận (đếm cả chuyến này) để đạt mốc.</summary>
         public int Claims { get; }
@@ -42,7 +47,7 @@ namespace Dravio.Domain.Progression
     /// </summary>
     public static class Exploration
     {
-        public static readonly IReadOnlyList<ExplorationMilestoneDef> Milestones = Array.AsReadOnly(new[]
+        private static readonly ExplorationMilestoneDef[] BaseMilestones =
         {
             new ExplorationMilestoneDef("origin_forest", 1, 2, "note.forest_first_trail"),
             new ExplorationMilestoneDef("origin_forest", 5, 3, null),
@@ -52,7 +57,47 @@ namespace Dravio.Domain.Progression
             new ExplorationMilestoneDef("ocean_reef", 5, 3, null),
             new ExplorationMilestoneDef("ocean_reef", 15, 4, "title.reef_diver"),
             new ExplorationMilestoneDef("ocean_reef", 40, 6, "title.tide_keeper"),
-        });
+        };
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<SkyCloudBalance, IReadOnlyList<ExplorationMilestoneDef>> Cache =
+            new System.Collections.Concurrent.ConcurrentDictionary<SkyCloudBalance, IReadOnlyList<ExplorationMilestoneDef>>();
+
+        /// <summary>
+        /// Mốc của mọi tuyến. Khởi Nguyên và Thủy Vực: luật U2.11. <c>sky_cloud</c> (U2.13): mốc của <see cref="SkyCloudBalance.Current"/> (chưa duyệt → không
+        /// có mốc vật liệu) + trứng Aurorawing đã duyệt ở mốc <see cref="SkyCloudBalance.AurorawingEggClaims"/> chuyến (gộp vào mốc cùng số chuyến nếu có).
+        /// </summary>
+        public static IReadOnlyList<ExplorationMilestoneDef> Milestones => Cache.GetOrAdd(SkyCloudBalance.Current, Build);
+
+        private static IReadOnlyList<ExplorationMilestoneDef> Build(SkyCloudBalance b)
+        {
+            var o = new List<ExplorationMilestoneDef>(BaseMilestones);
+            bool egg = false;
+            foreach (SkyCloudMilestone m in b.Enabled ? b.Milestones : (IReadOnlyList<SkyCloudMilestone>)new SkyCloudMilestone[0])
+            {
+                bool here = m.Claims == SkyCloudBalance.AurorawingEggClaims;
+                egg |= here;
+                o.Add(new ExplorationMilestoneDef(SkyCloudBalance.RouteId, m.Claims, m.BonusEach, m.RewardId,
+                    here ? SkyCloudBalance.AurorawingEggRewardId : null, here ? SkyCloudBalance.AurorawingSpeciesId : null));
+            }
+            if (!egg)
+            {
+                int at = o.Count;
+                for (int i = BaseMilestones.Length; i < o.Count; i++) if (o[i].Claims > SkyCloudBalance.AurorawingEggClaims) { at = i; break; }
+                o.Insert(at, new ExplorationMilestoneDef(SkyCloudBalance.RouteId, SkyCloudBalance.AurorawingEggClaims, 0, null,
+                    SkyCloudBalance.AurorawingEggRewardId, SkyCloudBalance.AurorawingSpeciesId));
+            }
+            return o.AsReadOnly();
+        }
+
+        /// <summary>U2.13: ID trứng thưởng thám hiểm (hợp lệ trong grantedRewards / rewardQueue).</summary>
+        public static bool IsEggRewardId(string id) => id == SkyCloudBalance.AurorawingEggRewardId;
+
+        /// <summary>Mốc trao trứng <paramref name="rewardId"/> (null nếu không phải trứng thám hiểm).</summary>
+        public static ExplorationMilestoneDef EggMilestone(string rewardId)
+        {
+            foreach (ExplorationMilestoneDef m in Milestones) if (m.EggRewardId != null && m.EggRewardId == rewardId) return m;
+            return null;
+        }
 
         public static int Claimed(GameState s, string routeId) =>
             s.ExpeditionsClaimed != null && s.ExpeditionsClaimed.TryGetValue(routeId, out int n) ? n : 0;
@@ -65,7 +110,13 @@ namespace Dravio.Domain.Progression
         }
 
         /// <summary>Gọi trong lệnh claimExpedition, sau khi cộng vật liệu thường: tăng bộ đếm và trao mốc (nếu đạt).</summary>
-        public static void OnClaimed(GameState s, string routeId, List<DomainEvent> events)
+        public static void OnClaimed(GameState s, string routeId, List<DomainEvent> events) => OnClaimed(s, routeId, s.Clock?.LastProcessedAtMs ?? 0, events);
+
+        /// <summary>
+        /// Như trên. U2.13: mốc có trứng (Aurorawing ở chuyến sky_cloud thứ 15) ghi ID vào grantedRewards ĐÚNG MỘT LẦN và xếp trứng vào rewardQueue;
+        /// kho đầy / đang có trứng chờ thì trứng nằm chờ và được giao sau lệnh kế tiếp có chỗ (Rewards.TryDeliver), không bao giờ mất.
+        /// </summary>
+        public static void OnClaimed(GameState s, string routeId, long nowMs, List<DomainEvent> events)
         {
             if (s.ExpeditionsClaimed == null) s.ExpeditionsClaimed = new SortedDictionary<string, int>(StringComparer.Ordinal);
             int n = Claimed(s, routeId) + 1;
@@ -82,6 +133,13 @@ namespace Dravio.Domain.Progression
                     bonus.Add(new KeyValuePair<string, int>(mat, m.BonusEach));
                 }
                 events.Add(new ExplorationMilestoneReached(routeId, n, bonus, m.RewardId));
+                if (m.EggRewardId != null && !s.GrantedRewards.Contains(m.EggRewardId))
+                {
+                    s.GrantedRewards.Add(m.EggRewardId);
+                    s.RewardQueue.Add(new QueuedEgg { RewardId = m.EggRewardId, SpeciesId = m.EggSpeciesId, Mutation = m.EggMutation, QueuedAtMs = nowMs });
+                    bool delivered = World.Rewards.TryDeliver(s, nowMs, events);
+                    events.Add(new RewardEggGranted(m.EggRewardId, m.EggSpeciesId, delivered));
+                }
             }
         }
 
