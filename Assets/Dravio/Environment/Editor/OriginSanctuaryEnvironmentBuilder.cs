@@ -575,7 +575,7 @@ namespace Dravio.EnvironmentArt.EditorTools
         {
             const int TriangleBudget = 60000;
             const int MaterialBudget = 6;
-            var renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude);
             long tris = 0;
             var materials = new HashSet<Material>();
             var textures = new HashSet<Texture>();

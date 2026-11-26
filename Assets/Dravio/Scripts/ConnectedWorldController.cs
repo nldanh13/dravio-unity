@@ -48,7 +48,7 @@ namespace Dravio
                 configured=env!=null && env.locations!=null && env.locations.zoneId==ConnectedWorldPolicy.Origin &&
                     camera!=null && camera.orthographic && originEnvironmentRoots.Contains(env.transform.root.gameObject) &&
                     originEnvironmentRoots.Contains(camera.transform.root.gameObject) &&
-                    UnityEngine.Object.FindObjectsByType<DravioSessionHost>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length==1;
+                    UnityEngine.Object.FindObjectsByType<DravioSessionHost>(FindObjectsInactive.Include).Length==1;
             }
             if(!configured){feedback="World shell configuration invalid / Cấu hình thế giới chưa hợp lệ";Refresh();return;}
             rootStates=new bool[originEnvironmentRoots.Length];

@@ -10,7 +10,7 @@ namespace Dravio.Editor
     {
         public static void Build(GameObject dragon, Animator animator, DragonTurntable turntable)
         {
-            var canvas = Object.FindFirstObjectByType<Canvas>();
+            var canvas = Object.FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
                 var go = new GameObject("Care Preview Canvas", typeof(Canvas), typeof(CanvasScaler));
@@ -23,7 +23,7 @@ namespace Dravio.Editor
             }
             if (canvas.GetComponent<GraphicRaycaster>() == null)
                 canvas.gameObject.AddComponent<GraphicRaycaster>();
-            var eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            var eventSystem = Object.FindAnyObjectByType<EventSystem>();
             if (eventSystem == null)
                 eventSystem = new GameObject("Care Preview EventSystem", typeof(EventSystem)).GetComponent<EventSystem>();
             foreach (var module in eventSystem.GetComponents<BaseInputModule>())

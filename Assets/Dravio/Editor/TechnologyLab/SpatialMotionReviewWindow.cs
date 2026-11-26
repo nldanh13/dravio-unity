@@ -47,7 +47,7 @@ namespace Dravio.EditorTools
         bool EnvironmentOnly(out SanctuaryLocationData data,out NavigationMedium m)
         {
             data=null;m=NavigationMedium.Ground;
-            if(!Application.isPlaying || SceneManager.sceneCount!=1 || UnityEngine.Object.FindFirstObjectByType<DravioSessionHost>()!=null)return false;
+            if(!Application.isPlaying || SceneManager.sceneCount!=1 || UnityEngine.Object.FindAnyObjectByType<DravioSessionHost>()!=null)return false;
             var scene=SceneManager.GetActiveScene();
             if(scene.path==OceanScene)m=NavigationMedium.Swim;
             else if(scene.path==SkyScene)m=NavigationMedium.Air;
@@ -122,7 +122,7 @@ namespace Dravio.EditorTools
             SanctuaryLocationData.SpawnPoint a,SanctuaryLocationData.SpawnPoint z,MediumReviewEnvelope bounds,float authoredSpeed,float yawRate)
         {
             if(!EnvironmentOnly(out var current,out var actual)||current!=data||actual!=mode||
-                UnityEngine.Object.FindFirstObjectByType<DragonVisualManager>()!=null)
+                UnityEngine.Object.FindAnyObjectByType<DragonVisualManager>()!=null)
             {message="A visual manager already exists or environment changed. No review spawned.";return;}
             var resolved=catalog.Resolve(model.speciesId,model.stage,out var match);
             if(resolved!=model || match==DragonVisualCatalog.Match.OtherStage || model.animQaStatus!="PASS" ||

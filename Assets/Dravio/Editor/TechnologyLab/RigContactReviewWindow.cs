@@ -40,7 +40,7 @@ namespace Dravio.EditorTools
                 lab=(DragonAnimationLab)EditorGUILayout.ObjectField("Animation Lab",lab,typeof(DragonAnimationLab),true);
                 if(GUILayout.Button("Find active Animation Lab"))
                 {
-                    lab=UnityEngine.Object.FindFirstObjectByType<DragonAnimationLab>();
+                    lab=UnityEngine.Object.FindAnyObjectByType<DragonAnimationLab>();
                     if(lab!=null)unevenGround=lab.unevenGround!=null?lab.unevenGround.transform:null;
                 }
                 flatGround=(Transform)EditorGUILayout.ObjectField("Flat ground root",flatGround,typeof(Transform),true);

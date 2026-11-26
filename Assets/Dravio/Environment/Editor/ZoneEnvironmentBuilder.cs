@@ -663,7 +663,7 @@ namespace Dravio.EnvironmentArt.EditorTools
 
         static int BudgetProblems(StringBuilder report)
         {
-            var renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
             long tris = 0;
             var mats = new HashSet<Material>();
             var texs = new HashSet<Texture>();

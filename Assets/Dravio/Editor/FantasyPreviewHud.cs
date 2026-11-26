@@ -46,7 +46,7 @@ namespace Dravio.Editor
                 throw new InvalidOperationException("Emberling biology incomplete.");
             var environmentRoots=playable?SceneManager.GetActiveScene().GetRootGameObjects().Where(x=>x!=dragon && x.GetComponentInChildren<EventSystem>(true)==null).ToArray():Array.Empty<GameObject>();
             // On this new scene only, replace the old visual placeholder HUD.
-            foreach(var old in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            foreach(var old in Object.FindObjectsByType<Canvas>())
                 if(old.renderMode!=RenderMode.WorldSpace)
                 {
                     old.enabled=false;
@@ -425,7 +425,7 @@ namespace Dravio.Editor
 
         static void EnsureEventSystem()
         {
-            var e=Object.FindFirstObjectByType<EventSystem>();
+            var e=Object.FindAnyObjectByType<EventSystem>();
             if(e==null)e=new GameObject("Fantasy EventSystem",typeof(EventSystem)).GetComponent<EventSystem>();
             foreach(var m in e.GetComponents<BaseInputModule>())
                 if(!(m is InputSystemUIInputModule))m.enabled=false;
