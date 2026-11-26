@@ -8,12 +8,25 @@ namespace Dravio.Character
     public enum DragonVisualStage { Unstaged = 0, Baby = 1, Juvenile = 2, Adult = 3 }
 
     /// <summary>Continuous (looping) state. Values match the Animator "Locomotion" int parameter. U1-CHAR.6 appended
-    /// Rest and Bask (lying, awake); existing values never change.</summary>
-    public enum DragonLocomotion { Idle = 0, Walk = 1, Run = 2, Swim = 3, Fly = 4, Burrow = 5, Sleep = 6, Rest = 7, Bask = 8 }
+    /// Rest and Bask (lying, awake); U1-CHAR.7 appended the water, perch and glide states. Existing values never change.</summary>
+    public enum DragonLocomotion
+    {
+        Idle = 0, Walk = 1, Run = 2, Swim = 3, Fly = 4, Burrow = 5, Sleep = 6, Rest = 7, Bask = 8,
+        SwimIdle = 9, SwimRest = 10, SwimSurface = 11, Perch = 12, Glide = 13,
+    }
 
     /// <summary>One-shot clip over the current state. Values match the Animator "Action" int parameter (0 = none).
-    /// U1-CHAR.6 appended Drink .. Curious; existing values never change.</summary>
-    public enum DragonInteraction { None = 0, Eat = 1, Happy = 2, Drink = 3, Wake = 4, Stretch = 5, LookAround = 6, Curious = 7 }
+    /// U1-CHAR.6 appended Drink .. Curious; U1-CHAR.7 appended Greet and the medium transitions (TakeOff .. BurrowEmerge).
+    /// Existing values never change.</summary>
+    public enum DragonInteraction
+    {
+        None = 0, Eat = 1, Happy = 2, Drink = 3, Wake = 4, Stretch = 5, LookAround = 6, Curious = 7,
+        Greet = 8, TakeOff = 9, Land = 10, WaterEnter = 11, WaterExit = 12, DigPrep = 13, BurrowEnter = 14, BurrowEmerge = 15,
+    }
+
+    /// <summary>The medium a dragon is shown in (U1-CHAR.7). The Sanctuary owns where the dragon is; this is only
+    /// what the visual runtime shows and which transition it must play to change it.</summary>
+    public enum DragonMotionMode { Ground = 0, Water = 1, Air = 2, Perched = 3, Underground = 4 }
 
     /// <summary>
     /// What the Sanctuary wants a dragon to be doing (U1-CHAR.6). The visual runtime turns it into clips the species
@@ -29,6 +42,17 @@ namespace Dravio.Character
         LookAround, Curious, Stretch,
         /// <summary>Gentle rest while cared for (the Sanctuary decides when, from Domain state); never a sick or hurt pose.</summary>
         Recover,
+        // ---- U1-CHAR.7 (appended) ----
+        /// <summary>In water, holding position / resting under water (gill or dual breathers) / swimming at the surface.</summary>
+        SwimIdle, SwimRest, SwimSurface,
+        /// <summary>In the air without flapping.</summary>
+        Glide,
+        /// <summary>Standing on a perch the Sanctuary chose (species with perching feet).</summary>
+        Perch,
+        /// <summary>Below ground: the dragon digs in (DigPrep, BurrowEnter) and is then hidden; leaving it plays BurrowEmerge.</summary>
+        Underground,
+        /// <summary>A simple social greeting (look at the other dragon with lookTarget).</summary>
+        Greet,
     }
 
     /// <summary>A player interaction the Sanctuary reports; the shown response depends on personality and clips.</summary>

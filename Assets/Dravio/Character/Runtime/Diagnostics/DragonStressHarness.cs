@@ -57,7 +57,11 @@ namespace Dravio.Character.Diagnostics
         private readonly Dictionary<string, SanctuaryDragonFrame> _sim = new Dictionary<string, SanctuaryDragonFrame>();
         private int _oneShots, _subs;
         private static readonly DragonBehaviorIntent[] Arrived = { DragonBehaviorIntent.Idle, DragonBehaviorIntent.Rest, DragonBehaviorIntent.Bask,
-            DragonBehaviorIntent.Curious, DragonBehaviorIntent.LookAround, DragonBehaviorIntent.Drink, DragonBehaviorIntent.Eat, DragonBehaviorIntent.Sleep };
+            DragonBehaviorIntent.Curious, DragonBehaviorIntent.LookAround, DragonBehaviorIntent.Drink, DragonBehaviorIntent.Eat, DragonBehaviorIntent.Sleep,
+            DragonBehaviorIntent.Greet };
+        // U1-CHAR.7: medium intents, sent only when the model can show them (ReadinessFor), to exercise transitions
+        private static readonly DragonBehaviorIntent[] Mediums = { DragonBehaviorIntent.SwimIdle, DragonBehaviorIntent.Fly, DragonBehaviorIntent.Underground, DragonBehaviorIntent.Perch };
+        private static readonly DragonMotionMode[] MediumModes = { DragonMotionMode.Water, DragonMotionMode.Air, DragonMotionMode.Underground, DragonMotionMode.Perched };
 
         private IEnumerator Start()
         {
@@ -201,7 +205,10 @@ namespace Dravio.Character.Diagnostics
             {
                 var f = _sim[uid];
                 var to = _targets[uid] - f.position; to.y = 0f;
-                if (f.intent == DragonBehaviorIntent.Walk || f.intent == DragonBehaviorIntent.Run)
+                var status = _sync.MotionStatusOf(uid);
+                if (status.rootOffsetToApply != 0f) f.position += Vector3.up * status.rootOffsetToApply;
+                if (!status.canTranslate) { f.speed = 0f; f.turnRateDegPerSec = 0f; } // a transition is playing: keep still
+                else if (f.intent == DragonBehaviorIntent.Walk || f.intent == DragonBehaviorIntent.Run)
                 {
                     if (to.magnitude < 0.3f) f.intent = Arrived[_rng.Next(Arrived.Length)];
                     else
@@ -217,6 +224,11 @@ namespace Dravio.Character.Diagnostics
                 {
                     f.speed = 0f; f.turnRateDegPerSec = 0f;
                     if (_rng.NextDouble() < 0.002) { _targets[uid] = RandomPoint(); f.intent = _rng.NextDouble() < 0.25 ? DragonBehaviorIntent.Run : DragonBehaviorIntent.Walk; }
+                    else if (_rng.NextDouble() < 0.001)
+                    {
+                        int m = _rng.Next(Mediums.Length);
+                        if (_sync.ReadinessFor(uid, MediumModes[m]) == DragonMotionReadiness.Ready) f.intent = Mediums[m];
+                    }
                     else if (_rng.NextDouble() < 0.001) _sync.React(uid, DragonReaction.Petted);
                 }
                 f.hasLookTarget = cam != null;

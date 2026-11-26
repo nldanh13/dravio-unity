@@ -162,9 +162,11 @@ namespace Dravio.Domain.Tests
             Assert.That(new DomainError(DomainErrorCode.PetCooldown).MessageKey, Is.EqualTo("commandError.pet-cooldown"));
             var all = System.Enum.GetValues(typeof(DomainErrorCode)).Cast<DomainErrorCode>().Select(c => c.ToWire()).ToArray();
             // 30 mã đầu giữ nguyên thứ tự và chuỗi của CommandErrorCode (TS b33ec7a); 18 mã sau của U2.5, 10 mã của U2.7 và 9 mã của U2.8 là implementation mới.
-            Assert.That(all.Length, Is.EqualTo(82));
+            Assert.That(all.Length, Is.EqualTo(87));
+            // U2.10: 5 mã mới ở cuối (giới hạn gói theo ngày, dự án Sanctuary, quan sát).
+            Assert.That(all.Skip(82), Is.EqualTo(new[] { "pack-daily-limit", "projects-maxed", "not-enough-materials", "not-observable", "observation-cooldown" }));
             // U2.6: 15 mã mới ở cuối (sức khỏe, chăm sóc, thiên tai).
-            Assert.That(all.Skip(67), Is.EqualTo(new[] { "vitals-below-threshold", "breed-vitals-below-threshold", "unknown-case", "case-already-assessed", "case-not-assessed",
+            Assert.That(all.Skip(67).Take(15), Is.EqualTo(new[] { "vitals-below-threshold", "breed-vitals-below-threshold", "unknown-case", "case-already-assessed", "case-not-assessed",
                 "case-queued", "care-already-started", "care-not-started", "care-not-complete", "case-already-reviewed", "case-not-reviewed", "unknown-care-plan",
                 "care-plan-wrong-site", "care-plan-unsuitable", "no-disaster-warning" }));
             Assert.That(all.Skip(58).Take(9), Is.EqualTo(new[] { "no-route", "unknown-route", "route-locked", "expedition-busy", "dragon-unsuited", "no-expedition", "expedition-not-ready",
