@@ -1,0 +1,810 @@
+{
+  "version": 1,
+  "generatedBy": "scripts/art/character/build_archetypes.py",
+  "source": "Assets/Dravio/Character/Data/species-character-spec.json",
+  "clipNames": [
+    "Idle",
+    "Walk",
+    "Run",
+    "Eat",
+    "Sleep",
+    "Happy",
+    "Swim",
+    "Fly",
+    "Burrow",
+    "Rest",
+    "Wake",
+    "LookAround",
+    "Curious",
+    "Drink",
+    "Stretch",
+    "Bask",
+    "Greet",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "WaterEnter",
+    "WaterExit",
+    "Perch",
+    "DigPrep",
+    "BurrowEnter",
+    "BurrowEmerge",
+    "Nuzzle"
+  ],
+  "templates": {
+    "quadruped": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors",
+    "winged": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)",
+    "serpentine": "Root, Head, Neck, Spine1-8, Tail1-4 (+ limb chains only if limbCount given)",
+    "aquatic": "Root, Head, Neck, Spine1-4, Tail1-3, Fin_L/R (pectoral), TailFin",
+    "walker": "no template until limbCount is supplied; limbCount=4 uses the quadruped template"
+  },
+  "species": [
+    {
+      "id": "emberling",
+      "archetype": "quadruped",
+      "archetypeReason": "walks; silhouette states \"bốn chân\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": 4,
+      "limbCountSource": "silhouetteVi",
+      "features": [
+        {
+          "tag": "flame_tail",
+          "word": "đuôi lửa"
+        }
+      ],
+      "requiresInput": [],
+      "template": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors"
+    },
+    {
+      "id": "droplet",
+      "archetype": "walker",
+      "archetypeReason": "walks; limb count not stated (quadruped template once limbCount=4 is supplied)",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "fins",
+          "word": "vây"
+        },
+        {
+          "tag": "webbed_feet",
+          "word": "màng chân"
+        },
+        {
+          "tag": "flat_tail",
+          "word": "đuôi dẹt"
+        },
+        {
+          "tag": "ear_fins",
+          "word": "vây tai"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "no template until limbCount is supplied; limbCount=4 uses the quadruped template"
+    },
+    {
+      "id": "sprout",
+      "archetype": "quadruped",
+      "archetypeReason": "walks; silhouette states \"bốn chân\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "burrow"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Burrow",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": 4,
+      "limbCountSource": "silhouetteVi",
+      "features": [
+        {
+          "tag": "leaf_sprout",
+          "word": "mầm lá"
+        },
+        {
+          "tag": "leaf_tail",
+          "word": "đuôi lá"
+        }
+      ],
+      "requiresInput": [],
+      "template": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors"
+    },
+    {
+      "id": "zephyr",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Perch",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "feathers_or_fur",
+          "word": "lông"
+        },
+        {
+          "tag": "cloud_tail",
+          "word": "đuôi mây"
+        },
+        {
+          "tag": "perching_feet",
+          "word": "chân đậu"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "steamdrake",
+      "archetype": "serpentine",
+      "archetypeReason": "bodyStyle == Serpent",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "fins",
+          "word": "vây"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "Root, Head, Neck, Spine1-8, Tail1-4 (+ limb chains only if limbCount given)"
+    },
+    {
+      "id": "magma",
+      "archetype": "walker",
+      "archetypeReason": "walks; limb count not stated (quadruped template once limbCount=4 is supplied)",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "burrow"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Burrow",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "horns",
+          "word": "sừng"
+        },
+        {
+          "tag": "armor_plates",
+          "word": "giáp"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "no template until limbCount is supplied; limbCount=4 uses the quadruped template"
+    },
+    {
+      "id": "sparkwing",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "spark_tail",
+          "word": "đuôi tia điện"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "frostfin",
+      "archetype": "aquatic",
+      "archetypeReason": "locomotion lacks \"walk\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "Nuzzle"
+      ],
+      "walkingLimbs": false,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "fins",
+          "word": "vây"
+        }
+      ],
+      "requiresInput": [],
+      "template": "Root, Head, Neck, Spine1-4, Tail1-3, Fin_L/R (pectoral), TailFin"
+    },
+    {
+      "id": "mossback",
+      "archetype": "walker",
+      "archetypeReason": "walks; limb count not stated (quadruped template once limbCount=4 is supplied)",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "shell",
+          "word": "mai"
+        },
+        {
+          "tag": "fins",
+          "word": "vây"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "no template until limbCount is supplied; limbCount=4 uses the quadruped template"
+    },
+    {
+      "id": "blossom",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Perch",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "perching_feet",
+          "word": "chân đậu"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "solaris",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "crest",
+          "word": "mào"
+        },
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "feathers_or_fur",
+          "word": "lông"
+        },
+        {
+          "tag": "fan_tail",
+          "word": "đuôi quạt"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "leviathan",
+      "archetype": "serpentine",
+      "archetypeReason": "bodyStyle == Serpent",
+      "aquaticVariant": true,
+      "locomotion": [
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "Nuzzle"
+      ],
+      "walkingLimbs": false,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "fins",
+          "word": "vây"
+        }
+      ],
+      "requiresInput": [],
+      "template": "Root, Head, Neck, Spine1-8, Tail1-4 (+ limb chains only if limbCount given)"
+    },
+    {
+      "id": "amberhorn",
+      "archetype": "quadruped",
+      "archetypeReason": "walks; silhouette states \"bốn chân\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "burrow"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Burrow",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": 4,
+      "limbCountSource": "silhouetteVi",
+      "features": [
+        {
+          "tag": "horns",
+          "word": "sừng"
+        },
+        {
+          "tag": "armor_plates",
+          "word": "giáp"
+        }
+      ],
+      "requiresInput": [],
+      "template": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors"
+    },
+    {
+      "id": "aurorawing",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "feathers_or_fur",
+          "word": "lông"
+        },
+        {
+          "tag": "aurora_tail",
+          "word": "đuôi cực quang"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "celestia",
+      "archetype": "winged",
+      "archetypeReason": "locomotion contains \"fly\"",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "fly"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Fly",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": true,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "horns",
+          "word": "sừng"
+        },
+        {
+          "tag": "wings",
+          "word": "cánh"
+        },
+        {
+          "tag": "star_tail",
+          "word": "đuôi sao"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "quadruped body (legs only if limbCount given) + 2 x (WingUpper, WingFore, WingTip)"
+    },
+    {
+      "id": "gaia",
+      "archetype": "walker",
+      "archetypeReason": "walks; limb count not stated (quadruped template once limbCount=4 is supplied)",
+      "aquaticVariant": false,
+      "locomotion": [
+        "walk",
+        "swim"
+      ],
+      "clips": [
+        "Idle",
+        "Eat",
+        "Sleep",
+        "Happy",
+        "Walk",
+        "Run",
+        "Swim",
+        "Rest",
+        "Wake",
+        "LookAround",
+        "Curious",
+        "Drink",
+        "Stretch",
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
+      ],
+      "walkingLimbs": true,
+      "flightWings": false,
+      "limbCount": null,
+      "limbCountSource": null,
+      "features": [
+        {
+          "tag": "horns",
+          "word": "sừng"
+        },
+        {
+          "tag": "armor_plates",
+          "word": "giáp"
+        },
+        {
+          "tag": "fins",
+          "word": "vây"
+        }
+      ],
+      "requiresInput": [
+        "limbCount"
+      ],
+      "template": "no template until limbCount is supplied; limbCount=4 uses the quadruped template"
+    }
+  ]
+}
