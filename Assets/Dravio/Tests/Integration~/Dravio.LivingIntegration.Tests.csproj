@@ -16,6 +16,8 @@
     <Compile Include="ConnectedWorldPolicyTests.cs" />
     <Compile Include="../../Scripts/SpatialResidentPolicy.cs" />
     <Compile Include="SpatialResidentPolicyTests.cs" />
+    <Compile Include="../../Scripts/SocialPresentationScheduler.cs" />
+    <Compile Include="SocialPresentationSchedulerTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />

@@ -107,6 +107,29 @@ namespace Dravio
         ProgressionOverviewDto progression;
         readonly Dictionary<string,ResearchProfileDto> researchProfiles=new(StringComparer.Ordinal);
         List<SocialInteractionCandidate> socialCandidates=new();
+#if UNITY_EDITOR
+        [Tooltip("U5.4.4 read-only ground social presentation trial. Off by default.")]
+        [SerializeField] bool experimentalSocialPresentation;
+#endif
+        bool SocialEnabled
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return experimentalSocialPresentation;
+#else
+                return false;
+#endif
+            }
+        }
+        readonly SocialPresentationScheduler socialScheduler=new();
+        Vector3 socialGoal;
+        Resident socialA,socialB;
+        DragonVisualStage socialStageA,socialStageB;
+        string socialVariantA,socialVariantB;
+        float socialRetryAt;
+        string socialLast="—";
+        SocialPresentationLease Social=>socialScheduler.Active;
         string foodRequestedUid;
         bool feedPending;
         GameSession session;
@@ -192,6 +215,7 @@ namespace Dravio
         void OnApplicationPause(bool value){paused=value;}
         void OnDestroy()
         {
+            StopSocial("destroy");
             if(session!=null)session.DomainEvents-=OnEvents;
             StopFollow();
             foreach(var resident in residents.Values)ReleasePoint(resident);
@@ -202,7 +226,7 @@ namespace Dravio
         public void SuspendWorldView()
         {
             if(!active)return;
-            viewSuspended=true;StopFollow();
+            viewSuspended=true;StopSocial("world-switch");StopFollow();
             foreach(var r in residents.Values)ReleasePoint(r);
             residents.Clear();unavailable.Clear();spatialFaults.Clear();sync.Clear();frames.Clear();
             ClearFood();interactions=null;cameraView=null;cameraFit=null;manager.viewCamera=null;
@@ -233,8 +257,12 @@ namespace Dravio
         bool Separated(Vector3 point,string except)
         {
             foreach(var other in residents.Values)
+            {
+                if(Social!=null && Social.Partner(except)==other.uid && !SocialPresentationScheduler.Spacing(
+                    SanctuaryNavigationSurface.Point(point),SanctuaryNavigationSurface.Point(other.position),Social.MinDistance))return false;
                 if(other.uid!=except && (other.Spatial?!SpatialResidentPolicy.Separated(SanctuaryNavigationSurface.Point(point),.275f,
                     SanctuaryNavigationSurface.Point(other.position),other.envelope.Horizontal):(other.position-point).sqrMagnitude<.55f*.55f))return false;
+            }
             return true;
         }
         bool Segment(Vector3 from,Vector3 to,string habitat)
@@ -445,6 +473,7 @@ namespace Dravio
         }
         void RemoveResident(string uid)
         {
+            if(Social!=null && Social.Contains(uid))StopSocial("resident-removed");
             if(residents.TryGetValue(uid,out var r))ReleasePoint(r);
             residents.Remove(uid);
         }
@@ -480,6 +509,108 @@ namespace Dravio
             RefreshProfile();
         }
         bool IsFoodTarget(Resident r)=>foodId!=null && r.uid==foodUid;
+        bool SocialEligible(Resident r,SocialInteractionKind kind,bool initiator)
+        {
+            if(r==null||r.Spatial||!r.walking||r.decision==null||!r.decision.Visible||
+                r.decision.Role!=BehaviorRole.Presentation||r.decision.UntilMs<=NowMs||r.manualRestUntil>NowMs||
+                IsFoodTarget(r)||r.decision.Behavior==DragonBehavior.Sleep||r.decision.Behavior==DragonBehavior.SeekFood||
+                r.decision.Behavior==DragonBehavior.Eat||!manager.TryGet(r.uid,out var live)||
+                live.Clips==null||live.Entry==null||live.Entry.animQaStatus!="PASS"||
+                !Presentable(State.FindDragon(r.uid)))return false;
+            if(kind==SocialInteractionKind.PlayTogether)return live.Clips.CanPlay(DragonInteraction.Happy);
+            if(kind==SocialInteractionKind.RestTogether)return live.Clips.Has(DragonLocomotion.Rest);
+            if(kind==SocialInteractionKind.CuriousApproach)return !initiator||live.Clips.CanPlay(DragonInteraction.Greet);
+            return false;
+        }
+        void StopSocial(string reason)
+        {
+            if(Social==null)return;
+            socialLast=reason;socialScheduler.Release();
+            if(socialA!=null)ReleasePoint(socialA);
+            if(socialB!=null)ReleasePoint(socialB);
+            socialA=socialB=null;socialRetryAt=Time.unscaledTime+1f;
+        }
+        bool SocialSpacing(Vector3 a,Vector3 b,float min)=>SocialPresentationScheduler.Spacing(
+            SanctuaryNavigationSurface.Point(a),SanctuaryNavigationSurface.Point(b),min);
+        bool TrySocialGoal(Resident a,Resident b,float min,out Vector3 goal)
+        {
+            goal=a.position;
+            if(!SocialSpacing(a.position,b.position,min))return false;
+            // Partner stays at its existing position; initiator may use only authored ground endpoints.
+            if(Vector3.Distance(a.position,b.position)<=min+.75f && Segment(a.position,b.position,a.habitat))return true;
+            foreach(var p in locations.SpawnPointsIn(a.habitat).Where(x=>string.IsNullOrEmpty(x.medium)||x.medium=="ground")
+                .OrderBy(x=>(x.Position-a.position).sqrMagnitude).ThenBy(x=>x.id,StringComparer.Ordinal))
+            {
+                if(!SocialSpacing(p.Position,b.position,min+.12f) || Vector3.Distance(p.Position,b.position)>min+.75f||
+                    !ClearPoint(p.Position,a.habitat,a.uid)||!Segment(p.Position,b.position,a.habitat))continue;
+                goal=p.Position;return true;
+            }
+            return false;
+        }
+        bool Faces(Resident a,Resident b)
+        {
+            var d=b.position-a.position;d.y=0;
+            return d.sqrMagnitude>.000001f&&Vector3.Angle(a.rotation*Vector3.forward,d)<=15f;
+        }
+        void PrepareSocial()
+        {
+            if(!SocialEnabled||foodId!=null)
+            {StopSocial("disabled-or-food-priority");return;}
+            if(Social!=null)
+            {
+                bool valid=residents.TryGetValue(Social.A,out var a)&&ReferenceEquals(a,socialA)&&
+                    residents.TryGetValue(Social.B,out var b)&&ReferenceEquals(b,socialB)&&
+                    socialA.stage==socialStageA&&socialB.stage==socialStageB&&
+                    socialA.variant==socialVariantA&&socialB.variant==socialVariantB&&
+                    socialA.habitat==Social.Habitat&&socialB.habitat==Social.Habitat&&ViewZone==Social.Zone&&
+                    socialCandidates.Any(Social.Matches)&&SocialEligible(socialA,Social.Kind,true)&&SocialEligible(socialB,Social.Kind,false);
+                bool arrived=valid&&(socialA.position-socialGoal).sqrMagnitude<=.0036f&&
+                    Vector3.Distance(socialA.position,socialB.position)<=Social.MinDistance+.80f&&
+                    Segment(socialA.position,socialB.position,socialA.habitat);
+                Social.Tick(NowMs,valid,arrived,valid&&Faces(socialA,socialB)&&Faces(socialB,socialA),
+                    valid&&GroundMotionReady(socialA)&&GroundMotionReady(socialB),
+                    valid&&SocialSpacing(socialA.position,socialB.position,Social.MinDistance));
+                if(Social.Terminal){StopSocial(Social.Phase.ToString());return;}
+                if(socialA.routeFailed){StopSocial("route-failed");return;}
+                return;
+            }
+            if(Time.unscaledTime<socialRetryAt)return;
+            socialRetryAt=Time.unscaledTime+1f;
+            foreach(var c in socialCandidates)
+            {
+                if(c.ZoneId!=ViewZone||c.PartnerUid==null||!residents.TryGetValue(c.InitiatorUid,out var a)||
+                    !residents.TryGetValue(c.PartnerUid,out var b)||a.habitat!=c.HabitatId||b.habitat!=c.HabitatId||
+                    !SocialEligible(a,c.Kind,true)||!SocialEligible(b,c.Kind,false)||
+                    !GroundMotionReady(a)||!GroundMotionReady(b)||
+                    !TrySocialGoal(a,b,Math.Max(.55f,c.MinDistanceDm/10f),out var target))continue;
+                if(!socialScheduler.TryBegin(c,NowMs,true))continue;
+                socialA=a;socialB=b;socialGoal=target;socialStageA=a.stage;socialStageB=b.stage;
+                socialVariantA=a.variant;socialVariantB=b.variant;
+                ReleasePoint(a);ReleasePoint(b);socialLast="started";break;
+            }
+        }
+        DragonBehaviorIntent SocialIntent(Resident r,float dt,out float speed,out float turn,out bool look,out Vector3 target)
+        {
+            speed=turn=0;look=true;
+            var partner=r==socialA?socialB:socialA;target=partner.position+Vector3.up*.25f;
+            r.fallback="social-preview: "+Social.Kind+" / "+Social.Phase;
+            if(Social.Phase==SocialPresentationPhase.Approach)
+            {
+                if(r==socialA && !MoveToward(r,socialGoal,dt,out speed,out turn))
+                    return speed>0?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
+                return DragonBehaviorIntent.Idle;
+            }
+            if(Social.Phase==SocialPresentationPhase.Face)
+            {
+                var delta=partner.position-r.position;delta.y=0;
+                if(delta.sqrMagnitude>.000001f&&GroundMotionReady(r))
+                {var old=r.rotation;r.rotation=Quaternion.RotateTowards(old,Quaternion.LookRotation(delta),180f*dt);turn=SignedTurn(old,r.rotation,dt);}
+                return DragonBehaviorIntent.Idle;
+            }
+            return Social.Kind==SocialInteractionKind.RestTogether?DragonBehaviorIntent.Rest:
+                Social.Kind==SocialInteractionKind.PlayTogether?DragonBehaviorIntent.Play:
+                r==socialA?DragonBehaviorIntent.Greet:DragonBehaviorIntent.Idle;
+        }
         bool TryReservePoint(Resident r,DragonBehavior behavior)
         {
             if(interactions==null || !r.walking)return false;
@@ -538,7 +669,7 @@ namespace Dravio
             if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
             var next=Vector3.MoveTowards(r.position,waypoint,.55f*dt);
             if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat) ||
-                (spatialForView && !SanctuaryRoutePlanner.SegmentClear(SanctuaryNavigationSurface.Point(r.position),
+                ((spatialForView || (Social!=null && Social.Contains(r.uid))) && !SanctuaryRoutePlanner.SegmentClear(SanctuaryNavigationSurface.Point(r.position),
                     SanctuaryNavigationSurface.Point(next),p=>Separated(SanctuaryNavigationSurface.Vector(p),r.uid),.025f)))
             {
                 // Stop, never slide through a moving resident. Replan after a short cooldown.
@@ -729,8 +860,9 @@ namespace Dravio
             if(!ReferenceEquals(lastState,State))RefreshRoster();
             bool ready=Ready;
             if(ready!=previousReady){previousReady=ready;RefreshButtons();decisionsDirty=true;}
-            if(!ready)return;
+            if(!ready){StopSocial("session-not-ready");return;}
             RefreshDecisions();
+            PrepareSocial();
             float dt=Mathf.Min(Time.deltaTime,.1f);
 #if UNITY_EDITOR
             if(controllerTrace!=null && controllerTrace.Recording && traceAdaptiveMode!=experimentalAdaptiveGroundRouting)
@@ -748,6 +880,7 @@ namespace Dravio
                 float speed,turnRate,vertical=0;bool look=false;Vector3 lookTarget=Vector3.zero;
                 DragonBehaviorIntent intent;
                 if(r.Spatial){SpatialStep(r,dt,out speed,out turnRate,out vertical);intent=DragonBehaviorIntent.None;}
+                else if(Social!=null && Social.Contains(r.uid))intent=SocialIntent(r,dt,out speed,out turnRate,out look,out lookTarget);
                 else intent=GroundIntent(r,dt,out speed,out turnRate,out look,out lookTarget);
                 r.shownIntent=intent;
 #if UNITY_EDITOR
@@ -845,7 +978,7 @@ namespace Dravio
             if(hit!=null)Select(hit);
         }
 
-        void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();if(residents.TryGetValue(id,out var r)&&!r.Spatial&&manager.IsLive(id))sync.React(id,DragonReaction.Called);}RefreshProfile();}
+        void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();if(residents.TryGetValue(id,out var r)&&!r.Spatial&&manager.IsLive(id)&&(Social==null||!Social.Contains(id)))sync.React(id,DragonReaction.Called);}RefreshProfile();}
         void NextDragon()
         {
             if(!Ready)return;
@@ -864,6 +997,7 @@ namespace Dravio
         void Pet()
         {
             var d=Selected;if(d==null || !residents.TryGetValue(d.Uid,out var r)||r.Spatial)return;
+            if(Social!=null && Social.Contains(d.Uid))StopSocial("player-pet");
             if(Send(id=>new PetCommand(id,d.Uid)))Message("Petted.","Đã vuốt ve.");
         }
         void Feed()
@@ -876,7 +1010,7 @@ namespace Dravio
             if(diets.Count==0)return;
             // Preserve existing selected UID / first diet unless experimental allocation is enabled.
             var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
-            r.manualRestUntil=0;ReleasePoint(r);
+            StopSocial("player-feed");r.manualRestUntil=0;ReleasePoint(r);
             var point=r.position+r.rotation*Vector3.forward*.4f;
             foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
             foodRequestedUid=d.Uid;feedPending=true;
@@ -947,6 +1081,7 @@ namespace Dravio
             if(Ready && selected!=null && residents.TryGetValue(selected,out var r) && r.canSleep &&
                 r.decision?.Role==BehaviorRole.Presentation && !IsFoodTarget(r))
             {
+                if(Social!=null && Social.Contains(r.uid))StopSocial("player-doze");
                 r.manualRestUntil=r.manualRestUntil>NowMs?0:NowMs+15000;
                 ReleasePoint(r);
                 Message(r.manualRestUntil>0?"Doze request (visual)":"Automatic behavior",r.manualRestUntil>0?"Nghỉ ngắn (hoạt ảnh)":"Tự sinh hoạt");
@@ -1114,6 +1249,8 @@ namespace Dravio
                     (social.PersonalSpaceDm/10f).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+" m";
             var candidate=socialCandidates.FirstOrDefault(c=>(c.InitiatorUid==d.Uid||c.PartnerUid==d.Uid) &&
                 c.UntilMs>NowMs && !c.AffectsGameplay && c.Role==BehaviorRole.Presentation);
+            if(SocialEnabled)profile.text+="\n"+(vi?"Thử nghiệm xã hội: ":"Social preview: ")+
+                (Social!=null&&Social.Contains(d.Uid)?Social.Kind+" / "+Social.Phase:socialLast);
             if(candidate!=null)
             {
                 string partner=candidate.InitiatorUid==d.Uid?candidate.PartnerUid:candidate.InitiatorUid;
