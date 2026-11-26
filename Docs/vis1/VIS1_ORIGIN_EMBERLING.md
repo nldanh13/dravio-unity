@@ -68,9 +68,10 @@ Texture (`painterly_textures.py`, cùng kích thước, cùng GUID): ô atlas `l
 
 Ánh sáng (`living.py`, `OriginSanctuaryLiving.json/.asset`, builder, scene `OriginLongTermGameplay_Environment.unity`):
 - 13:00: nắng (1,0; 0,86; 0,66) × 1,12; trời (0,56; 0,66; 0,84); xích đạo (0,50; 0,56; 0,48); đất (0,34; 0,28; 0,22); sương (0,80; 0,84; 0,70). Hướng nắng **giữ nguyên** (46°, −38°).
-- 8:00 và 16:30 giảm cùng tỉ lệ để không nhảy sáng. Bản cũ cộng nắng 1,35 + ambient ~0,8 làm cỏ và đá sáng gần trắng; tổng ánh sáng ban ngày nay thấp hơn ~25 %.
+- 8:00 và 16:30 giảm cùng tỉ lệ để không nhảy sáng. Bản U1-ENV.2 (nắng 1,35 + ambient ~0,8) và bản ENV Alpha #79 (nắng 1,42) làm cỏ và đá sáng gần trắng; tổng ánh sáng ban ngày nay thấp hơn ~20–25 %. Độ đậm bóng giữ theo #79 (0,72 / 0,82 / 0,78).
+- Đã merge nhánh base sau #81 (ENV Alpha): ánh sáng Origin lấy VIS.1, Ocean/Sky giữ nguyên kết quả #79.
 - Sương tuyến tính 24–52 m → 28–64 m: cổng và tượng rõ hơn, rừng nền vẫn mờ.
-- Đêm, bình minh, hoàng hôn: không đổi. Ocean/Sky giữ ngày U1-ENV.2 qua `living.U1_ENV2_KEYFRAMES`.
+- Đêm, bình minh, hoàng hôn: không đổi. Ocean/Sky giữ ngày của ENV Alpha (#79) qua `living.ZONE_DAY_KEYFRAMES`.
 
 Vật liệu `M_ENV_Props/Foliage/Ground` (shader cũ, chỉ đổi giá trị): bóng (0,56; 0,62; 0,90), ramp 0,02 ± 0,26, rim ấm 0,22, lối đi (0,50; 0,38; 0,25), emission rune 2,0. Builder ghi cùng giá trị qua `ApplyOriginVis1Grade` (chỉ Origin).
 

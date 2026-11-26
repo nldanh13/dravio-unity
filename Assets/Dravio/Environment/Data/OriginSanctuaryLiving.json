@@ -308,7 +308,7 @@
     0.74
    ],
    "lightIntensity": 0.98,
-   "shadowStrength": 0.65,
+   "shadowStrength": 0.72,
    "ambientSky": [
     0.56,
     0.6,
@@ -353,7 +353,7 @@
     0.66
    ],
    "lightIntensity": 1.12,
-   "shadowStrength": 0.75,
+   "shadowStrength": 0.82,
    "ambientSky": [
     0.56,
     0.66,
@@ -398,7 +398,7 @@
     0.62
    ],
    "lightIntensity": 1.0,
-   "shadowStrength": 0.72,
+   "shadowStrength": 0.78,
    "ambientSky": [
     0.58,
     0.58,

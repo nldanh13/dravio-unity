@@ -18,8 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0.7, g: 0.814, b: 0.87, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 26
-  m_LinearFogEnd: 60
+  m_LinearFogStart: 32
+  m_LinearFogEnd: 72
   m_AmbientSkyColor: {r: 0.793, g: 0.867, b: 0.9675, a: 1}
   m_AmbientEquatorColor: {r: 0.684, g: 0.752, b: 0.716, a: 1}
   m_AmbientGroundColor: {r: 0.4525, g: 0.4265, b: 0.426, a: 1}
@@ -11001,7 +11001,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 0.55}
+      maxColor: {r: 0.93, g: 0.95, b: 1, a: 0.42}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}

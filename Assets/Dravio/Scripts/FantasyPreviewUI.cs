@@ -21,6 +21,10 @@ namespace Dravio
         [SerializeField] private Copy[] translations;
         [SerializeField] private DragonCarePreview care;
         private bool vi=true, collapsed;
+        static readonly Color SurfaceInk=new Color(.075f,.13f,.12f,.97f);
+        static readonly Color Ivory=new Color(.96f,.91f,.79f);
+        static readonly Color Accent=new Color(.83f,.68f,.40f);
+        static readonly Color ButtonInk=new Color(.10f,.18f,.16f);
         public bool Vietnamese=>vi;
         private int page;
         private int lastW=-1,lastH=-1;
@@ -51,6 +55,8 @@ namespace Dravio
             language.onClick.AddListener(()=>{vi=!vi;Localize();});
             collapse.onClick.AddListener(()=>{collapsed=!collapsed;ApplyVisibility();});
             RepairLayout();
+            ApplyArtDirection();
+            PrioritizeEggClaims();
             Select(0);
             Localize();
             Layout();
@@ -110,6 +116,58 @@ namespace Dravio
             LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
         }
 
+        // Runtime presentation migration: keep serialized button targets, text and
+        // localization intact, including scenes authored before this update.
+        private void ApplyArtDirection()
+        {
+            if(panel==null)return;
+            var surface=panel.GetComponent<Image>();
+            if(surface!=null)surface.color=SurfaceInk;
+            var header=safeRoot!=null?safeRoot.Find("Header"):null;
+            if(header!=null && header.TryGetComponent<Image>(out var headerImage))headerImage.color=SurfaceInk;
+            var layout=panel.GetComponent<VerticalLayoutGroup>();
+            if(layout!=null){layout.spacing=6;layout.padding=new RectOffset(10,10,8,8);}
+            foreach(var button in safeRoot.GetComponentsInChildren<Button>(true))
+            {
+                var colors=button.colors;
+                colors.normalColor=Accent;
+                colors.highlightedColor=new Color(.96f,.83f,.56f);
+                colors.pressedColor=new Color(.66f,.52f,.29f);
+                colors.selectedColor=colors.highlightedColor;
+                colors.disabledColor=new Color(.42f,.43f,.38f,.68f);
+                colors.fadeDuration=.10f;
+                button.colors=colors;
+                var label=button.GetComponentInChildren<Text>(true);
+                if(label!=null){label.color=ButtonInk;label.fontStyle=FontStyle.Bold;}
+            }
+            foreach(var text in panel.GetComponentsInChildren<Text>(true))
+            {
+                if(text.GetComponentInParent<Button>()!=null)continue;
+                // Maintain the original visual hierarchy: gold titles, ivory body, muted notes.
+                if(text.fontSize>=18){text.color=Accent;text.fontStyle=FontStyle.Bold;}
+                else if(text.fontSize>=15)text.color=Ivory;
+            }
+            foreach(var page in pages)
+            {
+                if(page==null)continue;
+                var scroll=page.GetComponent<ScrollRect>();
+                if(scroll!=null && scroll.viewport!=null && scroll.viewport.TryGetComponent<Image>(out var img))
+                    img.color=new Color(.035f,.075f,.065f,.65f);
+            }
+        }
+        private void PrioritizeEggClaims()
+        {
+            if(pages==null || pages.Length<5 || pages[4]==null)return;
+            var scroll=pages[4].GetComponent<ScrollRect>();
+            if(scroll==null || scroll.content==null)return;
+            var meadow=scroll.content.Find("Claim pack to meadow");
+            var storage=scroll.content.Find("Claim pack to storage");
+            if(meadow==null || storage==null)return;
+            // After the pending-pack status and feedback, before the purchase catalogue.
+            meadow.SetSiblingIndex(2);
+            storage.SetSiblingIndex(3);
+            LayoutRebuilder.MarkLayoutForRebuild(scroll.content);
+        }
         private void Update()
         {
             if(Screen.width!=lastW || Screen.height!=lastH || Screen.safeArea!=lastSafe)Layout();
@@ -157,8 +215,12 @@ namespace Dravio
             {
                 pages[i].SetActive(i==page);
                 var colors=tabs[i].colors;
-                colors.normalColor=i==page?new Color(.88f,.73f,.43f):new Color(.57f,.48f,.32f);
+                colors.normalColor=i==page?Accent:new Color(.19f,.29f,.25f);
+                colors.highlightedColor=i==page?new Color(.96f,.83f,.56f):new Color(.29f,.40f,.34f);
+                colors.selectedColor=colors.normalColor;
                 tabs[i].colors=colors;
+                var label=tabs[i].GetComponentInChildren<Text>(true);
+                if(label!=null)label.color=i==page?ButtonInk:Ivory;
             }
             if(collapseLabel!=null)collapseLabel.text=collapsed?(vi?"Mở":"Show"):(vi?"Ẩn":"Hide");
         }

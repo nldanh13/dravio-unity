@@ -1413,7 +1413,9 @@ def render_preview(objects, layout, path):
     bm.free()
     fly_mesh.materials.append(fly_mat)
     rng = random.Random(911)
-    for label, hour, exposure in (("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
+    # ENV Alpha (#79): also the default hour from the living data (the light Unity actually plays by day); the
+    # first day renders above keep the fixed U1-ENV.2 preview light.
+    for label, hour, exposure in (("day_living", living.DEFAULT_HOUR, 0.0), ("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
         st = living.evaluate(hour)
         f = living.light_forward(st["lightElevation"], st["lightAzimuth"])
         sun.rotation_euler = Vector((-f[0], -f[2], f[1])).to_track_quat('-Z', 'Y').to_euler()

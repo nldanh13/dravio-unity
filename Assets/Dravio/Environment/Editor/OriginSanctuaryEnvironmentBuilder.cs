@@ -451,7 +451,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             // Lighting: warm key light, cool painted ambient, soft distance fog.
-            // VIS.1 (Issue #80) grade; equals the 13:00 keyframe of OriginSanctuaryLiving.json.
+            // VIS.1 (Issue #80) grade over ENV Alpha (#79); equals the 13:00 keyframe of OriginSanctuaryLiving.json.
             Color sky = new Color(0.80f, 0.84f, 0.70f);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Trilight;
@@ -471,7 +471,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             sun.color = new Color(1f, 0.86f, 0.66f);
             sun.intensity = 1.12f;
             sun.shadows = LightShadows.Soft;
-            sun.shadowStrength = 0.75f;
+            sun.shadowStrength = 0.82f;
             sunGo.transform.rotation = Quaternion.Euler(46f, -38f, 0f);
 
             var camGo = new GameObject("Fixed Ortho Camera") { tag = "MainCamera" };

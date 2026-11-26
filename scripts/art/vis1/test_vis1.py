@@ -89,11 +89,11 @@ class LightingGradeTests(unittest.TestCase):
         self.assertIn("m_FogColor: " + rgb(s["fogColor"]), scene)
         self.assertIn("m_Intensity: %g\n" % s["lightIntensity"], scene)
 
-    def test_ocean_and_sky_keep_u1_env2_day(self):
-        u = {k["hour"]: k for k in living.U1_ENV2_KEYFRAMES}[living.DEFAULT_HOUR]
-        self.assertEqual(u["lightColor"], [1.0, 0.92, 0.78])
-        self.assertAlmostEqual(u["lightIntensity"], 1.35)
-        self.assertEqual([k["hour"] for k in living.U1_ENV2_KEYFRAMES], [k["hour"] for k in living.KEYFRAMES])
+    def test_ocean_and_sky_keep_env_alpha_day(self):
+        u = {k["hour"]: k for k in living.ZONE_DAY_KEYFRAMES}[living.DEFAULT_HOUR]
+        self.assertEqual(u["lightColor"], [1.0, 0.91, 0.75])  # ENV Alpha (#79) Origin day
+        self.assertAlmostEqual(u["lightIntensity"], 1.42)
+        self.assertEqual([k["hour"] for k in living.ZONE_DAY_KEYFRAMES], [k["hour"] for k in living.KEYFRAMES])
 
     def test_material_grade_matches_builder(self):
         src = read(BUILDER)

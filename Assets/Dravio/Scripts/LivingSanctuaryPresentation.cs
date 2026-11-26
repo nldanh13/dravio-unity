@@ -172,6 +172,9 @@ namespace Dravio
         Vector3 savedCamera;
         float savedSize;
         float followZoom=1f;
+        float pinchDistance;
+        int pinchA=-1,pinchB=-1;
+        RectTransform focusPanel;
         string messageEn="",messageVi="";
         bool Ready=>active && !viewSuspended && focus && !paused && session!=null && session.Status==SessionStatus.Ready && !session.Hidden && session.State!=null;
         GameState State=>session?.State;
@@ -979,6 +982,8 @@ namespace Dravio
             Vector2 point;
             var touch=Touchscreen.current;
             var mouse=Mouse.current;
+            // Two-finger camera gestures must not select or call a dragon.
+            if(touch!=null && touch.touches.Count(t=>t.press.isPressed)>1)return;
             if(touch!=null && touch.primaryTouch.press.wasPressedThisFrame)point=touch.primaryTouch.position.ReadValue();
             else if(mouse!=null && mouse.leftButton.wasPressedThisFrame)point=mouse.position.ReadValue();
             else return;
@@ -1189,6 +1194,9 @@ namespace Dravio
             if(following){StopFollow();return;}
             savedCamera=cameraView.transform.position;savedSize=cameraView.orthographicSize;
             followZoom=1f;
+            pinchDistance=0f;pinchA=pinchB=-1;
+            var inset=UnityEngine.Object.FindAnyObjectByType<SanctuaryUiInsetSource>(FindObjectsInactive.Include);
+            focusPanel=inset!=null?inset.GetComponent<RectTransform>():null;
             restoreFit=cameraFit!=null && cameraFit.enabled;
             if(restoreFit)cameraFit.enabled=false;
             following=true;
@@ -1199,7 +1207,7 @@ namespace Dravio
             if(!following || cameraView==null)return;
             if(!Ready || selected==null || !residents.TryGetValue(selected,out var r)){StopFollow();return;}
             var t=cameraView.transform;
-            var free=cameraFit!=null?cameraFit.FreeViewport:new Rect(0,0,1,1);
+            var free=FollowViewport();
             // Fit the live visual, not its collision radius or canonical size. Retain
             // the established overview as the upper bound, and keep the UI area free.
             float size=Mathf.Min(savedSize,1.8f);
@@ -1229,20 +1237,60 @@ namespace Dravio
         }
         static float ProjectedExtent(Vector3 e,Vector3 axis)=>
             Mathf.Abs(axis.x)*e.x+Mathf.Abs(axis.y)*e.y+Mathf.Abs(axis.z)*e.z;
+        Rect FollowViewport()
+        {
+            if(cameraFit==null)return new Rect(0,0,1,1);
+            if(focusPanel==null)return cameraFit.FreeViewport;
+            float w=Mathf.Max(1,Screen.width),h=Mathf.Max(1,Screen.height);
+            var safe=cameraFit.useSafeArea?Screen.safeArea:new Rect(0,0,w,h);
+            var canvas=focusPanel.GetComponentInParent<Canvas>();
+            var uiCam=canvas!=null && canvas.rootCanvas.renderMode!=RenderMode.ScreenSpaceOverlay?canvas.rootCanvas.worldCamera:null;
+            float pixels=focusPanel.gameObject.activeInHierarchy?
+                SanctuaryCameraFit.MeasureOccluderPixels(focusPanel,uiCam,w):0f;
+            var ins=cameraFit.ResolveInsets(w,h,safe,pixels);
+            float aspect=Mathf.Max(.1f,cameraView.aspect);
+            float x0=ins.x/aspect,y0=ins.w;
+            return Rect.MinMaxRect(x0,y0,Mathf.Max(x0,1f-ins.y/aspect),Mathf.Max(y0,1f-ins.z));
+        }
+        bool WorldPoint(Vector2 point,Rect free)
+        {
+            var v=cameraView.ScreenToViewportPoint(point);
+            if(!free.Contains(new Vector2(v.x,v.y)))return false;
+            if(EventSystem.current==null)return true;
+            uiHits.Clear();EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position=point},uiHits);
+            return !uiHits.Any(hit=>hit.module is GraphicRaycaster);
+        }
         void ReadFollowZoom(Rect free)
         {
+            var touch=Touchscreen.current;
+            if(touch!=null)
+            {
+                int count=0,a=-1,b=-1;
+                Vector2 p=default,q=default;
+                foreach(var finger in touch.touches)
+                {
+                    if(!finger.press.isPressed)continue;
+                    if(count==0){a=finger.touchId.ReadValue();p=finger.position.ReadValue();}
+                    else if(count==1){b=finger.touchId.ReadValue();q=finger.position.ReadValue();}
+                    count++;
+                }
+                if(count==2 && WorldPoint(p,free) && WorldPoint(q,free))
+                {
+                    float distance=Vector2.Distance(p,q);
+                    if(distance>8f && pinchDistance>8f && a==pinchA && b==pinchB)
+                        followZoom=Mathf.Clamp(followZoom*Mathf.Clamp(pinchDistance/distance,.8f,1.25f),.65f,2.2f);
+                    pinchDistance=distance;pinchA=a;pinchB=b;
+                    return;
+                }
+                pinchDistance=0f;pinchA=pinchB=-1;
+                if(count>0)return;
+            }
             var mouse=Mouse.current;
             if(mouse==null)return;
             float scroll=mouse.scroll.ReadValue().y;
             if(Mathf.Approximately(scroll,0f))return;
             Vector2 point=mouse.position.ReadValue();
-            var viewport=cameraView.ScreenToViewportPoint(point);
-            if(!free.Contains(new Vector2(viewport.x,viewport.y)))return;
-            if(EventSystem.current!=null)
-            {
-                uiHits.Clear();EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position=point},uiHits);
-                if(uiHits.Any(h=>h.module is GraphicRaycaster))return;
-            }
+            if(!WorldPoint(point,free))return;
             float steps=Mathf.Clamp(scroll/120f,-3f,3f);
             followZoom=Mathf.Clamp(followZoom*Mathf.Exp(-steps*.22f),.65f,2.2f);
         }
@@ -1252,7 +1300,7 @@ namespace Dravio
             following=false;
             if(cameraView!=null){cameraView.transform.position=savedCamera;cameraView.orthographicSize=savedSize;}
             if(restoreFit && cameraFit!=null)cameraFit.enabled=true;
-            restoreFit=false;
+            restoreFit=false;focusPanel=null;pinchDistance=0f;pinchA=pinchB=-1;
         }
 
         void RefreshProfile()

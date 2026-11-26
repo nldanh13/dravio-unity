@@ -268,7 +268,7 @@ MonoBehaviour:
     - 0.88
     - 0.74
     lightIntensity: 0.98
-    shadowStrength: 0.65
+    shadowStrength: 0.72
     ambientSky:
     - 0.56
     - 0.6
@@ -306,7 +306,7 @@ MonoBehaviour:
     - 0.86
     - 0.66
     lightIntensity: 1.12
-    shadowStrength: 0.75
+    shadowStrength: 0.82
     ambientSky:
     - 0.56
     - 0.66
@@ -344,7 +344,7 @@ MonoBehaviour:
     - 0.84
     - 0.62
     lightIntensity: 1
-    shadowStrength: 0.72
+    shadowStrength: 0.78
     ambientSky:
     - 0.58
     - 0.58

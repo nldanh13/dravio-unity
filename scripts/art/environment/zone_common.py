@@ -246,7 +246,7 @@ def graded_keyframes(grade):
     """Zone keyframes share Origin's hours and sun path, so a day reads the same
     everywhere and the Origin -> zone hand-off never jumps; only colour and mix change."""
     out = []
-    for k in origin_living.U1_ENV2_KEYFRAMES:  # Ocean/Sky keep the U1-ENV.2 day (VIS.1 is Origin-only)
+    for k in origin_living.ZONE_DAY_KEYFRAMES:  # Ocean/Sky keep the #79 day (VIS.1 is Origin-only)
         g = dict(k)
         for key in origin_living.COLOR_KEYS:
             g[key] = list(k[key])

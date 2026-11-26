@@ -73,15 +73,26 @@ class TimeOfDayTests(unittest.TestCase):
         self.assertTrue(all(0 <= h < 24 for h in hours))
         self.assertEqual(len(hours), len(set(hours)))
 
-    def test_default_hour_matches_u1_env2_static_lighting(self):
+    def test_default_hour_matches_the_static_scene_lighting(self):
+        """The Origin builder's static light (scene before the living system runs) must equal the default hour,
+        or the scene jumps when time of day starts. Read straight from OriginSanctuaryEnvironmentBuilder.cs
+        (ENV Alpha #79 changed both sides together)."""
+        import re
+        cs = open(os.path.join(UNITY_ENV, "Editor", "OriginSanctuaryEnvironmentBuilder.cs"), encoding="utf-8").read()
+
+        def color(pattern):
+            m = re.search(pattern + r"\s*=\s*new Color\(([^)]*)\)", cs)
+            return [float(v.strip().rstrip("f")) for v in m.group(1).split(",")][:3]
+
         s = living.evaluate(living.DEFAULT_HOUR)
         self.assertAlmostEqual(s["lightElevation"], 46.0)
         self.assertAlmostEqual(s["lightAzimuth"], -38.0)
-        # VIS.1 (Issue #80) grade; must equal the static lighting in OriginSanctuaryEnvironmentBuilder.
-        self.assertAlmostEqual(s["lightIntensity"], 1.12)
-        for got, want in ((s["lightColor"], (1.0, 0.86, 0.66)), (s["ambientSky"], (0.56, 0.66, 0.84)),
-                          (s["ambientEquator"], (0.50, 0.56, 0.48)), (s["ambientGround"], (0.34, 0.28, 0.22)),
-                          (s["fogColor"], (0.80, 0.84, 0.70))):
+        self.assertIn("Quaternion.Euler(46f, -38f, 0f)", cs)
+        self.assertAlmostEqual(s["lightIntensity"], float(re.search(r"sun\.intensity = ([0-9.]+)f", cs).group(1)))
+        self.assertAlmostEqual(s["shadowStrength"], float(re.search(r"sun\.shadowStrength = ([0-9.]+)f", cs).group(1)))
+        for got, want in ((s["lightColor"], color(r"sun\.color")), (s["ambientSky"], color(r"ambientSkyColor")),
+                          (s["ambientEquator"], color(r"ambientEquatorColor")), (s["ambientGround"], color(r"ambientGroundColor")),
+                          (s["fogColor"], color(r"Color sky"))):
             for a, b in zip(got, want):
                 self.assertAlmostEqual(a, b)
         self.assertEqual(s["nightGlow"], 0.0)
