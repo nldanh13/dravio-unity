@@ -126,6 +126,7 @@ namespace Dravio.Domain.Tests.Simulation
             string outDir = Environment.GetEnvironmentVariable("DRAVIO_U215_OUT");
             if (outDir == null) Assert.Ignore("Đặt DRAVIO_U215_OUT để sinh dữ liệu nghiên cứu kinh tế Sanctuary U2.15b.");
             int seeds = int.TryParse(Environment.GetEnvironmentVariable("DRAVIO_SIM_SEEDS"), out int ns) ? ns : 3;
+            int seedFrom = int.TryParse(Environment.GetEnvironmentVariable("DRAVIO_SIM_SEED_FROM"), out int sf0) ? sf0 : 1;
             double days = double.TryParse(Environment.GetEnvironmentVariable("DRAVIO_SIM_DAYS"), NumberStyles.Float, CultureInfo.InvariantCulture, out double d) ? d : 365;
             string pf = Environment.GetEnvironmentVariable("DRAVIO_SIM_POLICIES");
             string cf = Environment.GetEnvironmentVariable("DRAVIO_U215_CURVES");
@@ -141,7 +142,7 @@ namespace Dravio.Domain.Tests.Simulation
             SkyCloudBalance sky = skyMode == "off" ? SkyCloudBalance.Disabled : SkyCloudBalance.ProposedA;
             double[] snaps = SnapshotDays.Where(x => x < days).Append(days).Distinct().ToArray();
 
-            var jobs = (from c in curves from p in policies from sc in schedules from seed in Enumerable.Range(1, seeds) select (c, p, sc, seed)).ToList();
+            var jobs = (from c in curves from p in policies from sc in schedules from seed in Enumerable.Range(seedFrom, seeds) select (c, p, sc, seed)).ToList();
             var rows = new ConcurrentBag<Row>();
             string rawPath = System.IO.Path.Combine(outDir, "u215-" + tag + ".tsv");
             object io = new object();
