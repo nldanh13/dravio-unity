@@ -27,8 +27,8 @@ namespace Dravio.Editor
         const string RefinedTarget = Root + "/Scenes/EmberlingRefinedPreview.unity";
         const string IntegratedTarget = Root + "/Scenes/OriginIntegratedPreview.unity";
         const string IntegratedGlbTarget = Root + "/Scenes/OriginIntegratedGLBPreview.unity";
-        const string PlayableTarget = Root + "/Scenes/OriginConnectedWorlds.unity";
-        const string PlayableEnvironment = Root + "/Environment/Scenes/OriginConnectedWorlds_Environment.unity";
+        const string PlayableTarget = Root + "/Scenes/OriginResearchDiscovery.unity";
+        const string PlayableEnvironment = Root + "/Environment/Scenes/OriginResearchDiscovery_Environment.unity";
         const string Prefabs = Root + "/Art/Imported/Prefabs";
         const string Materials = Root + "/Art/Imported/Materials";
 

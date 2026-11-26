@@ -33,6 +33,19 @@ namespace Dravio.Tests
             Assert.That(ResearchDiscoveryView.Next(new[]{"b","a"},"a"),Is.EqualTo("b"));
             Assert.That(ResearchDiscoveryView.Next(new string[0],"a"),Is.Null);
         }
+        [Test] public void RealObservationRefreshShowsCanonicalCooldownAndSavedRecord()
+        {
+            var s=New();string uid=s.Dragons[0].Uid;var clock=new FixedClock(Now);
+            var result=CommandDispatcher.Dispatch(s,new ObserveDragonCommand("research-ui-observe",uid,DayPhase.Day),clock);
+            Assert.That(result.Ok,Is.True,result.Error?.ToString());
+            Assert.That(result.Events.OfType<DragonObserved>().Single().DragonUid,Is.EqualTo(uid));
+            Assert.That(result.State.Research.IsEmpty,Is.False);
+            Assert.That(s.Research.IsEmpty,Is.True);
+            var opportunity=ResearchDiscoveryView.LocalOpportunities(result.State,Now,DayPhase.Day,"origin",x=>x==uid).Single();
+            Assert.That(ResearchDiscoveryView.CanRecord(opportunity),Is.False);
+            Assert.That(opportunity.CooldownRemainingMs,Is.GreaterThan(0));
+            Assert.That(ProgressionQueries.IndividualResearch(result.State,uid).Observations,Is.EqualTo(1));
+        }
         [Test] public void QuestAndCodexBrowsingDoesNotMutateCanonicalState()
         {
             var s=New();long rev=s.Revision,gold=s.Player.Gold.Micro;

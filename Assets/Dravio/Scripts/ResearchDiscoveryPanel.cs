@@ -38,7 +38,8 @@ namespace Dravio
             prev.onClick.AddListener(()=>Cycle(-1));next.onClick.AddListener(()=>Cycle(1));record.onClick.AddListener(Record);
             record.interactable=false;
         }
-        void SetMode(int m){mode=m;dirty=true;Refresh();}
+        void ScrollTop(){var scroll=page!=null?page.GetComponent<ScrollRect>():null;if(scroll!=null)scroll.verticalNormalizedPosition=1f;}
+        void SetMode(int m){mode=m;dirty=true;Refresh();ScrollTop();}
         void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;}
         void OnEvents(System.Collections.Generic.IReadOnlyList<DomainEvent> events)
         {
@@ -84,7 +85,7 @@ namespace Dravio
             string current=mode==0?species:mode==1?uid:quest;
             int i=Array.IndexOf(ids,current);var value=ids[(i<0?0:(i+step+ids.Length)%ids.Length)];
             if(mode==0)species=value;else if(mode==1)uid=value;else quest=value;
-            dirty=true;Refresh();
+            dirty=true;Refresh();ScrollTop();
         }
         void Record()
         {

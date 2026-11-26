@@ -1096,7 +1096,7 @@ namespace Dravio
         {
             if(!Ready)return new List<ObservationOpportunity>();
             return ResearchDiscoveryView.LocalOpportunities(State,NowMs,CurrentPhase(),ViewZone,
-                uid=>residents.ContainsKey(uid)&&manager.IsLive(uid));
+                uid=>residents.ContainsKey(uid)&&sync!=null&&sync.IsShown(uid)&&manager.IsLive(uid));
         }
         public bool TryRecordVisibleResearch(string uid)
         {

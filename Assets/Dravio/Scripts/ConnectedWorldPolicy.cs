@@ -9,7 +9,7 @@ namespace Dravio
     public static class ConnectedWorldPolicy
     {
         public const string Origin="origin",Ocean="ocean",Sky="sky";
-        public const string OriginScene="Assets/Dravio/Scenes/OriginConnectedWorlds.unity";
+        public const string OriginScene="Assets/Dravio/Scenes/OriginResearchDiscovery.unity";
         public const string OceanScene="Assets/Dravio/Environment/Scenes/Ocean_Environment.unity";
         public const string SkyScene="Assets/Dravio/Environment/Scenes/Sky_Environment.unity";
         public static string ScenePath(string zone)=>zone==Origin?OriginScene:zone==Ocean?OceanScene:zone==Sky?SkyScene:null;
