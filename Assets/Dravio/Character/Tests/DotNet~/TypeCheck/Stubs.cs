@@ -37,6 +37,8 @@ namespace UnityEngine
         public Quaternion rotation { get; set; }
         public Vector3 up { get { return default(Vector3); } }
         public Vector3 right { get { return default(Vector3); } }
+        public Vector3 forward { get { return default(Vector3); } }
+        public void RotateAround(Vector3 point, Vector3 axis, float angle) { }
         public Vector3 InverseTransformDirection(Vector3 d) { return d; }
         public void SetParent(Transform p, bool worldPositionStays) { }
         public void SetPositionAndRotation(Vector3 p, Quaternion r) { }
@@ -48,6 +50,8 @@ namespace UnityEngine
         public static Vector3 zero { get { return new Vector3(0, 0, 0); } }
         public static float Distance(Vector3 a, Vector3 b) { return 0f; }
         public static Vector3 operator -(Vector3 a, Vector3 b) { return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z); }
+        public static Vector3 operator +(Vector3 a, Vector3 b) { return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z); }
+        public static Vector3 operator *(float k, Vector3 a) { return new Vector3(k * a.x, k * a.y, k * a.z); }
     }
     public struct Quaternion
     {
@@ -81,6 +85,7 @@ namespace UnityEngine
     public class Renderer : Component
     {
         public Bounds bounds { get { return default(Bounds); } }
+        public bool enabled { get; set; }
         public void SetPropertyBlock(MaterialPropertyBlock b) { }
     }
     public sealed class MaterialPropertyBlock
@@ -102,6 +107,7 @@ namespace UnityEngine
         public static float Min(float a, float b) { return a < b ? a : b; }
         public static float Max(float a, float b) { return a > b ? a : b; }
         public static float Clamp01(float v) { return v < 0f ? 0f : (v > 1f ? 1f : v); }
+        public static float Abs(float v) { return v < 0f ? -v : v; }
     }
     [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName, fileName; }
     [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent : Attribute { }

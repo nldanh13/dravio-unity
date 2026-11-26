@@ -39,6 +39,8 @@ namespace Dravio.Character.Editor
             /// <summary>Listed in approved-assets.json: files and prefab are kept exactly as approved.</summary>
             public bool approved;
             public AnimQa animQa;
+            /// <summary>U1-CHAR.7 motion metadata (flat; JsonUtility). Null/zero for static models.</summary>
+            public DragonVisualCatalog.MotionInfo motion;
             // prop
             public string propId;
             public string category;

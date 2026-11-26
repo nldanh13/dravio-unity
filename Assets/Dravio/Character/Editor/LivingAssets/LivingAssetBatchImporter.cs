@@ -130,6 +130,7 @@ namespace Dravio.Character.Editor
             entry.clipLengths = animated
                 ? e.clipList.Select(c => new DragonVisualCatalog.ClipLength { clip = c.name, seconds = ClipSeconds(e, c.name) }).ToArray()
                 : new DragonVisualCatalog.ClipLength[0];
+            entry.motion = animated ? e.motion : null;
             entry.eatSeconds = ClipSeconds(e, "Eat");
             entry.happySeconds = ClipSeconds(e, "Happy");
             entry.validation = e.validation;
@@ -210,6 +211,8 @@ namespace Dravio.Character.Editor
                         log.AppendLine("  head look: Neck/Head");
                     }
                     if (root.GetComponent<DragonBlink>() == null) root.AddComponent<DragonBlink>();
+                    // U1-CHAR.7: banking/pitching/turn bend, tail carriage, ear fins (self-idles without a Root bone)
+                    if (root.GetComponent<DragonMotionShaper>() == null) root.AddComponent<DragonMotionShaper>().enabled = false;
                     if (e.ikChains != null && e.ikChains.Length > 0 && root.GetComponent<DragonFootGrounding>() == null)
                     {
                         var g = root.AddComponent<DragonFootGrounding>();

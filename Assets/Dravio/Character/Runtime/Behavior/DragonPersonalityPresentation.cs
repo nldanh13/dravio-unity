@@ -22,6 +22,8 @@ namespace Dravio.Character
         public float headLookWeight = 0.8f;
         /// <summary>Shy dragons glance at the target and away again: fraction of time the look is held (1 = always).</summary>
         public float headLookHold = 1f;
+        /// <summary>U1-CHAR.7: tail carriage, -1 tucked .. +1 held high (presentation only).</summary>
+        public float tailCarriage;
         public DragonInteraction onPetted = DragonInteraction.Happy;
         public DragonInteraction onCalled = DragonInteraction.LookAround;
         public DragonInteraction onFed = DragonInteraction.Eat;
@@ -34,7 +36,7 @@ namespace Dravio.Character
                 case DragonPersonalityStyle.Playful:
                     p.tempo = 1.1f; p.idleVariationMinSeconds = 6f; p.idleVariationMaxSeconds = 12f;
                     p.weightLookAround = 1f; p.weightCurious = 1f; p.weightStretch = 2f; p.weightHappy = 3f;
-                    p.headLookWeight = 1f; p.onPetted = DragonInteraction.Happy; p.onCalled = DragonInteraction.Happy;
+                    p.headLookWeight = 1f; p.onPetted = DragonInteraction.Happy; p.onCalled = DragonInteraction.Happy; p.tailCarriage = 0.6f;
                     break;
                 case DragonPersonalityStyle.Calm:
                     p.tempo = 0.9f; p.idleVariationMinSeconds = 14f; p.idleVariationMaxSeconds = 26f;
@@ -44,12 +46,13 @@ namespace Dravio.Character
                 case DragonPersonalityStyle.Curious:
                     p.tempo = 1f; p.idleVariationMinSeconds = 7f; p.idleVariationMaxSeconds = 14f;
                     p.weightLookAround = 2f; p.weightCurious = 3f; p.weightStretch = 1f; p.weightHappy = 1f;
-                    p.headLookWeight = 1f; p.onPetted = DragonInteraction.Curious; p.onCalled = DragonInteraction.Curious;
+                    p.headLookWeight = 1f; p.onPetted = DragonInteraction.Curious; p.onCalled = DragonInteraction.Curious; p.tailCarriage = 0.3f;
                     break;
                 case DragonPersonalityStyle.Shy:
                     p.tempo = 0.95f; p.idleVariationMinSeconds = 10f; p.idleVariationMaxSeconds = 20f;
                     p.weightLookAround = 3f; p.weightCurious = 1f; p.weightStretch = 0.5f; p.weightHappy = 0.3f;
                     p.headLookWeight = 0.6f; p.headLookHold = 0.4f; p.onPetted = DragonInteraction.LookAround; p.onCalled = DragonInteraction.LookAround;
+                    p.tailCarriage = -0.6f;
                     break;
             }
             return p;

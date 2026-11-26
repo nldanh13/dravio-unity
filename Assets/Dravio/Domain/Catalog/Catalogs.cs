@@ -10,9 +10,9 @@ namespace Dravio.Domain.Catalog
         /// <summary>
         /// Dravio Save Schema của bản Unity: 7. TypeScript b33ec7a dừng ở 4 (v1 ADR 0007, v2 discoveries ADR 0009,
         /// v4 tutorial/pendingPack/achievements ADR 0013; số 3 được dành riêng). v5 (U2.5, implementation mới, không có ở TS)
-        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition; v8 (U2.6) thêm vitals, healthCases, disasters, hazard. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
+        /// thêm breedingNest (GDD Phụ lục C.2); v6 (U2.7, cũng chỉ ở Unity) thêm codex; v7 (U2.8) thêm expedition; v8 (U2.6) thêm vitals, healthCases, disasters, hazard; v9 (U2.10, ADR 0204) thêm packDaily, sanctuaryProjectsBuilt, research. <see cref="TsSchemaVersion"/> là phiên bản cuối có parity với TS.
         /// </summary>
-        public const int SchemaVersion = 8;
+        public const int SchemaVersion = 9;
 
         /// <summary>Schema cuối cùng bản TypeScript b33ec7a đọc/ghi được.</summary>
         public const int TsSchemaVersion = 4;
@@ -449,7 +449,8 @@ namespace Dravio.Domain.Catalog
     {
         public static readonly IReadOnlyList<PackDef> All = Array.AsReadOnly(new[]
         {
-            new PackDef("starter", 100, 90, 10, 0, 0),
+            // U2.10 E2 (ADR 0204, đã duyệt): Starter 100 → 150 G. Gói hướng dẫn giữ 100 G (ProgressCatalog.TutorialPackPriceG, parity TS).
+            new PackDef("starter", 150, 90, 10, 0, 0),
             new PackDef("elemental", 900, 48, 45, 7, 0),
             new PackDef("mystic", 6000, 15, 50, 32, 3),
             new PackDef("astral", 30000, 0, 28, 55, 17),
@@ -467,6 +468,9 @@ namespace Dravio.Domain.Catalog
             pack = null;
             return false;
         }
+
+        /// <summary>U2.10 E1 (ADR 0204, đã duyệt): tối đa ngần này gói Starter mua bằng vàng mỗi ngày UTC (không tính gói hướng dẫn).</summary>
+        public const int StarterDailyLimit = 5;
 
         public static int Odds(PackDef p, Rarity r) => r == Rarity.Common ? p.OddsCommon : r == Rarity.Rare ? p.OddsRare : r == Rarity.Epic ? p.OddsEpic : p.OddsLegendary;
     }
@@ -533,6 +537,8 @@ namespace Dravio.Domain.Catalog
         /// <summary>Gói Starter hướng dẫn (GDD trang 4, 15; S01): gói starter, Sproutling (`sprout`), Normal, không tính pity.</summary>
         public const string TutorialPackId = "starter";
         public const string TutorialPackSpeciesId = "sprout";
+        /// <summary>Giá gói hướng dẫn giữ 100 G như TS b33ec7a (E2 chỉ đổi gói Starter mua thường).</summary>
+        public const long TutorialPackPriceG = 100;
         public static readonly MutationType TutorialPackMutation = MutationType.Normal;
 
         public static bool IsDiscoveryId(string id) => Contains(DiscoveryIds, id);

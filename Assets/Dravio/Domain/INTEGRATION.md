@@ -240,3 +240,7 @@ foreach (BehaviorDecision b in BehaviorQueries.All(session.State, clock.NowMs(),
 - `EcologyComfortRules.ProposedForReview`: comfort theo môi trường (ADR 0203 C1–C2). Production không gọi `EcologyComfort.Apply`.
 - `ResearchRules.ProposedForReview` + `ObservationJournal`: cấp nghiên cứu và ghi nhận tập tính (ADR 0203 D1–D3). Sổ quan sát chưa được lưu (Schema v9 chờ duyệt, D4).
 - Thiên tai tự nhiên vẫn tắt (ADR 0202).
+
+## 9. U2.10 — Nghiên cứu, xã hội, nhiệm vụ
+
+Xem [Docs/u2.10/API_INTEGRATION_GUIDE.md](../../../Docs/u2.10/API_INTEGRATION_GUIDE.md) và [ADR 0204](../../../Docs/adr/0204-u2-10-research-social-progression.md). Truy vấn chỉ đọc trong `Dravio.Domain.Queries.ProgressionQueries`; không có lệnh, event hay khối save mới. Mọi luật có tác động gameplay mặc định tắt.

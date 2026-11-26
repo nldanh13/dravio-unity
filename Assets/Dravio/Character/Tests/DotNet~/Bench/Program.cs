@@ -8,9 +8,12 @@ using Dravio.Character;
 using Dravio.Character.Integration;
 using UnityEngine;
 
-sealed class NullTarget : IDragonBehaviorTarget
+sealed class NullTarget : IDragonMotionTarget
 {
-    private static readonly string[] Clips = { "Idle", "Eat", "Sleep", "Happy", "Walk", "Run", "Rest", "Wake", "LookAround", "Curious", "Drink", "Stretch", "Bask" };
+    // a walking + swimming model with every U1-CHAR.7 water clip (droplet-like) and the flight clips of a flyer
+    private static readonly string[] Clips = { "Idle", "Eat", "Sleep", "Happy", "Walk", "Run", "Rest", "Wake", "LookAround", "Curious", "Drink", "Stretch", "Bask",
+        "Greet", "Swim", "SwimIdle", "SwimRest", "SwimSurface", "WaterEnter", "WaterExit", "Fly", "Glide", "TakeOff", "Land" };
+    private readonly DragonVisualCatalog.MotionInfo _info = new DragonVisualCatalog.MotionInfo { takeOffRootOffset = 0.4f, landRootOffset = 0.3f, maxTurnAir = 60f };
     private readonly Dictionary<string, DragonAnimationMap> _live = new Dictionary<string, DragonAnimationMap>();
     public bool IsLive(string uid) { return _live.ContainsKey(uid); }
     public bool Spawn(DragonVisualSpawn s) { _live[s.uid] = new DragonAnimationMap(Clips); return true; }
@@ -22,6 +25,10 @@ sealed class NullTarget : IDragonBehaviorTarget
     public float ClipSeconds(string uid, DragonInteraction c) { return 2f; }
     public void SetTempo(string uid, float t) { }
     public void SetLook(string uid, bool a, Vector3 w, float weight, float hold) { }
+    public DragonVisualCatalog.MotionInfo MotionInfoOf(string uid) { return _info; }
+    public void SetHidden(string uid, bool hidden) { }
+    public void SetMotionShape(string uid, DragonMotionMode mode, float turn, float v, float s) { }
+    public void SetExpression(string uid, float tail, float ear) { }
 }
 
 static class Bench
@@ -38,7 +45,7 @@ static class Bench
                 frames[i] = new SanctuaryDragonFrame
                 {
                     uid = "d" + i, speciesId = "sample", stage = DragonVisualStage.Adult, visible = true, rotation = Quaternion.identity,
-                    intent = legacy ? DragonBehaviorIntent.None : (DragonBehaviorIntent)(1 + i % 16),
+                    intent = legacy ? DragonBehaviorIntent.None : (DragonBehaviorIntent)(1 + i % 23), // every intent incl. U1-CHAR.7 media
                     personality = (DragonPersonalityStyle)(i % 5), hasLookTarget = true,
                 };
             for (int k = 0; k < 3000; k++) sync.Sync(frames, 1f / 60f);
