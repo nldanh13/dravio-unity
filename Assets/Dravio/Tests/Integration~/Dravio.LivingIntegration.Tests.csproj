@@ -16,6 +16,8 @@
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
     <Compile Include="SanctuaryRoutePlannerTests.cs" />
+    <Compile Include="../../Scripts/Navigation/MediumTraversalReview.cs" />
+    <Compile Include="MediumTraversalReviewTests.cs" />
     <Compile Include="LivingResidentPolicyTests.cs" />
     <Compile Include="../../Scripts/U54MotionPolicy.cs" />
     <Compile Include="U54IntegrationPolicyTests.cs" />
