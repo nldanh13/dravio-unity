@@ -179,7 +179,6 @@ namespace Dravio.Editor
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
-                livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,980,false);
                 nextDragon=Button(ui,roster,"Next dragon","Rồng tiếp theo",46);
                 observeDragon=Button(ui,roster,"Record species profile","Ghi nhận hồ sơ loài",46);
                 researchObserve=Button(ui,roster,"Record research observation","Ghi quan sát nghiên cứu",46);
@@ -189,7 +188,8 @@ namespace Dravio.Editor
                 moveDragon=Button(ui,roster,"Move to habitat","Chuyển sinh cảnh",46);
                 storeDragon=Button(ui,roster,"Move to storage","Chuyển vào kho",46);
                 foreach(var button in new[]{nextDragon,observeDragon,nextTravel,moveDragon,storeDragon})button.interactable=false;
-                Label(ui,roster,"Only catalog models with a safe spawn are shown. Stage fallback and missing models are reported.","Chỉ hiển thị model đúng loài có điểm đặt an toàn. Có báo model thiếu hoặc thay thế độ tuổi.",14,Muted,TextAnchor.MiddleLeft,80);
+                livingProfile=AutoText(ui,roster,Paper);
+                Label(ui,roster,"Some dragons may not be visible in this world yet. Their saved progress is unaffected.","Một số rồng có thể chưa hiển thị ở thế giới này. Tiến trình đã lưu không bị ảnh hưởng.",14,Muted,TextAnchor.MiddleLeft,80);
                 guide=Page(host,"Guide");
                 tutorialStatus=Label(ui,guide,"Loading tutorial","Đang tải hướng dẫn",16,Gold,TextAnchor.MiddleLeft,54,false);
                 guideFeedback=Label(ui,guide,"—","—",14,Muted,TextAnchor.MiddleLeft,42,false);
@@ -233,7 +233,7 @@ namespace Dravio.Editor
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
                 Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
-                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,350,false);
+                projectStatus=AutoText(ui,management,Paper);
                 projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
                 projectBuild.interactable=false;
                 Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
@@ -249,10 +249,10 @@ namespace Dravio.Editor
                 healthReview=Button(ui,management,"Review recovery","Lượng giá phục hồi",46);
                 healthDischarge=Button(ui,management,"Discharge to storage","Xuất viện về kho",46);
                 Label(ui,management,"World progress","Tiến độ thế giới",18,Gold,TextAnchor.MiddleLeft,36);
-                managementWorld=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,240,false);
+                managementWorld=AutoText(ui,management,Paper);
                 unlockOcean=Button(ui,management,"Unlock Ocean","Mở Thủy Vực",46);
                 unlockSky=Button(ui,management,"Unlock Sky","Mở Thiên Giới",46);
-                Label(ui,management,"World unlocking does not load a new 3D scene. Quest gameplay is pending.","Mở khóa thế giới chưa chuyển cảnh 3D. Nội dung nhiệm vụ đang chờ.",14,Muted,TextAnchor.MiddleLeft,66);
+                Label(ui,management,"Complete the required quests in Log, then unlock the world. Use the world visit controls to explore it.","Hoàn thành nhiệm vụ trong Sổ, sau đó mở khóa thế giới. Chọn đến thế giới để khám phá.",14,Muted,TextAnchor.MiddleLeft,78);
                 Label(ui,management,"Upgrades","Nâng cấp",18,Gold,TextAnchor.MiddleLeft,36);
                 foreach(var def in EconomyTables.Upgrades)
                 {
@@ -261,8 +261,8 @@ namespace Dravio.Editor
                 }
                 Label(ui,management,"Capacity upgrade increases the production budget, not physical habitat slots.","Nâng cấp sức chứa tăng ngân sách sản xuất, không tăng chỗ ở vật lý.",14,Muted,TextAnchor.MiddleLeft,66);
                 Label(ui,management,"Expedition","Thám hiểm",18,Gold,TextAnchor.MiddleLeft,36);
-                managementExpedition=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,160,false);
-                expeditionRouteText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,290,false);
+                managementExpedition=AutoText(ui,management,Paper);
+                expeditionRouteText=AutoText(ui,management,Paper);
                 nextExpeditionRoute=Button(ui,management,"Next route","Tuyến tiếp theo",46);
                 expeditionDragonText=Label(ui,management,"—","—",15,Paper,TextAnchor.UpperLeft,125,false);
                 nextExpeditionDragon=Button(ui,management,"Next expedition dragon","Rồng thám hiểm tiếp theo",46);
@@ -271,9 +271,9 @@ namespace Dravio.Editor
                 claimExpedition=Button(ui,management,"Claim expedition rewards","Nhận thưởng thám hiểm",46);
                 Label(ui,management,"One expedition slot. The adult must meet health and route requirements. Away dragons do not produce gold; claim materials after return.","Một ô thám hiểm. Rồng trưởng thành cần đủ sức khỏe và phù hợp tuyến. Rồng đi xa không sinh vàng; nhận vật liệu khi trở về.",14,Muted,TextAnchor.MiddleLeft,100);
                 Label(ui,management,"Materials","Vật liệu",18,Gold,TextAnchor.MiddleLeft,36);
-                managementMaterials=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,130,false);
+                managementMaterials=AutoText(ui,management,Paper);
                 Label(ui,management,"Codex","Bách khoa",18,Gold,TextAnchor.MiddleLeft,36);
-                managementCodex=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,500,false);
+                managementCodex=AutoText(ui,management,Paper);
                 research=Page(host,"Research & discovery");
                 Label(ui,research,"Research & discovery","Nghiên cứu & khám phá",18,Gold,TextAnchor.MiddleLeft,40);
                 researchOverview=FlowText(ui,research,Gold);
@@ -465,6 +465,17 @@ namespace Dravio.Editor
             scroll.viewport=viewport;scroll.content=body;scroll.horizontal=false;
             scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=24;
             return body;
+        }
+        // Let the Text ILayoutElement report wrapped preferred height instead of a fixed
+        // reservation. ContentSizeFitter on the scroll body follows the vertical layout.
+        static Text AutoText(Layout ui,Transform parent,Color color)
+        {
+            var label=Label(ui,parent,"—","—",15,color,TextAnchor.UpperLeft,48,false);
+            label.resizeTextForBestFit=false;
+            label.verticalOverflow=VerticalWrapMode.Overflow;
+            var size=label.GetComponent<LayoutElement>();
+            size.preferredHeight=-1;size.minHeight=48;size.flexibleHeight=0;
+            return label;
         }
         static Text FlowText(Layout ui,Transform parent,Color color)
         {
