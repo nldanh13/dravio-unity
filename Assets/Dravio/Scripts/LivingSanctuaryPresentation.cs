@@ -48,6 +48,8 @@ namespace Dravio
             ;
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
+        [SerializeField] Button researchObserve;
+        public void ConfigureResearch(Button button)=>researchObserve=button;
         sealed class Resident
         {
             public string uid,habitat,species,variant;
@@ -158,6 +160,7 @@ namespace Dravio
             sleep.onClick.AddListener(ToggleSleep);inspect.onClick.AddListener(Follow);
             resume.onClick.AddListener(Resume);rosterInspect.onClick.AddListener(Follow);
             nextDragon.onClick.AddListener(NextDragon);observe.onClick.AddListener(Observe);
+            if(researchObserve!=null)researchObserve.onClick.AddListener(ResearchObserve);
             nextTravel.onClick.AddListener(NextTravel);move.onClick.AddListener(Move);
             store.onClick.AddListener(Store);
             RefreshRoster();
@@ -774,6 +777,11 @@ namespace Dravio
                 Message(r.manualRestUntil>0?"Doze request (visual)":"Automatic behavior",r.manualRestUntil>0?"Nghỉ ngắn (hoạt ảnh)":"Tự sinh hoạt");
             }
         }
+        void ResearchObserve()
+        {
+            var d=Selected;if(d==null || !residents.ContainsKey(d.Uid))return;
+            if(Send(id=>new ObserveDragonCommand(id,d.Uid,CurrentPhase())))Message("Observation recorded.","Đã ghi quan sát nghiên cứu.");
+        }
         void Observe()
         {
             var d=Selected;if(d==null || !residents.ContainsKey(d.Uid))return;
@@ -908,7 +916,8 @@ namespace Dravio
             var social=ProgressionQueries.SocialProfile(State,d.Uid);
             var rule=progression.Rules;
             profile.text+="\n"+(vi?"Nghiên cứu: ":"Research: ")+research.Species.Tier+
-                " · "+(rule.ResearchPacingEnabled?(vi?"đang áp dụng":"active"):(vi?"chưa áp dụng tiến độ mới":"new pacing off"))+
+                " · "+(rule.ResearchRecordingEnabled?(vi?"đang ghi nhận":"recording active"):(vi?"chưa ghi nhận":"recording off"))+
+                " · "+(rule.NightJournalEnabled?(vi?"nhật ký đêm bật":"night journal on"):"")+
                 "\n"+(vi?"Codex: ":"Codex: ")+progression.CodexCells+"/"+progression.CodexCellsTotal+
                 " · "+(vi?"Sinh cảnh: ":"Habitats: ")+progression.UnlockedHabitats+"/"+progression.TotalHabitats+
                 "\n"+(vi?"Thế giới mở: ":"Unlocked realms: ")+string.Join(", ",progression.UnlockedZones);
@@ -942,6 +951,7 @@ namespace Dravio
             bool ready=Ready;
             feed.interactable=ready && visible && foodId==null;
             pet.interactable=inspect.interactable=rosterInspect.interactable=observe.interactable=ready && visible;
+            if(researchObserve!=null)researchObserve.interactable=ready && visible;
             sleep.interactable=ready && visible && residents[selected].canSleep && residents[selected].decision?.Role==BehaviorRole.Presentation && !IsFoodTarget(residents[selected]);
             resume.interactable=ready && (visible || following);
             nextDragon.interactable=ready && State.Dragons.Count(x=>x.Location.Kind!=LocationKind.Released)>1;

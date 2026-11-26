@@ -163,13 +163,16 @@ namespace Dravio.Editor
             if(!playable)Label(ui,roster,integrated?"Emberling • Normal":"Emberling • Baby / Normal",integrated?"Emberling • Thường":"Emberling • Rồng non / Thường",17,Paper,TextAnchor.MiddleLeft,42);
             var rosterInspect=Button(ui,roster,playable?"Inspect selected":"Inspect Emberling",playable?"Quan sát rồng đã chọn":"Quan sát Emberling",46);
             Text livingProfile=null,livingTravel=null;
-            Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null;
+            Button nextDragon=null,observeDragon=null,nextTravel=null,moveDragon=null,storeDragon=null,researchObserve=null,projectBuild=null;
+            Text projectStatus=null;
             if(playable)
             {
                 rosterStatus=Label(ui,roster,"Loading residents","Đang tải danh sách",15,Paper,TextAnchor.UpperLeft,120,false);
                 livingProfile=Label(ui,roster,"Loading character catalog","Đang tải thư viện rồng",15,Paper,TextAnchor.UpperLeft,680,false);
                 nextDragon=Button(ui,roster,"Next dragon","Rồng tiếp theo",46);
-                observeDragon=Button(ui,roster,"Record species observation","Ghi nhận hồ sơ loài",46);
+                observeDragon=Button(ui,roster,"Record species profile","Ghi nhận hồ sơ loài",46);
+                researchObserve=Button(ui,roster,"Record research observation","Ghi quan sát nghiên cứu",46);
+                researchObserve.interactable=false;
                 livingTravel=Label(ui,roster,"—","—",14,Muted,TextAnchor.UpperLeft,80,false);
                 nextTravel=Button(ui,roster,"Next habitat","Sinh cảnh tiếp theo",46);
                 moveDragon=Button(ui,roster,"Move to habitat","Chuyển sinh cảnh",46);
@@ -188,7 +191,7 @@ namespace Dravio.Editor
                 surveyPond=Button(ui,guide,"Survey pondbank","Khảo sát bờ hồ",46);
                 unlockPond=Button(ui,guide,"Unlock pondbank","Mở khóa bờ hồ",46);
                 hatchery=Page(host,"Eggs");
-                hatcheryStatus=Label(ui,hatchery,"Loading hatchery","Đang tải tổ ấp",16,Gold,TextAnchor.MiddleLeft,62,false);
+                hatcheryStatus=Label(ui,hatchery,"Loading hatchery","Đang tải tổ ấp",16,Gold,TextAnchor.MiddleLeft,90,false);
                 hatcheryFeedback=Label(ui,hatchery,"—","—",14,Muted,TextAnchor.MiddleLeft,44,false);
                 Label(ui,hatchery,"Egg packs • paid in gold","Gói trứng • mua bằng vàng",17,Gold,TextAnchor.MiddleLeft,34);
                 standard=Button(ui,hatchery,"Starter · "+PackCatalog.Get("starter").PriceG+" G","Starter · "+PackCatalog.Get("starter").PriceG+" G",46);
@@ -212,6 +215,10 @@ namespace Dravio.Editor
                 Label(ui,management,"Sanctuary overview","Tổng quan khu bảo tồn",18,Gold,TextAnchor.MiddleLeft,36);
                 managementSummary=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,110,false);
                 managementFeedback=Label(ui,management,"—","—",14,Muted,TextAnchor.MiddleLeft,60,false);
+                Label(ui,management,"Sanctuary projects","Dự án Sanctuary",18,Gold,TextAnchor.MiddleLeft,36);
+                projectStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,150,false);
+                projectBuild=Button(ui,management,"Build next project","Xây dự án tiếp theo",46);
+                projectBuild.interactable=false;
                 Label(ui,management,"Health & care","Sức khỏe & chăm sóc",18,Gold,TextAnchor.MiddleLeft,36);
                 healthStatus=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,180,false);
                 healthNext=Button(ui,management,"Next dragon","Rồng tiếp theo",46);
@@ -269,6 +276,7 @@ namespace Dravio.Editor
                     living.Configure(persistence,locationData,manager,controller,session,fruitVisual,
                         selectedTitle,status,progress,notice,livingProfile,livingTravel,
                         feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observeDragon,nextTravel,moveDragon,storeDragon);
+                    living.ConfigureResearch(researchObserve);
                     session.ConfigureLiving(living);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(saveButton.onClick,session.SaveGame);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(bioRecord.onClick,session.ViewBiology);
@@ -280,6 +288,8 @@ namespace Dravio.Editor
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(surveyPond.onClick,session.SurveyPond);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(unlockPond.onClick,session.UnlockPond);
                     session.ConfigureHatchery(hatcheryStatus,parentsStatus,hatcheryFeedback);
+                    session.ConfigureEconomy(projectStatus,projectBuild,standard);
+                    UnityEditor.Events.UnityEventTools.AddPersistentListener(projectBuild.onClick,session.BuildSanctuaryProject);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(standard.onClick,session.BuyStandardStarter);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(elemental.onClick,session.BuyElemental);
                     UnityEditor.Events.UnityEventTools.AddPersistentListener(mystic.onClick,session.BuyMystic);
