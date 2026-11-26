@@ -15,17 +15,17 @@
   "lods": [
     {
       "mesh": "SM_SANC_ocean_coral_arch_LOD0",
-      "triangles": 2028,
+      "triangles": 2048,
       "screenRelativeHeight": 0.35
     },
     {
       "mesh": "SM_SANC_ocean_coral_arch_LOD1",
-      "triangles": 1014,
+      "triangles": 1024,
       "screenRelativeHeight": 0.12
     },
     {
       "mesh": "SM_SANC_ocean_coral_arch_LOD2",
-      "triangles": 446,
+      "triangles": 450,
       "screenRelativeHeight": 0.02
     }
   ],
@@ -34,13 +34,13 @@
   "boundsUnity": {
     "center": [
       0.081,
-      1.83,
-      -0.092
+      1.828,
+      -0.109
     ],
     "size": [
       5.898,
-      3.741,
-      1.737
+      3.745,
+      1.773
     ]
   },
   "footprintRadius_m": 2.949,

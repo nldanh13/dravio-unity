@@ -9,22 +9,23 @@
   "prefabId": "PF_SANC_sky_star_observatory",
   "model": "Models/SM_SANC_sky_star_observatory.fbx",
   "materials": [
+    "ENV_Sky_Foliage",
     "ENV_Sky_Props"
   ],
   "lods": [
     {
       "mesh": "SM_SANC_sky_star_observatory_LOD0",
-      "triangles": 856,
+      "triangles": 918,
       "screenRelativeHeight": 0.35
     },
     {
       "mesh": "SM_SANC_sky_star_observatory_LOD1",
-      "triangles": 428,
+      "triangles": 458,
       "screenRelativeHeight": 0.12
     },
     {
       "mesh": "SM_SANC_sky_star_observatory_LOD2",
-      "triangles": 188,
+      "triangles": 200,
       "screenRelativeHeight": 0.02
     }
   ],

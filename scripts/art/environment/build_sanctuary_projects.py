@@ -45,6 +45,23 @@ def unity(v):
     return [round(-v[0], 3), round(v[2], 3), round(-v[1], 3)]
 
 
+# ------------------------------------------------------------------ concept dressing (ArtSource/Habitats concepts)
+def dress(k, x, y, z=0.0, flowers=("flower_pink", "flower_gold", "flower_blue"), ivy=True, scale=1.0):
+    """Concept art language: vines with small flowers climbing the stone, flower tufts at the base."""
+    r = k.rng
+    for i, cell in enumerate(flowers):
+        a = r.uniform(0, 6.28)
+        k.cross_cards((x + math.cos(a) * 0.22 * scale, y + math.sin(a) * 0.22 * scale, z), 0.32 * scale, 0.28 * scale, "F_" + cell, count=2,
+                      yaw=r.uniform(0, 3.14))
+    if ivy:
+        k.card((x + 0.12 * scale, y + 0.14 * scale, z), 0.3 * scale, 0.9 * scale, "F_ivy_strand", yaw=r.uniform(-0.4, 0.4), tilt=-0.08)
+
+
+def glow_rune(k, faces):
+    """Cyan glowing rune on the camera-facing side (concept: glowing rune stones)."""
+    K.runestone_glyph_front(k, faces)
+
+
 # ------------------------------------------------------------------ builders
 def build_origin_lantern_row(k):
     """#2 Hàng đèn đá dẫn lối (light): five stone lanterns along a short worn path, warm glow cores."""
@@ -52,8 +69,11 @@ def build_origin_lantern_row(k):
     xs = [-3.2, -1.6, 0.0, 1.6, 3.2]
     for i, x in enumerate(xs):
         y = 0.18 * math.sin(i * 1.3)
-        faces = k.box((x, y, 0.09), (0.55, 0.55, 0.18), "stone_blocks", bevel=0.03)
-        faces += k.cone((x, y, 0.18), 0.12, 0.10, 0.62, "stone_warm", seg=8, smooth=False)
+        base = k.box((x, y, 0.16), (0.55, 0.55, 0.32), "stone_blocks", bevel=0.04)
+        glow_rune(k, base)
+        dress(k, x, y, 0.0, scale=0.9)
+        faces = list(base)
+        faces += k.cone((x, y, 0.32), 0.13, 0.11, 0.5, "stone_warm", seg=8, smooth=False)
         faces += k.box((x, y, 0.92), (0.42, 0.42, 0.06), "stone_warm", bevel=0.02)
         for sx in (-1, 1):
             for sy in (-1, 1):
@@ -61,7 +81,7 @@ def build_origin_lantern_row(k):
         k.blob((x, y, 1.08), (0.11, 0.11, 0.11), "glow_cap", subdiv=2, rough=0.05)
         faces += k.cone((x, y, 1.21), 0.36, 0.04, 0.34, "stone_warm", seg=8, smooth=False)
         k.cone((x, y, 1.53), 0.03, 0.005, 0.12, "gold_trim", seg=6)
-        k.moss_tops(faces, 0.7, from_zones={"stone_warm", "stone_blocks"}, density=0.5)
+        k.moss_tops(faces, 0.55, from_zones={"stone_warm", "stone_blocks"}, density=0.9)
         anchors[f"ANCHOR_Light_{i}"] = (x, y, 1.08)
     for i in range(9):  # path stones between the lanterns
         x = -3.6 + i * 0.9
@@ -81,7 +101,8 @@ def build_ocean_coral_arch(k):
     for i in range(n):
         a = math.pi * (i + 0.5) / n
         cx, cz = math.cos(a) * span, 0.7 + math.sin(a) * 2.2
-        k.blob((cx, 0, cz), (0.55, 0.5, 0.5), "stone_cool", subdiv=2, rough=0.22, smooth=False)
+        f = k.blob((cx, 0, cz), (0.55, 0.5, 0.5), "stone_cool", subdiv=2, rough=0.22, smooth=False)
+        k.moss_tops(f, 0.6, from_zones={"stone_cool"}, density=0.8)
     chains = []
     for i in range(7):  # coral branches growing out of the arch top and shoulders
         a = math.pi * (i + 0.5) / 7
@@ -94,6 +115,8 @@ def build_ocean_coral_arch(k):
     bpy.data.meshes.remove(me)
     for i, (x, y) in enumerate(((-1.2, 0.7), (1.1, 0.8), (0.0, -0.6))):
         k.blob((x, y, 0.08), (0.22, 0.2, 0.12), "glow_cap", subdiv=1, rough=0.1)
+    for sx in (-1, 1):
+        dress(k, sx * span, 0.5, 0.0, flowers=("flower_blue", "flower_gold"), ivy=True, scale=1.3)
     k.card((-2.6, 0.2, 0), 0.9, 1.3, "F_fern", yaw=0.3)        # sea-fan cards reuse the ocean foliage cell
     k.card((2.5, -0.1, 0), 0.8, 1.1, "F_fern", yaw=-0.4)
     anchors["ANCHOR_SwimThrough"] = (0.0, 0.0, 1.2)  # centre of the opening, for swimmers
@@ -118,7 +141,11 @@ def build_sky_star_observatory(k):
     k.cone((0, 0, 3.32), 0.55, 0.5, 0.08, "gold_trim", seg=14)
     k.cone((0, 0, 3.4), 0.12, 0.01, 0.6, "gold_trim", seg=6)                  # star finial
     k.blob((0, 0, 1.65), (0.26, 0.26, 0.34), "glow_cap", subdiv=2, rough=0.04)   # floating star crystal
-    k.cone((0, 0, 0.42), 0.3, 0.24, 0.35, "rune_slate", seg=8)                     # crystal plinth
+    plinth = k.cone((0, 0, 0.42), 0.3, 0.24, 0.35, "rune_slate", seg=8)           # crystal plinth
+    glow_rune(k, plinth)
+    for i in range(6):
+        a = i * 2 * math.pi / 6 + math.pi / 6
+        dress(k, math.cos(a) * 1.25, math.sin(a) * 1.25, 0.42, flowers=("flower_pink", "flower_lilac"), ivy=(i % 2 == 0), scale=0.8)
     k.moss_tops(faces, 0.72, from_zones={"stone_warm", "stone_blocks"}, density=0.4)
     anchors["ANCHOR_Crystal"] = (0, 0, 1.65)
     anchors["ANCHOR_Perch_0"] = (math.cos(math.pi / 6) * 1.1, math.sin(math.pi / 6) * 1.1, 2.75)

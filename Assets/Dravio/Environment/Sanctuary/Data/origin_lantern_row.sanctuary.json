@@ -9,22 +9,23 @@
   "prefabId": "PF_SANC_origin_lantern_row",
   "model": "Models/SM_SANC_origin_lantern_row.fbx",
   "materials": [
+    "ENV_Foliage",
     "ENV_Props"
   ],
   "lods": [
     {
       "mesh": "SM_SANC_origin_lantern_row_LOD0",
-      "triangles": 1856,
+      "triangles": 1966,
       "screenRelativeHeight": 0.35
     },
     {
       "mesh": "SM_SANC_origin_lantern_row_LOD1",
-      "triangles": 928,
+      "triangles": 982,
       "screenRelativeHeight": 0.12
     },
     {
       "mesh": "SM_SANC_origin_lantern_row_LOD2",
-      "triangles": 408,
+      "triangles": 432,
       "screenRelativeHeight": 0.02
     }
   ],
