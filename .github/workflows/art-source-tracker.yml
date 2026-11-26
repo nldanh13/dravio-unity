@@ -1,0 +1,77 @@
+name: Dravio Asset Tracker
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ArtSource/**'
+      - 'scripts/art/track_sources.py'
+      - 'scripts/art/test_track_sources.py'
+      - '.github/workflows/art-source-tracker.yml'
+  pull_request:
+    paths:
+      - 'ArtSource/**'
+      - 'scripts/art/track_sources.py'
+      - 'scripts/art/test_track_sources.py'
+      - '.github/workflows/art-source-tracker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - run: python3 -m unittest discover -s scripts/art -p test_track_sources.py
+      - run: python3 scripts/art/track_sources.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: art-source-progress
+          path: |
+            ArtSource/manifest.json
+            ArtSource/progress.json
+            ArtSource/PROGRESS.md
+      - name: Report source warnings
+        run: |
+          cat ArtSource/PROGRESS.md >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    concurrency:
+      group: dravio-art-source-publish-main
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          lfs: true
+      - name: Regenerate against latest main and commit only reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 -m unittest discover -s scripts/art -p test_track_sources.py
+            python3 scripts/art/track_sources.py
+            git add -- ArtSource/manifest.json ArtSource/progress.json ArtSource/PROGRESS.md
+            if git diff --cached --quiet; then
+              echo "Reports already up to date."
+              exit 0
+            fi
+            git commit -m "chore(art): refresh source inventory and progress"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 3
+          done
+          echo "::error::Cannot publish reports; check branch protection or workflow write access, then rerun."
+          exit 1
