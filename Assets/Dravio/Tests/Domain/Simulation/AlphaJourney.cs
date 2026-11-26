@@ -28,6 +28,12 @@ namespace Dravio.Domain.Tests.Simulation
         public readonly Dictionary<string, int> PaidOnce = new Dictionary<string, int>(StringComparer.Ordinal);
         public int Commands, Duplicates;
         public long ProductionMicro, SalesMicro, AchievementMicro, SpentMicro;
+        /// <summary>U2.15b: phần sản xuất quyết toán bằng <c>advanceTime(offline)</c> (thu nhập offline).</summary>
+        public long OfflineProductionMicro;
+        /// <summary>U2.15b: chi theo nhóm (pack, breed, upgrade, decoration, project) để báo cáo nguồn / đích vàng.</summary>
+        public readonly Dictionary<string, long> SpentByMicro = new Dictionary<string, long>(StringComparer.Ordinal);
+        /// <summary>U2.15b: vật liệu đã dùng cho dự án Sanctuary (tổng đơn vị).</summary>
+        public long ProjectMaterialUnits;
         public EconomySimulator Sim { get; private set; }
         public RunResult Result { get; private set; }
         public int Seed { get; private set; }
@@ -92,6 +98,8 @@ namespace Dravio.Domain.Tests.Simulation
             if (PaidOnce[key] == 2) Violations.Add("paid twice: " + key);
         }
 
+        private void Spend(string k, long micro) => SpentByMicro[k] = (SpentByMicro.TryGetValue(k, out long v) ? v : 0) + micro;
+
         private static long Inv(GameState s, string m) => s.Player.Inventory.TryGetValue(m, out long v) ? v : 0;
 
         private void OnDispatch(GameCommand cmd, GameState before, DispatchResult r, long now)
@@ -132,12 +140,13 @@ namespace Dravio.Domain.Tests.Simulation
                         expected += x.RewardGoldMicro; AchievementMicro += x.RewardGoldMicro; Once("achievement:" + x.AchievementId);
                         if (x.RewardGoldMicro != ProgressCatalog.AchievementRewardG(x.AchievementId) * 1_000_000) Violations.Add("achievement reward differs from catalog: " + x.AchievementId);
                         break;
-                    case PackBought x: expected -= x.PriceGoldMicro; SpentMicro += x.PriceGoldMicro; First(x.Tutorial ? "pack.tutorial" : "pack.bought", now, after); break;
-                    case BreedStarted x: expected -= x.FeeGoldMicro; SpentMicro += x.FeeGoldMicro; First("breed.started", now, after); break;
-                    case UpgradeBought x: expected -= x.CostGoldMicro; SpentMicro += x.CostGoldMicro; break;
-                    case DecorationBought x: expected -= x.PriceGoldMicro; SpentMicro += x.PriceGoldMicro; break;
+                    case PackBought x: expected -= x.PriceGoldMicro; SpentMicro += x.PriceGoldMicro; Spend("pack", x.PriceGoldMicro); First(x.Tutorial ? "pack.tutorial" : "pack.bought", now, after); break;
+                    case BreedStarted x: expected -= x.FeeGoldMicro; SpentMicro += x.FeeGoldMicro; Spend("breed", x.FeeGoldMicro); First("breed.started", now, after); break;
+                    case UpgradeBought x: expected -= x.CostGoldMicro; SpentMicro += x.CostGoldMicro; Spend("upgrade", x.CostGoldMicro); break;
+                    case DecorationBought x: expected -= x.PriceGoldMicro; SpentMicro += x.PriceGoldMicro; Spend("decoration", x.PriceGoldMicro); break;
                     case SanctuaryProjectBuilt x:
-                        expected -= x.CostGoldMicro; SpentMicro += x.CostGoldMicro;
+                        expected -= x.CostGoldMicro; SpentMicro += x.CostGoldMicro; Spend("project", x.CostGoldMicro);
+                        ProjectMaterialUnits += (long)x.MaterialEach * x.MaterialIds.Count;
                         if (SanctuaryProjectCatalog.CostG(x.Index) * 1_000_000 != x.CostGoldMicro) Violations.Add("project cost differs from catalog: " + x.Index);
                         foreach (string m in x.MaterialIds) Mat(m, -x.MaterialEach);
                         Once("project:" + x.Index);
@@ -187,6 +196,7 @@ namespace Dravio.Domain.Tests.Simulation
             long delta = after.Player.Gold.Micro - before.Player.Gold.Micro;
             if (delta != expected + prod) Violations.Add($"gold ledger mismatch on {cmd.Type} at {H(now):0.00}h: Δ{delta} vs {expected + prod}");
             ProductionMicro += prod;
+            if (cmd is AdvanceTimeCommand at && at.Mode == AdvanceMode.Offline) OfflineProductionMicro += prod;
             if (after.Player.Gold.Micro < 0) Violations.Add("negative gold");
 
             // ---------------- sổ vật liệu
