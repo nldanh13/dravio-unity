@@ -106,7 +106,8 @@ namespace Dravio
         GameSession session;
         GameState lastState;
         string selected,travelHabitat,travelZone,foodId,foodUid;
-        bool connectedWorlds,viewSuspended;
+        [SerializeField] bool connectedWorlds;
+        bool viewSuspended;
         public bool WorldViewAvailable=>active;
         string ViewZone=>locations?.zoneId??ConnectedWorldPolicy.Origin;
         public void EnableConnectedWorlds()=>connectedWorlds=true;
@@ -816,13 +817,14 @@ namespace Dravio
             Ecosystem.TravelOptions(State,selected).Where(o=>connectedWorlds?ConnectedWorldPolicy.ScenePath(o.ZoneId)!=null:o.ZoneId=="origin").ToList();
         void NextTravel()
         {
+            if(!Ready)return;
             var options=TravelOptions();if(options.Count==0)return;
             var next=options[(options.FindIndex(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat))+1)%options.Count];
             travelZone=next.ZoneId;travelHabitat=next.HabitatId;RefreshProfile();
         }
         void Move()
         {
-            if(Selected==null || travelHabitat==null)return;
+            if(!Ready || Selected==null || travelHabitat==null)return;
             string who=selected,habitat=travelHabitat,zone=travelZone;
             if(zone==null || !TravelOptions().Any(o=>ConnectedWorldPolicy.MatchesDestination(o,zone,habitat)&&o.Blocked==null))return;
             if(Send(id=>new MoveDragonCommand(id,who,MoveTarget.Zone(zone,habitat))))Message("Moved to habitat: "+zone,"Đã chuyển sinh cảnh: "+zone);
@@ -887,11 +889,13 @@ namespace Dravio
             }
             else if(unavailable.TryGetValue(d.Uid,out string why))visual=why switch{
                 "missing-model"=>vi?"Thiếu model đúng loài":"Missing species model",
-                "ground-only"=>vi?"Chưa hỗ trợ môi trường di chuyển của loài":"Locomotion medium not implemented",
+                "ground-only"=>vi?"Chưa hỗ trợ bơi/bay trong game":"Live swim/fly not implemented",
                 _=>vi?"Không có điểm đặt an toàn":"No safe spawn"};
             profile.text=title.text+"\n"+(vi?"Thế giới đang xem: ":"Viewing: ")+ViewZone+"\nUID: "+d.Uid+"\n"+snapshot.Mutation+" · "+d.Personality+"\n"+snapshot.Status+
                 " · "+(snapshot.HabitatId??snapshot.ZoneId??"—")+"\n"+(vi?"Phù hợp: ":"Suitability: ")+(snapshot.Suitability?.ToString()??"—")+
                 "\n"+visual+"\n"+(vi?"Hiển thị: ":"Visual residents: ")+residents.Count;
+            if(d.Location.Kind==LocationKind.Zone && d.Location.ZoneId!=ViewZone)
+                profile.text+="\n"+(vi?"Đang ở thế giới khác; đổi vùng xem để tương tác.":"In another world; visit that world to interact.");
             var options=TravelOptions();
             if(!options.Any(o=>ConnectedWorldPolicy.MatchesDestination(o,travelZone,travelHabitat)))
             {var first=options.FirstOrDefault();travelZone=first?.ZoneId;travelHabitat=first?.HabitatId;}

@@ -25,7 +25,7 @@ namespace Dravio
         bool[] rootStates;
         bool switching,configured;
         string current=ConnectedWorldPolicy.Origin,feedback="";
-        float hour;
+        float hour,nextRefresh;
         public void Configure(DravioSessionHost h,LivingSanctuaryPresentation p,SanctuaryDomainPreview a,
             GameObject[] roots,Text status,Button origin,Button ocean,Button sky)
         {host=h;presentation=p;adapter=a;originEnvironmentRoots=roots;viewStatus=status;originButton=origin;oceanButton=ocean;skyButton=sky;}
@@ -42,6 +42,14 @@ namespace Dravio
                     x.GetComponentInChildren<SanctuaryDomainPreview>(true)==null &&
                     x.GetComponentInChildren<ConnectedWorldController>(true)==null &&
                     x.GetComponentInChildren<EventSystem>(true)==null);
+            if(configured)
+            {
+                var env=LivingEnvironment.Active;var camera=Camera.main;
+                configured=env!=null && env.locations!=null && env.locations.zoneId==ConnectedWorldPolicy.Origin &&
+                    camera!=null && camera.orthographic && originEnvironmentRoots.Contains(env.transform.root.gameObject) &&
+                    originEnvironmentRoots.Contains(camera.transform.root.gameObject) &&
+                    UnityEngine.Object.FindObjectsByType<DravioSessionHost>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length==1;
+            }
             if(!configured){feedback="World shell configuration invalid / Cấu hình thế giới chưa hợp lệ";Refresh();return;}
             rootStates=new bool[originEnvironmentRoots.Length];
             originButton.onClick.AddListener(()=>Visit(ConnectedWorldPolicy.Origin));
@@ -54,7 +62,7 @@ namespace Dravio
         static bool Installed(string zone)=>zone==ConnectedWorldPolicy.Origin ||
             SceneUtility.GetBuildIndexByScenePath(ConnectedWorldPolicy.ScenePath(zone))>=0;
         bool CanEnter(string zone)=>Ready && ConnectedWorldPolicy.CanVisit(host.Session.State,zone) && Installed(zone);
-        void Update()=>Refresh();
+        void Update(){if(Time.unscaledTime>=nextRefresh){nextRefresh=Time.unscaledTime+.25f;Refresh();}}
         void Refresh()
         {
             if(viewStatus==null)return;
@@ -76,7 +84,7 @@ namespace Dravio
         }
         IEnumerator Change(string zone)
         {
-            switching=true;feedback="";
+            switching=true;feedback="";Refresh();
             adapter.SetWorldSwitching(true);
             presentation.SuspendWorldView(); // Clear visual claims, not canonical food or residents.
             var living=LivingEnvironment.Active;hour=living!=null?living.Hour:13f;
@@ -135,7 +143,7 @@ namespace Dravio
             var cameras=roots.SelectMany(x=>x.GetComponentsInChildren<Camera>()).Where(x=>x.isActiveAndEnabled).ToArray();
             if(environments.Length!=1||cameras.Length!=1||environments[0].locations==null ||
                 environments[0].locations.zoneId!=zone||!cameras[0].orthographic)return false;
-            if(!SceneManager.SetActiveScene(scene))return false;
+            if(LivingEnvironment.Active!=environments[0] || !SceneManager.SetActiveScene(scene))return false;
             var env=environments[0];
             if(env.timeOfDay!=null)env.timeOfDay.SetHour(hour);
             var fit=cameras[0].GetComponent<SanctuaryCameraFit>();if(fit!=null)fit.enabled=true;
