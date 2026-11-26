@@ -278,7 +278,7 @@ namespace Dravio.Platform
             // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
             cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand ||
             // U2.8: khởi hành (chốt seed + phần thưởng) và nhận thưởng thám hiểm.
-            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand || cmd is CompleteQuestCommand ||
+            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand || cmd is CompleteQuestCommand || cmd is BuildSanctuaryProjectCommand ||
             // U2.6: trú ẩn và mọi bước chăm sóc (mốc bắt đầu / kế hoạch / lượng giá / xuất viện là dữ liệu chốt).
             cmd is MoveToShelterCommand || cmd is AssessCaseCommand || cmd is SetCarePlanCommand || cmd is StartCareCommand || cmd is ReviewCaseCommand ||
             cmd is DischargeDragonCommand;

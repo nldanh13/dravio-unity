@@ -367,6 +367,31 @@ namespace Dravio.Persistence.Tests
         }
 
         [Test]
+        public void Sanctuary_purchase_is_persisted_before_next_autosave()
+        {
+            var store = new MemorySaveStore();
+            var fixture = PFix.Fresh();
+            // Explicit funded save fixture; the purchase itself goes through the real session.
+            fixture.Player.Gold = MicroGold.FromWholeGold(100000);
+            fixture.Player.TotalGoldEarned = fixture.Player.Gold;
+            var manager = new SaveManager(store, () => PFix.T0);
+            manager.Load();
+            Assert.That(manager.Save(fixture), Is.True);
+            var rig = new SessionRig(store, PFix.T0);
+            GameSession session = rig.NewSession();
+            Assert.That(session.Status, Is.EqualTo(SessionStatus.Ready));
+            long before = Gold(session);
+            int writes = store.Writes;
+            Assert.That(session.Send(id => new BuildSanctuaryProjectCommand(id)), Is.Null);
+            Assert.That(session.State.SanctuaryProjectsBuilt, Is.EqualTo(1));
+            Assert.That(store.Writes, Is.GreaterThan(writes));
+            var persisted = SaveFile.Parse(store.Get(SaveSlot.Main)).Save.State;
+            Assert.That(persisted.SanctuaryProjectsBuilt, Is.EqualTo(1));
+            Assert.That(persisted.Player.Gold.Micro, Is.EqualTo(before - MicroGold.FromWholeGold(20000).Micro));
+            Assert.That(persisted.Revision, Is.EqualTo(session.State.Revision));
+        }
+
+        [Test]
         public void Import_replaces_the_session_state_and_settles_offline_once()
         {
             var store = new MemorySaveStore();
