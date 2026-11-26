@@ -41,7 +41,7 @@ namespace Dravio
             public GenotypeEntry[] genotype;
             public Vector3 position,target;
             public Quaternion rotation;
-            public bool walking,canSleep,hasTarget,sleeping,usedPoint;
+            public bool walking,canSleep,hasTarget,usedPoint;
             public float rest;
             public int occupant;
             public BehaviorDecision decision;
@@ -184,11 +184,12 @@ namespace Dravio
                     resident=new Resident{uid=d.Uid,habitat=d.Location.HabitatId,position=spawn.Position,rotation=spawn.Rotation,rest=1f,occupant=nextOccupant++};
                     residents.Add(d.Uid,resident);
                 }
+                if(resident.stage!=stage)ReleasePoint(resident);
                 resident.stage=stage;resident.species=d.SpeciesId;resident.variant=d.Mutation.ToWire();
                 resident.personality=DragonPersonalityPresentation.StyleFromName(d.Personality.ToString());
                 resident.walking=entry.rigged && entry.clips!=null && entry.clips.Contains("Walk");
                 resident.canSleep=entry.rigged && entry.clips!=null && entry.clips.Contains("Sleep");
-                if(!resident.canSleep)resident.sleeping=false;
+                if(!resident.canSleep)resident.manualRestUntil=0;
                 resident.genotype=d.Genotype?.Select(g=>new GenotypeEntry(g.Key,g.Value.ToString())).ToArray()??Array.Empty<GenotypeEntry>();
             }
             var current=lastState.FindDragon(selected);
@@ -207,7 +208,12 @@ namespace Dravio
         {
             var living=LivingEnvironment.Active;
             if(living==null || living.timeOfDay==null || living.timeOfDay.data==null)return BehaviorPhase.Day;
-            return DayCycle.PhaseOfMinute(Mathf.FloorToInt(living.Hour*60f));
+            // Use the phase actually applied to lighting/audio, not a second independent clock.
+            return living.Phase switch {
+                Dravio.EnvironmentArt.DayPhase.Dawn=>BehaviorPhase.Dawn,
+                Dravio.EnvironmentArt.DayPhase.Day=>BehaviorPhase.Day,
+                Dravio.EnvironmentArt.DayPhase.Dusk=>BehaviorPhase.Dusk,
+                _=>BehaviorPhase.Night};
         }
         void RemoveResident(string uid)
         {
@@ -255,19 +261,23 @@ namespace Dravio
                     !AutonomousPresentationPolicy.PointMatches(behavior,p.kind) || !interactions.IsFree(p.id) ||
                     !ClearPoint(p.Position,r.habitat,r.uid) || !Segment(r.position,p.Position,r.habitat))continue;
                 float distance=Vector3.Distance(r.position,p.Position)-
-                    (p.Prefers((Dravio.EnvironmentArt.DayPhase)phase)?.5f:0f);
+                    (p.Prefers((Dravio.EnvironmentArt.DayPhase)phase) ? .5f : 0f);
                 if(distance<score){best=p;score=distance;}
             }
             if(best==null || !interactions.TryReserve(best.id,r.occupant))return false;
             r.point=best;r.target=best.Position;r.hasTarget=true;r.usedPoint=false;
             return true;
         }
+        bool GroundStepClear(Resident r,Vector3 target,float dt)=>
+            Segment(r.position,target,r.habitat) && ClearPoint(Vector3.MoveTowards(r.position,target,.55f*dt),r.habitat,r.uid);
         bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
         {
             speed=0f;turnRate=0f;
             Vector3 delta=target-r.position;delta.y=0;
             if(delta.sqrMagnitude<.01f)return true;
-            if(!r.walking || !Segment(r.position,target,r.habitat))return false;
+            if(!r.walking || !GroundStepClear(r,target,dt))return false;
+            // Stop translation while waking. Idle intent lets the planner finish its authored Wake.
+            if(manager.TryGet(r.uid,out var live) && (live.ShownLocomotion==DragonLocomotion.Sleep || live.CurrentInteraction==DragonInteraction.Wake))return false;
             var next=Vector3.MoveTowards(r.position,target,.55f*dt);
             if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat))return false;
             var old=r.rotation;var heading=Quaternion.LookRotation(delta);
@@ -307,7 +317,10 @@ namespace Dravio
             if(behavior==DragonBehavior.Sleep)return DragonBehaviorIntent.Sleep;
             if(behavior==DragonBehavior.Idle)return DragonBehaviorIntent.Idle;
             // Approach authored points only for compatible behaviors, using the existing reservations.
-            bool pointBehavior=AutonomousPresentationPolicy.UsesPoint(behavior);
+            // A real health/disaster Rest must happen in place, never walk to a scenic spot.
+            if(behavior==DragonBehavior.Rest && r.decision?.Role==BehaviorRole.Gameplay)
+            {if(r.point!=null)ReleasePoint(r);return DragonBehaviorIntent.Recover;}
+            bool pointBehavior=AutonomousPresentationPolicy.AllowsPoint(behavior,r.decision?.Role??BehaviorRole.Presentation);
             if(pointBehavior && r.point==null)
             {
                 r.rest-=dt;
@@ -315,7 +328,7 @@ namespace Dravio
             }
             if(r.point!=null)
             {
-                if(!Segment(r.position,r.point.Position,r.habitat) || !ClearPoint(r.point.Position,r.habitat,r.uid))
+                if(!GroundStepClear(r,r.point.Position,dt) || !ClearPoint(r.point.Position,r.habitat,r.uid))
                 {ReleasePoint(r);r.rest=2f;r.fallback="point-blocked";return DragonBehaviorIntent.Idle;}
                 bool arrived=MoveToward(r,r.point.Position,dt,out speed,out turnRate);
                 if(!arrived)return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
@@ -342,7 +355,7 @@ namespace Dravio
                     r.target=p.Position;r.hasTarget=true;
                 }
                 bool arrived=MoveToward(r,r.target,dt,out speed,out turnRate);
-                if(arrived || !Segment(r.position,r.target,r.habitat) || !ClearPoint(r.target,r.habitat,r.uid))
+                if(arrived || !GroundStepClear(r,r.target,dt) || !ClearPoint(r.target,r.habitat,r.uid))
                 {r.hasTarget=false;r.rest=2f;}
                 return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
             }
@@ -370,7 +383,8 @@ namespace Dravio
             }
             var report=sync.Sync(frames,dt);substitutions=report.substituted;
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
-            if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)Consume();
+            if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)
+            {consumeAfter=Time.unscaledTime+.2f;Consume();}
             ReadSelection();
         }
 
@@ -444,11 +458,7 @@ namespace Dravio
             if(drop==null){ClearFood();return;}
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
-            if(sharedFoodAllocation)
-            {
-                var decision=BehaviorQueries.Dragon(State,d.Uid,NowMs,phase);
-                if(decision?.Behavior!=DragonBehavior.SeekFood || decision.TargetFoodId!=foodId)return;
-            }
+            if(!AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,sharedFoodAllocation))return;
             var idToEat=foodId;var who=foodUid;
             if(Send(id=>new ConsumeFoodCommand(id,idToEat,who)))Message("Food consumed: "+who,"Rồng đã ăn: "+who);
             else consumeAfter=Time.unscaledTime+1f; // no retry every frame; Domain remains authoritative.
