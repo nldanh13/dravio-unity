@@ -1,0 +1,20 @@
+<!--
+  Type-check (dotnet build) of the Character MonoBehaviours against hand-written UnityEngine stubs (Stubs.cs).
+  NOT a Unity compile: it only proves the files are consistent C# 9 against the API surface they use.
+    dotnet build "Assets/Dravio/Character/Tests/DotNet~/TypeCheck/Dravio.Character.TypeCheck.csproj"
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../Runtime/DragonAnimationMap.cs;../../../Runtime/DragonVisualCatalog.cs;../../../Runtime/DragonVisualTypes.cs;../../../Runtime/KeyedPool.cs;../../../Runtime/UpdateRatePolicy.cs;../../../Runtime/PhenotypeProfile.cs;../../../Runtime/DragonVisualRoster.cs;../../../Runtime/Integration/*.cs" />
+    <Compile Include="../../../Runtime/DragonVisualManager.cs;../../../Runtime/DragonVisualInstance.cs" />
+    <Compile Include="Stubs.cs" />
+  </ItemGroup>
+</Project>

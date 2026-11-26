@@ -31,7 +31,7 @@ namespace Dravio.Character.Diagnostics
             public float fpsAvg, fps1Low, frameMsAvg, frameMsMax;
             public long drawCallsAvg, setPassAvg, trianglesAvg, verticesAvg;
             public long totalUsedMemoryMB, gcUsedMemoryMB, systemUsedMemoryMB;
-            public int poolCreated, poolReused;
+            public int poolCreated, poolReused, poolDestroyed;
         }
         [Serializable] public sealed class Report
         {
@@ -122,7 +122,7 @@ namespace Dravio.Character.Diagnostics
                     drawCallsAvg = sDraw / k, setPassAvg = sSet / k, trianglesAvg = sTris / k, verticesAvg = sVerts / k,
                     totalUsedMemoryMB = totalMem.LastValue / (1024 * 1024), gcUsedMemoryMB = gcMem.LastValue / (1024 * 1024),
                     systemUsedMemoryMB = sysMem.LastValue / (1024 * 1024),
-                    poolCreated = manager.PoolCreated, poolReused = manager.PoolReused
+                    poolCreated = manager.PoolCreated, poolReused = manager.PoolReused, poolDestroyed = manager.PoolDestroyed
                 });
             }
         }

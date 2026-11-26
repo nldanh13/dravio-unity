@@ -11,7 +11,8 @@ namespace Dravio.Character.Editor
     {
         internal const string DefaultPath = "Assets/Dravio/Character/Imported/import-manifest.json";
 
-        [Serializable] internal sealed class Clip { public string name; public int start; public int end; public bool loop; }
+        [Serializable] internal sealed class Clip { public string name; public int start; public int end; public bool loop; public float groundSpeed; }
+        [Serializable] internal sealed class AnimQa { public string status; public string[] warnings = new string[0]; }
         [Serializable] internal sealed class IkChain { public string upper, lower, foot; }
         [Serializable] internal sealed class Files { public string fbx; }
         [Serializable] internal sealed class Collider { public string type; public float[] boxCenter; public float[] boxSize; public string mesh; public int meshTriangles; }
@@ -34,6 +35,10 @@ namespace Dravio.Character.Editor
             public int fps = 30;
             public IkChain[] ikChains = new IkChain[0];
             public string[] anchors = new string[0];
+            public int rigVersion;
+            /// <summary>Listed in approved-assets.json: files and prefab are kept exactly as approved.</summary>
+            public bool approved;
+            public AnimQa animQa;
             // prop
             public string propId;
             public string category;

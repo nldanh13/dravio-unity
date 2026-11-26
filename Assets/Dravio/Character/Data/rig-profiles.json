@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "_note": "Animation/rig settings per archetype and species. Motion values are animation choices (timing, amplitude), not biology; biology (locomotion, wings, limb count) still comes from canonical data or asset-overrides.json. heightM is only set where the project already fixes a size.",
+  "fileNameAliases": {
+    "_note": "Filename token -> canonical species id, for names used in requests/files that differ from the id. sproutling: name used for sprout in the U1-CHAR.4 request.",
+    "sproutling": "sprout"
+  },
+  "archetypes": {
+    "quadruped": {
+      "tailBones": 3,
+      "walk": {"gait": "walk", "frames": 32, "duty": 0.65, "strideLegs": 0.55, "liftLegs": 0.16, "bob": 0.012},
+      "run": {"gait": "trot", "frames": 20, "duty": 0.42, "strideLegs": 0.95, "liftLegs": 0.26, "bob": 0.03},
+      "sleep": {"dropLegs": 0.30, "foreReachLegs": 0.22, "hindReachLegs": 0.3, "footFollow": 0.8},
+      "eat": {"neckPitch": 0.4, "headPitch": 0.3, "chestPitch": 0.14, "chestDropH": 0.03},
+      "happy": {"hopH": 0.05, "tailWag": 0.28},
+      "burrow": {"digReachLegs": 0.35, "digCycles": 2, "footFollow": 0.5}
+    },
+    "winged": {
+      "inherits": "quadruped",
+      "extraClips": ["TakeOff", "Glide", "Land"],
+      "fly": {"frames": 32, "upstroke": 0.75, "downstroke": 0.40, "foreFold": 0.35, "bob": 0.03, "tuck": 0.4},
+      "glide": {"frames": 60, "dihedral": 0.12, "bank": 0.05},
+      "takeoff": {"frames": 40, "riseH": 0.5},
+      "land": {"frames": 40, "dropH": 0.4}
+    },
+    "serpentine": {
+      "tailBones": 4,
+      "spineBones": 8,
+      "walk": {"gait": "walk", "frames": 40, "duty": 0.7, "strideLegs": 0.6, "liftLegs": 0.25, "bob": 0.006, "bodyWave": 0.04},
+      "run": {"gait": "trot", "frames": 26, "duty": 0.5, "strideLegs": 0.9, "liftLegs": 0.3, "bob": 0.01, "bodyWave": 0.06},
+      "swim": {"frames": 48, "wave": 0.16, "waveLength": 0.8, "limbTuck": 0.45},
+      "sleep": {"coil": 0.22, "dropLegs": 0.4, "foreReachLegs": 0.0},
+      "eat": {"neckPitch": 0.4, "headPitch": 0.3, "chestDropH": 0.0},
+      "happy": {"hopH": 0.0, "tailWag": 0.3}
+    },
+    "aquatic": {
+      "tailBones": 3,
+      "swim": {"frames": 48, "wave": 0.16, "waveLength": 1.0, "finFlap": 0.5},
+      "sleep": {"coil": 0.05},
+      "eat": {"neckPitch": 0.35, "headPitch": 0.25, "chestDropH": 0.0},
+      "happy": {"hopH": 0.0, "tailWag": 0.3}
+    }
+  },
+  "species": {
+    "emberling": {
+      "heightM": 0.90,
+      "heightSource": "species-character-spec.json prototypeAsset: EmberlingRefinedGLB.fbx (0.90 m); DragonCarePreview keeps the authored 0.90 m mesh"
+    },
+    "droplet": {"swim": {"frames": 48, "style": "paddle", "tailStroke": 0.35, "tailBase": 0.45, "finFlap": 0.45}},
+    "sprout": {"burrow": {"digReachLegs": 0.32, "digCycles": 2, "footFollow": 0.5}},
+    "steamdrake": {},
+    "zephyr": {}
+  },
+  "_changes": {"U1-CHAR.5": "quadruped sleep.footFollow 0.5 -> 0.8 and burrow.footFollow 0.5 (a flat planted paw under a folding shin pinched the ankle); droplet swim.tailBase 0.45 (tail bend grows from the root instead of starting at 60 % at the hip). Timing/amplitude unchanged; thresholds unchanged."}
+}
