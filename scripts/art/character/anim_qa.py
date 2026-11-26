@@ -257,6 +257,9 @@ def main():
     arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
     obj = next(o for o in bpy.data.objects if o.type == 'MESH' and any(m.type == 'ARMATURE' for m in o.modifiers))
     mesh = Mesh(obj)
+    # Unity's SkinnedMeshRenderer (and FBX) skin linearly; Blender's Preserve Volume is dual quaternion. Record which
+    # one these numbers measured so a Blender PASS is never mistaken for the skinning Unity plays.
+    skinning = 'dualQuaternion' if any(m.type == 'ARMATURE' and m.use_deform_preserve_volume for m in obj.modifiers) else 'linear'
     scene = bpy.context.scene
     fps = rig.get('fps', 30)
     scene.frame_set(1)
@@ -506,7 +509,7 @@ def main():
                   'views': ['side (+X)', 'three-quarter front-left']}
     report = {
         'qaVersion': QA_VERSION, 'name': name, 'species': rig.get('species'), 'archetype': rig.get('archetype'),
-        'rigVersion': rig.get('rigVersion'), 'limits': lim, 'weights': weights, 'bones': bones_rep,
+        'rigVersion': rig.get('rigVersion'), 'skinning': skinning, 'limits': lim, 'weights': weights, 'bones': bones_rep,
         'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'transitions': transitions, 'motionEnvelope': envelope, 'images': images,
         'warnings': warnings, 'status': 'PASS' if not warnings else 'PASS_WITH_WARNINGS',
         'note': 'Automated geometric checks. They do not replace an animator review of the motion.',

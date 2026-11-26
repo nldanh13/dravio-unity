@@ -40,11 +40,11 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
-PIPELINE_VERSION = 'u1-char8-v2'  # CHAR.8: rig_geometry splits close paws, ignores tail-tip contacts, symmetric about the feet midline
+PIPELINE_VERSION = 'u1-char9b-v1'  # CHAR.8: rig_geometry splits close paws, ignores tail-tip contacts, symmetric about the feet midline
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
 # Every script and data file whose change must re-process an asset (cache fingerprint).
 PIPELINE_FILES = ['batch_import.py', 'char_common.py', 'inspect_character.py', 'prepare_character.py',
-                  'rig_archetype.py', 'rig_geometry.py', 'anim_qa.py', 'build_lods.py', 'build_prop.py',
+                  'rig_archetype.py', 'rig_geometry.py', 'repair_chibi_rig.py', 'anim_qa.py', 'build_lods.py', 'build_prop.py',
                   'validate_character.py']
 STAGES = ['Baby', 'Juvenile', 'Adult']
 SHIM = "import runpy, sys\nscript = sys.argv[1]\nsys.argv = ['blender', '--'] + sys.argv[2:]\nrunpy.run_path(script, run_name='__main__')\n"
@@ -182,6 +182,13 @@ def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False):
                      f"an unambiguous measurement of the mesh. Static LODs produced instead.")
     elif step('rig_archetype', r.blender(HERE / 'rig_archetype.py', prepared, d, *rig_args, ow)):
         rigged = load(d / f'{name}_rig.json')
+        if ov.get('repair'):  # CHAR.9b: chibi skin/motion repair (repair_chibi_rig.py), configured per species/file
+            if step('repair_chibi_rig', r.blender(HERE / 'repair_chibi_rig.py', d / f'{name}_Rigged.blend',
+                                                  d / f'{name}_rig.json', '--config', json.dumps(ov['repair']))):
+                rigged = load(d / f'{name}_rig.json')
+                notes.append('CHAR.9b chibi rig repair applied: ' + json.dumps(ov['repair']))
+            else:
+                notes.append('CHAR.9b chibi rig repair FAILED; unrepaired rig kept: ' + steps[-1].get('error', ''))
         if rigged.get('limbCountSource', '').startswith('mesh measurement'):
             notes.append(f"limbCount {rigged['limbCount']} taken from the mesh measurement (--limb-count auto): "
                          f"{rigged.get('limbMeasurement')}. Confirm with the art director.")
