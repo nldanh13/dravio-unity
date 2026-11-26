@@ -136,7 +136,8 @@ namespace Dravio.Domain.Tests
                 Assert.That(a.Expedition.Rewards.Sum(kv => kv.Value), Is.InRange(2, 4), "tổng 2–4 đơn vị, không phải mỗi loại");
                 clock.Set(a.Expedition.FinishAtMs);
                 GameState c = Ok(a, new ClaimExpeditionCommand("c"), clock).State;
-                Assert.That(Ecosystem.Materials(c).Sum(m => m.Quantity), Is.EqualTo(a.Expedition.Rewards.Sum(kv => kv.Value)));
+                // U2.11: + mốc thám hiểm đầu tiên (2 gỗ + 2 hạt giống, một lần mỗi save).
+                Assert.That(Ecosystem.Materials(c).Sum(m => m.Quantity), Is.EqualTo(a.Expedition.Rewards.Sum(kv => kv.Value) + 4));
                 clock.Set(T0);
             }
         }
@@ -148,13 +149,16 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
-        public void Expedition_health_thresholds_are_reported_as_unsupported_not_faked()
+        public void Expedition_health_thresholds_are_checked_since_U2_6()
         {
-            Assert.That(Expedition.Expeditions.UncheckedHealthConditions, Is.EqualTo(new[] { "health>=80", "mobility>=80", "comfort>=60", "no-open-care-case" }));
+            // U2.8 báo bốn điều kiện là "chưa kiểm được"; U2.6 kiểm thật nên danh sách rỗng và rồng thiếu chỉ số bị chặn.
+            Assert.That(Expedition.Expeditions.UncheckedHealthConditions, Is.Empty);
             var (s0, _) = Game();
-            GameState s = s0.DeepClone(); s.Dragons.Add(Adult("x", "emberling"));
+            GameState s = s0.DeepClone(); s.Dragons.Add(Adult("x", "emberling")); s.Dragons.Add(Adult("weak", "emberling", d => d.Vitals.Mobility = 79));
             ExpeditionCandidate c = Ecosystem.ExpeditionOptions(s).First().Candidates.Single(x => x.DragonUid == "x");
-            Assert.That((c.Blocked, c.UncheckedConditions.Count), Is.EqualTo(((DomainErrorCode?)null, 4)));
+            Assert.That((c.Blocked, c.UncheckedConditions.Count), Is.EqualTo(((DomainErrorCode?)null, 0)));
+            ExpeditionCandidate w = Ecosystem.ExpeditionOptions(s).First().Candidates.Single(x => x.DragonUid == "weak");
+            Assert.That((w.Blocked, w.Detail), Is.EqualTo(((DomainErrorCode?)DomainErrorCode.VitalsBelowThreshold, "mobility>=80")));
         }
     }
 }

@@ -400,12 +400,171 @@ namespace Dravio.Domain.Core
                 }
             }
 
+            if (s.SchemaVersion >= 8) ValidateHealth(s, errors);
+            if (s.SchemaVersion >= 9) ValidateU210(s, errors);
+            if (s.SchemaVersion >= 10) ValidateU211(s, errors);
+
             List<string> unlocked = s.UnlockedAchievements;
             if (!UniqueStrings(unlocked, ProgressCatalog.IsAchievementId)) errors.Add("unlockedAchievements: invalid");
             List<string> claimed = s.ClaimedAchievements;
             if (!UniqueStrings(claimed, ProgressCatalog.IsAchievementId)) errors.Add("claimedAchievements: invalid");
             else if (unlocked != null && !claimed.TrueForAll(unlocked.Contains)) errors.Add("claimedAchievements: not unlocked");
         }
+
+        /// <summary>
+        /// U2.6 (schema v8): chỉ số, ca chăm sóc, thiên tai. Chặn sửa tay để rút ngắn chăm sóc, nhân ca, vượt trạm 2 chỗ, sản xuất khi đang chăm sóc,
+        /// hay một rồng nằm ở hai nơi.
+        /// </summary>
+        /// <summary>
+        /// U2.11 (Schema v10): nhiệm vụ phụ (ID catalog, không trùng, không phải cổng), bộ đếm thám hiểm (tuyến canonical, ≥ 0), khối quan hệ.
+        /// Quan hệ không chạm vàng / rồng / vật liệu: mục lạ bị bỏ khi nạp (RelationLog.Sanitize), không bao giờ làm save bị từ chối.
+        /// </summary>
+        private static void ValidateU211(GameState s, List<string> errors)
+        {
+            if (s.CompletedSideQuests == null || !UniqueStrings(s.CompletedSideQuests, Progression.QuestProposals.IsSideQuestId)) errors.Add("completedSideQuests: invalid");
+            if (s.ExpeditionsClaimed == null) errors.Add("expeditionsClaimed: not an object");
+            else foreach (var kv in s.ExpeditionsClaimed)
+                    if (!ExpeditionCatalog.TryGet(kv.Key, out _) || kv.Value < 0) { errors.Add("expeditionsClaimed: invalid"); break; }
+            if (s.Relations == null) errors.Add("relations: not an object");
+        }
+
+        /// <summary>U2.10 (Schema v9): bộ đếm Starter, dự án Sanctuary, sổ nghiên cứu (ResearchSchemaDraft.Validate).</summary>
+        private static void ValidateU210(GameState s, List<string> errors)
+        {
+            if (s.PackDaily == null) errors.Add("packDaily: not an object");
+            else
+            {
+                if (s.PackDaily.Day != null && !JsCompat.IsUtcDayPattern(s.PackDaily.Day)) errors.Add("packDaily.day: invalid");
+                // Không so với StarterDailyLimit: nếu sau này đổi giới hạn, save cũ vẫn nạp được (dispatcher tự so số đã mua với giới hạn mới).
+                if (s.PackDaily.StarterBought < 0 || (s.PackDaily.Day == null && s.PackDaily.StarterBought != 0))
+                    errors.Add("packDaily.starterBought: out of range");
+            }
+            if (s.SanctuaryProjectsBuilt < 0 || s.SanctuaryProjectsBuilt > SanctuaryProjectCatalog.Max) errors.Add("sanctuaryProjectsBuilt: out of range");
+            // Sổ nghiên cứu không chạm vàng / rồng / vật liệu: mục lạ bị bỏ khi nạp và khi ghi (ResearchSchemaDraft.Sanitize), KHÔNG bao giờ làm save
+            // bị từ chối. Kiểm chi tiết dùng ResearchSchemaDraft.Validate.
+            if (s.Research == null) errors.Add("research: not an object");
+        }
+
+        private static void ValidateHealth(GameState s, List<string> errors)
+        {
+            if (s.Dragons != null)
+                for (int i = 0; i < s.Dragons.Count; i++)
+                {
+                    DragonState d = s.Dragons[i];
+                    if (d == null) continue;
+                    Vitals v = d.Vitals;
+                    if (v == null || !InVitalRange(v.Health) || !InVitalRange(v.Energy) || !InVitalRange(v.Comfort) || !InVitalRange(v.Mobility) || !InVitalRange(v.Hydration))
+                        errors.Add("dragons[" + i + "].vitals: out of range");
+                }
+            if (s.HealthCases == null) { errors.Add("healthCases: invalid"); return; }
+            if (s.Disasters == null) { errors.Add("disasters: invalid"); return; }
+            HazardState hz = s.Hazard;
+            if (hz == null || hz.ForegroundMs < 0 || hz.ChecksDone < 0 || hz.CooldownUntilMs == null) errors.Add("hazard: invalid");
+            else
+            {
+                var zs = new HashSet<string>(StringComparer.Ordinal);
+                int last = -1;
+                foreach (var kv in hz.CooldownUntilMs)
+                {
+                    int idx = WorldCatalog.IndexOfZone(kv.Key);
+                    if (idx <= last || !zs.Add(kv.Key) || kv.Value < 0) { errors.Add("hazard.cooldownUntilMs: invalid"); break; }
+                    last = idx;
+                }
+            }
+
+            var caseIds = new HashSet<string>(StringComparer.Ordinal);
+            var caseDragons = new HashSet<string>(StringComparer.Ordinal);
+            int active = 0;
+            long now = s.Clock?.LastProcessedAtMs ?? 0;
+            foreach (HealthCase c in s.HealthCases)
+            {
+                if (c == null || c.CaseId == null || c.CaseId.Length == 0 || c.CaseId.Length > 64 || !caseIds.Add(c.CaseId)) { errors.Add("healthCases: invalid or duplicate id"); continue; }
+                string cp = "healthCases." + c.CaseId;
+                DragonState d = s.FindDragon(c.DragonId);
+                if (!WireNames.IsDefined(c.Cause) || !WireNames.IsDefined(c.Site) || !WireNames.IsDefined(c.Severity) || !WireNames.IsDefined(c.Phase) ||
+                    (c.Status != CaseStatus.Queued && c.Status != CaseStatus.Active) || c.Symptoms == null || c.CreatedAtMs < 0 || c.Progress < 0 || c.Progress > 1000)
+                { errors.Add(cp + ": invalid"); continue; }
+                if (d == null || d.Location == null || d.Location.Kind == LocationKind.Released) { errors.Add(cp + ": unknown or released dragon"); continue; }
+                if (!caseDragons.Add(d.Uid)) errors.Add(cp + ": dragon " + d.Uid + " has more than one open case");
+                if (c.CarePlanId != null && (!HealthCatalog.TryGetPlan(c.CarePlanId, out CarePlanDef plan) || plan.Site != c.Site || !plan.Suitable)) errors.Add(cp + ".carePlanId: invalid");
+                if (c.CarePlanId != null && !c.Assessed) errors.Add(cp + ": plan without assessment");
+                if (c.Status == CaseStatus.Active)
+                {
+                    active++;
+                    if (d.Location.Kind != LocationKind.Care || d.Location.CaseId != c.CaseId || d.Activity != DragonActivity.Care) errors.Add(cp + ": dragon not in care");
+                }
+                else if (d.Location.Kind != LocationKind.Shelter || d.Activity != DragonActivity.Care) errors.Add(cp + ": queued dragon not sheltered");
+                if (c.StartedAtMs > 0)
+                {
+                    bool bonus = c.CarePlanId != null;
+                    if (c.Status != CaseStatus.Active || !c.Assessed || c.DurationMs != HealthCatalog.DurationMs(c.Severity, bonus) ||
+                        !HealthCatalog.DurationInRange(c.Severity, c.DurationMs) || c.FinishAtMs != c.StartedAtMs + c.DurationMs || c.StartedAtMs < c.CreatedAtMs)
+                        errors.Add(cp + ": invalid care timing");
+                    else
+                    {
+                        // Tiến trình lưu không được vượt tiến trình thật tại mốc đã quyết toán (chặn sửa tay "đã xong").
+                        Health.CareCenter.PhaseAt(c, now, out int real, out _);
+                        if (c.Progress > real || (c.Progress >= 1000 && c.Phase != CasePhase.Return)) errors.Add(cp + ": progress ahead of time");
+                    }
+                }
+                else if (c.DurationMs != 0 || c.FinishAtMs != 0 || c.Progress != 0 || c.Phase != CasePhase.Stabilize) errors.Add(cp + ": progress before care started");
+                if (c.Reviewed && !(c.StartedAtMs > 0 && c.Progress >= 1000)) errors.Add(cp + ": reviewed before completion");
+            }
+            if (active > HealthCatalog.StationSlots) errors.Add("healthCases: " + active + " active cases exceed station slots " + HealthCatalog.StationSlots);
+            // FIFO: không có ca chờ khi trạm còn chỗ.
+            if (active < HealthCatalog.StationSlots && s.HealthCases.Exists(c => c != null && c.Status == CaseStatus.Queued)) errors.Add("healthCases: queued case while station has room");
+
+            var eventIds = new HashSet<string>(StringComparer.Ordinal);
+            var zones = new HashSet<string>(StringComparer.Ordinal);
+            var sheltered = new HashSet<string>(StringComparer.Ordinal);
+            foreach (DisasterState ev in s.Disasters)
+            {
+                if (ev == null || ev.Id == null || ev.Id.Length == 0 || ev.Id.Length > 64 || !eventIds.Add(ev.Id)) { errors.Add("disasters: invalid or duplicate id"); continue; }
+                string ep = "disasters." + ev.Id;
+                if (!WorldCatalog.IsZoneId(ev.ZoneId) || !WireNames.IsDefined(ev.Hazard) || !WireNames.IsDefined(ev.Severity) || !WireNames.IsDefined(ev.Phase) ||
+                    ev.Phase == DisasterPhase.Closed || ev.CreatedAtMs < 0 || ev.ForecastProgressMs < 0 || ev.ForecastProgressMs > HealthCatalog.ForecastMs ||
+                    ev.CaseIds == null || ev.Sheltered == null || ev.CaseIds.Count > HealthCatalog.MaxCasesPerEvent)
+                { errors.Add(ep + ": invalid"); continue; }
+                if (!zones.Add(ev.ZoneId)) errors.Add(ep + ": more than one open event in " + ev.ZoneId);
+                if (s.FindZone(ev.ZoneId)?.Unlocked != true) errors.Add(ep + ": zone locked");
+                bool struck = ev.Phase != DisasterPhase.Forecast && ev.Phase != DisasterPhase.Preparation;
+                if (struck != (ev.StruckAtMs > 0) || (struck && ev.Sheltered.Count > 0)) errors.Add(ep + ": phase inconsistent");
+                foreach (string cid in ev.CaseIds)
+                {
+                    HealthCase c = s.FindCase(cid);
+                    if (c != null && c.EventId != ev.Id) errors.Add(ep + ": case " + cid + " belongs to another event");
+                }
+                foreach (ShelteredDragon sh in ev.Sheltered)
+                {
+                    DragonState d = sh == null ? null : s.FindDragon(sh.Uid);
+                    if (d == null || !sheltered.Add(d.Uid) || d.Location.Kind != LocationKind.Shelter || d.Location.ZoneId != ev.ZoneId || d.Activity != DragonActivity.Idle ||
+                        HabitatCatalog.ZoneOf(sh.HabitatId) != ev.ZoneId)
+                        errors.Add(ep + ".sheltered: invalid entry");
+                }
+            }
+            foreach (HealthCase c in s.HealthCases)
+            {
+                if (c?.EventId == null) continue;
+                DisasterState ev = s.Disasters.Find(x => x != null && x.Id == c.EventId);
+                if (ev == null || !ev.CaseIds.Contains(c.CaseId)) errors.Add("healthCases." + c.CaseId + ": event not open");
+            }
+            if (s.Dragons != null)
+                foreach (DragonState d in s.Dragons)
+                {
+                    if (d?.Location == null) continue;
+                    // Vị trí care / shelter hay activity = care không kèm ca là dữ liệu cũ (TS v4 cho phép; ADR 0202 D8): được giữ nguyên, rồng vẫn bị chặn
+                    // lai / bán / thám hiểm như trước. Nhưng một caseId đang mở chỉ được trỏ bởi đúng rồng của ca đó.
+                    bool hasCase = caseDragons.Contains(d.Uid);
+                    if (d.Location.Kind == LocationKind.Care)
+                    {
+                        HealthCase owner = s.FindCase(d.Location.CaseId);
+                        if (owner != null && owner.DragonId != d.Uid) errors.Add("dragons." + d.Uid + ".location: case " + d.Location.CaseId + " belongs to another dragon");
+                    }
+                    if (hasCase && s.ProductionDragonIds != null && s.ProductionDragonIds.Contains(d.Uid)) errors.Add("dragons." + d.Uid + ": producing while in care");
+                }
+        }
+
+        private static bool InVitalRange(int v) => v >= HealthCatalog.VitalMin && v <= HealthCatalog.VitalMax;
 
         private static int IndexOf(IReadOnlyList<string> xs, string v)
         {

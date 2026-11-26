@@ -1,6 +1,9 @@
 // Dravio U1-ENV - stylized pond water for URP 17. Mobile friendly: no depth or
 // opaque texture, no reflections. Two scrolling samples of one painted ripple
 // texture, shore foam driven by vertex colour alpha (0 = shore, 1 = centre).
+// U1-ENV.3: up to 4 expanding ripple rings (_DravioRipples, set by EnvironmentWater
+// when a dragon drinks or splashes) and a gust push of the ripple pattern (_DravioWind).
+// Both globals are zero by default, which gives the U1-ENV.2 look.
 Shader "Dravio/Environment/Painterly Water"
 {
     Properties
@@ -53,6 +56,29 @@ Shader "Dravio/Environment/Painterly Water"
                 half _SparkleStrength;
             CBUFFER_END
 
+            float4 _DravioWind;
+            float4 _DravioRipples[4];   // xy = world xz, z = start time (_Time.y), w = strength
+            float4 _DravioRippleParams; // x = ring speed m/s, y = ring width m, z = lifetime s
+
+            half DravioRipples(float2 xz)
+            {
+                float speed = _DravioRippleParams.x > 0 ? _DravioRippleParams.x : 0.9;
+                float width = _DravioRippleParams.y > 0 ? _DravioRippleParams.y : 0.12;
+                float life = _DravioRippleParams.z > 0 ? _DravioRippleParams.z : 2.2;
+                half sum = 0;
+                [unroll] for (int i = 0; i < 4; i++)
+                {
+                    float4 r = _DravioRipples[i];
+                    float age = _Time.y - r.z;
+                    if (r.w <= 0 || age < 0 || age > life) continue;
+                    float d = distance(xz, r.xy);
+                    float x = (d - age * speed) / width;
+                    float fade = (1 - age / life);
+                    sum += exp(-x * x) * fade * fade * r.w;
+                }
+                return saturate(sum);
+            }
+
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -82,8 +108,10 @@ Shader "Dravio/Environment/Painterly Water"
                 o.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 o.positionCS = TransformWorldToHClip(o.positionWS);
                 float2 uv = TRANSFORM_TEX(input.uv, _BaseMap);
-                o.uv.xy = uv + _Time.y * _ScrollA.xy;
-                o.uv.zw = uv * 1.37 + float2(0.31, 0.17) + _Time.y * _ScrollB.xy;
+                // Gusts push the ripple pattern downwind (offset, not speed, so no pops).
+                float2 push = _DravioWind.zw * saturate(_DravioWind.y) * 0.05;
+                o.uv.xy = uv + _Time.y * _ScrollA.xy + push;
+                o.uv.zw = uv * 1.37 + float2(0.31, 0.17) + _Time.y * _ScrollB.xy + push * 0.6;
                 o.shore = input.color.a;
                 o.fogFactor = ComputeFogFactor(o.positionCS.z);
                 return o;
@@ -107,11 +135,14 @@ Shader "Dravio/Environment/Painterly Water"
                 half glint = saturate((ripple - 0.62h) * 6.0h) * _SparkleStrength;
                 water += light.color * glint * 0.5h;
 
+                half rings = DravioRipples(input.positionWS.xz);
+                water += light.color * rings * 0.35h + rings * 0.08h;
+
                 half foam = 1.0h - smoothstep(0.0h, _FoamWidth, depth + (ripple - 0.5h) * 0.18h);
                 water = lerp(water, _FoamColor.rgb, foam * 0.85h);
 
                 half alpha = lerp(_ShoreOpacity, _Opacity, depth);
-                alpha = max(alpha, foam * 0.9h);
+                alpha = max(alpha, max(foam * 0.9h, rings * 0.85h));
                 water = MixFog(water, input.fogFactor);
                 return half4(water, alpha);
             }

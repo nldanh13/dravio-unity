@@ -53,13 +53,15 @@ def tile_uv_rect(name, size=PROPS_ATLAS_SIZE, grid=PROPS_GRID, inset_px=PROPS_TI
     return u0, v0, u1, v1
 
 
-# Foliage cards: one alpha-clipped material (ENV_Foliage), 4 columns x 2 rows of
-# tall 128x256 cells in a 512x512 texture.
-FOLIAGE_SIZE = (512, 512)
-FOLIAGE_GRID = (4, 2)
+# Foliage cards: one alpha-clipped material (ENV_Foliage), 8 columns x 2 rows of
+# tall 128x256 cells in a 1024x512 texture.
+FOLIAGE_SIZE = (1024, 512)
+FOLIAGE_GRID = (8, 2)
 FOLIAGE_CELLS = [
     "grass_a", "grass_b", "flower_pink", "flower_blue",
     "flower_gold", "fern", "leaf_cluster", "ivy_strand",
+    "reed", "cattail", "dry_grass", "meadow_tall",
+    "clover", "flower_lilac", "shrub_leaf", "twig_dry",
 ]
 FOLIAGE_INSET_PX = 4
 

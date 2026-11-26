@@ -94,7 +94,8 @@ namespace Dravio.Domain.Tests
             Assert.That((dup.Duplicate, Gold(dup.State), dup.Events.Count), Is.EqualTo((true, Gold(a.State), 0)), "không trừ tiền hai lần");
             // Cùng state + cùng thời điểm → cùng trứng (nạp lại save không roll lại được); requestId không ảnh hưởng kết quả.
             DispatchResult b = Ok(s, Buy("mystic", "other-id"), clock);
-            Assert.That(Support.StateJson.ToJson(b.State)["pendingPack"], Is.EqualTo(Support.StateJson.ToJson(a.State)["pendingPack"]).Using<object, object>((x, y) => Support.MiniJson.Diff(x, y) == null));
+            var diff = Support.MiniJson.Diff(Support.StateJson.ToJson(b.State)["pendingPack"], Support.StateJson.ToJson(a.State)["pendingPack"]);
+            Assert.That(diff, Is.Null, "Pending pack must be deterministic: " + diff);
             // Khác save → khác luồng RNG.
             var (o, _) = Rich(saveId: "save-2");
             Assert.That(Ok(o, Buy("mystic"), clock).State.PendingPack.Id, Is.Not.EqualTo(a.State.PendingPack.Id));

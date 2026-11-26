@@ -25,6 +25,8 @@ namespace Dravio.Platform.Unity
     {
         [SerializeField] private string saveFolderName = "saves";
 
+        // An additive environment must never start a second GameSession, even if misconfigured.
+        private static DravioSessionHost _activeHost;
         private readonly PumpedScheduler _scheduler = new PumpedScheduler();
         private LifecycleMapper _lifecycle;
 
@@ -34,6 +36,12 @@ namespace Dravio.Platform.Unity
 
         private void Awake()
         {
+            if(_activeHost!=null && _activeHost!=this)
+            {
+                Debug.LogError("[Dravio] Duplicate Session Host rejected; existing GameSession retained.");
+                enabled=false;return;
+            }
+            _activeHost=this;
             string dir = SaveDirectory;
             FileWriterLock writerLock = FileWriterLock.TryAcquire(dir);
             ISaveStore store;
@@ -74,8 +82,17 @@ namespace Dravio.Platform.Unity
 
         private void OnDestroy()
         {
-            Session?.Dispose();
-            Session = null;
+            // Stop Play / scene unload must flush even if OnApplicationQuit was not called.
+            try { Session?.OnHide(); }
+            finally
+            {
+                try{Session?.Dispose();}
+                finally
+                {
+                    Session=null;
+                    if(_activeHost==this)_activeHost=null;
+                }
+            }
         }
     }
 }

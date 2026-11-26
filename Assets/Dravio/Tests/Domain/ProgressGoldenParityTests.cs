@@ -46,7 +46,7 @@ namespace Dravio.Domain.Tests
         /// được trừ khỏi vàng trước khi so (như cách golden U2.1/U2.3 xử lý thành tựu U2.4).
         /// </summary>
         private static bool TsEvent(DomainEvent e) =>
-            !(e is CodexDiscovered) && !(e is AchievementUnlocked a && !Achievements.TsImplemented.Contains(a.AchievementId));
+            !(e is CodexDiscovered) && !(e is NightJournalWritten) && !(e is DragonObserved) && !(e is SanctuaryProjectBuilt) && !(e is AchievementUnlocked a && !Achievements.TsImplemented.Contains(a.AchievementId));
 
         private static long NewRewards(IEnumerable<DomainEvent> evs) =>
             evs.OfType<AchievementUnlocked>().Where(a => !Achievements.TsImplemented.Contains(a.AchievementId)).Sum(a => a.RewardGoldMicro);

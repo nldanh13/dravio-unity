@@ -91,7 +91,7 @@ namespace Dravio.Persistence.Tests
             LoadOutcome r = mgr.Load();
             Assert.That((r.Kind, r.Save.MigratedFrom), Is.EqualTo((LoadKind.Loaded, (int?)4)));
             GameState m = r.Save.State;
-            Assert.That((m.SchemaVersion, m.BreedingNest, m.FindDragon("pa").Activity), Is.EqualTo((7, (BreedingEgg)null, DragonActivity.Idle)));
+            Assert.That((m.SchemaVersion, m.BreedingNest, m.FindDragon("pa").Activity), Is.EqualTo((10, (BreedingEgg)null, DragonActivity.Idle)));
             Assert.That((m.Player.Gold, m.Dragons.Count, m.Player.PityCount), Is.EqualTo((s.Player.Gold, s.Dragons.Count, s.Player.PityCount)));
             Assert.That(mgr.Save(m), Is.True);
             Assert.That(store.GetArchive("archive:schema-4"), Is.EqualTo(v4), "save v4 gốc được giữ nguyên văn");

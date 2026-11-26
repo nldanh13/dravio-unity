@@ -39,7 +39,7 @@
    "size_m": [
     1.63,
     1.28,
-    2.21
+    2.11
    ],
    "uv_errors": 0,
    "budget": 1500
@@ -343,22 +343,165 @@
    "budget": 1500
   },
   "SM_ENV_Ground_Sanctuary": {
-   "triangles": 2176,
-   "vertices": 1155,
+   "triangles": 2160,
+   "vertices": 1147,
    "materials": [
     "ENV_Ground"
    ],
    "size_m": [
-    34.0,
-    46.0,
-    0.25
+    36.0,
+    39.0,
+    0.3
    ],
    "uv_errors": 0,
    "budget": 2600
+  },
+  "SM_ENV_Tree_Ancient_B": {
+   "triangles": 1496,
+   "vertices": 802,
+   "materials": [
+    "ENV_Props",
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    5.18,
+    2.96,
+    6.88
+   ],
+   "uv_errors": 0,
+   "budget": 3000
+  },
+  "SM_ENV_Rock_Warm_Flat": {
+   "triangles": 380,
+   "vertices": 198,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    2.18,
+    1.67,
+    0.46
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Rock_Warm_Stack": {
+   "triangles": 180,
+   "vertices": 96,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    1.78,
+    1.49,
+    1.06
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Shrub_Round": {
+   "triangles": 252,
+   "vertices": 150,
+   "materials": [
+    "ENV_Props",
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    1.78,
+    1.65,
+    0.96
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Pond_Bank": {
+   "triangles": 338,
+   "vertices": 237,
+   "materials": [
+    "ENV_Props",
+    "ENV_Water"
+   ],
+   "size_m": [
+    5.55,
+    4.07,
+    0.4
+   ],
+   "uv_errors": 0,
+   "budget": 2000
+  },
+  "SM_ENV_Stepping_Stones": {
+   "triangles": 112,
+   "vertices": 64,
+   "materials": [
+    "ENV_Props"
+   ],
+   "size_m": [
+    2.37,
+    1.42,
+    0.16
+   ],
+   "uv_errors": 0,
+   "budget": 1500
+  },
+  "SM_ENV_Cover_Origin_Meadow": {
+   "triangles": 996,
+   "vertices": 1992,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    6.57,
+    12.18,
+    1.04
+   ],
+   "uv_errors": 0,
+   "budget": 3000
+  },
+  "SM_ENV_Cover_Origin_Pondbank": {
+   "triangles": 584,
+   "vertices": 1168,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    5.59,
+    11.2,
+    1.55
+   ],
+   "uv_errors": 0,
+   "budget": 3000
+  },
+  "SM_ENV_Cover_Origin_Warm_Rocks": {
+   "triangles": 448,
+   "vertices": 896,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    5.03,
+    10.65,
+    0.75
+   ],
+   "uv_errors": 0,
+   "budget": 3000
+  },
+  "SM_ENV_Cover_Edges": {
+   "triangles": 1204,
+   "vertices": 2408,
+   "materials": [
+    "ENV_Foliage"
+   ],
+   "size_m": [
+    30.52,
+    22.06,
+    1.1
+   ],
+   "uv_errors": 0,
+   "budget": 3000
   }
  },
  "layout": {
-  "placements": 164,
-  "scene_triangles": 24013
+  "placements": 45,
+  "scene_triangles": 26306
  }
 }

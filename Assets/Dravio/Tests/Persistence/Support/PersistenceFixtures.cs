@@ -57,7 +57,7 @@ namespace Dravio.Persistence.Tests.Support
         public static string Canonical(GameState s) => SaveSchema.CanonicalJson(GameStateJson.ToJson(s));
 
         /// <summary>
-        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 của C# (breedingNest, codex, expedition).
+        /// State v4 của TS → schema hiện tại của Unity bằng đúng các bước migration 4 → 5 → 6 → 7 → 8 → 9 → 10 của C# (breedingNest, codex, expedition, vitals / healthCases / disasters / hazard, packDaily / sanctuaryProjectsBuilt / research, completedSideQuests / expeditionsClaimed / relations).
         /// Golden TS dừng ở v4, nên mọi phép so parity của U2.2 chạy trên ảnh này: phần chung phải trùng từng byte.
         /// </summary>
         public static JsonObject AsUnity(JsonObject tsV4State)
@@ -68,10 +68,11 @@ namespace Dravio.Persistence.Tests.Support
         }
 
         /// <summary>
-        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition và trạng thái mở thế giới (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
+        /// Chiếu ngược state Unity về v4 của TS (chỉ khi tổ trống): bỏ breedingNest, codex, expedition, trạng thái mở thế giới, sức khỏe và khối U2.10 (giới hạn gói, dự án, sổ nghiên cứu) (Bách khoa là dữ liệu dẫn xuất thêm, TS chưa có),
         /// schemaVersion = 4. Trang trí đã mua vẫn nằm trong zones.decorationIds — TS chấp nhận chuỗi bất kỳ ở đó.
         /// </summary>
-        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue" };
+        private static readonly HashSet<string> UnityOnlyKeys = new HashSet<string> { "breedingNest", "codex", "expedition", "completedQuests", "grantedRewards", "rewardQueue", "healthCases", "disasters", "hazard",
+            "packDaily", "sanctuaryProjectsBuilt", "research", "completedSideQuests", "expeditionsClaimed", "relations" };
 
         public static JsonObject AsV4(JsonObject unityState)
         {
@@ -79,8 +80,28 @@ namespace Dravio.Persistence.Tests.Support
             var o = new JsonObject();
             if (!(unityState.Get("expedition") is JsonNull)) throw new InvalidOperationException("expedition in progress: no v4 projection");
             if (unityState.Get("rewardQueue") is JsonArray rq && rq.Count > 0) throw new InvalidOperationException("reward egg queued: no v4 projection");
-            foreach (var kv in unityState) if (!UnityOnlyKeys.Contains(kv.Key)) o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            if (unityState.Get("healthCases") is JsonArray hc && hc.Count > 0) throw new InvalidOperationException("open health case: no v4 projection");
+            if (unityState.Get("disasters") is JsonArray ds && ds.Count > 0) throw new InvalidOperationException("open disaster: no v4 projection");
+            foreach (var kv in unityState)
+            {
+                if (UnityOnlyKeys.Contains(kv.Key)) continue;
+                if (kv.Key == "dragons" && kv.Value is JsonArray dragons)
+                {
+                    // U2.6: vitals là trường chỉ có ở Unity (v8); TS v4 không biết.
+                    var stripped = new JsonArray();
+                    foreach (JsonValue d in dragons) stripped.Add(d is JsonObject dob ? WithoutKey(dob, "vitals") : d);
+                    o.Set(kv.Key, stripped);
+                }
+                else o.Set(kv.Key, kv.Key == "schemaVersion" ? JsonValue.From(4) : kv.Value);
+            }
             return o;
+        }
+
+        private static JsonObject WithoutKey(JsonObject o, string key)
+        {
+            var c = new JsonObject();
+            foreach (var kv in o) if (kv.Key != key) c.Set(kv.Key, kv.Value);
+            return c;
         }
 
         /// <summary>
@@ -94,7 +115,8 @@ namespace Dravio.Persistence.Tests.Support
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, name + ".unity.json"), v5Text, utf8);
             var state = (JsonObject)((JsonObject)JsonParser.Parse(v5Text)).Get("state");
-            if (!(state.Get("breedingNest") is JsonNull) || !(state.Get("expedition") is JsonNull) || ((JsonArray)state.Get("rewardQueue")).Count > 0) return;
+            if (!(state.Get("breedingNest") is JsonNull) || !(state.Get("expedition") is JsonNull) || ((JsonArray)state.Get("rewardQueue")).Count > 0 ||
+                ((JsonArray)state.Get("healthCases")).Count > 0 || ((JsonArray)state.Get("disasters")).Count > 0) return;
             File.WriteAllText(Path.Combine(dir, name + ".save.json"), AsV4Text(v5Text), utf8);
             File.WriteAllText(Path.Combine(dir, name + ".canonical.txt"), SaveSchema.CanonicalJson(AsV4(state)), utf8);
         }
@@ -120,6 +142,15 @@ namespace Dravio.Persistence.Tests.Support
         {
             JsonObject env = SaveSchema.CreateEnvelope(state ?? Fresh(), T0);
             JsonObject s = ((JsonObject)env.Get("state")).ShallowCopy();
+            if (version < 10) foreach (string k in new[] { "completedSideQuests", "expeditionsClaimed", "relations" }) s.Remove(k);
+            if (version < 9) foreach (string k in new[] { "packDaily", "sanctuaryProjectsBuilt", "research" }) s.Remove(k);
+            if (version < 8)
+            {
+                foreach (string k in new[] { "healthCases", "disasters", "hazard" }) s.Remove(k);
+                var dragons = new JsonArray();
+                foreach (JsonValue d in (JsonArray)s.Get("dragons")) dragons.Add(d is JsonObject dob ? WithoutKey(dob, "vitals") : d);
+                s.Set("dragons", dragons);
+            }
             if (version < 7) foreach (string k in new[] { "expedition", "completedQuests", "grantedRewards", "rewardQueue" }) s.Remove(k);
             if (version < 6) s.Remove("codex");
             if (version < 5) s.Remove("breedingNest");
@@ -152,6 +183,8 @@ namespace Dravio.Persistence.Tests.Support
         public long Monotonic;
         public ISaveStore Store;
         public IWriterLock Lock;
+        /// <summary>U2.6: luật thiên tai tiêm vào phiên (null = Production, tắt).</summary>
+        public DisasterRules Rules;
         private int _ids;
 
         public SessionRig(ISaveStore store, long wallNow, IWriterLock writerLock = null)
@@ -163,7 +196,7 @@ namespace Dravio.Persistence.Tests.Support
         {
             var s = new GameSession(new SessionEnvironment
             {
-                Clock = Clock, Store = Store, WriterLock = Lock, Scheduler = Scheduler, StartVisible = visible,
+                Clock = Clock, Store = Store, WriterLock = Lock, Scheduler = Scheduler, StartVisible = visible, DisasterRules = Rules,
                 NewId = () => "id-" + (++_ids).ToString("D6", System.Globalization.CultureInfo.InvariantCulture),
             });
             Scheduler.Pump(Monotonic);

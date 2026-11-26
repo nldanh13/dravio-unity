@@ -15,6 +15,53 @@ namespace Dravio.Character
     {
         [Serializable]
         public sealed class IkChain { public string upper, lower, foot; }
+        /// <summary>In-place ground speed (m/s) a clip was authored for (rig.json clips.*.groundSpeed).</summary>
+        [Serializable]
+        public sealed class ClipSpeed { public string clip; public float groundSpeed; }
+        /// <summary>
+        /// U1-CHAR.7 motion metadata of a model (import-manifest.json "motion", from rig.json and anim_qa.py). Metres,
+        /// degrees per second; 0 = not applicable or not measured. Speeds of in-place swim/fly clips are pipeline
+        /// defaults (body lengths per cycle) until the art director confirms them.
+        /// </summary>
+        [Serializable]
+        public sealed class MotionInfo
+        {
+            public float bodyLength, bodyWidth, bodyHeight;
+            /// <summary>Visual root height relative to the Fly pose at the end of TakeOff / start of Land.</summary>
+            public float takeOffRootOffset, landRootOffset;
+            public float maxTurnGround, maxTurnWater, maxTurnAir;
+            /// <summary>Largest animated extents per medium (envelope for Environment integration).</summary>
+            public float groundHeight, groundLength, groundWidth, swimVerticalExtent, swimWidth, flightSpan, flightVerticalExtent;
+            public int transitionsChecked;
+            public float transitionMaxDeg;
+            /// <summary>U1-CHAR.8: normalized times of motion events inside the transition clips (0 = none authored).</summary>
+            public float takeOffLiftOff, landTouchDown, waterEnterContact, waterExitLeave;
+            /// <summary>U1-CHAR.8: for surface swimmers, the waterline height above the root (m) and how far the head
+            /// centre stays above it. The Sanctuary places the water surface; 0 = not a surface swimmer.</summary>
+            public float surfaceWaterline, headAboveWater;
+
+            /// <summary>Normalized event time of a transition clip (0 when the clip has none).</summary>
+            public float EventTime(DragonInteraction clip)
+            {
+                switch (clip)
+                {
+                    case DragonInteraction.TakeOff: return takeOffLiftOff;
+                    case DragonInteraction.Land: return landTouchDown;
+                    case DragonInteraction.WaterEnter: return waterEnterContact;
+                    case DragonInteraction.WaterExit: return waterExitLeave;
+                    default: return 0f;
+                }
+            }
+
+            public float MaxTurn(DragonMotionMode m)
+            {
+                return m == DragonMotionMode.Water ? maxTurnWater : m == DragonMotionMode.Air ? maxTurnAir : maxTurnGround;
+            }
+        }
+
+        /// <summary>Length in seconds of a clip (rig.json frame range / fps). U1-CHAR.6: used for every one-shot.</summary>
+        [Serializable]
+        public sealed class ClipLength { public string clip; public float seconds; }
 
         [Serializable]
         public sealed class Entry
@@ -29,8 +76,21 @@ namespace Dravio.Character
             public IkChain[] ikChains = Array.Empty<IkChain>();
             /// <summary>Seconds of the one-shot clips (Eat, Happy), from rig.json frame ranges.</summary>
             public float eatSeconds, happySeconds;
-            /// <summary>Speed (m/s) the Walk/Run clips were authored for; 0 = unknown (playback rate stays 1).</summary>
+            /// <summary>Speed (m/s) the Walk/Run clips were authored for; 0 = unknown (playback rate stays 1).
+            /// Fallback when <see cref="clipSpeeds"/> has no entry for the shown clip.</summary>
             public float locomotionReferenceSpeed;
+            /// <summary>Per-clip authored ground speed (Walk and Run differ).</summary>
+            public ClipSpeed[] clipSpeeds = Array.Empty<ClipSpeed>();
+            /// <summary>U1-CHAR.6: seconds of every clip (filled by the importer). Older entries have none and fall back
+            /// to eatSeconds / happySeconds.</summary>
+            public ClipLength[] clipLengths = Array.Empty<ClipLength>();
+            /// <summary>U1-CHAR.7 motion metadata. Unity serialises it as an instance even when absent: all zero (bodyLength 0)
+            /// means unknown - static models and pre-U1-CHAR.7 entries.</summary>
+            public MotionInfo motion;
+            /// <summary>anim_qa.py result: PASS / PASS_WITH_WARNINGS, and one line per warning ("Sleep: deformation ...").</summary>
+            public string animQaStatus;
+            public string[] animQaWarnings = Array.Empty<string>();
+            public bool approved;
             public string validation;
             public string sourceManifest;
         }
@@ -65,9 +125,39 @@ namespace Dravio.Character
             return null;
         }
 
-        public float InteractionSeconds(Entry e, DragonInteraction i)
+        /// <summary>Authored speed for the shown locomotion clip; falls back to locomotionReferenceSpeed.</summary>
+        public static float ReferenceSpeed(Entry e, DragonLocomotion shown)
         {
             if (e == null) return 0f;
+            string name = shown.ToString();
+            if (e.clipSpeeds != null)
+                for (int i = 0; i < e.clipSpeeds.Length; i++)
+                    if (e.clipSpeeds[i] != null && e.clipSpeeds[i].clip == name && e.clipSpeeds[i].groundSpeed > 0f)
+                        return e.clipSpeeds[i].groundSpeed;
+            return e.locomotionReferenceSpeed;
+        }
+
+        /// <summary>QA warnings that concern one clip (lines start with "Clip:"), plus model-wide ones.</summary>
+        public static List<string> WarningsFor(Entry e, string clip)
+        {
+            var list = new List<string>();
+            if (e == null || e.animQaWarnings == null) return list;
+            foreach (var w in e.animQaWarnings)
+                if (w != null && (w.StartsWith(clip + ":", StringComparison.Ordinal) || w.StartsWith("model:", StringComparison.Ordinal)))
+                    list.Add(w);
+            return list;
+        }
+
+        public float InteractionSeconds(Entry e, DragonInteraction i) { return ClipSecondsOf(e, i); }
+
+        /// <summary>Seconds of a one-shot clip: clipLengths first, then the U1-CHAR.4 eatSeconds / happySeconds; 0 if unknown.</summary>
+        public static float ClipSecondsOf(Entry e, DragonInteraction i)
+        {
+            if (e == null || i == DragonInteraction.None) return 0f;
+            string name = i.ToString();
+            if (e.clipLengths != null)
+                for (int k = 0; k < e.clipLengths.Length; k++)
+                    if (e.clipLengths[k] != null && e.clipLengths[k].clip == name && e.clipLengths[k].seconds > 0f) return e.clipLengths[k].seconds;
             return i == DragonInteraction.Eat ? e.eatSeconds : i == DragonInteraction.Happy ? e.happySeconds : 0f;
         }
     }

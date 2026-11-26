@@ -1,24 +1,28 @@
 {
- "version": 1,
- "seed": 4117,
+ "version": 2,
+ "seed": 5209,
  "camera": {
-  "position": [
+  "anchorPosition": [
    0.0,
-   9.0,
-   -16.0
+   15.262,
+   -20.2219
   ],
-  "lookAt": [
+  "eulerAngles": [
+   32.0,
    0.0,
-   1.9,
-   4.2
+   0.0
   ],
-  "orthographicSize": 6.6,
-  "minVisibleWidth": 13.0
- },
- "clearing": {
-  "x": 0.0,
-  "z": 0.0,
-  "radius": 2.5
+  "orthographicSize": 6.0,
+  "rightPanelScreenHeights": 0.5,
+  "leftMarginScreenHeights": 0.05,
+  "topMarginScreenHeights": 0.06,
+  "bottomMarginScreenHeights": 0.05,
+  "minAspect": 1.7778,
+  "supportedAspects": [
+   "16:9",
+   "19.5:9",
+   "20:9"
+  ]
  },
  "placements": [
   {
@@ -27,1311 +31,404 @@
    "y": 0.0,
    "z": 0,
    "yaw": 0.0,
-   "scale": 1.0
+   "scale": 1.0,
+   "habitat": ""
   },
   {
    "asset": "SM_ENV_Gate_Ancient",
    "x": 0,
    "y": 0.0,
-   "z": 8.2,
+   "z": 7.5,
    "yaw": 0.0,
-   "scale": 1.0
+   "scale": 0.72,
+   "habitat": ""
   },
   {
    "asset": "SM_ENV_Wall_Ruin_A",
-   "x": -4.35,
+   "x": -4.3,
    "y": 0.0,
-   "z": 8.0,
+   "z": 7.5,
    "yaw": 4,
-   "scale": 1.0
+   "scale": 0.9,
+   "habitat": ""
   },
   {
    "asset": "SM_ENV_Wall_Ruin_B",
-   "x": 4.4,
+   "x": 4.5,
    "y": 0.0,
-   "z": 7.8,
+   "z": 7.4,
    "yaw": -6,
-   "scale": 1.0
+   "scale": 0.9,
+   "habitat": ""
   },
   {
    "asset": "SM_ENV_Column_Intact",
-   "x": -3.3,
+   "x": -3.2,
    "y": 0.0,
-   "z": 5.1,
+   "z": 6.1,
    "yaw": 12,
-   "scale": 1.0
+   "scale": 0.85,
+   "habitat": ""
   },
   {
    "asset": "SM_ENV_Column_Broken",
    "x": 3.4,
    "y": 0.0,
-   "z": 5.2,
+   "z": 6.0,
    "yaw": -20,
-   "scale": 1.0
+   "scale": 0.85,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Column_Broken",
-   "x": -6.6,
-   "y": 0.0,
-   "z": 3.2,
-   "yaw": 140,
-   "scale": 0.95
-  },
-  {
-   "asset": "SM_ENV_Column_Intact",
-   "x": 6.7,
-   "y": 0.0,
-   "z": 3.0,
-   "yaw": -35,
-   "scale": 0.92
-  },
-  {
-   "asset": "SM_ENV_Column_Fallen",
-   "x": 5.0,
-   "y": 0.0,
-   "z": -0.6,
-   "yaw": -62,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Statue_Dragon",
-   "x": -6.1,
-   "y": 0.0,
-   "z": 6.4,
-   "yaw": 28,
-   "scale": 1.3
-  },
-  {
-   "asset": "SM_ENV_Tree_Ancient",
-   "x": -9.6,
-   "y": 0.0,
-   "z": 4.6,
-   "yaw": 10,
-   "scale": 1.05
-  },
-  {
-   "asset": "SM_ENV_Tree_Ancient",
-   "x": 9.9,
-   "y": 0.0,
-   "z": 5.6,
-   "yaw": 200,
-   "scale": 0.95
-  },
-  {
-   "asset": "SM_ENV_Tree_Ancient",
-   "x": 2.2,
-   "y": 0.0,
-   "z": 13.5,
-   "yaw": 80,
-   "scale": 1.15
-  },
-  {
-   "asset": "SM_ENV_Tree_Ancient",
-   "x": -3.6,
-   "y": 0.0,
-   "z": 14.2,
-   "yaw": 300,
-   "scale": 1.05
-  },
-  {
-   "asset": "SM_ENV_Root_Cluster",
-   "x": -8.3,
-   "y": 0.0,
-   "z": 2.4,
-   "yaw": -20,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Root_Cluster",
-   "x": 8.8,
-   "y": 0.0,
-   "z": 3.6,
-   "yaw": 160,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Vine_Hanging",
-   "x": -1.2,
-   "y": 3.9,
-   "z": 8.05,
-   "yaw": 0.0,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Vine_Hanging",
-   "x": 1.65,
-   "y": 3.55,
-   "z": 8.05,
-   "yaw": 180,
-   "scale": 0.85
-  },
-  {
-   "asset": "SM_ENV_Vine_Hanging",
-   "x": -4.2,
-   "y": 2.2,
-   "z": 7.6,
-   "yaw": 0.0,
-   "scale": 0.7
-  },
-  {
-   "asset": "SM_ENV_Pond_Small",
-   "x": -4.4,
-   "y": 0.0,
-   "z": -2.3,
-   "yaw": 8,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Runestone_A",
-   "x": -2.7,
-   "y": 0.0,
-   "z": 2.4,
-   "yaw": 22,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Runestone_B",
-   "x": 2.8,
-   "y": 0.0,
-   "z": 2.2,
-   "yaw": -18,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Runestone_A",
-   "x": 6.2,
-   "y": 0.0,
-   "z": -3.0,
-   "yaw": -38,
-   "scale": 0.9
-  },
-  {
-   "asset": "SM_ENV_Runestone_B",
-   "x": -7.4,
-   "y": 0.0,
-   "z": 0.2,
-   "yaw": 40,
-   "scale": 0.9
-  },
-  {
-   "asset": "SM_ENV_Rock_Mossy_A",
-   "x": 7.6,
-   "y": 0.0,
-   "z": 0.9,
-   "yaw": 40,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Rock_Mossy_A",
-   "x": -2.0,
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -1.9,
    "y": 0.0,
    "z": 10.4,
-   "yaw": 200,
-   "scale": 1.2
+   "yaw": 30,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 2.6,
+   "y": 0.0,
+   "z": 10.1,
+   "yaw": 160,
+   "scale": 1.4,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -6.8,
+   "y": 0.0,
+   "z": 9.8,
+   "yaw": 80,
+   "scale": 1.6,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 7.2,
+   "y": 0.0,
+   "z": 9.6,
+   "yaw": 250,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Vine_Hanging",
+   "x": -0.85,
+   "y": 2.8,
+   "z": 7.55,
+   "yaw": 0.0,
+   "scale": 0.72,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Vine_Hanging",
+   "x": 1.2,
+   "y": 2.6,
+   "z": 7.55,
+   "yaw": 180,
+   "scale": 0.65,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Pond_Bank",
+   "x": -4.9,
+   "y": 0.0,
+   "z": -0.4,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Stepping_Stones",
+   "x": -2.9,
+   "y": 0.0,
+   "z": -2.6,
+   "yaw": -20,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Runestone_B",
+   "x": -6.5,
+   "y": 0.0,
+   "z": 3.7,
+   "yaw": 25,
+   "scale": 0.85,
+   "habitat": "origin_pondbank"
   },
   {
    "asset": "SM_ENV_Rock_Mossy_B",
-   "x": -5.4,
+   "x": -6.6,
    "y": 0.0,
-   "z": 3.9,
+   "z": -4.1,
    "yaw": 70,
-   "scale": 1.0
-  },
-  {
-   "asset": "SM_ENV_Rock_Mossy_B",
-   "x": 4.6,
-   "y": 0.0,
-   "z": 2.6,
-   "yaw": 10,
-   "scale": 0.8
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
   },
   {
    "asset": "SM_ENV_Rock_Mossy_C",
+   "x": -3.3,
+   "y": 0.0,
+   "z": 2.9,
+   "yaw": 300,
+   "scale": 0.9,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Mushroom_Cluster_Glow",
+   "x": -5.9,
+   "y": 0.0,
+   "z": 2.6,
+   "yaw": 10,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -3.6,
+   "y": 0.0,
+   "z": -4.7,
+   "yaw": 40,
+   "scale": 0.85,
+   "habitat": "origin_pondbank"
+  },
+  {
+   "asset": "SM_ENV_Runestone_A",
+   "x": -1.9,
+   "y": 0.0,
+   "z": 4.1,
+   "yaw": 18,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Runestone_A",
    "x": 1.9,
    "y": 0.0,
-   "z": -3.6,
-   "yaw": 120,
-   "scale": 1.0
+   "z": 4.0,
+   "yaw": -18,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
+  },
+  {
+   "asset": "SM_ENV_Mushroom_Cluster_Red",
+   "x": 1.6,
+   "y": 0.0,
+   "z": -4.4,
+   "yaw": 200,
+   "scale": 0.9,
+   "habitat": "origin_meadow"
   },
   {
    "asset": "SM_ENV_Rock_Mossy_C",
    "x": -1.4,
    "y": 0.0,
-   "z": 6.3,
-   "yaw": 300,
-   "scale": 0.8
+   "z": -4.6,
+   "yaw": 120,
+   "scale": 0.8,
+   "habitat": "origin_meadow"
   },
   {
-   "asset": "SM_ENV_Mushroom_Cluster_Red",
-   "x": -8.6,
+   "asset": "SM_ENV_Rock_Warm_Flat",
+   "x": 4.6,
    "y": 0.0,
-   "z": 3.4,
-   "yaw": 30,
-   "scale": 1.0
+   "z": 0.6,
+   "yaw": 15,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
   },
   {
-   "asset": "SM_ENV_Mushroom_Cluster_Glow",
-   "x": 8.3,
+   "asset": "SM_ENV_Rock_Warm_Flat",
+   "x": 5.6,
    "y": 0.0,
-   "z": 2.3,
+   "z": -3.4,
    "yaw": -50,
-   "scale": 1.0
+   "scale": 0.85,
+   "habitat": "origin_warm_rocks"
   },
   {
-   "asset": "SM_ENV_Mushroom_Cluster_Glow",
-   "x": -5.7,
+   "asset": "SM_ENV_Rock_Warm_Stack",
+   "x": 6.2,
    "y": 0.0,
-   "z": 5.2,
-   "yaw": 10,
-   "scale": 0.8
+   "z": 2.9,
+   "yaw": 200,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
   },
   {
-   "asset": "SM_ENV_Mushroom_Cluster_Red",
+   "asset": "SM_ENV_Rock_Warm_Stack",
    "x": 3.7,
    "y": 0.0,
-   "z": -2.6,
+   "z": -2.4,
+   "yaw": 80,
+   "scale": 0.7,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Statue_Dragon",
+   "x": 5.7,
+   "y": 0.0,
+   "z": 5.9,
+   "yaw": -25,
+   "scale": 1.05,
+   "habitat": "origin_warm_rocks"
+  },
+  {
+   "asset": "SM_ENV_Column_Fallen",
+   "x": 8.8,
+   "y": 0.0,
+   "z": -3.0,
+   "yaw": 30,
+   "scale": 0.85,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient",
+   "x": -9.9,
+   "y": 0.0,
+   "z": 3.2,
+   "yaw": 10,
+   "scale": 1.05,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Root_Cluster",
+   "x": -8.6,
+   "y": 0.0,
+   "z": 2.4,
+   "yaw": -20,
+   "scale": 0.7,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Shrub_Round",
+   "x": -9.7,
+   "y": 0.0,
+   "z": -1.4,
+   "yaw": 110,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Rock_Mossy_A",
+   "x": -9.2,
+   "y": 0.0,
+   "z": -4.6,
+   "yaw": 40,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Column_Broken",
+   "x": -9.3,
+   "y": 0.0,
+   "z": 6.8,
+   "yaw": 140,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Tree_Ancient",
+   "x": 9.9,
+   "y": 0.0,
+   "z": 4.6,
    "yaw": 200,
-   "scale": 0.9
+   "scale": 0.95,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.846,
+   "asset": "SM_ENV_Root_Cluster",
+   "x": 9.0,
    "y": 0.0,
-   "z": -2.555,
-   "yaw": 17.34,
-   "scale": 1.173
+   "z": 3.6,
+   "yaw": 160,
+   "scale": 0.7,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.139,
+   "asset": "SM_ENV_Rock_Mossy_A",
+   "x": 8.9,
    "y": 0.0,
-   "z": -5.622,
-   "yaw": 209.19,
-   "scale": 1.27
+   "z": -1.7,
+   "yaw": 200,
+   "scale": 1.1,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -6.565,
+   "asset": "SM_ENV_Shrub_Round",
+   "x": 10.4,
    "y": 0.0,
-   "z": 7.545,
-   "yaw": 175.62,
-   "scale": 1.172
+   "z": -4.4,
+   "yaw": 10,
+   "scale": 1.0,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -5.577,
+   "asset": "SM_ENV_Column_Intact",
+   "x": 8.3,
    "y": 0.0,
-   "z": 9.747,
-   "yaw": 297.21,
-   "scale": 1.27
+   "z": 6.6,
+   "yaw": -35,
+   "scale": 0.85,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -7.825,
+   "asset": "SM_ENV_Tree_Ancient_B",
+   "x": 12.8,
    "y": 0.0,
-   "z": 3.229,
-   "yaw": 120.67,
-   "scale": 1.3
+   "z": 8.0,
+   "yaw": 120,
+   "scale": 1.0,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 3.399,
+   "asset": "SM_ENV_Tree_Ancient_B",
+   "x": -12.6,
    "y": 0.0,
-   "z": 0.85,
-   "yaw": 292.63,
-   "scale": 1.185
+   "z": 8.4,
+   "yaw": 60,
+   "scale": 1.0,
+   "habitat": ""
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -7.551,
+   "asset": "SM_ENV_Cover_Origin_Meadow",
+   "x": 0,
    "y": 0.0,
-   "z": -5.531,
-   "yaw": 296.38,
-   "scale": 1.278
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_meadow"
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -10.663,
+   "asset": "SM_ENV_Cover_Origin_Pondbank",
+   "x": 0,
    "y": 0.0,
-   "z": -0.751,
-   "yaw": 70.08,
-   "scale": 1.228
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_pondbank"
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 5.95,
+   "asset": "SM_ENV_Cover_Origin_Warm_Rocks",
+   "x": 0,
    "y": 0.0,
-   "z": -3.729,
-   "yaw": 139.85,
-   "scale": 1.287
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "origin_warm_rocks"
   },
   {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 8.232,
+   "asset": "SM_ENV_Cover_Edges",
+   "x": 0,
    "y": 0.0,
-   "z": 7.327,
-   "yaw": 178.35,
-   "scale": 0.883
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -7.144,
-   "y": 0.0,
-   "z": 10.069,
-   "yaw": 264.67,
-   "scale": 0.864
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 5.14,
-   "y": 0.0,
-   "z": -5.271,
-   "yaw": 274.04,
-   "scale": 1.135
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -7.023,
-   "y": 0.0,
-   "z": 7.854,
-   "yaw": 122.89,
-   "scale": 1.224
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 2.557,
-   "y": 0.0,
-   "z": 3.351,
-   "yaw": 268.69,
-   "scale": 0.968
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -10.028,
-   "y": 0.0,
-   "z": 2.511,
-   "yaw": 353.72,
-   "scale": 1.019
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 6.418,
-   "y": 0.0,
-   "z": 8.711,
-   "yaw": 263.69,
-   "scale": 0.914
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -2.395,
-   "y": 0.0,
-   "z": 10.667,
-   "yaw": 174.81,
-   "scale": 1.012
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 4.23,
-   "y": 0.0,
-   "z": -2.707,
-   "yaw": 294.9,
-   "scale": 1.224
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 8.941,
-   "y": 0.0,
-   "z": -1.653,
-   "yaw": 273.1,
-   "scale": 1.258
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -10.384,
-   "y": 0.0,
-   "z": -5.118,
-   "yaw": 52.69,
-   "scale": 1.01
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 4.903,
-   "y": 0.0,
-   "z": -2.056,
-   "yaw": 244.42,
-   "scale": 0.845
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 2.344,
-   "y": 0.0,
-   "z": 10.009,
-   "yaw": 28.58,
-   "scale": 1.28
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.711,
-   "y": 0.0,
-   "z": -3.695,
-   "yaw": 311.58,
-   "scale": 0.815
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 10.439,
-   "y": 0.0,
-   "z": -6.248,
-   "yaw": 41.33,
-   "scale": 0.847
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 3.606,
-   "y": 0.0,
-   "z": -4.654,
-   "yaw": 134.97,
-   "scale": 1.011
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -7.102,
-   "y": 0.0,
-   "z": 1.337,
-   "yaw": 188.47,
-   "scale": 1.177
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -5.362,
-   "y": 0.0,
-   "z": 1.709,
-   "yaw": 327.53,
-   "scale": 1.298
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 10.076,
-   "y": 0.0,
-   "z": 3.802,
-   "yaw": 23.49,
-   "scale": 1.061
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 8.984,
-   "y": 0.0,
-   "z": -1.334,
-   "yaw": 38.24,
-   "scale": 0.965
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -5.228,
-   "y": 0.0,
-   "z": 1.464,
-   "yaw": 174.68,
-   "scale": 0.803
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 2.182,
-   "y": 0.0,
-   "z": 5.185,
-   "yaw": 123.37,
-   "scale": 0.887
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -3.995,
-   "y": 0.0,
-   "z": 2.076,
-   "yaw": 341.79,
-   "scale": 1.235
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 4.868,
-   "y": 0.0,
-   "z": 2.144,
-   "yaw": 332.54,
-   "scale": 1.299
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 9.537,
-   "y": 0.0,
-   "z": 8.348,
-   "yaw": 22.14,
-   "scale": 1.099
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.835,
-   "y": 0.0,
-   "z": 4.423,
-   "yaw": 94.56,
-   "scale": 1.204
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 2.33,
-   "y": 0.0,
-   "z": -2.358,
-   "yaw": 252.02,
-   "scale": 0.985
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 3.842,
-   "y": 0.0,
-   "z": -2.681,
-   "yaw": 159.96,
-   "scale": 1.056
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 5.754,
-   "y": 0.0,
-   "z": 10.558,
-   "yaw": 209.78,
-   "scale": 1.039
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -4.41,
-   "y": 0.0,
-   "z": 0.578,
-   "yaw": 140.28,
-   "scale": 1.299
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.275,
-   "y": 0.0,
-   "z": -4.102,
-   "yaw": 322.92,
-   "scale": 1.097
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -8.489,
-   "y": 0.0,
-   "z": 0.735,
-   "yaw": 13.11,
-   "scale": 0.937
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 3.079,
-   "y": 0.0,
-   "z": 1.403,
-   "yaw": 338.77,
-   "scale": 1.009
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 6.839,
-   "y": 0.0,
-   "z": 6.194,
-   "yaw": 20.83,
-   "scale": 0.823
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -5.6,
-   "y": 0.0,
-   "z": 4.49,
-   "yaw": 262.47,
-   "scale": 0.941
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": 7.239,
-   "y": 0.0,
-   "z": 10.894,
-   "yaw": 278.22,
-   "scale": 1.243
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_A",
-   "x": -8.588,
-   "y": 0.0,
-   "z": -3.018,
-   "yaw": 143.24,
-   "scale": 0.936
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -8.977,
-   "y": 0.0,
-   "z": -1.581,
-   "yaw": 224.47,
-   "scale": 1.083
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 4.553,
-   "y": 0.0,
-   "z": 4.882,
-   "yaw": 330.18,
-   "scale": 1.104
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 8.35,
-   "y": 0.0,
-   "z": 8.694,
-   "yaw": 220.42,
-   "scale": 1.061
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 2.524,
-   "y": 0.0,
-   "z": 1.587,
-   "yaw": 312.74,
-   "scale": 0.82
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 6.643,
-   "y": 0.0,
-   "z": 0.322,
-   "yaw": 161.75,
-   "scale": 1.224
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -1.057,
-   "y": 0.0,
-   "z": 2.828,
-   "yaw": 101.98,
-   "scale": 0.885
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -1.581,
-   "y": 0.0,
-   "z": -5.944,
-   "yaw": 39.03,
-   "scale": 0.964
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -7.275,
-   "y": 0.0,
-   "z": -0.399,
-   "yaw": 117.7,
-   "scale": 1.013
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -9.645,
-   "y": 0.0,
-   "z": 2.875,
-   "yaw": 347.18,
-   "scale": 1.174
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -10.201,
-   "y": 0.0,
-   "z": 8.018,
-   "yaw": 280.01,
-   "scale": 0.837
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 3.815,
-   "y": 0.0,
-   "z": -3.965,
-   "yaw": 150.79,
-   "scale": 1.151
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 4.974,
-   "y": 0.0,
-   "z": -4.209,
-   "yaw": 234.4,
-   "scale": 0.906
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -2.19,
-   "y": 0.0,
-   "z": -1.833,
-   "yaw": 308.18,
-   "scale": 1.187
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -8.422,
-   "y": 0.0,
-   "z": 6.968,
-   "yaw": 243.99,
-   "scale": 0.841
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -5.638,
-   "y": 0.0,
-   "z": 0.853,
-   "yaw": 163.95,
-   "scale": 1.2
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 4.762,
-   "y": 0.0,
-   "z": 2.135,
-   "yaw": 175.85,
-   "scale": 0.945
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 9.101,
-   "y": 0.0,
-   "z": -0.717,
-   "yaw": 65.67,
-   "scale": 0.816
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -6.037,
-   "y": 0.0,
-   "z": -4.938,
-   "yaw": 39.68,
-   "scale": 1.162
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 9.63,
-   "y": 0.0,
-   "z": -1.74,
-   "yaw": 39.65,
-   "scale": 1.09
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -10.02,
-   "y": 0.0,
-   "z": 7.475,
-   "yaw": 4.75,
-   "scale": 1.057
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -9.478,
-   "y": 0.0,
-   "z": -4.031,
-   "yaw": 49.47,
-   "scale": 1.21
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 3.057,
-   "y": 0.0,
-   "z": -4.173,
-   "yaw": 232.06,
-   "scale": 0.868
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -8.092,
-   "y": 0.0,
-   "z": 3.79,
-   "yaw": 316.06,
-   "scale": 0.835
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -10.414,
-   "y": 0.0,
-   "z": 1.758,
-   "yaw": 204.28,
-   "scale": 0.851
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -4.201,
-   "y": 0.0,
-   "z": 10.706,
-   "yaw": 203.43,
-   "scale": 1.098
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -9.31,
-   "y": 0.0,
-   "z": -4.756,
-   "yaw": 177.73,
-   "scale": 0.904
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 3.421,
-   "y": 0.0,
-   "z": 2.263,
-   "yaw": 325.56,
-   "scale": 1.099
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 9.676,
-   "y": 0.0,
-   "z": -0.097,
-   "yaw": 176.52,
-   "scale": 1.146
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -10.306,
-   "y": 0.0,
-   "z": -0.871,
-   "yaw": 333.28,
-   "scale": 0.871
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -1.25,
-   "y": 0.0,
-   "z": -6.12,
-   "yaw": 180.9,
-   "scale": 1.12
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 3.058,
-   "y": 0.0,
-   "z": -5.402,
-   "yaw": 256.93,
-   "scale": 1.116
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -4.232,
-   "y": 0.0,
-   "z": 10.418,
-   "yaw": 331.21,
-   "scale": 0.885
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 6.375,
-   "y": 0.0,
-   "z": -4.397,
-   "yaw": 215.36,
-   "scale": 1.051
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -4.675,
-   "y": 0.0,
-   "z": 4.427,
-   "yaw": 102.06,
-   "scale": 1.049
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 8.79,
-   "y": 0.0,
-   "z": -1.53,
-   "yaw": 114.45,
-   "scale": 0.823
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 6.976,
-   "y": 0.0,
-   "z": 3.714,
-   "yaw": 134.36,
-   "scale": 0.91
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -6.472,
-   "y": 0.0,
-   "z": -5.73,
-   "yaw": 242.71,
-   "scale": 0.991
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 6.039,
-   "y": 0.0,
-   "z": 10.56,
-   "yaw": 258.07,
-   "scale": 1.089
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": -2.156,
-   "y": 0.0,
-   "z": -2.813,
-   "yaw": 262.56,
-   "scale": 1.08
-  },
-  {
-   "asset": "SM_ENV_Grass_Tuft_B",
-   "x": 4.36,
-   "y": 0.0,
-   "z": 4.162,
-   "yaw": 338.56,
-   "scale": 1.13
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": -3.573,
-   "y": 0.0,
-   "z": 1.197,
-   "yaw": 61.17,
-   "scale": 1.026
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 9.16,
-   "y": 0.0,
-   "z": -4.481,
-   "yaw": 145.7,
-   "scale": 1.101
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": -4.236,
-   "y": 0.0,
-   "z": -5.312,
-   "yaw": 240.52,
-   "scale": 1.001
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 5.24,
-   "y": 0.0,
-   "z": 2.961,
-   "yaw": 91.69,
-   "scale": 0.898
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": -6.608,
-   "y": 0.0,
-   "z": 2.38,
-   "yaw": 277.64,
-   "scale": 1.145
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": -5.041,
-   "y": 0.0,
-   "z": 3.163,
-   "yaw": 104.68,
-   "scale": 0.876
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 1.916,
-   "y": 0.0,
-   "z": -2.967,
-   "yaw": 337.89,
-   "scale": 0.888
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": -3.512,
-   "y": 0.0,
-   "z": 0.62,
-   "yaw": 278.37,
-   "scale": 1.127
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 8.646,
-   "y": 0.0,
-   "z": -2.189,
-   "yaw": 36.96,
-   "scale": 1.052
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 8.684,
-   "y": 0.0,
-   "z": 3.916,
-   "yaw": 212.12,
-   "scale": 1.146
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 7.35,
-   "y": 0.0,
-   "z": -0.229,
-   "yaw": 245.83,
-   "scale": 0.921
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Pink",
-   "x": 6.913,
-   "y": 0.0,
-   "z": -6.35,
-   "yaw": 281.06,
-   "scale": 1.019
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 10.114,
-   "y": 0.0,
-   "z": 1.873,
-   "yaw": 240.35,
-   "scale": 1.136
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 3.121,
-   "y": 0.0,
-   "z": -5.132,
-   "yaw": 277.82,
-   "scale": 0.996
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 4.2,
-   "y": 0.0,
-   "z": 10.368,
-   "yaw": 235.26,
-   "scale": 1.083
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": -10.423,
-   "y": 0.0,
-   "z": -2.205,
-   "yaw": 328.17,
-   "scale": 1.077
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": -7.823,
-   "y": 0.0,
-   "z": 1.176,
-   "yaw": 279.57,
-   "scale": 1.091
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 6.709,
-   "y": 0.0,
-   "z": -2.125,
-   "yaw": 210.58,
-   "scale": 0.976
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 2.962,
-   "y": 0.0,
-   "z": 3.692,
-   "yaw": 185.07,
-   "scale": 0.856
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 9.737,
-   "y": 0.0,
-   "z": 0.505,
-   "yaw": 60.99,
-   "scale": 1.037
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 7.427,
-   "y": 0.0,
-   "z": 6.206,
-   "yaw": 161.71,
-   "scale": 1.049
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Blue",
-   "x": 8.977,
-   "y": 0.0,
-   "z": -4.776,
-   "yaw": 283.96,
-   "scale": 0.874
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 9.16,
-   "y": 0.0,
-   "z": 9.657,
-   "yaw": 190.07,
-   "scale": 1.142
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 3.578,
-   "y": 0.0,
-   "z": 1.906,
-   "yaw": 49.27,
-   "scale": 1.015
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 10.293,
-   "y": 0.0,
-   "z": -5.401,
-   "yaw": 32.35,
-   "scale": 0.904
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 5.814,
-   "y": 0.0,
-   "z": -5.143,
-   "yaw": 106.65,
-   "scale": 1.072
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 2.396,
-   "y": 0.0,
-   "z": -6.165,
-   "yaw": 308.95,
-   "scale": 1.142
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 4.677,
-   "y": 0.0,
-   "z": 3.898,
-   "yaw": 134.29,
-   "scale": 1.029
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 9.338,
-   "y": 0.0,
-   "z": -3.045,
-   "yaw": 340.68,
-   "scale": 1.14
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 8.553,
-   "y": 0.0,
-   "z": 1.515,
-   "yaw": 299.36,
-   "scale": 0.989
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": -7.547,
-   "y": 0.0,
-   "z": 5.508,
-   "yaw": 47.2,
-   "scale": 1.081
-  },
-  {
-   "asset": "SM_ENV_Flower_Patch_Gold",
-   "x": 5.764,
-   "y": 0.0,
-   "z": 3.559,
-   "yaw": 69.05,
-   "scale": 1.139
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": 2.962,
-   "y": 0.0,
-   "z": 2.681,
-   "yaw": 239.25,
-   "scale": 0.858
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -8.323,
-   "y": 0.0,
-   "z": -4.674,
-   "yaw": 53.84,
-   "scale": 1.179
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -6.467,
-   "y": 0.0,
-   "z": -3.845,
-   "yaw": 271.7,
-   "scale": 1.023
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -10.218,
-   "y": 0.0,
-   "z": 10.178,
-   "yaw": 130.95,
-   "scale": 0.999
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": 5.727,
-   "y": 0.0,
-   "z": 1.727,
-   "yaw": 355.13,
-   "scale": 0.966
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -7.194,
-   "y": 0.0,
-   "z": -4.752,
-   "yaw": 38.51,
-   "scale": 1.058
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -10.526,
-   "y": 0.0,
-   "z": 1.475,
-   "yaw": 200.36,
-   "scale": 0.981
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -7.101,
-   "y": 0.0,
-   "z": -5.99,
-   "yaw": 327.94,
-   "scale": 0.893
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": -7.31,
-   "y": 0.0,
-   "z": -3.181,
-   "yaw": 77.94,
-   "scale": 0.81
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": 7.008,
-   "y": 0.0,
-   "z": 10.847,
-   "yaw": 223.93,
-   "scale": 0.805
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": 8.192,
-   "y": 0.0,
-   "z": 3.324,
-   "yaw": 36.98,
-   "scale": 1.072
-  },
-  {
-   "asset": "SM_ENV_Fern",
-   "x": 8.335,
-   "y": 0.0,
-   "z": -2.451,
-   "yaw": 58.22,
-   "scale": 0.998
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
   }
  ]
 }
