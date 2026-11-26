@@ -6,6 +6,8 @@
 
 ## 0. Trạng thái luật cho Alpha
 
+> **Cập nhật 2026-11-26:** chủ dự án đã duyệt bảng A và luật cho ăn B; cả hai **chưa** có trong code cho tới khi #74 được merge. Bảng dưới mô tả code hiện tại. AI1 phụ trách tích hợp UI sau khi #74 bàn giao API.
+
 | Hệ | Trong game | UI làm gì |
 |---|---|---|
 | Tuyến `sky_cloud` (bảng thưởng) | **TẮT**, chờ duyệt | thẻ tuyến khóa: `RouteExplorationDto.RewardsDefined == false`, lệnh trả `route-rewards-undefined` |

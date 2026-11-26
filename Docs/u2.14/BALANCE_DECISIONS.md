@@ -1,5 +1,7 @@
 # U2.14 — Rà soát cân bằng Alpha: hai quyết định đang chờ duyệt
 
+> **Quyết định của chủ dự án (ghi nhận 2026-11-26, bình luận trên PR #73):** duyệt **bảng sky_cloud A** và **luật cho ăn B** (rồng được chọn ăn trước); kinh tế Sanctuary **chỉ nghiên cứu, không đổi giá**. Cài đặt Domain theo dõi ở issue #74, nghiên cứu Sanctuary ở #75. PR U2.14 này giữ làm **mốc đối chứng**: số liệu dưới đây là của luật production trước khi cài đặt.
+
 > **Không luật nào được bật trong U2.14.** `SkyCloudBalance.Production = Disabled`, `FeedCommand` / `BehaviorEngine.AssignFood` giữ luật A. Bảng A chỉ chạy trong phạm vi `SkyCloudBalance.Use(...)` của test / mô phỏng; luật cho ăn B chỉ được mô hình hóa trong `U213FeedingResearchTests`.
 > Nguồn số liệu, theo loại:
 > - **Đã chạy (U2.14):** `U214AlphaJourneyTests` (hành trình 40 ngày, lệnh thật, có/không bảng A), `U213FeedingResearchTests` chạy lại trên `main` mới nhất (kết quả trùng từng ô với `Docs/u2.13/FEEDING_RESEARCH.md`).
