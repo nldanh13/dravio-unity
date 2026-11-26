@@ -25,6 +25,20 @@ namespace Dravio.EditorTools
             }
             Debug.Log(report.ToString());
         }
+        [MenuItem("Dravio/Technology Lab/Crowd Recovery Benchmark")]
+        public static void Recovery()
+        {
+            var map=new LabLocationMap();
+            JsonUtility.FromJsonOverwrite(File.ReadAllText("Assets/Dravio/Environment/Data/OriginSanctuaryLocations.json"),map);
+            var report=new StringBuilder("Same goals and routes; fixed steering vs bounded recovery. Not production runtime.\n");
+            foreach(int n in new[]{5,15,30})
+            {
+                var lab=RoutedCrowdExperiment.Build(map,"origin_meadow",n);
+                if(lab==null){report.AppendLine("No valid pair for "+n);continue;}
+                for(int i=0;i<800;i++){lab.Step(includeRecovery:true);if(i==399||i==799)report.AppendLine(lab.RecoverySummary());}
+            }
+            Debug.Log(report.ToString());
+        }
         [MenuItem("Dravio/Technology Lab/Authored Route Benchmark")]
         public static void Run()
         {

@@ -9,15 +9,16 @@ namespace Dravio.TechnologyLab
     /// A reference experiment, not a replay of the production controller's turning/replan logic.</summary>
     public sealed class RoutedCrowdExperiment
     {
-        public readonly SteeringLab Baseline,Steering;
+        public readonly SteeringLab Baseline,Steering,Coordinated;
+        public readonly RecoveryFollower Recovery;
         public readonly string Habitat;
         public readonly int Requested,Valid,Skipped;
         public readonly float Height;
         public readonly LabLocationMap Map;
 
         RoutedCrowdExperiment(LabLocationMap map,string habitat,int requested,int valid,int skipped,float height,
-            SteeringLab baseline,SteeringLab steering)
-        {Map=map;Habitat=habitat;Requested=requested;Valid=valid;Skipped=skipped;Height=height;Baseline=baseline;Steering=steering;}
+            SteeringLab baseline,SteeringLab steering,SteeringLab coordinated,RecoveryFollower recovery)
+        {Map=map;Habitat=habitat;Requested=requested;Valid=valid;Skipped=skipped;Height=height;Baseline=baseline;Steering=steering;Coordinated=coordinated;Recovery=recovery;}
 
         public static RoutedCrowdExperiment Build(LabLocationMap map,string habitat,int requested)
         {
@@ -69,11 +70,16 @@ namespace Dravio.TechnologyLab
                 };
             }
             double extent=Math.Max(10,Math.Max(Math.Max(Math.Abs(minX),Math.Abs(maxX)),Math.Max(Math.Abs(minZ),Math.Abs(maxZ)))+1);
+            var recovery=new RecoveryFollower(routes,height,Clear);
+            SteeringLab coordinated=null;
+            coordinated=new SteeringLab(agents.ToArray(),null,extent,Segment,a=>recovery.Next(a,coordinated.Agents,coordinated.Tick),broadPhase:true);
             return new RoutedCrowdExperiment(map,habitat,requested,agents.Count,requested-agents.Count,height,
                 new SteeringLab(agents.ToArray(),null,extent,Segment,Follow()),
-                new SteeringLab(agents.ToArray(),null,extent,Segment,Follow()));
+                new SteeringLab(agents.ToArray(),null,extent,Segment,Follow(),broadPhase:true),coordinated,recovery);
         }
-        public void Step(){Baseline.Step(LabMode.StopOnly);Steering.Step(LabMode.PredictiveSteering);}
+        public void Step(bool includeRecovery=false){Baseline.Step(LabMode.StopOnly);Steering.Step(LabMode.PredictiveSteering);if(includeRecovery)Coordinated.Step(LabMode.PredictiveSteering);}
+        public string RecoverySummary()=>FormattableString.Invariant(
+            $"LAB RECOVERY {Habitat} requested={Requested} valid={Valid} ticks={Coordinated.Tick}: fixed={Steering.Arrived} recovered={Coordinated.Arrived} stopped={Steering.StoppedAgentTicks}->{Coordinated.StoppedAgentTicks} gap={Coordinated.MinGap:F4} attempts={Recovery.Attempts} accepted={Recovery.Recovered} failed={Recovery.Failed} nodes={Recovery.Expanded}");
         public string Summary()=>FormattableString.Invariant(
             $"LAB ROUTED {Habitat} requested={Requested} valid={Valid} skipped={Skipped} ticks={Baseline.Tick}: stop arrived={Baseline.Arrived} stopped={Baseline.StoppedAgentTicks} gap={Baseline.MinGap:F4} distance={Baseline.DistanceTravelled:F2}; steer arrived={Steering.Arrived} stopped={Steering.StoppedAgentTicks} gap={Steering.MinGap:F4} distance={Steering.DistanceTravelled:F2}");
     }
