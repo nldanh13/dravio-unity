@@ -93,9 +93,10 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         [Test]
-        public void Without_an_approved_table_no_simulated_player_ever_flies_to_the_cloud_terrace()
+        public void With_the_legacy_disabled_table_no_simulated_player_ever_flies_to_the_cloud_terrace()
         {
-            var sim = new EconomySimulator(Policy.Guided, EconomySimulationTests.Schedules[2], 1, EconomyVariant.Live);
+            // Đối chứng U2.14: production đã bật bảng A (U2.15), nên phải chọn rõ bảng tắt.
+            var sim = new EconomySimulator(Policy.Guided, EconomySimulationTests.Schedules[2], 1, EconomyVariant.LiveWithSky(SkyCloudBalance.Disabled));
             RunResult r = sim.Run(new double[] { 24 * 30 });
             Snapshot x = r.At[24 * 30];
             Assert.That(x.SkyClaims, Is.EqualTo(0));

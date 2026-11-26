@@ -39,7 +39,8 @@ namespace Dravio.Domain.Tests
         public List<string> Habitats = new List<string>();
         /// <summary>Thế giới sớm nhất có microhabitat đặt được (origin → ocean → sky).</summary>
         public string EarliestWorld;
-        public bool ObtainableProduction, ObtainableWithTableA;
+        /// <summary>U2.15: production = bảng A. <see cref="ObtainableLegacyOff"/> = đối chứng U2.14 (bảng tắt, chỉ trong phạm vi Use).</summary>
+        public bool ObtainableProduction, ObtainableWithTableA, ObtainableLegacyOff;
     }
 
     /// <summary>
@@ -65,6 +66,8 @@ namespace Dravio.Domain.Tests
             ProgressionAuditReport prod = ProgressionQueries.AuditCatalog();
             ProgressionAuditReport withA;
             using (SkyCloudBalance.Use(SkyCloudBalance.ProposedA)) withA = ProgressionQueries.AuditCatalog();
+            ProgressionAuditReport off;
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled)) off = ProgressionQueries.AuditCatalog();
             var rows = new List<CollectionRow>();
             foreach (DragonSpecies sp in SpeciesCatalog.All)
             {
@@ -100,6 +103,7 @@ namespace Dravio.Domain.Tests
                 }
                 row.ObtainableProduction = prod.ObtainableSpecies.Contains(sp.Id);
                 row.ObtainableWithTableA = withA.ObtainableSpecies.Contains(sp.Id);
+                row.ObtainableLegacyOff = off.ObtainableSpecies.Contains(sp.Id);
                 rows.Add(row);
             }
             return rows;
@@ -108,13 +112,15 @@ namespace Dravio.Domain.Tests
         // ================================================================== kết luận ma trận
 
         [Test]
-        public void Fifteen_of_sixteen_species_are_collectible_in_production_and_only_aurorawing_waits_for_the_sky_table()
+        public void Sixteen_of_sixteen_species_have_a_source_in_production_with_table_A()
         {
             List<CollectionRow> rows = Build();
             Assert.That(rows.Count, Is.EqualTo(16));
-            Assert.That(rows.Where(r => !r.ObtainableProduction).Select(r => r.SpeciesId), Is.EqualTo(new[] { "aurorawing" }));
-            Assert.That(rows.All(r => r.ObtainableWithTableA), Is.True, "bảng A (chỉ trong phạm vi Use) → 16/16");
-            Assert.That(SkyCloudBalance.Current.Enabled, Is.False);
+            // U2.15: bảng A là production → 16/16. Đây là kiểm toán nguồn (catalog), không khẳng định mọi lượt chơi đều thu đủ 16 loài.
+            Assert.That(rows.Where(r => !r.ObtainableProduction).Select(r => r.SpeciesId), Is.Empty);
+            Assert.That(rows.All(r => r.ObtainableWithTableA), Is.True);
+            Assert.That(rows.Where(r => !r.ObtainableLegacyOff).Select(r => r.SpeciesId), Is.EqualTo(new[] { "aurorawing" }), "đối chứng U2.14 (bảng tắt): 15/16");
+            Assert.That(SkyCloudBalance.Current.Enabled, Is.True);
             // Mọi loài đặt được ở ít nhất một sinh cảnh của ba thế giới.
             Assert.That(rows.Where(r => r.EarliestWorld == null).Select(r => r.SpeciesId), Is.Empty);
         }
@@ -144,7 +150,7 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
-        public void Aurorawing_first_copy_comes_only_from_the_approved_15th_sky_trip_egg_while_the_route_table_is_off()
+        public void Aurorawing_first_copy_comes_only_from_the_approved_15th_sky_trip_egg()
         {
             CollectionRow r = Build().Single(x => x.SpeciesId == "aurorawing");
             Assert.That(r.PackOdds, Is.Empty, "không có trong gói");
@@ -153,11 +159,12 @@ namespace Dravio.Domain.Tests
             Assert.That(r.SelfBreedable, Is.True, "Aurorawing × rồng nhóm V (vd Zephyr) lai ra Aurorawing");
             // Luật trứng đã duyệt: mốc tồn tại ngay cả khi bảng tắt.
             Assert.That((r.ExpeditionEgg, r.ExpeditionEggRoute, r.ExpeditionEggClaims), Is.EqualTo((SkyCloudBalance.AurorawingEggRewardId, SkyCloudBalance.RouteId, 15)));
-            // Tuyến chưa kích hoạt: không có bảng thưởng → lệnh bị từ chối → mốc không bao giờ đạt.
+            // U2.15: tuyến mở (bảng A) → mốc 15 đạt được. Bảng tắt (đối chứng) → lệnh bị từ chối → không bao giờ đạt.
             ExpeditionCatalog.TryGet(SkyCloudBalance.RouteId, out ExpeditionRoute route);
-            Assert.That(route.RewardsDefined, Is.False);
-            Assert.That(r.ObtainableProduction, Is.False);
+            Assert.That(route.RewardsDefined, Is.True);
+            Assert.That(r.ObtainableProduction, Is.True);
             Assert.That(r.ObtainableWithTableA, Is.True);
+            Assert.That(r.ObtainableLegacyOff, Is.False);
             var zephyr = SpeciesCatalog.Get("zephyr");
             Assert.That(BreedingRules.CandidateSpecies(SpeciesCatalog.Get("aurorawing"), zephyr).Select(s => s.Id), Does.Contain("aurorawing"));
         }
@@ -225,7 +232,7 @@ namespace Dravio.Domain.Tests
         public static string Table()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("| Loài | Độ hiếm / nhóm | Gói (mỗi lần mở) | Nguồn khác | Lai tốt nhất (không cần chính loài) | Tự nhân giống | Sinh cảnh | Thế giới sớm nhất | Production | Bảng A (mô phỏng) |");
+            sb.AppendLine("| Loài | Độ hiếm / nhóm | Gói (mỗi lần mở) | Nguồn khác | Lai tốt nhất (không cần chính loài) | Tự nhân giống | Sinh cảnh | Thế giới sớm nhất | Production (U2.15, bảng A) | Đối chứng U2.14 (bảng tắt) |");
             sb.AppendLine("|---|---|---|---|---|---|---|---|---|---|");
             foreach (CollectionRow r in Build())
             {
@@ -236,7 +243,7 @@ namespace Dravio.Domain.Tests
                 if (r.ExpeditionEgg != null) other.Add($"`{r.ExpeditionEgg}` ({r.ExpeditionEggRoute} chuyến {r.ExpeditionEggClaims})");
                 string packs = r.PackOdds.Count == 0 ? "—" : string.Join(", ", PackCatalog.All.Where(p => r.PackOdds.ContainsKey(p.Id)).Select(p => $"{p.Id} {Pct(r.PackOdds[p.Id])}"));
                 string pair = r.BestPair == null ? "—" : $"{r.BestPair} {Pct(r.BestPairChance)} ({r.BestPairFeeG} G)";
-                sb.AppendLine($"| {r.SpeciesId} | {r.Rarity} / {r.Group} | {packs} | {(other.Count == 0 ? "—" : string.Join("; ", other))} | {pair} | {(r.SelfBreedable ? "có" : "không")} | {string.Join(", ", r.Habitats)} | {r.EarliestWorld} | {(r.ObtainableProduction ? "**có**" : "**không**")} | {(r.ObtainableWithTableA ? "có" : "không")} |");
+                sb.AppendLine($"| {r.SpeciesId} | {r.Rarity} / {r.Group} | {packs} | {(other.Count == 0 ? "—" : string.Join("; ", other))} | {pair} | {(r.SelfBreedable ? "có" : "không")} | {string.Join(", ", r.Habitats)} | {r.EarliestWorld} | {(r.ObtainableProduction ? "**có**" : "**không**")} | {(r.ObtainableLegacyOff ? "có" : "không")} |");
             }
             return sb.ToString();
         }

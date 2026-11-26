@@ -63,18 +63,32 @@ namespace Dravio.Domain.Tests
         // ================================================================== bảng chưa duyệt: game thật không đổi
 
         [Test]
-        public void Production_keeps_the_sky_route_locked_and_stardust_inactive()
+        public void Production_uses_the_approved_table_A_and_the_legacy_disabled_table_stays_locked()
         {
-            Assert.That(SkyCloudBalance.Production, Is.SameAs(SkyCloudBalance.Disabled), "bảng sky_cloud chưa duyệt");
-            Assert.That(SkyCloudBalance.Current.Enabled, Is.False);
+            // U2.15 (issue #74): chủ dự án duyệt bảng A ngày 2026-11-26.
+            Assert.That(SkyCloudBalance.Production, Is.SameAs(SkyCloudBalance.ProposedA));
+            Assert.That(SkyCloudBalance.Current, Is.SameAs(SkyCloudBalance.ProposedA));
+            Assert.That((SkyCloudBalance.Current.DurationMinutes, SkyCloudBalance.Current.MinQty, SkyCloudBalance.Current.MaxQty), Is.EqualTo((45, 2, 4)));
+            Assert.That(SkyCloudBalance.Current.Milestones.Select(m => (m.Claims, m.BonusEach)), Is.EqualTo(new[] { (1, 2), (5, 3), (15, 4), (40, 6) }));
             ExpeditionCatalog.TryGet("sky_cloud", out ExpeditionRoute route);
-            Assert.That(route.RewardsDefined, Is.False);
-            Assert.That(ExpeditionCatalog.Materials.Single(m => m.Id == "stardust").Active, Is.False);
+            Assert.That((route.RewardsDefined, route.DurationMs, route.Materials.Single()), Is.EqualTo((true, 45 * 60_000L, "stardust")));
+            Assert.That(ExpeditionCatalog.Materials.Single(m => m.Id == "stardust").Active, Is.True);
             GameState s = SkyWorld(Day0);
-            Fail(s, new StartExpeditionCommand(Rid(), "sky_cloud", "flyer"), new FixedClock(Day0), DomainErrorCode.RouteRewardsUndefined);
+            DispatchResult ok = Ok(s, new StartExpeditionCommand(Rid(), "sky_cloud", "flyer"), new FixedClock(Day0));
+            Assert.That(ok.State.Expedition.FinishAtMs - Day0, Is.EqualTo(45 * 60_000L));
             ProgressionAuditReport r = ProgressionQueries.AuditCatalog();
-            Assert.That(r.UnreachableQuests.Keys, Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }));
-            Assert.That(r.ObtainableSpecies, Does.Not.Contain("aurorawing"), "trứng Aurorawing cần tuyến sky_cloud");
+            Assert.That(r.UnreachableQuests, Is.Empty);
+            Assert.That(r.ObtainableSpecies, Does.Contain("aurorawing"));
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                ExpeditionCatalog.TryGet("sky_cloud", out ExpeditionRoute offRoute);
+                Assert.That(offRoute.RewardsDefined, Is.False);
+                Assert.That(ExpeditionCatalog.Materials.Single(m => m.Id == "stardust").Active, Is.False);
+                Fail(s, new StartExpeditionCommand(Rid(), "sky_cloud", "flyer"), new FixedClock(Day0), DomainErrorCode.RouteRewardsUndefined);
+                ProgressionAuditReport off = ProgressionQueries.AuditCatalog();
+                Assert.That(off.UnreachableQuests.Keys, Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }));
+                Assert.That(off.ObtainableSpecies, Does.Not.Contain("aurorawing"), "trứng Aurorawing cần tuyến sky_cloud");
+            }
         }
 
         [Test]
@@ -107,7 +121,7 @@ namespace Dravio.Domain.Tests
                     Assert.That(end.ExpeditionsClaimed["sky_cloud"], Is.EqualTo(16));
                 }
             }
-            Assert.That(SkyCloudBalance.Current.Enabled, Is.False, "phạm vi Use đã đóng");
+            Assert.That(SkyCloudBalance.Current, Is.SameAs(SkyCloudBalance.Production), "phạm vi Use đã đóng");
         }
 
         [Test]
@@ -251,8 +265,13 @@ namespace Dravio.Domain.Tests
         public void Exploration_dto_shows_the_aurorawing_milestone_for_the_ui()
         {
             GameState s = SkyWorld(Day0);
-            RouteExplorationDto off = ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud");
-            Assert.That((off.RewardsDefined, off.NextMilestoneAt, off.NextMilestoneEggSpeciesId), Is.EqualTo((false, (int?)15, "aurorawing")));
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                RouteExplorationDto off = ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud");
+                Assert.That((off.RewardsDefined, off.NextMilestoneAt, off.NextMilestoneEggSpeciesId), Is.EqualTo((false, (int?)15, "aurorawing")));
+            }
+            RouteExplorationDto prod = ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud");
+            Assert.That((prod.RewardsDefined, prod.NextMilestoneAt, prod.NextMilestoneBonusEach), Is.EqualTo((true, (int?)1, 2)));
             using (SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
             {
                 RouteExplorationDto on = ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud");

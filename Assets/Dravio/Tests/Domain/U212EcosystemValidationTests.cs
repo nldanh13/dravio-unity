@@ -60,10 +60,17 @@ namespace Dravio.Domain.Tests
             ProgressionAuditReport r = ProgressionQueries.AuditCatalog();
             Assert.That(r.CatalogErrors, Is.Empty);
             Assert.That(r.UnreachableZones, Is.Empty, "cả ba thế giới mở được");
-            // Chỉ một nhiệm vụ không bao giờ đạt được, và lý do là luật CHƯA DUYỆT (bảng thưởng sky_cloud), không phải vòng lặp điều kiện.
-            Assert.That(r.UnreachableQuests.Keys, Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }));
-            Assert.That(r.UnreachableQuests["Q_EXPEDITION_CLOUD"], Is.EqualTo("routeAvailable:route-rewards-undefined"));
-            Assert.That(r.Steps.Count(st => st.Kind == "quest"), Is.EqualTo(QuestProposals.All.Count - 1));
+            // U2.15: bảng A đã duyệt → cả 17 nhiệm vụ đạt được.
+            Assert.That(r.UnreachableQuests, Is.Empty);
+            Assert.That(QuestProposals.All.Count, Is.EqualTo(17));
+            Assert.That(r.Steps.Count(st => st.Kind == "quest"), Is.EqualTo(17));
+            // Đối chứng U2.14: với bảng tắt chỉ Q_EXPEDITION_CLOUD không đạt, vì luật chưa bật chứ không phải vòng lặp điều kiện.
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                ProgressionAuditReport off = ProgressionQueries.AuditCatalog();
+                Assert.That(off.UnreachableQuests.Keys, Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }));
+                Assert.That(off.UnreachableQuests["Q_EXPEDITION_CLOUD"], Is.EqualTo("routeAvailable:route-rewards-undefined"));
+            }
         }
 
         [Test]
@@ -96,16 +103,22 @@ namespace Dravio.Domain.Tests
         }
 
         /// <summary>
-        /// Phát hiện U2.12 (luật có từ trước, KHÔNG sửa — chờ chủ dự án quyết định): Aurorawing (Nước + Gió, Epic, nhóm V) không có trong gói nào và nhóm V
+        /// U2.15: đã giải quyết bằng trứng chuyến sky_cloud thứ 15 (bảng A bật). Ghi chú U2.12 gốc: Aurorawing (Nước + Gió, Epic, nhóm V) không có trong gói nào và nhóm V
         /// không loài nào mang nguyên tố Nước, nên không lai ra được. Hệ quả: ACH_CODEX_16, title.dragon_scholar, title.lifecycle_master, title.grand_ethologist
         /// không bao giờ đạt được. Test này ghi lại hiện trạng; khi chủ dự án chọn cách mở (xem ADR 0207), cập nhật test.
         /// </summary>
         [Test]
-        public void Aurorawing_is_the_only_species_that_can_never_be_obtained()
+        public void Aurorawing_is_obtainable_only_through_the_sky_egg_and_never_from_packs_or_breeding()
         {
+            // U2.15: bảng A bật → trứng chuyến sky_cloud thứ 15 là nguồn duy nhất; 16 / 16 loài có nguồn.
             ProgressionAuditReport r = ProgressionAudit.Run();
-            string[] never = SpeciesCatalog.All.Select(sp => sp.Id).Where(id => !r.ObtainableSpecies.Contains(id)).ToArray();
-            Assert.That(never, Is.EqualTo(new[] { "aurorawing" }));
+            Assert.That(SpeciesCatalog.All.Where(sp => !r.ObtainableSpecies.Contains(sp.Id)), Is.Empty);
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                ProgressionAuditReport off = ProgressionAudit.Run();
+                string[] never = SpeciesCatalog.All.Select(sp => sp.Id).Where(id => !off.ObtainableSpecies.Contains(id)).ToArray();
+                Assert.That(never, Is.EqualTo(new[] { "aurorawing" }), "đối chứng U2.14");
+            }
             DragonSpecies aw = SpeciesCatalog.Get("aurorawing");
             Assert.That(aw.PackEligible, Is.False);
             Assert.That(SpeciesCatalog.All.Where(sp => sp.Group == aw.Group).Any(sp => sp.Id != aw.Id && sp.Elements.Contains(ElementType.Water)), Is.False);
@@ -229,9 +242,9 @@ namespace Dravio.Domain.Tests
             GameState s = sim.State;
             Assert.That(s.Zones.All(z => z.Unlocked), Is.True);
             Assert.That(sim.GuideStepsFollowed, Is.GreaterThan(0), "người chơi thật sự làm theo hướng dẫn");
-            string[] approved = QuestProposals.All.Select(q => q.Id).Where(id => id != "Q_EXPEDITION_CLOUD").ToArray();
-            Assert.That(r.QuestHours.Keys, Is.EquivalentTo(approved), "mọi nhiệm vụ đã duyệt hoàn thành, Q_EXPEDITION_CLOUD vẫn bị chặn");
-            Assert.That(QuestProposals.IsCompleted(s, "Q_EXPEDITION_CLOUD"), Is.False);
+            // U2.15: bảng A bật → cả 17 nhiệm vụ, kể cả Q_EXPEDITION_CLOUD.
+            Assert.That(r.QuestHours.Keys, Is.EquivalentTo(QuestProposals.All.Select(q => q.Id)), "mọi nhiệm vụ hoàn thành");
+            Assert.That(QuestProposals.IsCompleted(s, "Q_EXPEDITION_CLOUD"), Is.True);
             // Thứ tự hợp lệ: tiền đề trước, nhiệm vụ cổng trước khi mở thế giới, thế giới trước nhiệm vụ của nó.
             foreach (QuestProposalDef q in QuestProposals.All.Where(q => r.QuestHours.ContainsKey(q.Id)))
             {
