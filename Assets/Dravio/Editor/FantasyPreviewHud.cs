@@ -108,6 +108,7 @@ namespace Dravio.Editor
                 tabs.Add(Button(ui,second,"Guide","Hướng dẫn",44));
                 tabs.Add(Button(ui,second,"Eggs","Trứng",44));
                 tabs.Add(Button(ui,second,"Manage","Quản lý",44));
+                tabs.Add(Button(ui,second,"Log","Sổ",44));
             }
             var host=RectNode("Page host",panel);
             var hostSize=host.gameObject.AddComponent<LayoutElement>();
@@ -117,7 +118,12 @@ namespace Dravio.Editor
             var roster=Page(host,"Dragons");
 
             Text progress=null,notice=null,saveStatus=null,tutorialStatus=null,rosterStatus=null,guideFeedback=null;
-            RectTransform guide=null,hatchery=null,management=null;
+            RectTransform guide=null,hatchery=null,management=null,research=null;
+            Text researchOverview=null,researchDetail=null,researchFeedback=null;
+            Button codexTab=null,journalTab=null,questTab=null,researchPrev=null,researchNext=null,researchRecord=null;
+            ResearchDiscoveryPanel researchPanel=null;
+            DravioSessionHost researchHost=null;
+            LivingSanctuaryPresentation researchLiving=null;
             Text healthStatus=null,careCaseStatus=null,carePlanStatus=null;
             Button healthNext=null,healthShelter=null,healthAssess=null,healthNextPlan=null,healthApplyPlan=null,healthStart=null,healthReview=null,healthDischarge=null;
             Text managementSummary=null,managementWorld=null,managementCodex=null,managementMaterials=null,managementExpedition=null,managementFeedback=null;
@@ -260,6 +266,20 @@ namespace Dravio.Editor
                 managementMaterials=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,130,false);
                 Label(ui,management,"Codex","Bách khoa",18,Gold,TextAnchor.MiddleLeft,36);
                 managementCodex=Label(ui,management,"Loading","Đang tải",15,Paper,TextAnchor.UpperLeft,500,false);
+                research=Page(host,"Research & discovery");
+                Label(ui,research,"Research & discovery","Nghiên cứu & khám phá",18,Gold,TextAnchor.MiddleLeft,40);
+                researchOverview=FlowText(ui,research,Gold);
+                var modes=ActionRow(research);
+                codexTab=Button(ui,modes,"Codex","Bách khoa",46);
+                journalTab=Button(ui,modes,"Observe","Quan sát",46);
+                questTab=Button(ui,modes,"Quests","Nhiệm vụ",46);
+                var browse=ActionRow(research);
+                researchPrev=Button(ui,browse,"Previous","Trước",46);
+                researchNext=Button(ui,browse,"Next","Tiếp",46);
+                researchRecord=Button(ui,research,"Record observation","Ghi quan sát",46);
+                researchRecord.interactable=false;
+                researchDetail=FlowText(ui,research,Paper);
+                researchFeedback=FlowText(ui,research,Muted);
             }
             else Label(ui,roster,integrated?"One founder dragon in this session. Additional residents await gameplay integration.":"Only the current preview dragon is available. The full roster awaits Core Domain integration.",integrated?"Một rồng khởi tạo trong phiên này. Thêm rồng sẽ có khi nối gameplay.":"Hiện chỉ có rồng thử nghiệm. Danh sách rồng thật sẽ được nối với Core Domain.",14,Muted,TextAnchor.MiddleLeft,90);
 
@@ -286,6 +306,8 @@ namespace Dravio.Editor
                         selectedTitle,status,progress,notice,livingProfile,livingTravel,
                         feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observeDragon,nextTravel,moveDragon,storeDragon);
                     living.ConfigureResearch(researchObserve);
+                    researchHost=persistence;researchLiving=living;
+                    researchPanel=hostGo.AddComponent<ResearchDiscoveryPanel>();
                     session.ConfigureLiving(living);
                     if(SceneManager.GetActiveScene().path==ConnectedWorldPolicy.OriginScene)
                     {
@@ -350,6 +372,9 @@ namespace Dravio.Editor
                 pages.Add(guide.parent.parent.gameObject);
                 pages.Add(hatchery.parent.parent.gameObject);
                 pages.Add(management.parent.parent.gameObject);
+                pages.Add(research.parent.parent.gameObject);
+                researchPanel.Configure(researchHost,researchLiving,runtime,research.parent.parent.gameObject,
+                    researchOverview,researchDetail,researchFeedback,codexTab,journalTab,questTab,researchPrev,researchNext,researchRecord);
             }
             runtime.Configure(safe,panel,pages.ToArray(),
                 tabs.ToArray(),lang,hide,hide.GetComponentInChildren<Text>(),ui.copy.ToArray(),controller);
@@ -428,6 +453,12 @@ namespace Dravio.Editor
             scroll.viewport=viewport;scroll.content=body;scroll.horizontal=false;
             scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=24;
             return body;
+        }
+        static Text FlowText(Layout ui,Transform parent,Color color)
+        {
+            var label=Label(ui,parent,"—","—",14,color,TextAnchor.UpperLeft,80,false);
+            label.resizeTextForBestFit=false;label.verticalOverflow=VerticalWrapMode.Overflow;
+            return label;
         }
         static Text Label(Layout ui,Transform parent,string en,string vi,int size,Color color,TextAnchor align,float height,bool localize=true)
         {
