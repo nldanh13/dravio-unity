@@ -3,16 +3,19 @@
 # No external assets. Not a finished sculpt, rig, or painterly texture.
 import bpy
 import math
+import json
 import sys
 from pathlib import Path
 from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 out = Path(args[0] if args else "art-exports/EmberlingLiving.fbx").resolve()
-care_preview = "--care-preview" in args[1:]
+refined_preview = "--refined-preview" in args[1:]
+polish_preview = "--polish-preview" in args[1:] or refined_preview
+care_preview = "--care-preview" in args[1:] or polish_preview
 walk_preview = "--walk-preview" in args[1:] or care_preview
-if care_preview and out.stem != "EmberlingCare":
-    raise ValueError("Care preview requires a separate EmberlingCare.fbx output")
+if care_preview and out.stem != ("EmberlingRefined" if refined_preview else "EmberlingPolished" if polish_preview else "EmberlingCare"):
+    raise ValueError("Care or polish preview requires its own output filename")
 if walk_preview and not care_preview and out.stem != "EmberlingWander":
     raise ValueError("Walk preview requires a separate EmberlingWander.fbx output")
 out.parent.mkdir(parents=True, exist_ok=True)
@@ -101,20 +104,60 @@ for face in skin.data.polygons:
     face.material_index=int((forward>.84 and z<1.35 and abs(x)<.36) or (forward>.28 and z<1.10 and z>.38 and abs(x)<.29))
     face.use_smooth=True
 
+if polish_preview:
+    # Continuous cylindrical body UV in the undeformed mesh. U=0 top, .5 underside;
+    # V increases from tail to muzzle. Per-face unwrap avoids a seam across triangles.
+    # Limbs and head use an approximate projection; final artist UVs remain future work.
+    while len(skin.data.uv_layers):
+        skin.data.uv_layers.remove(skin.data.uv_layers[0])
+    uv = skin.data.uv_layers.new(name="BodyPaint", do_init=False)
+    uv.active = True
+    uv.active_render = True
+    for face in skin.data.polygons:
+        coords=[]
+        for loop_index in face.loop_indices:
+            p=skin.data.vertices[skin.data.loops[loop_index].vertex_index].co
+            f=-p.y
+            center=.72 + .60*max(0., min(1., (f-.20)/.75))
+            if f<-.65:
+                center=.58+.65*max(0.,min(1.,(-f-.65)/1.05))**2
+            u=(math.atan2(p.x,p.z-center)/(2*math.pi))%1.
+            v=max(0.,min(1.,(f+1.85)/3.4))
+            coords.append((loop_index,u,v))
+        seam=max(q[1] for q in coords)-min(q[1] for q in coords)>.5
+        for idx,u,v in coords:
+            uv.uv[idx].vector=(u+1. if seam and u<.5 else u,v)
+        face.material_index=0
+    # One material for the entire skin; Unity supplies the continuous painted gradient.
+    skin.data.materials.pop(index=1)
+    
 for s in (-1,1):
-    ellipsoid("Eye surround",(s*.37,1.60,1.01),(.225,.27,.16),dark)
-    ellipsoid("Iris",(s*.39,1.60,1.12),(.164,.21,.11),iris)
-    ellipsoid("Pupil",(s*.40,1.61,1.195),(.105,.16,.055),black)
-    ellipsoid("Catchlight",(s*.40-.04,1.70,1.24),(.040,.048,.024),white)
-    ellipsoid("Small glint",(s*.40+.04,1.55,1.24),(.016,.020,.016),white)
+    ellipsoid("Eye surround",(s*.37,1.60,1.01),(.225,.27,.13 if polish_preview else .16),dark)
+    ellipsoid("Iris",(s*.39,1.60,1.085 if polish_preview else 1.12),(.164,.21,.085 if polish_preview else .11),iris)
+    ellipsoid("Pupil",(s*.40,1.61,1.15 if polish_preview else 1.195),(.105,.16,.045 if polish_preview else .055),black)
+    ellipsoid("Catchlight",(s*.40-.04,1.70,1.185 if polish_preview else 1.24),(.040,.048,.024),white)
+    ellipsoid("Small glint",(s*.40+.04,1.55,1.185 if polish_preview else 1.24),(.016,.020,.016),white)
     ellipsoid("Nostril",(s*.14,1.43,1.45),(.039,.029,.017),dark)
     for i in (-1,0,1):
         ellipsoid("Front claw",(s*.43+i*.10,.11,.86),(.041,.053,.071),belly)
         ellipsoid("Rear claw",(s*.48+i*.11,.11,-.075),(.041,.053,.071),belly)
 for i in range(4):
     ellipsoid("Rounded back scale",(0,1.16-i*.04,-.29-i*.15),(.095,.13,.11),dark)
-ellipsoid("Round flame",(0,1.30,-1.72),(.23,.31,.23),gold)
-ellipsoid("Flame core",(-.035,1.46,-1.78),(.12,.19,.14),cream)
+if polish_preview:
+    # Rounded flame silhouette, gently tapering and leaning back at the top.
+    for name,center,radii,material in [
+        ("Round flame",(0,1.30,-1.72),(.23,.32,.22),gold),
+        ("Flame core",(-.025,1.38,-1.73),(.135,.24,.13),cream)
+    ]:
+        obj=ellipsoid(name,center,radii,material)
+        for vertex in obj.data.vertices:
+            t=max(0.,min(1.,(vertex.co.z/radii[1]+1.)*.5))
+            taper=1.-.45*t*t
+            vertex.co.x*=taper
+            vertex.co.y=vertex.co.y*taper+.14*t*t
+else:
+    ellipsoid("Round flame",(0,1.30,-1.72),(.23,.31,.23),gold)
+    ellipsoid("Flame core",(-.035,1.46,-1.78),(.12,.19,.14),cream)
 
 
 # Generic quadruped skeleton. Coordinates use Blender space through xyz().
@@ -129,11 +172,20 @@ specs = [
     ("Flame",(0,1.23,-1.70),(0,1.67,-1.75),"Tail2"),
 ]
 for s,label in [(-1,"L"),(1,"R")]:
-    specs += [
-        ("Fore_"+label,(s*.37,.71,.43),(s*.43,.16,.59),"Chest"),
-        ("Hind_"+label,(s*.43,.65,-.47),(s*.48,.16,-.35),"Pelvis"),
-        ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
-    ]
+    if refined_preview:
+        specs += [
+            ("Fore_"+label,(s*.37,.71,.43),(s*.40,.40,.37),"Chest"),
+            ("ForeLower_"+label,(s*.40,.40,.37),(s*.43,.16,.59),"Fore_"+label),
+            ("Hind_"+label,(s*.43,.65,-.47),(s*.46,.38,-.23),"Pelvis"),
+            ("HindLower_"+label,(s*.46,.38,-.23),(s*.48,.16,-.35),"Hind_"+label),
+            ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
+        ]
+    else:
+        specs += [
+            ("Fore_"+label,(s*.37,.71,.43),(s*.43,.16,.59),"Chest"),
+            ("Hind_"+label,(s*.43,.65,-.47),(s*.48,.16,-.35),"Pelvis"),
+            ("Eye_"+label,(s*.38,1.60,1.09),(s*.38,1.85,1.09),"Head")
+        ]
 
 meshes=[o for o in bpy.context.scene.objects if o.type=="MESH"]
 bpy.ops.object.select_all(action='DESELECT')
@@ -170,6 +222,10 @@ def body_weights(p):
         return blend("Pelvis","Tail1",(-f-.69)/.24)
     if z<.55 and abs(x)>.18:
         leg=("Fore_" if f>.02 else "Hind_")+side
+        if refined_preview:
+            lower=("ForeLower_" if f>.02 else "HindLower_")+side
+            if z<.40:return blend(lower,leg,(z-.25)/.15)
+            return blend(leg,"Chest" if f>.02 else "Pelvis",(z-.40)/.15)
         return blend(leg,"Chest" if f>.02 else "Pelvis",(z-.23)/.32)
     if z>1.02 and f>.28:
         return blend("Chest","Head",(z-1.02)/.27)
@@ -181,8 +237,8 @@ def rigid_bone(o):
     side="L" if x<0 else "R"
     if name.startswith(("Eye surround","Iris","Pupil","Catchlight","Small glint")):
         return "Eye_"+side
-    if name.startswith("Front claw"):return "Fore_"+side
-    if name.startswith("Rear claw"):return "Hind_"+side
+    if name.startswith("Front claw"):return ("ForeLower_" if refined_preview else "Fore_")+side
+    if name.startswith("Rear claw"):return ("HindLower_" if refined_preview else "Hind_")+side
     if name.startswith(("Round flame","Flame core")):return "Flame"
     if name.startswith("Rounded back scale"):return "Chest" if -y>-.40 else "Pelvis"
     return "Head"
@@ -290,6 +346,60 @@ if care_preview:
             if bone.name=="Root":continue
             for prop in ("rotation_euler","scale"):
                 bone.keyframe_insert(data_path=prop,frame=frame,group=bone.name)
+if refined_preview:
+    # Replace leg channels with two-joint FK. No claim of planted-foot IK:
+    # art QA must tune stride, skin weights and translation speed together.
+    pairs=[("Fore_L","ForeLower_L",0.),("Hind_L","HindLower_L",.25),
+           ("Fore_R","ForeLower_R",.5),("Hind_R","HindLower_R",.75)]
+    pelvis_local_down=arm.data.bones["Pelvis"].matrix_local.to_3x3().inverted() @ Vector((0,0,-.18))
+    for frame in range(1,446):
+        scene.frame_set(frame)
+        walking=182<=frame<=217
+        sleeping=279<=frame<=399
+        pose["Pelvis"].location=pelvis_local_down if sleeping else Vector((0,0,0))
+        pose["Pelvis"].keyframe_insert(data_path="location",frame=frame,group="Pelvis")
+        for upper,lower,offset in pairs:
+            is_fore=upper.startswith("Fore")
+            pitch=0.
+            bend=0.
+            if walking:
+                t=(frame-182)/35
+                phase=2*math.pi*(t+offset)
+                lift=max(0.,math.sin(phase))
+                pitch=.23*math.cos(phase)
+                bend=(-.30 if is_fore else .30)*lift
+            elif sleeping:
+                # Opposing joint angles shorten the projected leg by ~.18 units
+                # in the sagittal plane, compensating for the lowered pelvis.
+                pitch=.46 if is_fore else -.40
+                bend=-.92 if is_fore else .80
+            def pitch_sign(name):
+                axis=arm.data.bones[name].matrix_local.to_3x3() @ Vector((1,0,0))
+                return 1. if axis.x>=0 else -1.
+            pose[upper].rotation_euler=(pitch*pitch_sign(upper),0,0)
+            pose[lower].rotation_euler=(bend*pitch_sign(lower),0,0)
+            for name in (upper,lower):
+                pose[name].keyframe_insert(data_path="rotation_euler",frame=frame,group=name)
+    # Validate authored vertex assignments before export. No runtime or visual claims.
+    issues=[]
+    for obj in meshes:
+        for vertex in obj.data.vertices:
+            total=sum(g.weight for g in vertex.groups)
+            if not math.isfinite(total) or abs(total-1.)>.001 or len(vertex.groups)>4:
+                issues.append(f"{obj.name}:{vertex.index}")
+                if len(issues)>=20:break
+        if len(issues)>=20:break
+    if issues:raise RuntimeError("Invalid skin weights: "+", ".join(issues))
+    report={
+        "model":out.name,"bones":[b.name for b in arm.data.bones],
+        "mesh_count":len(meshes),"vertices":sum(len(o.data.vertices) for o in meshes),
+        "triangles":sum(sum(max(0,len(p.vertices)-2) for p in o.data.polygons) for o in meshes),
+        "fps":30,"clip_frames":{"Idle":[1,181],"Walk":[182,217],"Eat":[218,278],"Doze":[279,399],"Happy":[400,445]},
+        "checks":{"normalized_skin_weights":True,"maximum_four_weights":True},
+        "limits":"FK prototype; gait, sleep pose, UV, Unity import and visual QA pending"
+    }
+    # Persist report only after the FBX export succeeds.
+
 action=arm.animation_data.action
 action.name="Emberling_Care" if care_preview else "Emberling_Idle_Walk" if walk_preview else "Emberling_Idle"
 scene.frame_set(1)
@@ -303,4 +413,9 @@ bpy.ops.export_scene.fbx(filepath=str(out),use_selection=True,
     apply_unit_scale=True,add_leaf_bones=False,mesh_smooth_type='FACE',
     bake_anim=True,bake_anim_use_all_actions=False,bake_anim_use_nla_strips=False,
     bake_anim_force_startend_keying=True,bake_anim_simplify_factor=0.0)
-print("Dravio rigged idle prototype exported:",out)
+if refined_preview:
+    if not out.is_file() or out.stat().st_size<=0:
+        raise RuntimeError("FBX missing after export")
+    report["fbx_bytes"]=out.stat().st_size
+    out.with_suffix(".qa.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+print("Dravio rigged prototype exported:",out)

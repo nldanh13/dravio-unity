@@ -26,6 +26,9 @@ namespace Dravio
         private float remaining;
         private string activeClip;
         private bool ready;
+        private bool vietnamese;
+        public bool IsInspecting => current == Activity.Inspect;
+        public void SetVietnamese(bool value) { vietnamese=value; RefreshStatus(); }
 
         public void Configure(Animator a, DragonTurntable t, Text label,
             Button feedButton, Button petButton, Button sleepButton, Button inspectButton, Button resumeButton)
@@ -67,6 +70,7 @@ namespace Dravio
         public void Pet() { if(ready && isActiveAndEnabled) Enter(Activity.Happy,1.7f); }
         public void ToggleDoze() { if(ready && isActiveAndEnabled) { if(current==Activity.Doze) Resume(); else Enter(Activity.Doze,0); } }
         public void ToggleInspect() { if(ready && isActiveAndEnabled) { if(current==Activity.Inspect) Resume(); else Enter(Activity.Inspect,0); } }
+        public void Inspect() { if(ready && isActiveAndEnabled && !IsInspecting) Enter(Activity.Inspect,0); }
         public void Resume() { if(ready && isActiveAndEnabled) Enter(Activity.Idle,1f); }
 
         private void Enter(Activity state,float duration)
@@ -81,9 +85,18 @@ namespace Dravio
                 animator.CrossFadeInFixedTime(Animator.StringToHash("Base Layer."+clip),.12f,0,0);
                 activeClip=clip;
             }
-            if(status!=null) status.text=state switch {
+            RefreshStatus();
+        }
+
+        private void RefreshStatus()
+        {
+            if(status==null)return;
+            status.text=vietnamese ? current switch {
+                Activity.Idle=>"Đang nghỉ",Activity.Walk=>"Đang khám phá",Activity.Eat=>"Đang ăn (thử nghiệm)",
+                Activity.Doze=>"Đang ngủ gật",Activity.Happy=>"Vui vẻ",_=>"Đang quan sát"
+            } : current switch {
                 Activity.Idle=>"Resting",Activity.Walk=>"Exploring",Activity.Eat=>"Eating (preview)",
-                Activity.Doze=>"Dozing (preview)",Activity.Happy=>"Happy (preview)",_=>"Inspecting: drag or arrows"
+                Activity.Doze=>"Dozing (preview)",Activity.Happy=>"Happy (preview)",_=>"Inspecting"
             };
         }
 
