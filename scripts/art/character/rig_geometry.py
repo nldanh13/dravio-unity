@@ -82,9 +82,45 @@ class Analysis:
                         'ymin': float(P[:, 1].min()), 'ymax': float(P[:, 1].max())})
         return sorted(out, key=lambda c: (c['centroid'][1], c['centroid'][0]))
 
+    def split_midline_pairs(self, clusters, min_gap_rel=0.02, min_side_frac=0.25):
+        """CHAR.8: a contact cluster that straddles the midline but has an EMPTY band of x (no vertex at all) is a
+        left/right pair of paws standing close together (chibi stance, or a grid cell made coarse by a wide wingspan),
+        not belly/tail contact: split it at the gap. Belly/tail contacts have no gap and are left untouched, so models
+        that already measured correctly keep exactly the same clusters."""
+        out = []
+        for c in clusters:
+            if not (c['xmin'] < -0.03 * self.w and c['xmax'] > 0.03 * self.w):
+                out.append(c)
+                continue
+            idx = c['indices']
+            x = np.sort(self.V[idx, 0])
+            gaps = np.diff(x)
+            centre = (x[:-1] + x[1:]) / 2
+            ok = np.abs(centre) < 0.25 * (c['xmax'] - c['xmin'])        # gap near the midline only
+            if not ok.any():
+                out.append(c)
+                continue
+            k = int(np.argmax(np.where(ok, gaps, -1.0)))
+            if gaps[k] < min_gap_rel * self.w:
+                out.append(c)
+                continue
+            cut = float(centre[k])
+            left, right = idx[self.V[idx, 0] < cut], idx[self.V[idx, 0] >= cut]
+            if min(len(left), len(right)) < min_side_frac * len(idx):
+                out.append(c)
+                continue
+            for part in (left, right):
+                P = self.V[part]
+                out.append({'indices': part, 'centroid': P.mean(axis=0), 'count': len(part),
+                            'xmin': float(P[:, 0].min()), 'xmax': float(P[:, 0].max()),
+                            'ymin': float(P[:, 1].min()), 'ymax': float(P[:, 1].max()), 'splitAtMidline': True})
+            self.notes.append(f'contact cluster at y={c["centroid"][1]:.3f} split at x={cut:.3f} (empty band {gaps[k]:.3f} m): '
+                              'left/right paws standing close together')
+        return sorted(out, key=lambda c: (c['centroid'][1], c['centroid'][0]))
+
     def detect_limbs(self, mask=None):
         """Feet = ground-contact clusters off the midline; a cluster straddling the midline is belly/tail contact."""
-        clusters = self.ground_clusters(mask=mask)
+        clusters = self.split_midline_pairs(self.ground_clusters(mask=mask))
         feet, other = [], []
         for c in clusters:
             straddles = c['xmin'] < -0.03 * self.w and c['xmax'] > 0.03 * self.w
@@ -92,11 +128,24 @@ class Analysis:
                 other.append(c)
             else:
                 feet.append(c)
-        left = sorted([c for c in feet if c['centroid'][0] < 0], key=lambda c: c['centroid'][1])
-        right = sorted([c for c in feet if c['centroid'][0] > 0], key=lambda c: c['centroid'][1])
+        # CHAR.8: more than 4 (or an odd number of) off-midline contacts -> a much smaller one is a tail tip / scale
+        # touching the ground, not a paw. Only applied when the count cannot be a left/right set, so models that
+        # already measured 2 or 4 feet are unchanged.
+        if feet and (len(feet) > 4 or len(feet) % 2 == 1):
+            big = max(c['count'] for c in feet)
+            small = [c for c in feet if c['count'] < 0.35 * big]
+            if small:
+                other += small
+                feet = [c for c in feet if c['count'] >= 0.35 * big]
+                self.notes.append(f'{len(small)} small off-midline contact(s) treated as tail/scale contact, not feet')
+        # CHAR.8: symmetry about the feet's own midline (generated models are not always centred on x = 0); for a
+        # centred model mid = 0 and the test is the one used before.
+        mid = float(np.mean([c['centroid'][0] for c in feet])) if len(feet) in (2, 4) else 0.0
+        left = sorted([c for c in feet if c['centroid'][0] < mid], key=lambda c: c['centroid'][1])
+        right = sorted([c for c in feet if c['centroid'][0] >= mid], key=lambda c: c['centroid'][1])
         paired = len(left) == len(right) and len(left) in (1, 2)
         sym = paired and all(abs(l['centroid'][1] - r['centroid'][1]) < 0.12 * self.d and
-                             abs(l['centroid'][0] + r['centroid'][0]) < 0.15 * self.w for l, r in zip(left, right))
+                             abs(l['centroid'][0] + r['centroid'][0] - 2 * mid) < 0.15 * self.w for l, r in zip(left, right))
         count = len(left) + len(right)
         conf = 'high' if sym else ('low' if count else 'none')
         res = {'limbCountDetected': count, 'confidence': conf, 'groundContactsOffMidline': count,
