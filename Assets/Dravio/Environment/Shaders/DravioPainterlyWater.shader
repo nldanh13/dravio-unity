@@ -18,6 +18,7 @@ Shader "Dravio/Environment/Painterly Water"
         _ScrollA ("Scroll A (xy)", Vector) = (0.025, 0.012, 0, 0)
         _ScrollB ("Scroll B (xy)", Vector) = (-0.018, 0.02, 0, 0)
         _SparkleStrength ("Sun Glint", Range(0,2)) = 0.6
+        _BrightPond ("Bright Fantasy pond", Range(0,1)) = 0
     }
 
     SubShader
@@ -54,6 +55,7 @@ Shader "Dravio/Environment/Painterly Water"
                 float4 _ScrollA;
                 float4 _ScrollB;
                 half _SparkleStrength;
+                half _BrightPond;
             CBUFFER_END
 
             float4 _DravioWind;
@@ -133,12 +135,33 @@ Shader "Dravio/Environment/Painterly Water"
                 water *= light.color * lit + SampleSH(half3(0,1,0)) * 0.35h;
 
                 half glint = saturate((ripple - 0.62h) * 6.0h) * _SparkleStrength;
+                if (_BrightPond > 0.0h)
+                {
+                    // Reuse the two existing ripple samples for a gently perturbed
+                    // surface normal; no reflection probe or camera texture required.
+                    half3 n = normalize(half3((a.r - 0.5h) * 0.38h, 1.0h,
+                                               (b.r - 0.5h) * 0.38h));
+                    half3 v = SafeNormalize(GetWorldSpaceViewDir(input.positionWS));
+                    half3 h = SafeNormalize(light.direction + v);
+                    half spec = smoothstep(0.82h, 0.98h, saturate(dot(n,h)))
+                              * smoothstep(0.38h, 0.85h, ripple) * _SparkleStrength
+                              * saturate(light.direction.y);
+                    glint = lerp(glint, spec, _BrightPond);
+                    half fresnel = pow(1.0h - saturate(dot(n,v)), 3.0h);
+                    water += light.color * fresnel * 0.13h * _BrightPond;
+                }
                 water += light.color * glint * 0.5h;
 
                 half rings = DravioRipples(input.positionWS.xz);
                 water += light.color * rings * 0.35h + rings * 0.08h;
 
                 half foam = 1.0h - smoothstep(0.0h, _FoamWidth, depth + (ripple - 0.5h) * 0.18h);
+                if (_BrightPond > 0.0h)
+                {
+                    half crest = 1.0h - smoothstep(0.0h, max(_FoamWidth * 0.46h, 0.001h),
+                                                    depth + (ripple - 0.5h) * 0.11h);
+                    foam = lerp(foam, saturate(foam * 0.32h + crest * (0.44h + 0.22h * saturate(ripple))), _BrightPond);
+                }
                 water = lerp(water, _FoamColor.rgb, foam * 0.85h);
 
                 half alpha = lerp(_ShoreOpacity, _Opacity, depth);

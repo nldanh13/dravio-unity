@@ -33,6 +33,8 @@ Shader "Dravio/Environment/Painterly Lit"
         _WindSpeed ("Wind Speed", Float) = 1.6
         _PathColor ("Path Colour (x vertex A)", Color) = (0.62,0.49,0.33,1)
         _PathBlend ("Path Blend", Range(0,1)) = 0
+        _BrightFantasy ("Bright Fantasy grade", Range(0,1)) = 0
+        _SoftSheen ("Soft surface sheen", Range(0,0.3)) = 0
 
         [Toggle(_ALPHATEST_ON)] _AlphaClip ("Alpha Clip", Float) = 0
         _Cutoff ("Alpha Cutoff", Range(0,1)) = 0.45
@@ -68,6 +70,8 @@ Shader "Dravio/Environment/Painterly Lit"
             half _WindSpeed;
             half4 _PathColor;
             half _PathBlend;
+            half _BrightFantasy;
+            half _SoftSheen;
             half _Cutoff;
         CBUFFER_END
 
@@ -163,7 +167,28 @@ Shader "Dravio/Environment/Painterly Lit"
                 half3 pathCol = _PathColor.rgb * (0.7 + 0.9 * luma);
                 albedo.rgb = lerp(albedo.rgb, pathCol, saturate(input.color.a * _PathBlend));
 
+                // VIS.3: opt-in bright palette, preserving the existing atlas,
+                // painted AO, flower colours and earth path mask.
+                if (_BrightFantasy > 0.0h)
+                {
+                    half leafMask = smoothstep(0.015h, 0.12h, albedo.g - albedo.r)
+                                  * smoothstep(0.025h, 0.14h, albedo.g - albedo.b);
+                    half3 spring = albedo.rgb * half3(1.10h, 1.06h, 0.88h);
+                    albedo.rgb = lerp(albedo.rgb, spring, leafMask * _BrightFantasy);
+                    if (_PathBlend > 0.0h)
+                    {
+                        // Broad non-tiling meadow variation. Leave the stone/path mask alone.
+                        float2 p = input.positionWS.xz;
+                        half drift = sin(dot(p, float2(0.66, 0.39))) *
+                                     sin(dot(p, float2(-0.41, 0.72)) + 1.4);
+                        albedo.rgb *= 1.0h + drift * 0.075h * _BrightFantasy
+                                            * (1.0h - saturate(input.color.a * _PathBlend));
+                    }
+                }
+
                 half3 n = normalize(input.normalWS);
+                // Foliage cards already have baked up-facing normals. Keep them
+                // on BOTH sides; flipping a backface would turn its normal down.
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 Light light = GetMainLight(shadowCoord);
                 half ndl = dot(n, light.direction);
@@ -177,6 +202,22 @@ Shader "Dravio/Environment/Painterly Lit"
                 half rim = pow(1.0h - saturate(dot(n, viewDir)), 3.0h) * _RimStrength * ramp;
 
                 half3 color = albedo.rgb * lighting + _RimColor.rgb * rim;
+                if (_BrightFantasy > 0.0h)
+                {
+                    // Wide, restrained highlight reads as rounded surfaces instead
+                    // of hard metallic shine. The existing main light governs intensity.
+                    half3 h = SafeNormalize(light.direction + viewDir);
+                    half sheen = smoothstep(0.76h, 0.96h, saturate(dot(n, h)));
+                    color += light.color * sheen * ramp * _SoftSheen * _BrightFantasy
+                           * lerp(half3(1,1,1), saturate(albedo.rgb), 0.40h);
+                    #if defined(_ALPHATEST_ON)
+                        // A small wrapped-light term softens grazing-angle leaves
+                        // without changing the baked up-facing card normals.
+                        half transmission = (1.0h - saturate(ndl)) * 0.07h * _BrightFantasy
+                                            * light.shadowAttenuation * light.distanceAttenuation;
+                        color += albedo.rgb * light.color * transmission;
+                    #endif
+                }
 
                 half pulse = 1.0h - _EmissionPulse * 0.5h
                            + _EmissionPulse * 0.5h * sin(_Time.y * _PulseSpeed + input.positionWS.x * 0.7 + input.positionWS.z * 0.5);
