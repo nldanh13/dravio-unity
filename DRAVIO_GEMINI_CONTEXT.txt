@@ -1,0 +1,1915 @@
+DRAVIO — GEMINI CONCEPT ART CONTEXT
+Snapshot: bb4867c3e3c59175cd472e9dfd4e8cdbbe068f69
+Source main: 486ee633c7e4807a855f7aee95aa889117b5bbde
+
+This single UTF-8 text file concatenates ten source files. Historical documentation may describe superseded rules; use newer decisions and canonical catalog. No visual references are included. GLB_PRESENT means only file presence, not production readiness.
+
+INDEX
+1. AI_CONTEXT_README.md
+2. ASSET_STATUS.md
+3. asset-status.json
+4. Assets/Dravio/Data/species-biology.json
+5. Assets/Dravio/Character/SPECIES_MORPHOLOGY.md
+6. Assets/Dravio/Domain/Catalog/SanctuaryProjectContent.cs
+7. Docs/u2.11/SANCTUARY_PROJECTS.md
+8. ArtSource/manifest.json
+9. Assets/Dravio/Environment/README.md
+10. Docs/u2.13/DECISIONS.md
+
+================ BEGIN 1: AI_CONTEXT_README.md ================
+# DRAVIO — AI context snapshot (Gemini)
+Source: https://github.com/nldanh13/dravio-unity/tree/486ee633c7e4807a855f7aee95aa889117b5bbde
+Snapshot of main at 486ee633c7e4807a855f7aee95aa889117b5bbde, 2026-11-26. This branch is a generated-style read-only reference, NOT a Unity project. Never merge it into main or use it as a base for development. It excludes binary assets, Unity scenes and runtime implementation. The source documents are copied verbatim and may include historical proposals; current canonical decisions and code take priority.
+
+## Start here
+- README.md (project history, build and integration notes)
+- Assets/Dravio/Data/species-biology.json (canonical species and habitats)
+- Assets/Dravio/Character/SPECIES_MORPHOLOGY.md and Assets/Dravio/Environment/README.md (art direction and biology)
+- Assets/Dravio/Domain/Catalog/SanctuaryProjectContent.cs (20 named projects)
+- Docs/adr/ and Docs/u2.13/DECISIONS.md (review status and rules; inspect exact wording)
+- ASSET_STATUS.md and asset-status.json (source file presence at snapshot, not GLB quality)
+- ArtSource/manifest.json (last committed manifest, may lag actual source files)
+
+## Gemini concept art role
+Create isolated object reference images for image-to-3D; cozy ancient fantasy, stylized hand-painted mobile Unity art, rounded silhouettes, neutral background, full object in frame, consistent reference style, no text or logos. User converts images to GLB. Avoid duplicates, use exact source IDs, confirm proposed new designs with owner. Existing scene concepts are not required to become single GLBs. AI 3 owns optimization and rig/prefab; AI 1 integration; AI 2 Domain and simulation. Attach actual reference images separately if visual consistency matters, because this branch contains text only.
+
+This is a static snapshot, not a live Gemini sync. Do not infer pending PRs or Unity execution status. For updated data, regenerate from main and reimport.
+================ END 1 ================
+
+================ BEGIN 2: ASSET_STATUS.md ================
+# Asset source status (file presence only)
+
+Main snapshot: 486ee633c7e4807a855f7aee95aa889117b5bbde
+
+| Asset ID | Status |
+|---|---|
+| ArtSource/Dragons/images/01_emberling | GLB_PRESENT |
+| ArtSource/Dragons/images/02_droplet | GLB_PRESENT |
+| ArtSource/Dragons/images/03_sprout | GLB_PRESENT |
+| ArtSource/Dragons/images/04_zephyr | GLB_PRESENT |
+| ArtSource/Dragons/images/05_steamdrake | GLB_PRESENT |
+| ArtSource/Dragons/images/06_magma | GLB_PRESENT |
+| ArtSource/Dragons/images/07_sparkwing | GLB_PRESENT |
+| ArtSource/Dragons/images/08_frostfin | GLB_PRESENT |
+| ArtSource/Dragons/images/09_mossback | GLB_PRESENT |
+| ArtSource/Dragons/images/10_blossom | GLB_PRESENT |
+| ArtSource/Dragons/images/11_solaris | GLB_PRESENT |
+| ArtSource/Dragons/images/12_leviathan | GLB_PRESENT |
+| ArtSource/Dragons/images/13_amberhorn | GLB_PRESENT |
+| ArtSource/Dragons/images/14_aurorawing | GLB_PRESENT |
+| ArtSource/Dragons/images/15_celestia | GLB_PRESENT |
+| ArtSource/Dragons/images/16_gaia | GLB_PRESENT |
+| ArtSource/Habitats/concepts/01_origin_meadow | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/02_origin_warm_rocks | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/03_origin_pondbank | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/04_ocean_estuary | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/05_ocean_cool_pool | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/06_ocean_reef | SCENE_CONCEPT |
+| ArtSource/Habitats/concepts/07_sky_low_island | SCENE_CONCEPT |
+| ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue | IMAGE_ONLY |
+| ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin | IMAGE_ONLY |
+| ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone | IMAGE_ONLY |
+| ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky | GLB_PRESENT |
+| ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster | IMAGE_ONLY |
+| ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster | IMAGE_ONLY |
+
+GLB_PRESENT does not imply technical QA, licensing or production approval. See ArtSource/manifest.json for last committed hashes.
+
+================ END 2 ================
+
+================ BEGIN 3: asset-status.json ================
+{
+  "sourceCommit": "486ee633c7e4807a855f7aee95aa889117b5bbde",
+  "stats": {
+    "GLB_PRESENT": 17,
+    "SCENE_CONCEPT": 7,
+    "IMAGE_ONLY": 15
+  },
+  "assets": [
+    {
+      "id": "ArtSource/Dragons/images/01_emberling",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/01_emberling.jpg",
+      "model": "ArtSource/Dragons/images/01_emberling.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/02_droplet",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/02_droplet.jpg",
+      "model": "ArtSource/Dragons/images/02_droplet.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/03_sprout",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/03_sprout.jpg",
+      "model": "ArtSource/Dragons/images/03_sprout.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/04_zephyr",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/04_zephyr.jpg",
+      "model": "ArtSource/Dragons/images/04_zephyr.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/05_steamdrake",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/05_steamdrake.jpg",
+      "model": "ArtSource/Dragons/images/05_steamdrake.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/06_magma",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/06_magma.jpg",
+      "model": "ArtSource/Dragons/images/06_magma.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/07_sparkwing",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/07_sparkwing.jpg",
+      "model": "ArtSource/Dragons/images/07_sparkwing.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/08_frostfin",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/08_frostfin.jpg",
+      "model": "ArtSource/Dragons/images/08_frostfin.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/09_mossback",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/09_mossback.jpg",
+      "model": "ArtSource/Dragons/images/09_mossback.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/10_blossom",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/10_blossom.jpg",
+      "model": "ArtSource/Dragons/images/10_blossom.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/11_solaris",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/11_solaris.jpg",
+      "model": "ArtSource/Dragons/images/11_solaris.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/12_leviathan",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/12_leviathan.jpg",
+      "model": "ArtSource/Dragons/images/12_leviathan.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/13_amberhorn",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/13_amberhorn.jpg",
+      "model": "ArtSource/Dragons/images/13_amberhorn.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/14_aurorawing",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/14_aurorawing.jpg",
+      "model": "ArtSource/Dragons/images/14_aurorawing.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/15_celestia",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/15_celestia.jpg",
+      "model": "ArtSource/Dragons/images/15_celestia.glb"
+    },
+    {
+      "id": "ArtSource/Dragons/images/16_gaia",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/Dragons/images/16_gaia.jpg",
+      "model": "ArtSource/Dragons/images/16_gaia.glb"
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/01_origin_meadow",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/01_origin_meadow.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/02_origin_warm_rocks",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/02_origin_warm_rocks.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/03_origin_pondbank",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/03_origin_pondbank.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/04_ocean_estuary",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/04_ocean_estuary.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/05_ocean_cool_pool",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/05_ocean_cool_pool.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/06_ocean_reef",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/06_ocean_reef.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/concepts/07_sky_low_island",
+      "status": "SCENE_CONCEPT",
+      "reference": "ArtSource/Habitats/concepts/07_sky_low_island.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky",
+      "status": "GLB_PRESENT",
+      "reference": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.jpg",
+      "model": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb"
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster.jpg",
+      "model": null
+    },
+    {
+      "id": "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster",
+      "status": "IMAGE_ONLY",
+      "reference": "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster.jpg",
+      "model": null
+    }
+  ]
+}
+
+================ END 3 ================
+
+================ BEGIN 4: Assets/Dravio/Data/species-biology.json ================
+{
+  "emberling": {
+    "group": "T",
+    "respiration": "lung",
+    "locomotion": [
+      "walk"
+    ],
+    "protection": "scale",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "aether"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm",
+      "hot"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "origin_warm_rocks"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 65,
+      "waterQuality": 0,
+      "vegetation": 30,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 75,
+      "strong_current": 15,
+      "thunderstorm": 20
+    },
+    "palette": {
+      "primary": "#D86B47",
+      "secondary": "#A83D36",
+      "belly": "#F9D59A",
+      "accent": "#FFD66C"
+    },
+    "silhouetteVi": "Bốn chân, đuôi lửa tròn, không cánh.",
+    "draft": false
+  },
+  "droplet": {
+    "group": "A",
+    "respiration": "dual",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "protection": "scale",
+    "activity": "both",
+    "dietIds": [
+      "aquatic",
+      "fruit"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_pondbank",
+      "ocean_estuary"
+    ],
+    "salinityBands": [
+      "brackish",
+      "fresh"
+    ],
+    "depthBands": [
+      "none",
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 70,
+      "waterQuality": 75,
+      "vegetation": 30,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 25,
+      "strong_current": 65,
+      "thunderstorm": 20
+    },
+    "palette": {
+      "primary": "#61BBD0",
+      "secondary": "#337FA4",
+      "belly": "#C7F2EE",
+      "accent": "#86E5DE"
+    },
+    "silhouetteVi": "Thân tròn, vây tai, đuôi dẹt, màng chân.",
+    "draft": false
+  },
+  "sprout": {
+    "group": "T",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "protection": "scale",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "leaf"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "origin_pondbank"
+    ],
+    "salinityBands": [
+      "fresh",
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 75,
+      "waterQuality": 0,
+      "vegetation": 65,
+      "foodAvailability": 70
+    },
+    "resiliencePct": {
+      "wildfire": 20,
+      "strong_current": 30,
+      "thunderstorm": 25
+    },
+    "palette": {
+      "primary": "#75B57D",
+      "secondary": "#397C58",
+      "belly": "#E3EAC0",
+      "accent": "#E7B864"
+    },
+    "silhouetteVi": "Mầm lá, bốn chân, đuôi lá.",
+    "draft": false
+  },
+  "zephyr": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "fur",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "aether"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 80,
+      "waterQuality": 0,
+      "vegetation": 20,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 25,
+      "strong_current": 15,
+      "thunderstorm": 60
+    },
+    "palette": {
+      "primary": "#A6C8E6",
+      "secondary": "#6388BA",
+      "belly": "#EDF4FC",
+      "accent": "#F5D999"
+    },
+    "silhouetteVi": "Cánh lông rộng, đuôi mây, chân đậu.",
+    "draft": false
+  },
+  "steamdrake": {
+    "group": "A",
+    "respiration": "dual",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "protection": "scale",
+    "activity": "both",
+    "dietIds": [
+      "aquatic",
+      "aether"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm",
+      "hot"
+    ],
+    "habitatRules": [
+      "origin_pondbank",
+      "ocean_estuary"
+    ],
+    "salinityBands": [
+      "brackish",
+      "fresh"
+    ],
+    "depthBands": [
+      "none",
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 70,
+      "waterQuality": 70,
+      "vegetation": 15,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 65,
+      "strong_current": 65,
+      "thunderstorm": 20
+    },
+    "palette": {
+      "primary": "#92BFC0",
+      "secondary": "#527E83",
+      "belly": "#E5E5CB",
+      "accent": "#ECAD78"
+    },
+    "silhouetteVi": "Thân dài, vây sống lưng, chi ngắn.",
+    "draft": false
+  },
+  "magma": {
+    "group": "T",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "protection": "armor",
+    "activity": "both",
+    "dietIds": [
+      "aether"
+    ],
+    "thermalBands": [
+      "warm",
+      "hot"
+    ],
+    "habitatRules": [
+      "origin_warm_rocks"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 60,
+      "waterQuality": 0,
+      "vegetation": 0,
+      "foodAvailability": 60
+    },
+    "resiliencePct": {
+      "wildfire": 90,
+      "strong_current": 10,
+      "thunderstorm": 20
+    },
+    "palette": {
+      "primary": "#9F5544",
+      "secondary": "#523B48",
+      "belly": "#F1A55C",
+      "accent": "#FFD261"
+    },
+    "silhouetteVi": "Giáp đá, sừng ngắn, chân chắc.",
+    "draft": false
+  },
+  "sparkwing": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "scale",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "aether"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 75,
+      "waterQuality": 0,
+      "vegetation": 15,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 45,
+      "strong_current": 15,
+      "thunderstorm": 85
+    },
+    "palette": {
+      "primary": "#DBB65A",
+      "secondary": "#96703B",
+      "belly": "#F8EAC6",
+      "accent": "#F7F08A"
+    },
+    "silhouetteVi": "Cánh góc cạnh, đuôi tia điện.",
+    "draft": false
+  },
+  "frostfin": {
+    "group": "A",
+    "respiration": "gill",
+    "locomotion": [
+      "swim"
+    ],
+    "protection": "scale",
+    "activity": "both",
+    "dietIds": [
+      "aquatic"
+    ],
+    "thermalBands": [
+      "cold",
+      "cool"
+    ],
+    "habitatRules": [
+      "ocean_cool_pool"
+    ],
+    "salinityBands": [
+      "marine"
+    ],
+    "depthBands": [
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 0,
+      "waterQuality": 85,
+      "vegetation": 0,
+      "foodAvailability": 75
+    },
+    "resiliencePct": {
+      "wildfire": 10,
+      "strong_current": 80,
+      "thunderstorm": 10
+    },
+    "palette": {
+      "primary": "#8ABADD",
+      "secondary": "#4B75AB",
+      "belly": "#E0F5FF",
+      "accent": "#BDEDF4"
+    },
+    "silhouetteVi": "Vây ngực lớn như cánh; không chân đi, không bay.",
+    "draft": false
+  },
+  "mossback": {
+    "group": "A",
+    "respiration": "dual",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "protection": "armor",
+    "activity": "day",
+    "dietIds": [
+      "leaf",
+      "aquatic"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_pondbank",
+      "ocean_estuary"
+    ],
+    "salinityBands": [
+      "brackish",
+      "fresh"
+    ],
+    "depthBands": [
+      "none",
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 70,
+      "waterQuality": 75,
+      "vegetation": 60,
+      "foodAvailability": 70
+    },
+    "resiliencePct": {
+      "wildfire": 25,
+      "strong_current": 80,
+      "thunderstorm": 25
+    },
+    "palette": {
+      "primary": "#829D66",
+      "secondary": "#506C4C",
+      "belly": "#D6D7A2",
+      "accent": "#A7CD84"
+    },
+    "silhouetteVi": "Mai rêu, chi bè, vây đuôi.",
+    "draft": false
+  },
+  "blossom": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "scale",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "leaf"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 80,
+      "waterQuality": 0,
+      "vegetation": 60,
+      "foodAvailability": 70
+    },
+    "resiliencePct": {
+      "wildfire": 15,
+      "strong_current": 20,
+      "thunderstorm": 55
+    },
+    "palette": {
+      "primary": "#DC9FB8",
+      "secondary": "#A86B94",
+      "belly": "#F9E1D5",
+      "accent": "#B7D99A"
+    },
+    "silhouetteVi": "Cánh cánh hoa, đuôi dài, chân đậu.",
+    "draft": false
+  },
+  "solaris": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "fur",
+    "activity": "day",
+    "dietIds": [
+      "aether",
+      "fruit"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm",
+      "hot"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "origin_warm_rocks",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 75,
+      "waterQuality": 0,
+      "vegetation": 10,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 85,
+      "strong_current": 10,
+      "thunderstorm": 65
+    },
+    "palette": {
+      "primary": "#ED874B",
+      "secondary": "#AC4B3D",
+      "belly": "#FBE1A0",
+      "accent": "#FFE47F"
+    },
+    "silhouetteVi": "Mào lửa, cánh lông lớn, đuôi quạt.",
+    "draft": false
+  },
+  "leviathan": {
+    "group": "A",
+    "respiration": "gill",
+    "locomotion": [
+      "swim"
+    ],
+    "protection": "scale",
+    "activity": "both",
+    "dietIds": [
+      "aquatic"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "ocean_reef"
+    ],
+    "salinityBands": [
+      "marine"
+    ],
+    "depthBands": [
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 0,
+      "waterQuality": 85,
+      "vegetation": 0,
+      "foodAvailability": 75
+    },
+    "resiliencePct": {
+      "wildfire": 15,
+      "strong_current": 90,
+      "thunderstorm": 15
+    },
+    "palette": {
+      "primary": "#427C9A",
+      "secondary": "#27526E",
+      "belly": "#C7E4D7",
+      "accent": "#E38F86"
+    },
+    "silhouetteVi": "Thân biển dài, vây san hô, không chi đất.",
+    "draft": false
+  },
+  "amberhorn": {
+    "group": "T",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "burrow"
+    ],
+    "protection": "armor",
+    "activity": "day",
+    "dietIds": [
+      "fruit",
+      "aether"
+    ],
+    "thermalBands": [
+      "mild",
+      "warm",
+      "hot"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "origin_warm_rocks"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 65,
+      "waterQuality": 0,
+      "vegetation": 25,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 80,
+      "strong_current": 25,
+      "thunderstorm": 25
+    },
+    "palette": {
+      "primary": "#C58C45",
+      "secondary": "#855B39",
+      "belly": "#F3DCA4",
+      "accent": "#FFE08A"
+    },
+    "silhouetteVi": "Sừng hổ phách, giáp lưng, bốn chân.",
+    "draft": false
+  },
+  "aurorawing": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "fur",
+    "activity": "night",
+    "dietIds": [
+      "aether",
+      "fruit"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 85,
+      "waterQuality": 0,
+      "vegetation": 25,
+      "foodAvailability": 65
+    },
+    "resiliencePct": {
+      "wildfire": 25,
+      "strong_current": 20,
+      "thunderstorm": 80
+    },
+    "palette": {
+      "primary": "#879BD5",
+      "secondary": "#5F5B9E",
+      "belly": "#DDE6FA",
+      "accent": "#8DE6CF"
+    },
+    "silhouetteVi": "Cánh dải sáng, lông cổ, đuôi cực quang.",
+    "draft": false
+  },
+  "celestia": {
+    "group": "V",
+    "respiration": "lung",
+    "locomotion": [
+      "walk",
+      "fly"
+    ],
+    "protection": "scale",
+    "activity": "night",
+    "dietIds": [
+      "aether"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_meadow",
+      "sky_low_island"
+    ],
+    "salinityBands": [
+      "none"
+    ],
+    "depthBands": [
+      "none"
+    ],
+    "altitudeBands": [
+      "ground",
+      "low"
+    ],
+    "comfortMin": {
+      "airQuality": 85,
+      "waterQuality": 0,
+      "vegetation": 15,
+      "foodAvailability": 70
+    },
+    "resiliencePct": {
+      "wildfire": 75,
+      "strong_current": 20,
+      "thunderstorm": 90
+    },
+    "palette": {
+      "primary": "#7776B5",
+      "secondary": "#45446F",
+      "belly": "#D4D2EC",
+      "accent": "#E9D48C"
+    },
+    "silhouetteVi": "Cánh sao, sừng tinh thể, đuôi sao.",
+    "draft": false
+  },
+  "gaia": {
+    "group": "A",
+    "respiration": "dual",
+    "locomotion": [
+      "walk",
+      "swim"
+    ],
+    "protection": "armor",
+    "activity": "both",
+    "dietIds": [
+      "leaf",
+      "aquatic",
+      "aether"
+    ],
+    "thermalBands": [
+      "cool",
+      "mild",
+      "warm"
+    ],
+    "habitatRules": [
+      "origin_pondbank",
+      "ocean_estuary"
+    ],
+    "salinityBands": [
+      "brackish",
+      "fresh"
+    ],
+    "depthBands": [
+      "none",
+      "shallow"
+    ],
+    "altitudeBands": [
+      "ground"
+    ],
+    "comfortMin": {
+      "airQuality": 75,
+      "waterQuality": 80,
+      "vegetation": 65,
+      "foodAvailability": 75
+    },
+    "resiliencePct": {
+      "wildfire": 55,
+      "strong_current": 90,
+      "thunderstorm": 35
+    },
+    "palette": {
+      "primary": "#629B7D",
+      "secondary": "#385D57",
+      "belly": "#DDE5B6",
+      "accent": "#E8C97F"
+    },
+    "silhouetteVi": "Sừng cây, giáp đá-rêu, chân màng và vây.",
+    "draft": false
+  }
+}
+
+================ END 4 ================
+
+================ BEGIN 5: Assets/Dravio/Character/SPECIES_MORPHOLOGY.md ================
+# Đặc điểm hình thể 16 loài rồng (tự sinh – không sửa tay)
+
+Sinh bởi `scripts/art/character/build_species_spec.py` từ `species-biology.json` và `SpeciesCatalog.cs`. Cột "Gốc" chép nguyên văn; cột "Yêu cầu mô hình" chỉ là hệ quả trực tiếp của trường gốc. Không có dữ liệu hình thể theo giai đoạn trong nguồn, nên các ô giai đoạn ghi **chưa xác định**.
+
+| Loài | Silhouette (gốc) | Di chuyển | Bề mặt | Hô hấp | BodyStyle | Chân đi | Cánh bay | Số chi |
+|---|---|---|---|---|---|---|---|---|
+| `emberling` | Bốn chân, đuôi lửa tròn, không cánh. | walk | scale | lung | Round | có | không | 4 |
+| `droplet` | Thân tròn, vây tai, đuôi dẹt, màng chân. | walk, swim | scale | dual | Round | có | không | chưa nêu |
+| `sprout` | Mầm lá, bốn chân, đuôi lá. | walk, burrow | scale | lung | Round | có | không | 4 |
+| `zephyr` | Cánh lông rộng, đuôi mây, chân đậu. | walk, fly | fur | lung | Winged | có | có | chưa nêu |
+| `steamdrake` | Thân dài, vây sống lưng, chi ngắn. | walk, swim | scale | dual | Serpent | có | không | chưa nêu |
+| `magma` | Giáp đá, sừng ngắn, chân chắc. | walk, burrow | armor | lung | Horned | có | không | chưa nêu |
+| `sparkwing` | Cánh góc cạnh, đuôi tia điện. | walk, fly | scale | lung | Winged | có | có | chưa nêu |
+| `frostfin` | Vây ngực lớn như cánh; không chân đi, không bay. | swim | scale | gill | Winged | không | không | chưa nêu |
+| `mossback` | Mai rêu, chi bè, vây đuôi. | walk, swim | armor | dual | Round | có | không | chưa nêu |
+| `blossom` | Cánh cánh hoa, đuôi dài, chân đậu. | walk, fly | scale | lung | Winged | có | có | chưa nêu |
+| `solaris` | Mào lửa, cánh lông lớn, đuôi quạt. | walk, fly | fur | lung | Winged | có | có | chưa nêu |
+| `leviathan` | Thân biển dài, vây san hô, không chi đất. | swim | scale | gill | Serpent | không | không | chưa nêu |
+| `amberhorn` | Sừng hổ phách, giáp lưng, bốn chân. | walk, burrow | armor | lung | Horned | có | không | 4 |
+| `aurorawing` | Cánh dải sáng, lông cổ, đuôi cực quang. | walk, fly | fur | lung | Winged | có | có | chưa nêu |
+| `celestia` | Cánh sao, sừng tinh thể, đuôi sao. | walk, fly | scale | lung | Winged | có | có | chưa nêu |
+| `gaia` | Sừng cây, giáp đá-rêu, chân màng và vây. | walk, swim | armor | dual | Horned | có | không | chưa nêu |
+
+## Ba giai đoạn
+
+Mốc tăng trưởng (canonical, Lifecycle.cs): Baby < 35 %, Juvenile 35–100 %, Adult = 100 % thời gian trưởng thành.
+
+| Loài | Thời gian trưởng thành | Juvenile từ | Baby | Juvenile | Adult |
+|---|---|---|---|---|---|
+| `emberling` | 5 phút | 105 s | prototype GLB/procedural (chưa phải asset cuối) | chưa xác định | chưa xác định |
+| `droplet` | 6 phút | 126 s | chưa xác định | chưa xác định | chưa xác định |
+| `sprout` | 8 phút | 168 s | chưa xác định | chưa xác định | chưa xác định |
+| `zephyr` | 8 phút | 168 s | chưa xác định | chưa xác định | chưa xác định |
+| `steamdrake` | 25 phút | 525 s | chưa xác định | chưa xác định | chưa xác định |
+| `magma` | 30 phút | 630 s | chưa xác định | chưa xác định | chưa xác định |
+| `sparkwing` | 35 phút | 735 s | chưa xác định | chưa xác định | chưa xác định |
+| `frostfin` | 30 phút | 630 s | chưa xác định | chưa xác định | chưa xác định |
+| `mossback` | 25 phút | 525 s | chưa xác định | chưa xác định | chưa xác định |
+| `blossom` | 35 phút | 735 s | chưa xác định | chưa xác định | chưa xác định |
+| `solaris` | 120 phút | 2520 s | chưa xác định | chưa xác định | chưa xác định |
+| `leviathan` | 150 phút | 3150 s | chưa xác định | chưa xác định | chưa xác định |
+| `amberhorn` | 150 phút | 3150 s | chưa xác định | chưa xác định | chưa xác định |
+| `aurorawing` | 180 phút | 3780 s | chưa xác định | chưa xác định | chưa xác định |
+| `celestia` | 360 phút | 7560 s | chưa xác định | chưa xác định | chưa xác định |
+| `gaia` | 480 phút | 10080 s | chưa xác định | chưa xác định | chưa xác định |
+
+## Câu hỏi mở cần art director / GDD trả lời
+
+- `emberling`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `droplet`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `sprout`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `zephyr`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `steamdrake`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `magma`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `sparkwing`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `frostfin`: BodyStyle=Winged nhưng locomotion không có "fly" (silhouette: "Vây ngực lớn như cánh; không chân đi, không bay."). Mô hình theo silhouette (vây dạng cánh), không làm cánh bay; cần xác nhận.
+- `frostfin`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `mossback`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `blossom`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `solaris`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `leviathan`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `amberhorn`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `aurorawing`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `celestia`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+- `gaia`: Tỉ lệ, kích thước và chi tiết riêng từng giai đoạn Baby/Juvenile/Adult chưa có trong dữ liệu gốc.
+
+## Bảng màu tham chiếu (gốc)
+
+| Loài | primary | secondary | belly | accent |
+|---|---|---|---|---|
+| `emberling` | `#D86B47` | `#A83D36` | `#F9D59A` | `#FFD66C` |
+| `droplet` | `#61BBD0` | `#337FA4` | `#C7F2EE` | `#86E5DE` |
+| `sprout` | `#75B57D` | `#397C58` | `#E3EAC0` | `#E7B864` |
+| `zephyr` | `#A6C8E6` | `#6388BA` | `#EDF4FC` | `#F5D999` |
+| `steamdrake` | `#92BFC0` | `#527E83` | `#E5E5CB` | `#ECAD78` |
+| `magma` | `#9F5544` | `#523B48` | `#F1A55C` | `#FFD261` |
+| `sparkwing` | `#DBB65A` | `#96703B` | `#F8EAC6` | `#F7F08A` |
+| `frostfin` | `#8ABADD` | `#4B75AB` | `#E0F5FF` | `#BDEDF4` |
+| `mossback` | `#829D66` | `#506C4C` | `#D6D7A2` | `#A7CD84` |
+| `blossom` | `#DC9FB8` | `#A86B94` | `#F9E1D5` | `#B7D99A` |
+| `solaris` | `#ED874B` | `#AC4B3D` | `#FBE1A0` | `#FFE47F` |
+| `leviathan` | `#427C9A` | `#27526E` | `#C7E4D7` | `#E38F86` |
+| `amberhorn` | `#C58C45` | `#855B39` | `#F3DCA4` | `#FFE08A` |
+| `aurorawing` | `#879BD5` | `#5F5B9E` | `#DDE6FA` | `#8DE6CF` |
+| `celestia` | `#7776B5` | `#45446F` | `#D4D2EC` | `#E9D48C` |
+| `gaia` | `#629B7D` | `#385D57` | `#DDE5B6` | `#E8C97F` |
+
+================ END 5 ================
+
+================ BEGIN 6: Assets/Dravio/Domain/Catalog/SanctuaryProjectContent.cs ================
+using System;
+using System.Collections.Generic;
+
+namespace Dravio.Domain.Catalog
+{
+    /// <summary>Kiểu công trình trang trí (để Sanctuary chọn prefab / vị trí neo). Chỉ trình diễn.</summary>
+    public enum ProjectFootprint
+    {
+        /// <summary>Công trình đứng trên nền (cổng, tượng, đình).</summary>
+        [WireName("landmark")] Landmark,
+        /// <summary>Lối đi, cầu, bậc đá.</summary>
+        [WireName("path")] Path,
+        /// <summary>Thảm thực vật, vườn.</summary>
+        [WireName("garden")] Garden,
+        /// <summary>Ánh sáng, đèn, rune.</summary>
+        [WireName("light")] Light,
+        /// <summary>Mặt nước, thác, hồ.</summary>
+        [WireName("water")] Water,
+        /// <summary>Mở rộng cảnh quan nền (nối tiếp sau khi hết nội dung đặt tên).</summary>
+        [WireName("vista")] Vista,
+    }
+
+    /// <summary>Nội dung một dự án Sanctuary theo thứ tự xây (index 0-based).</summary>
+    public sealed class SanctuaryProjectDef
+    {
+        internal SanctuaryProjectDef(string id, string nameVi, string zoneId, ProjectFootprint footprint, string styleBlueprintId)
+        {
+            Id = id; NameVi = nameVi; ZoneId = zoneId; Footprint = footprint; StyleBlueprintId = styleBlueprintId;
+        }
+        public string Id { get; }
+        public string NameVi { get; }
+        public string NameKey => "project." + Id + ".name";
+        /// <summary>Thế giới công trình thuộc về. Nếu thế giới đó chưa mở lúc hiển thị, Sanctuary đặt công trình ở Khởi Nguyên (xem <see cref="SanctuaryProjectContent.DisplayZone"/>).</summary>
+        public string ZoneId { get; }
+        public ProjectFootprint Footprint { get; }
+        /// <summary>Mẫu trang trí (thưởng nhiệm vụ) đổi kiểu dáng của công trình khi người chơi đã có. null = không có biến thể.</summary>
+        public string StyleBlueprintId { get; }
+    }
+
+    /// <summary>
+    /// U2.11 (ADR 0206): nội dung dự án trang trí Sanctuary. CHỈ TRÌNH DIỄN: không đổi giá, vật liệu, giới hạn hay hiệu ứng của E5 (ADR 0205).
+    /// Dự án thứ n luôn là <see cref="Named"/>[n] (n &lt; 20), sau đó là "Mở rộng cảnh quan" cấp n − 19 xoay vòng qua ba thế giới. Thứ tự đi theo
+    /// hành trình: 8 công trình Khởi Nguyên (dự án 1–8, tổng ≈ 0,4 triệu G), 6 Thủy Vực, 6 Thiên Giới. Không cần lưu gì thêm: save chỉ có số dự án.
+    /// </summary>
+    public static class SanctuaryProjectContent
+    {
+        public static readonly IReadOnlyList<SanctuaryProjectDef> Named = Array.AsReadOnly(new[]
+        {
+            // ---- Chương 1 — Khởi Nguyên: phục dựng khu đền cổ ----
+            new SanctuaryProjectDef("origin_mossy_steps", "Bậc đá rêu phong", "origin", ProjectFootprint.Path, null),
+            new SanctuaryProjectDef("origin_lantern_row", "Hàng đèn đá dẫn lối", "origin", ProjectFootprint.Light, "blueprint.forest_lantern"),
+            new SanctuaryProjectDef("origin_meadow_arbor", "Giàn hoa đồng cỏ", "origin", ProjectFootprint.Garden, "blueprint.meadow_arbor"),
+            new SanctuaryProjectDef("origin_trail_shrine", "Miếu nhỏ bên lối mòn", "origin", ProjectFootprint.Landmark, "blueprint.trail_marker"),
+            new SanctuaryProjectDef("origin_lily_pond", "Ao sen bờ hồ", "origin", ProjectFootprint.Water, null),
+            new SanctuaryProjectDef("origin_rune_circle", "Vòng đá rune", "origin", ProjectFootprint.Light, null),
+            new SanctuaryProjectDef("origin_ancient_gate", "Cổng đá cổ phục dựng", "origin", ProjectFootprint.Landmark, null),
+            new SanctuaryProjectDef("origin_elder_statue", "Tượng rồng tổ", "origin", ProjectFootprint.Landmark, null),
+            // ---- Chương 2 — Thủy Vực: rạn san hô và cửa sông ----
+            new SanctuaryProjectDef("ocean_tide_pools", "Vũng triều", "ocean", ProjectFootprint.Water, "blueprint.tide_pool"),
+            new SanctuaryProjectDef("ocean_coral_arch", "Vòm san hô", "ocean", ProjectFootprint.Landmark, null),
+            new SanctuaryProjectDef("ocean_shell_path", "Lối vỏ sò", "ocean", ProjectFootprint.Path, null),
+            new SanctuaryProjectDef("ocean_kelp_garden", "Vườn tảo bẹ", "ocean", ProjectFootprint.Garden, null),
+            new SanctuaryProjectDef("ocean_glow_buoys", "Phao phát sáng", "ocean", ProjectFootprint.Light, null),
+            new SanctuaryProjectDef("ocean_sunken_shrine", "Đền chìm", "ocean", ProjectFootprint.Landmark, null),
+            // ---- Chương 3 — Thiên Giới: đảo mây ----
+            new SanctuaryProjectDef("sky_cloud_bridge", "Cầu mây", "sky", ProjectFootprint.Path, null),
+            new SanctuaryProjectDef("sky_cloud_garden", "Vườn trên mây", "sky", ProjectFootprint.Garden, "blueprint.cloud_garden"),
+            new SanctuaryProjectDef("sky_wind_chimes", "Chuông gió", "sky", ProjectFootprint.Light, null),
+            new SanctuaryProjectDef("sky_falling_spring", "Suối rơi", "sky", ProjectFootprint.Water, null),
+            new SanctuaryProjectDef("sky_star_observatory", "Đài ngắm sao", "sky", ProjectFootprint.Landmark, null),
+            new SanctuaryProjectDef("sky_aurora_spire", "Tháp cực quang", "sky", ProjectFootprint.Landmark, null),
+        });
+
+        private static readonly string[] VistaZones = { "origin", "ocean", "sky" };
+
+        /// <summary>Nội dung của dự án thứ <paramref name="index"/> (0-based), hoặc null khi ngoài 0 … Max − 1.</summary>
+        public static SanctuaryProjectDef Get(int index)
+        {
+            if (index < 0 || index >= SanctuaryProjectCatalog.Max) return null;
+            if (index < Named.Count) return Named[index];
+            int level = index - Named.Count + 1;
+            string zone = VistaZones[(level - 1) % VistaZones.Length];
+            return new SanctuaryProjectDef("vista_" + zone + "_" + level, "Mở rộng cảnh quan " + level, zone, ProjectFootprint.Vista, null);
+        }
+
+        /// <summary>Thế giới để hiển thị công trình: thế giới của nó nếu đã mở, ngược lại Khởi Nguyên (công trình không bao giờ biến mất).</summary>
+        public static string DisplayZone(GameState s, int index)
+        {
+            SanctuaryProjectDef d = Get(index);
+            if (d == null) return null;
+            return s.FindZone(d.ZoneId)?.Unlocked == true ? d.ZoneId : "origin";
+        }
+    }
+}
+
+================ END 6 ================
+
+================ BEGIN 7: Docs/u2.11/SANCTUARY_PROJECTS.md ================
+# U2.11 — Nội dung dự án trang trí Sanctuary
+
+> Luật E5 (ADR 0205) **không đổi**: dự án thứ n (từ 0) giá floor(20 000 × 1,25ⁿ) G; từ dự án thứ 3 thêm 1 + n / 5 gỗ và cùng số hạt giống; tối đa 60; chỉ thẩm mỹ.
+> U2.11 chỉ thêm **nội dung hiển thị** (`Domain/Catalog/SanctuaryProjectContent.cs`). Save chỉ lưu số dự án đã xây, nên đổi tên / thứ tự nội dung không làm hỏng save.
+
+## Nguyên tắc
+
+- Đi theo hành trình: phục dựng đền cổ Khởi Nguyên trước, rồi rạn san hô Thủy Vực, rồi đảo mây Thiên Giới.
+- Công trình của thế giới chưa mở được đặt ở Khởi Nguyên (`DisplayZone`), không bao giờ biến mất; khi thế giới mở, Sanctuary có thể dời về đúng chỗ.
+- Mỗi công trình có kiểu (`landmark`, `path`, `garden`, `light`, `water`, `vista`) để Sanctuary chọn prefab và điểm neo; dùng lại bộ asset môi trường U1-ENV (cổng đá, cột đá, tượng rồng, đá rune, hồ nhỏ, cây cổ thụ).
+- Năm mẫu trang trí từ nhiệm vụ đổi kiểu dáng của năm công trình (biến thể hình ảnh, không hiệu ứng).
+
+## Danh sách
+
+| # | ID | Tên (nháp) | Thế giới | Kiểu | Giá (G) | Gỗ + hạt (mỗi loại) | Biến thể từ mẫu |
+|---|---|---|---|---|---|---|---|
+| 1 | `origin_mossy_steps` | Bậc đá rêu phong | Khởi Nguyên | path | 20 000 | 0 | — |
+| 2 | `origin_lantern_row` | Hàng đèn đá dẫn lối | Khởi Nguyên | light | 25 000 | 0 | `blueprint.forest_lantern` |
+| 3 | `origin_meadow_arbor` | Giàn hoa đồng cỏ | Khởi Nguyên | garden | 31 250 | 1 | `blueprint.meadow_arbor` |
+| 4 | `origin_trail_shrine` | Miếu nhỏ bên lối mòn | Khởi Nguyên | landmark | 39 062 | 1 | `blueprint.trail_marker` |
+| 5 | `origin_lily_pond` | Ao sen bờ hồ | Khởi Nguyên | water | 48 828 | 1 | — |
+| 6 | `origin_rune_circle` | Vòng đá rune | Khởi Nguyên | light | 61 035 | 2 | — |
+| 7 | `origin_ancient_gate` | Cổng đá cổ phục dựng | Khởi Nguyên | landmark | 76 293 | 2 | — |
+| 8 | `origin_elder_statue` | Tượng rồng tổ | Khởi Nguyên | landmark | 95 367 | 2 | — |
+| 9 | `ocean_tide_pools` | Vũng triều | Thủy Vực | water | 119 209 | 2 | `blueprint.tide_pool` |
+| 10 | `ocean_coral_arch` | Vòm san hô | Thủy Vực | landmark | 149 011 | 2 | — |
+| 11 | `ocean_shell_path` | Lối vỏ sò | Thủy Vực | path | 186 264 | 3 | — |
+| 12 | `ocean_kelp_garden` | Vườn tảo bẹ | Thủy Vực | garden | 232 830 | 3 | — |
+| 13 | `ocean_glow_buoys` | Phao phát sáng | Thủy Vực | light | 291 038 | 3 | — |
+| 14 | `ocean_sunken_shrine` | Đền chìm | Thủy Vực | landmark | 363 797 | 3 | — |
+| 15 | `sky_cloud_bridge` | Cầu mây | Thiên Giới | path | 454 747 | 3 | — |
+| 16 | `sky_cloud_garden` | Vườn trên mây | Thiên Giới | garden | 568 434 | 4 | `blueprint.cloud_garden` |
+| 17 | `sky_wind_chimes` | Chuông gió | Thiên Giới | light | 710 542 | 4 | — |
+| 18 | `sky_falling_spring` | Suối rơi | Thiên Giới | water | 888 178 | 4 | — |
+| 19 | `sky_star_observatory` | Đài ngắm sao | Thiên Giới | landmark | 1 110 223 | 4 | — |
+| 20 | `sky_aurora_spire` | Tháp cực quang | Thiên Giới | landmark | 1 387 778 | 4 | — |
+| 21–60 | `vista_<thế giới>_<k>` | Mở rộng cảnh quan k | xoay vòng origin → ocean → sky | vista | 1,73 M → ≈ 1,04 × 10¹⁰ | 5 → 12 | — |
+
+Tổng 8 dự án Khởi Nguyên ≈ 0,40 M G; 14 dự án đầu ≈ 1,74 M G; 20 dự án ≈ 6,9 M G. Mô phỏng U2.10 (50 seed) cho người chơi thường 23–25 dự án sau 90 ngày, nên chương Thiên Giới hoàn tất khoảng cuối tháng thứ ba và phần "Mở rộng cảnh quan" là mục tiêu dài hạn.
+
+## Chưa làm (chờ duyệt)
+
+- Công thức dùng pha lê / san hô (Thủy Vực) và "bụi sao" (Thiên Giới) cho chương 2–3: cần đổi luật E5 đã duyệt, nên chỉ ghi ở đây làm đề xuất.
+- Tên tiếng Việt chính thức và hình ảnh từng công trình.
+
+================ END 7 ================
+
+================ BEGIN 8: ArtSource/manifest.json ================
+{
+    "formatVersion":  1,
+    "description":  "Original art sources; not Unity production assets. License and visual/technical QA must be reviewed.",
+    "files":  [
+                  {
+                      "path":  "ArtSource/Dragons/images/01_emberling.glb",
+                      "bytes":  3942888,
+                      "sha256":  "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/01_emberling.jpg",
+                      "bytes":  347147,
+                      "sha256":  "98622c67f0635eb7dd87baa4fb23f30c2c78af57d6f346ffdd6b7d216cff30b7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/02_droplet.glb",
+                      "bytes":  3953936,
+                      "sha256":  "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/02_droplet.jpg",
+                      "bytes":  378458,
+                      "sha256":  "b564266ffc93d2a8db41a9f77476e45a33cd5b0a53528709be454fff40308bf7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/03_sprout.glb",
+                      "bytes":  4184268,
+                      "sha256":  "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/03_sprout.jpg",
+                      "bytes":  372001,
+                      "sha256":  "fe82b1d5ab162a5ba1b1ac3a65970c39255b8931b0f68d9a39a766608cb7fe9d"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/04_zephyr.glb",
+                      "bytes":  4524668,
+                      "sha256":  "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/04_zephyr.jpg",
+                      "bytes":  420180,
+                      "sha256":  "c989d1cfc550133c47c21d0c7167a5c568e4f0f3fdd2705f163452139c919d09"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/05_steamdrake.glb",
+                      "bytes":  4142736,
+                      "sha256":  "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/05_steamdrake.jpg",
+                      "bytes":  340548,
+                      "sha256":  "5763b5d604c17f3075ff284e6e6c1a9e286e162df5a4da0dbd569e41fabc3a93"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/06_magma.glb",
+                      "bytes":  3648020,
+                      "sha256":  "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/06_magma.jpg",
+                      "bytes":  390563,
+                      "sha256":  "45596db0efdc36fca0f5dde2af934fdfe7d649e9fcf5efc65cee457a9052c4b4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/07_sparkwing.glb",
+                      "bytes":  3627404,
+                      "sha256":  "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/07_sparkwing.jpg",
+                      "bytes":  408241,
+                      "sha256":  "0abc6fb3f8dc9ca56695a9e6e84c4f72c1010c213b802c90f80ba9bf7c199325"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/08_frostfin.glb",
+                      "bytes":  3501148,
+                      "sha256":  "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/08_frostfin.jpg",
+                      "bytes":  330614,
+                      "sha256":  "7e0fe3038b85faf7b128c1a0a7a52380ecde0ded9f41495da54411984eb155c3"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/09_mossback.glb",
+                      "bytes":  3560776,
+                      "sha256":  "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/09_mossback.jpg",
+                      "bytes":  339670,
+                      "sha256":  "01eb76414fa965077792e0f21ff1864dcabab156c60ebec0c5d89ea83031a576"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/10_blossom.glb",
+                      "bytes":  3900628,
+                      "sha256":  "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/10_blossom.jpg",
+                      "bytes":  395758,
+                      "sha256":  "fdf4cccdc2494cc651de15d40ca66764ddab8ac3d3dfdf7a36b5e39fe2c54603"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/11_solaris.glb",
+                      "bytes":  3502444,
+                      "sha256":  "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/11_solaris.jpg",
+                      "bytes":  437954,
+                      "sha256":  "4272b3060200571cbc4ffc98d4b43d54c4d9544c8c9d3e6fbc4ebbdd7fb9da74"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/12_leviathan.glb",
+                      "bytes":  3833836,
+                      "sha256":  "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/12_leviathan.jpg",
+                      "bytes":  376676,
+                      "sha256":  "af06427401a4f74d7afd8fa4c7f89c924fc160776f64a6c8f0faf8d79f674aef"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/13_amberhorn.glb",
+                      "bytes":  4277448,
+                      "sha256":  "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/13_amberhorn.jpg",
+                      "bytes":  403688,
+                      "sha256":  "37d5981da4108c03abebc8792fc3fa984eaa1153c2a8315c8ce27b07a25f40a4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/14_aurorawing.glb",
+                      "bytes":  3376524,
+                      "sha256":  "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/14_aurorawing.jpg",
+                      "bytes":  379155,
+                      "sha256":  "9821ae6e5e4c5eb11265cc0c2fba1f5aa501b83d875bafd0a1753b78f61a4aa7"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/15_celestia.glb",
+                      "bytes":  3508848,
+                      "sha256":  "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/15_celestia.jpg",
+                      "bytes":  388819,
+                      "sha256":  "8b0ed26c47127a3b329d71be0195138670b95dd29a1a92a68c60afcc4afab2d4"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/16_gaia.glb",
+                      "bytes":  4717212,
+                      "sha256":  "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/images/16_gaia.jpg",
+                      "bytes":  414146,
+                      "sha256":  "6fbee25c69cb27c300b0a99fce6da27e69f1ec4a9f89123f5c83786205518981"
+                  },
+                  {
+                      "path":  "ArtSource/Dragons/preview_all_16_species.png",
+                      "bytes":  3093826,
+                      "sha256":  "c9d1c52478063733e6f6ed1ea181639ced0dd15610e03df91f6650b21af300ec"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/01_origin_meadow.jpg",
+                      "bytes":  793797,
+                      "sha256":  "64a5519add9afa526a433956165163861fd580e190b0066198649b30e1ca23f1"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/02_origin_warm_rocks.jpg",
+                      "bytes":  763420,
+                      "sha256":  "48cb80e3569972683701a5d4adf2d02e81b79a283e833b4486313abbba602dcc"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/03_origin_pondbank.jpg",
+                      "bytes":  839046,
+                      "sha256":  "fd5f484f08f6ebf2ecccaa437d82dcb30767f3bcd6b653a2dbb1157e976a3fce"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/04_ocean_estuary.jpg",
+                      "bytes":  827578,
+                      "sha256":  "e0bc7473cca3c0bfccc6a3bc35bea3b9aa0fa25621a953ec0225358351a720d7"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/05_ocean_cool_pool.jpg",
+                      "bytes":  797508,
+                      "sha256":  "a3eef53265b9f3fe17ee82bdb3530bceff2be12b4e1628fe03e144b90e8e0b14"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/06_ocean_reef.jpg",
+                      "bytes":  830441,
+                      "sha256":  "c00309cbb9fef23a2e8f2f3b076e171090cfaf6b84e321c9971277768c3a1b19"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/concepts/07_sky_low_island.jpg",
+                      "bytes":  795867,
+                      "sha256":  "59157ab4a1ca390ddd0f99b76487e9078b73df3a05975ce51c8036625a4cbfd2"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/preview_all_habitats_and_props.png",
+                      "bytes":  3283983,
+                      "sha256":  "462cc54c9b3524b4939e5e4e9154a995b50061e4e85d61c5ba3d6a6f7a33952e"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue.jpg",
+                      "bytes":  480139,
+                      "sha256":  "9e155d2be467f4e2bffa18de9a0c3064dfc0388f90fa2ada711d60f41ffcd2c3"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin.jpg",
+                      "bytes":  432744,
+                      "sha256":  "044851fd7e490a695d4a3628440c9840fe36a4e85226b9263eb6608e38b8e009"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone.jpg",
+                      "bytes":  415690,
+                      "sha256":  "1f5a302e6e63df5d579cf9030bd2144bd183c77059b51f67c25121e44301ff2b"
+                  },
+                  {
+                      "path":  "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest.jpg",
+                      "bytes":  486706,
+                      "sha256":  "ca48186b21d00c3619697f655a632cedb265670471788764f0ed333341f8f15b"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.jpg",
+                      "bytes":  513312,
+                      "sha256":  "c714cfa7788ec39731cb3d9c721f1381c063ca035edae79611da6da29c107978"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb",
+                      "bytes":  4069008,
+                      "sha256":  "fc00a2308edf9e8be332bd705a7f772597ccb51ec5af337dd15dafc595fcb6dc"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.jpg",
+                      "bytes":  437799,
+                      "sha256":  "78c1f02b78a6626c234fa0ae093d77e2eb99dfbcce3a0701ab958fd08211c9ce"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg",
+                      "bytes":  431819,
+                      "sha256":  "2a34024ce67e39b8c38d127f958b62d928da4eb731482e50738c1aabe54937ba"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal.jpg",
+                      "bytes":  518772,
+                      "sha256":  "ac10907192a021f52686c72ee0eea3428dbe277522cdaff0c5594c592f8a1a0e"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket.jpg",
+                      "bytes":  494360,
+                      "sha256":  "3827fba2586f1e2244ae0540eeb366cea2254a5004f68d6d41b0b64d2359a3d7"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/preview_all_12_nature_props.png",
+                      "bytes":  2404512,
+                      "sha256":  "8805e49d61fe18283df3a2d87742f63e6f41d37ef024deb5adab5ca5d484af77"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder.jpg",
+                      "bytes":  445276,
+                      "sha256":  "3cf9f2b511553f7b7980f75f35da8b40263073848a001e617de9b5dd7d528a2a"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber.jpg",
+                      "bytes":  415750,
+                      "sha256":  "c97ab69e435a7e1edbd868483ca7232b574012923e0ab6114746eb93577c8ac5"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island.jpg",
+                      "bytes":  487188,
+                      "sha256":  "c1923019c524a673506b98b764f8afe0635305262e6168111275ad0ed64ddd01"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin.jpg",
+                      "bytes":  457137,
+                      "sha256":  "117e11552c8d05ee6f577c5d94e60d2199029f101069d3f6f8604fb8d873951f"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster.jpg",
+                      "bytes":  372269,
+                      "sha256":  "0dfafb0618369f0c918e0f3a784d3c44d7ee05ce33aaed4264e83e211306b2ce"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster.jpg",
+                      "bytes":  383016,
+                      "sha256":  "618e9cd69f5534a395759784fc4eac2d87ced9bf3d4f08b05a0c20dc7616812d"
+                  },
+                  {
+                      "path":  "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster.jpg",
+                      "bytes":  439371,
+                      "sha256":  "700154929c76689678dde8e98aade10d08d8969ac8964b79e1679be2835e4ab6"
+                  }
+              ]
+}
+
+================ END 8 ================
+
+================ BEGIN 9: Assets/Dravio/Environment/README.md ================
+# U1-ENV — Origin Sanctuary, Ocean and Sky environment kits
+
+Original, fully procedural environment art for Dravio's starting area (Khởi Nguyên / Origin Sanctuary): Ancient Fantasy, cozy, stylized, painterly. Every mesh and texture is generated by the scripts in `scripts/art/environment/`. No photo, scan, store asset or third-party texture is used, so the kit can live in this public repository.
+
+This kit is separate from gameplay. It does not touch Emberling, its Animator, the C# domain, or the existing test scenes (`OriginMeadow`, `AncientSanctuary`, `EmberlingModelPreview`, `EmberlingLivingPreview`).
+
+## Contents
+
+| Folder | What |
+| --- | --- |
+| `Models/` | 25 FBX files (`SM_ENV_*`), 1 m = 1 unit, pivot at base centre, front faces the camera (-Z) |
+| `Textures/` | Painterly atlas 1024², emission 512², foliage cards 512² (alpha), ground 512² (tiling), water 256² (tiling) |
+| `Shaders/` | `Dravio/Environment/Painterly Lit` and `Painterly Water` (URP 17, mobile) |
+| `Scripts/SanctuaryCameraFit.cs` | Landscape framing of the fixed orthographic camera, with the real Fantasy UI width and the Safe Area (visual only) |
+| `Scripts/Living/` | U1-ENV.3 living environment: time of day, wind, water ripples, particles, ambience, interaction points |
+| `Audio/` | U1-ENV.3 ambience: 6 seamless loops and 6 one-shots, synthesised by `scripts/art/environment/ambience_audio.py` |
+| `Editor/` | Import rules (this folder only) and the **Dravio > Environment** menu |
+| `Data/` | `OriginSanctuaryLayout.json` (scene layout), `OriginSanctuaryLocations.json`, `OriginSanctuaryColliders.json`, `OriginSanctuaryLiving.json` (U1-ENV.3), `OriginSanctuaryManifest.json` (triangles, materials, budgets) |
+| `Materials/`, `Prefabs/`, `Scenes/` | Generated in Unity by the menu (commit them after checking) |
+
+### Modular assets
+
+- Ancient gate: `Gate_Ancient` (arch, glowing keystone glyph, worn steps)
+- Columns and ruined walls: `Column_Intact`, `Column_Broken`, `Column_Fallen`, `Wall_Ruin_A`, `Wall_Ruin_B`
+- Ancient dragon statue: `Statue_Dragon` (seated guardian with folded wings, horns and softly glowing eyes, on a gold-trimmed plinth)
+- Old trees, roots and vines: `Tree_Ancient`, `Root_Cluster`, `Vine_Hanging` (pivot at the top, hang it from a ledge)
+- Mossy rocks: `Rock_Mossy_A/B/C`
+- Grass, flowers, mushrooms: `Grass_Tuft_A/B`, `Flower_Patch_Pink/Blue/Gold`, `Fern`, `Mushroom_Cluster_Red`, `Mushroom_Cluster_Glow`
+- Small pond: `Pond_Small` (rim stones, lily pads, reeds, transparent water with shore foam)
+- Glowing rune stones: `Runestone_A`, `Runestone_B`
+- Ground sheet: `Ground_Sanctuary` (painted earth path and soft shade under the big props, in vertex colours)
+
+## Mobile budget
+
+- About 24,000 triangles for the whole layout (164 placements), against a 60,000 budget. Biggest assets: statue 2.7k, tree 2.2k, ground 2.2k, gate 1.2k.
+- 4 materials for the entire environment: `M_ENV_Props` (every opaque prop through one atlas), `M_ENV_Foliage` (alpha-clip cards), `M_ENV_Ground`, `M_ENV_Water`.
+- Every prefab is Batching Static. With static batching and the SRP Batcher, same-material renderers merge, so draw calls stay close to the number of materials times shadow/depth passes rather than the number of objects.
+- Small items (grass, flowers, ferns, mushrooms, small rocks, pond, vines, ground) do not cast shadows. Light and reflection probes are off on the kit.
+- Textures: 5 maps, about 1.9 million texels in total. That is roughly 1.1 MB on the phone with ASTC 6×6 (Android and iOS) and mipmaps, instead of about 10 MB uncompressed. Alpha coverage is preserved in the foliage mipmaps.
+- Shaders: main light, SH ambient and fog only. No normal maps, no depth or opaque texture. Emission pulse and grass wind are computed in the shader, so no per-frame scripts run.
+- The Blender build fails if an asset goes over its triangle budget or any atlas UV leaves its tile.
+
+## Painterly look
+
+- The atlas tiles are painted with seeded brush-stroke stamps over posterized value noise, with hand-placed-looking cracks, mortar, moss dabs, bark grooves and invented rune sigils.
+- Vertex colour RGB holds painted ambient occlusion (darker at the base of every prop). Alpha holds the wind weight for foliage, or the earth-path mask for the ground.
+- `Painterly Lit` uses a soft two-tone light ramp, a cool shadow tint, a warm rim, and pulsing emission for the runes, the keystone, the statue's eyes and the glowing mushrooms.
+
+## Regenerate the art (Blender 5.3)
+
+From the repository root (PowerShell):
+
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.3\blender.exe" --factory-startup --background --python-exit-code 1 `
+  --python scripts/art/environment/build_origin_sanctuary.py -- `
+  --out art-exports/environment --unity Assets/Dravio/Environment --preview
+```
+
+- `--out` is the working folder (ignored by git): FBX, `OriginSanctuaryKit.blend` (all assets side by side, editable), textures, manifest and preview render.
+- `--unity` copies only into `Assets/Dravio/Environment/{Models,Textures,Data}`.
+- `--preview` renders `OriginSanctuary_preview_16x9.png` and `_20x9.png` from the layout camera with Cycles on the CPU. It takes about 30 seconds and can be left out.
+- Python checks without Blender (needs numpy): `python -m unittest scripts/art/environment/test_environment_kit.py`
+
+The layout lives in `scripts/art/environment/layout.py`, in Unity coordinates. Change it there, re-run the build, then rebuild the scene.
+
+## Build the scene in Unity
+
+1. Close Play Mode. Let Unity import `Assets/Dravio/Environment` and check that the Console has no red errors. The import rules in `Editor/EnvironmentImportSettings.cs` set scale, compression and ASTC automatically.
+2. Choose **Dravio > Environment > Build Everything (Materials, Prefabs, Scene)**, or run steps 1, 2 and 3 separately:
+   1. *Setup Materials and Import Remaps* creates the 4 materials and remaps the FBX material names (`ENV_Props` and the others) to them.
+   2. *Build Prefabs* writes `Prefabs/SM_ENV_*.prefab` with static flags and shadow settings.
+   3. *Create or Open Origin Sanctuary Scene* creates `Scenes/OriginSanctuary_Environment.unity` from the layout JSON. If the scene already exists, it opens it and keeps your edits. *Rebuild ... (overwrite)* regenerates it after asking.
+3. Look at the Game view at 16:9, 19.5:9 and 20:9 (landscape only), and press Play to see the wind and the glow pulse.
+4. Run **Dravio > Environment > Report Mobile Budget** and check the Frame Debugger for batches.
+5. Commit the generated `Materials/`, `Prefabs/`, `Scenes/` and every `.meta` file.
+
+If the Painterly shader fails to compile on your machine, the tool falls back to URP/Lit materials, says so in the Console, and the scene still builds. Report the shader error so it can be fixed.
+
+## Landscape and habitats (U1-ENV.2)
+
+The sanctuary is landscape only. It is framed for 16:9, 19.5:9 and 20:9 phones, with the right part of the screen kept free for the Fantasy UI panel.
+
+- **Camera.** `SanctuaryCameraFit` keeps the play area to the left of a panel that is `rightPanelScreenHeights` (0.5) screen heights wide, plus a 0.05 left margin. The camera shifts right by the same world distance at every aspect, so wider phones only show more dressing on the left and under the panel. Below 16:9 it zooms out instead of cropping. In portrait it logs one warning.
+- **Habitats.** Three microhabitats tile the play area without gaps, with ids and unlock rules matching the domain data:
+  - `origin_meadow` (centre, open by default): flowers, clover, tall grass, the runestones and the gate clearing.
+  - `origin_pondbank` (left, needs `DISC_AQUATIC_HABITAT`): the pond, bank ring, stepping stones, reeds and cattails. Swimmers may enter the swim area.
+  - `origin_warm_rocks` (right of the meadow, needs `DISC_EMBERLING_THERMAL`): warm flat and stacked rocks, dry grass and twigs.
+- **Location data.** `Data/OriginSanctuaryLocations.json` is the source of truth. **Dravio > Environment > 4. Update Location Data** turns it into `Data/OriginSanctuaryLocations.asset` (`SanctuaryLocationData`). It holds habitat polygons, the walkable rectangle, obstacle footprints, 13 spawn points, 4 transitions between habitats and perch points. Living World can call `HabitatAt`, `IsWalkable(pos, habitatId, canSwim)`, `SpawnPointsIn`, `TransitionsFrom` and `PerchesIn`. The scene also gets `SanctuaryMarker` objects and a gizmo drawer so designers can see the points.
+- **Colliders.** `Data/OriginSanctuaryColliders.json` lists box colliders per asset. Prefabs get them during *Build Prefabs*; the ground gets one flat box. Small props have none.
+- **Validation.** **Dravio > Environment > 5. Validate Landscape Framing and UI Area** checks, with a real camera at the three aspects, that every habitat corner, spawn, transition and perch is inside the free area, that every spawn is walkable, and reports (but never changes) the Player orientation.
+- **Variants and performance.** New assets: a second tree, a round shrub, warm rocks (flat and stacked), a pond bank ring, stepping stones and 8 new foliage cards (reed, cattail, dry grass, tall meadow grass, clover, lilac flowers, shrub leaves, dry twigs). Ground cover is baked into one mesh per habitat plus one for the edges, so the scene has 45 placements instead of 164 (about 26k triangles). Everything is static and uses the same 4 materials.
+
+To check framing without Unity, `scripts/art/environment/preview_overlay.py` draws the habitats, points and UI panel over the Blender previews.
+
+The project's Player orientation is not changed by these tools. Set **Player > Resolution and Presentation > Default Orientation** to Landscape Left yourself (it is a project setting outside Environment).
+
+## Living environment (U1-ENV.3)
+
+Everything here is cosmetic. There is no weather, disaster or any other system that changes gameplay, and nothing is saved. The U1-ENV.2 layout, colliders, location data and IDs are unchanged (the tests check their exact file hashes).
+
+**Data.** `Data/OriginSanctuaryLiving.json` (from `scripts/art/environment/living.py`) becomes `Data/OriginSanctuaryLiving.asset` (`SanctuaryLivingData`) through **Dravio > Environment > 6. Update Living Environment Data**. It holds the day phases, 14 time-of-day keyframes, 15 interaction points, particle volumes and ambience emitters.
+
+**Scene.** **7. Add or Update Living Environment in Scene** adds one root, *Origin Sanctuary - Living Environment*, to `Scenes/OriginSanctuary_Environment.unity` only. Re-running it replaces just that root. *Build Everything* now includes steps 6 and 7. To preview, scrub `hour` on **Environment Time Of Day** in edit mode.
+
+| Part | What it does |
+| --- | --- |
+| `EnvironmentTimeOfDay` | Dawn 5:00 to 7:00, day to 17:30, dusk to 19:30, night until 5:00. It drives the one directional light (sun by day, moon by night), the trilight ambient (written straight into the ambient probe), fog and the camera background, and sets `_DravioLiving` (night glow on runes and glow caps, a lower ambient floor at night). The clock can be **Simulated** (24 real minutes per day by default), **DeviceClock** or **External** (the game calls `SetHour`). 13:00 is exactly the U1-ENV.2 lighting. |
+| `EnvironmentWind` | A calm base that follows the time of day, plus soft Perlin gusts. It sets `_DravioWind`, so foliage sways harder and leans downwind and the pond pattern drifts. Gusts also drive the dust motes and the wind loop. |
+| `EnvironmentWater` | Up to 4 expanding ripple rings computed in the water shader (`AddRipple`, `AddSplash`). There are no extra meshes or render textures. |
+| `EnvironmentAmbientParticles` | Fireflies (meadow and pond, dusk and night), light dust motes (day and golden hour) and small pond rings, plus two burst systems for interaction feedback. High tier caps: 36 + 14 fireflies, 48 dust motes, 8 rings. |
+| `EnvironmentAudio` | Six loops (day birds, night crickets, wind, pond water, night frogs, warm-rock insects) mixed by the time of day. The pond and warm-rock loops fade with distance from a focus point (`SetFocus`, for example the active dragon) and pan with screen position. One-shots use a 2 to 4 voice pool. Route `output` to the game's ambience mixer group. |
+| `EnvironmentInteractions` | Gives out interaction points (`FindNearest`, `TryReserve`, `Release`, `ReleaseAll`) and plays the cosmetic response on `NotifyUsed`: a ripple, splash, petals, rune sparkles, heat motes, a dust puff or fireflies, plus a sound. Occupants are plain ints, so it does not depend on the character code. |
+| `LivingEnvironment` | One entry point (`LivingEnvironment.Active`) that holds all of the parts above. |
+| `EnvironmentQuality` | Low, Medium or High, detected from memory and core count, and settable by the game. It scales particle counts (0.35 / 0.65 / 1), update rate (4 to 10 Hz), one-shot voices, and turns moon shadows off on Low. |
+
+**Interaction points** (each with an approach position, facing, target, preferred phases, animation hint, feedback and sound):
+
+- Pondbank: 2 drink, 1 splash (swimmers only, target in the swim area), 1 watch-the-glow-mushrooms.
+- Meadow: 2 inspect rune, 2 sniff flowers, 1 stargaze (night), 1 rest.
+- Warm rocks: 3 bask, 1 dig, 1 inspect statue.
+
+Every approach point is walkable ground in its habitat, at least 0.8 m from the spawn points, outside the transition triggers, and inside the free screen area for all six device cases in the tests.
+
+**Camera API for the Fantasy UI and the Safe Area.** `SanctuaryCameraFit` now takes real numbers:
+
+- `SetFantasyUiOccluderPixels(px)` takes how many pixels the panel covers from the right edge. `SetFantasyUiPanel(rectTransform, uiCamera)` tracks a panel every frame. The easiest route is to add **`SanctuaryUiInsetSource`** to the panel; this needs no UI code.
+- It reads `Screen.safeArea` (notch, rounded corners, home bar). `SetSafeAreaOverride` exists for tests.
+- `FreeViewport` and `FreeViewportChanged` tell other systems which part of the screen is free. `ComputeFraming` is the pure function behind it, mirrored in `scripts/art/environment/framing.py`.
+
+The size only ever grows (it never zooms in), just enough to keep the 16:9 design width and height free, and the free area is re-centred. With no report and no insets the pose is exactly the U1-ENV.2 one.
+
+**Audio licence.** Every clip is synthesised from noise and oscillators by `scripts/art/environment/ambience_audio.py`. No recordings, samples or third-party sounds are used. Clips are 22.05 kHz mono WAV; on import, loops become Vorbis compressed in memory and one-shots become ADPCM.
+
+**Checks.**
+
+- **8. Validate Living Environment** checks interaction ids, habitats and walkability, and that splash targets are in the swim area. It also checks framing for the design, notch-left, notch-both-plus-home-bar and wide-UI cases at the three aspects, that all audio clips exist, and that 13:00 matches U1-ENV.2.
+- Python: `python -m unittest scripts/art/environment/test_living_environment.py` (numpy and Pillow).
+
+Previews: `scripts/art/environment/preview/OriginSanctuary_preview_dusk_16x9.png` and `_night_16x9.png` are Blender renders lit from the same keyframes, with fireflies.
+
+## Ocean and Sky kits (U1-ENV.4)
+
+Two more zones, each in its own scene. The Origin Sanctuary scene, its data, models and materials are not changed.
+
+| | Ocean (Thủy Vực) | Sky (Thiên Giới) |
+|---|---|---|
+| Scene | `Scenes/Ocean_Environment.unity` | `Scenes/Sky_Environment.unity` |
+| Look | sunken temple ruins, coral, kelp, sun shafts and caustics through the water | floating islands, cloud-top ruins, cherry blossom meadow, sea of clouds |
+| Microhabitats | `ocean_estuary`, `ocean_reef`, `ocean_cool_pool` | `sky_low_island` |
+| Movement data | 3 swim volumes (y 0.3 to 3.0), 3 seabed walk areas | 3 island walk areas (main, east, shrine), 1 fly volume (y 1.0 to 3.6), 3 area links |
+| Spawns | 15 (seabed and swim, 5 per habitat) | 12 (ground on each island, 4 in the air) |
+| Perches / rest | no perches (canonical `perch: false`), 6 rest points on rocks and ruins | 6 perches (spires, column, shrine roof, runestone, gate top) |
+| Gate | `origin_ocean_estuary.gate` to `origin_pondbank`, requires swim | `origin_sky_low_island.gate` to `origin_meadow`, requires fly |
+| Triangles | about 19,700 of 60,000 | about 15,000 of 60,000 |
+
+**Where the IDs come from.** `scripts/art/environment/canonical_world.py` copies the microhabitat profiles, the WorldGraph edges and the zone capacity from the domain catalog (see `SOURCE` in that file). The tests check them against `Assets/Dravio/Data/species-biology.json`: every zone habitat id is used by a species, and every species living in an Ocean habitat can swim and every Sky species can fly. The art adds no microhabitat. The Sky islands are walk areas inside the single canonical `sky_low_island`.
+
+**Gates are data only.** Each zone has one `ZoneGate` (WorldGraph edge id, both gateway habitats, required locomotion, `lockedInG1: true`) and a trigger marker in the scene. No script reacts to the trigger, and nothing here reads or writes GameState. Unlocking and travel stay with the domain. There is no Ocean to Sky edge in the WorldGraph, so none is drawn.
+
+**Folders.** `Zones/Ocean/` and `Zones/Sky/`, each with `Models`, `Textures`, `Audio`, `Data`, `Materials` and `Prefabs`. The import rules in `EnvironmentImportSettings` apply to these folders too.
+
+**Atlas slots.** Each zone has its own 1024 props atlas, 1024x512 foliage sheet and 512 ground texture with the same tile layout as Origin, so the UV and wind rules are shared. The meaning of each tile is listed in `zone_textures.py` (`OCEAN_TILES`, `SKY_TILES`, `OCEAN_FOLIAGE`, `SKY_FOLIAGE`). Sky also has a 256 cloud-sea texture drawn by the water shader.
+
+**Reused systems.** Camera (`SanctuaryCameraFit`, Fantasy UI and Safe Area), the painterly and water shaders, the quality tiers, time of day, wind, interactions, particles and the ambience mixer are the Origin components. The zone data maps onto the existing slots:
+
+- Particles use the four existing channels: plankton glow and star motes (fireflies), anemone glow and shrine motes (pond fireflies), marine snow and petals (dust), vent bubbles and cloud wisps (pond rings).
+- Audio uses the existing weight keys with zone clips (10 loops, 9 one-shots, synthesised by `zone_audio.py`). Missing clips fall back to Origin audio.
+- New, small additions: `EnvironmentScrollingFx` (caustics and sun shafts that fade with the light; shafts are off on Low), fog distances and FX quads in the living data, swim/fly volumes, walk areas, rest points, area links and gates in the location data, and two burst styles (bubbles, cloud puff).
+
+**Build in Unity.**
+
+1. Run **Dravio > Environment > Zones > Ocean - Build Everything** and **Sky - Build Everything**. Each one sets up materials, prefabs and data assets, then creates the zone scene.
+2. **Rebuild Ocean/Sky Scene (overwrite)** regenerates only that zone scene.
+3. **Validate Ocean and Sky** checks canonical ids, perch rules, gates against the WorldGraph, spawn count and medium, interactions and framing. With a zone scene open it also ray-casts perches and rest points onto the colliders and checks the triangle, material and texture budget.
+
+**Regenerate the art.** `blender --background --python scripts/art/environment/build_zone_kits.py -- --unity Assets/Dravio/Environment --preview` (or the bpy module). Python checks: `python -m unittest scripts/art/environment/test_zone_environments.py`.
+
+Previews: `scripts/art/environment/preview/Ocean_preview_*.png` and `Sky_preview_*.png` (day 16:9 and 20:9, Sky dusk, night) are Blender renders with the same keyframes, fog and FX.
+
+## Known limits
+
+- These are the first production-direction assets, generated rather than hand-sculpted. An artist pass (hand-painted details, extra variants, LODs if the camera ever zooms) is still welcome.
+- Colliders are simple boxes for the large props only. There is no NavMesh; walkability is answered by `SanctuaryLocationData.IsWalkable`.
+- The Painterly shader has no Meta pass, so it is meant for realtime lighting. Lightmap baking is not supported yet.
+- The scene is not added to Build Settings automatically.
+- U1-ENV.3 runtime code, shader changes, particles and audio import have not been compiled or run in Unity from this environment. See the PR for the list of local checks.
+- The painterly shader only uses the main light, so there are no extra point lights at night. Glowing props brighten through the night glow instead.
+- The ambient probe is built from the trilight colours in code. The exact brightness should be checked by eye in Unity, and `ambientScale` exists for tuning.
+- The ambience is procedural. It sets the mood, but a sound designer may want to replace or layer it later. The ids and the mixer routing stay the same.
+- U1-ENV.4: `ZoneEnvironmentBuilder`, the location and living data changes and `EnvironmentScrollingFx` were not compiled or run in Unity from this environment, and the two zone scenes were not generated. They are built by the menu above.
+- U1-ENV.4: the Origin side of the two gates (at `origin_pondbank` and `origin_meadow`) is not marked, because the Origin data is frozen. Adding those markers is a small follow-up.
+- U1-ENV.4: the GDD was not readable from this environment, so the look follows the domain data and the task brief. Ocean has no perches because the canonical data says `perch: false`.
+- U1-ENV.4: the sun shafts and caustics are additive quads tuned in Blender renders; their alpha should be checked by eye on a device.
+
+================ END 9 ================
+
+================ BEGIN 10: Docs/u2.13/DECISIONS.md ================
+# U2.13 — Danh sách quyết định cần duyệt
+
+Mọi mục dưới đây đang **tắt hoặc giữ nguyên** trong game cho tới khi chủ dự án duyệt. Đã duyệt và đã làm: trứng Aurorawing ở chuyến sky_cloud thứ 15 (ADR 0208), vật liệu dự án theo thế giới (ADR 0209).
+
+| # | Quyết định | Khuyến nghị | Bằng chứng | Nếu duyệt thì đổi gì |
+|---|---|---|---|---|
+| Q1 | Bảng thưởng `sky_cloud` | **Bảng A**: 45 phút, 2–4 bụi sao, mốc 1 / 5 / 15 / 40 → +2 / 3 / 4 / 6 bụi sao, danh hiệu `note.cloud_first_flight`, `title.cloud_rider`, `title.star_warden` | `SKY_CLOUD_BALANCE.md`: A/B/C cho cùng số chuyến (chuyến chạy offline); trứng đến ngày 18–22 (3×10 hoặc 60 phút/ngày), 60–107 (5 phút/ngày); không vàng, không XP | một dòng: `SkyCloudBalance.Production = ProposedA` |
+| Q2 | Trứng Aurorawing: đột biến và giai đoạn nở | giữ **Normal, nở Baby, genotype founder tất định** (như trứng Droplet/Zephyr) | ADR 0208 bảng phương án | phương án khác: Rare cố định hoặc nở Juvenile (luật mới) |
+| Q3 | Luật cho ăn | **B — cá thể được chọn ăn trước**, phần còn lại theo phân bổ cũ | `FEEDING_RESEARCH.md` (PR #67): A cho rồng được chọn ăn 20–60% số lần, 4/5 cá thể cùng loài không bao giờ ăn khi được chọn; B 100% khi rồng rảnh, không phí; C phí thức ăn khi rồng bận / hồi chiêu | luật mới trong `FeedCommand` (chưa làm) |
+| Q4 | Dư vật liệu | chấp nhận sau ADR 0209 hoặc thêm nơi tiêu (chưa đề xuất số) | `SANCTUARY_MATERIALS.md`: vàng giới hạn số dự án/năm; vật liệu vẫn dư; bụi sao dư ~2 900/năm ở 3×10 phút | — |
+| Q5 | F11: Casual 60 phút/ngày chỉ mở Thiên Giới ở 1/3 seed | xem lại yêu cầu `QUEST_SKY_EXPLORATION` (Ethology Thủy Vực) hoặc thêm gợi ý hành trình; **không** tự đổi | `ECONOMY_365.md` (U2.12), `SKY_CLOUD_BALANCE.md` dòng Casual 60 phút: trứng Aurorawing 33% seed | luật nhiệm vụ (U2.11) |
+| Q6 | F13: kho tối đa 500 rồng | giữ; theo dõi | ECONOMY_365: Breeder chạm trần, phần thưởng vào hàng chờ không mất | — |
+| Q7 | Trần sân mây có chung slot thám hiểm | giữ một slot chung (chi phí cơ hội có chủ đích) | bật sky làm chuyến rạn giảm từ 680–1 000 xuống 5–34/năm; vật liệu Thủy Vực vẫn dư | thêm slot = luật mới |
+
+PR: #66 (U2.12), #68 (sky_cloud + trứng), #67 (nghiên cứu cho ăn), PR vật liệu Sanctuary (ADR 0209). Không PR nào merge `main` khi chưa duyệt.
+
+================ END 10 ================
