@@ -38,6 +38,12 @@ namespace Dravio.Character
         private DragonHeadLook _headLook;
         private DragonBlink _blink;
         private bool _lookActive;
+        // U1-CHAR.7
+        private DragonMotionShaper _shaper;
+        // U1-CHAR.8
+        private Transform _headBone;
+        private bool _hidden;
+        public bool Hidden { get { return _hidden; } }
 
         /// <summary>Clips of the shown model (what the behaviour planner may use).</summary>
         public DragonAnimationMap Clips { get { return _map; } }
@@ -52,6 +58,7 @@ namespace Dravio.Character
             _renderers = GetComponentsInChildren<Renderer>(true);
             _grounding = GetComponent<DragonFootGrounding>();
             _headLook = GetComponent<DragonHeadLook>();
+            _shaper = GetComponent<DragonMotionShaper>();
             _blink = GetComponent<DragonBlink>();
             if (_animator != null)
             {
@@ -64,6 +71,9 @@ namespace Dravio.Character
                         if (p.nameHash == DragonAnimatorParams.TempoHash) { _hasTempo = true; break; }
             }
             _anchors.Clear();
+            _headBone = null;
+            foreach (var t in GetComponentsInChildren<Transform>(true))
+                if (t.name == "Head") { _headBone = t; break; }
             foreach (var t in GetComponentsInChildren<Transform>(true))
                 if (t.name.StartsWith("VFX_", System.StringComparison.Ordinal) && !_anchors.ContainsKey(t.name))
                     _anchors.Add(t.name, t);
@@ -126,6 +136,12 @@ namespace Dravio.Character
         /// 0 = not evaluated (time still accumulates, capped, so the pose resumes plausibly).</summary>
         internal bool Tick(float dt, int frame, int interval, bool visible, bool footIk)
         {
+            return Tick(dt, frame, interval, visible, footIk, new DragonDetail { layers = interval == 1, blink = interval == 1 });
+        }
+
+        /// <param name="detail">U1-CHAR.8 mobile: which procedural layers run (UpdateRatePolicy.DetailFor).</param>
+        internal bool Tick(float dt, int frame, int interval, bool visible, bool footIk, DragonDetail detail)
+        {
             LastInterval = interval;
             LastVisible = visible;
             if (CurrentInteraction != DragonInteraction.None)
@@ -140,10 +156,17 @@ namespace Dravio.Character
             if (_grounding != null)
                 _grounding.enabled = footIk && interval == 1 && DragonFootGrounding.AppliesTo(ShownLocomotion, CurrentInteraction);
             // look-at and blink only on full-rate (near, visible) dragons; both are layered after the Animator
-            if (_headLook != null) _headLook.enabled = _lookActive && interval == 1;
+            if (_headLook != null) _headLook.enabled = _lookActive && interval == 1 && detail.layers && !_hidden;
+            if (_shaper != null) _shaper.enabled = interval == 1 && detail.layers && !_hidden;
+            if (_hidden)
+            {
+                if (_animator != null) _animator.enabled = false; // underground: nothing to evaluate
+                if (_grounding != null) _grounding.enabled = false;
+                return false;
+            }
             if (_blink != null)
             {
-                _blink.enabled = _blink.HasShape && interval == 1;
+                _blink.enabled = _blink.HasShape && interval == 1 && detail.blink;
                 _blink.Asleep = ShownLocomotion == DragonLocomotion.Sleep;
             }
             if (_animator == null || !_map.IsAnimated) return false;
@@ -217,8 +240,55 @@ namespace Dravio.Character
             return _headLook != null;
         }
 
+        /// <summary>Underground (U1-CHAR.7): renderers off, Animator not evaluated; the instance stays live and pooled
+        /// state is kept so BurrowEmerge plays at the same place.</summary>
+        internal void SetHidden(bool hidden)
+        {
+            if (hidden == _hidden) return;
+            _hidden = hidden;
+            if (_renderers != null) foreach (var r in _renderers) if (r != null) r.enabled = !hidden;
+            if (!hidden && _animator != null) _animator.enabled = true;
+        }
+
+        internal void SetMotionShape(DragonMotionMode mode, float turnRate, float verticalSpeed, float speed, float maxTurn)
+        {
+            if (_shaper != null) _shaper.SetInput(mode, turnRate, verticalSpeed, speed, maxTurn);
+        }
+
+        /// <summary>U1-CHAR.8 full expression layer (shaper: tail wag/carriage, ear fins, head tilt, neck).</summary>
+        internal void SetExpressionState(DragonExpressionState s) { if (_shaper != null) _shaper.SetExpressionState(s); }
+
+        /// <summary>World position of the Head bone (U1-CHAR.8 pair acts look at it).</summary>
+        internal bool TryGetHeadPosition(out Vector3 p)
+        {
+            p = _headBone != null ? _headBone.position : Vector3.zero;
+            return _headBone != null;
+        }
+
+        /// <summary>U1-CHAR.8: play this instance's current looping state at the leader's normalized time (same state on
+        /// both Animators, both evaluated this frame). False when the states differ or an Animator is missing.</summary>
+        internal bool SyncPhaseWith(DragonVisualInstance leader)
+        {
+            if (leader == null || leader._animator == null || _animator == null || !_hasParams || !_animator.enabled || !leader._animator.enabled) return false;
+            if (leader.ShownLocomotion != ShownLocomotion || CurrentInteraction != DragonInteraction.None) return false;
+            var a = leader._animator.GetCurrentAnimatorStateInfo(0);
+            var b = _animator.GetCurrentAnimatorStateInfo(0);
+            if (a.shortNameHash != b.shortNameHash) return false;
+            _animator.Play(b.fullPathHash, 0, a.normalizedTime - Mathf.Floor(a.normalizedTime));
+            return true;
+        }
+
+        internal void SetExpression(float tailCarriage, float earPerk)
+        {
+            if (_shaper == null) return;
+            _shaper.TailCarriage = tailCarriage;
+            _shaper.EarPerk = earPerk;
+        }
+
         internal void ResetForPool()
         {
+            SetHidden(false);
+            if (_shaper != null) _shaper.ResetPose();
             SetTempo(1f);
             SetLook(false, Vector3.zero, 0f, 1f);
             if (_headLook != null) _headLook.ResetPose();

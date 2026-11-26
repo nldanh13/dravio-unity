@@ -130,7 +130,7 @@ namespace Dravio.Domain.Behavior
         }
 
         /// <summary>Thấy ngủ và thấy hoạt động: cần ít nhất một pha mà loài hoạt động mạnh (≥ 60) và một pha nghỉ (≤ 60 hoặc đã thấy Sleep).</summary>
-        private static bool PhasesCovered(SpeciesBiology b, IReadOnlyCollection<DayPhase> phases, IReadOnlyCollection<DragonBehavior> seen)
+        internal static bool PhasesCovered(SpeciesBiology b, IReadOnlyCollection<DayPhase> phases, IReadOnlyCollection<DragonBehavior> seen)
         {
             bool active = false, rest = false;
             foreach (DayPhase p in phases)

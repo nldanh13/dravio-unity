@@ -72,7 +72,11 @@ namespace Dravio.Character.Tests
             Assert.AreEqual(1f, DragonAnimationLab.AdvanceTime(0.75f, 0.5f, 1f, false));
             Assert.AreEqual(DragonLocomotion.Idle, DragonAnimationLab.ShownLocomotion("Eat"));
             Assert.AreEqual(DragonLocomotion.Burrow, DragonAnimationLab.ShownLocomotion("Burrow"));
-            Assert.AreEqual(DragonLocomotion.Fly, DragonAnimationLab.ShownLocomotion("TakeOff"), "flight transitions: no ground IK");
+            // U1-CHAR.7: TakeOff/Land are now one-shot interactions (Animator Action); ground IK stays off for them
+            Assert.AreEqual(DragonInteraction.TakeOff, (DragonInteraction)System.Enum.Parse(typeof(DragonInteraction), "TakeOff"));
+            Assert.IsFalse(DragonFootGrounding.AppliesTo(DragonAnimationLab.ShownLocomotion("TakeOff"), DragonInteraction.TakeOff), "flight transitions: no ground IK");
+            Assert.IsFalse(DragonFootGrounding.AppliesTo(DragonAnimationLab.ShownLocomotion("Glide"), DragonInteraction.None));
+            Assert.IsTrue(DragonFootGrounding.AppliesTo(DragonAnimationLab.ShownLocomotion("Perch"), DragonInteraction.None), "perched: feet on the perch");
         }
     }
 }

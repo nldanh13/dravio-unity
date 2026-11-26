@@ -18,7 +18,18 @@
     "Curious",
     "Drink",
     "Stretch",
-    "Bask"
+    "Bask",
+    "Greet",
+    "SwimIdle",
+    "SwimRest",
+    "SwimSurface",
+    "WaterEnter",
+    "WaterExit",
+    "Perch",
+    "DigPrep",
+    "BurrowEnter",
+    "BurrowEmerge",
+    "Nuzzle"
   ],
   "templates": {
     "quadruped": "Root, Pelvis, Spine, Chest, Neck, Head, Tail1-3, 4 x (Upper, Lower, Foot), VFX anchors",
@@ -49,7 +60,9 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -87,7 +100,14 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -105,6 +125,10 @@
         {
           "tag": "flat_tail",
           "word": "đuôi dẹt"
+        },
+        {
+          "tag": "ear_fins",
+          "word": "vây tai"
         }
       ],
       "requiresInput": [
@@ -135,7 +159,12 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -177,7 +206,10 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Perch",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -195,6 +227,10 @@
         {
           "tag": "cloud_tail",
           "word": "đuôi mây"
+        },
+        {
+          "tag": "perching_feet",
+          "word": "chân đậu"
         }
       ],
       "requiresInput": [
@@ -225,7 +261,14 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -265,7 +308,12 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -309,7 +357,9 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -347,7 +397,11 @@
         "Rest",
         "Wake",
         "LookAround",
-        "Curious"
+        "Curious",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "Nuzzle"
       ],
       "walkingLimbs": false,
       "flightWings": false,
@@ -385,7 +439,14 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -429,7 +490,10 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Perch",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -439,6 +503,10 @@
         {
           "tag": "wings",
           "word": "cánh"
+        },
+        {
+          "tag": "perching_feet",
+          "word": "chân đậu"
         }
       ],
       "requiresInput": [
@@ -469,7 +537,9 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -515,7 +585,11 @@
         "Rest",
         "Wake",
         "LookAround",
-        "Curious"
+        "Curious",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "Nuzzle"
       ],
       "walkingLimbs": false,
       "flightWings": false,
@@ -553,7 +627,12 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "DigPrep",
+        "BurrowEnter",
+        "BurrowEmerge",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,
@@ -595,7 +674,9 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -643,7 +724,9 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": true,
@@ -691,7 +774,14 @@
         "Curious",
         "Drink",
         "Stretch",
-        "Bask"
+        "Bask",
+        "Greet",
+        "SwimIdle",
+        "SwimRest",
+        "SwimSurface",
+        "WaterEnter",
+        "WaterExit",
+        "Nuzzle"
       ],
       "walkingLimbs": true,
       "flightWings": false,

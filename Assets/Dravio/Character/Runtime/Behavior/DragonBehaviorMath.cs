@@ -74,6 +74,9 @@ namespace Dravio.Character
 
         public BlinkScheduler(uint seed) { _rng = seed == 0 ? 1u : seed; _next = Interval(); }
 
+        /// <summary>U1-CHAR.8 gaze-evoked blink: start a blink now (no-op while one is already running).</summary>
+        public void BlinkNow() { if (_t < _next) _t = _next; }
+
         /// <summary>Eyelid closure 0 (open) .. 1 (closed) after advancing dt seconds.</summary>
         public float Update(float dt, bool asleep)
         {

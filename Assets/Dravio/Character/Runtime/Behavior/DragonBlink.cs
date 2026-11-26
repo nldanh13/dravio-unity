@@ -39,6 +39,9 @@ namespace Dravio.Character
             if (!HasShape) enabled = false;
         }
 
+        /// <summary>Gaze-evoked blink (U1-CHAR.8): DragonHeadLook calls it on a large gaze shift.</summary>
+        public void BlinkNow() { if (_scheduler != null && HasShape) _scheduler.BlinkNow(); }
+
         private void Update()
         {
             float w = _scheduler.Update(Time.deltaTime, Asleep) * 100f;

@@ -4,22 +4,22 @@ Sinh bởi `scripts/art/character/build_archetypes.py` từ spec loài canonical
 
 | Loài | Archetype | Lý do | Clip | Số chân | Đặc điểm (từ silhouette) | Cần bổ sung |
 |---|---|---|---|---|---|---|
-| `emberling` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | 4 | flame_tail | — |
-| `droplet` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | fins, webbed_feet, flat_tail | limbCount |
-| `sprout` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | 4 | leaf_sprout, leaf_tail | — |
-| `zephyr` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | wings, feathers_or_fur, cloud_tail | limbCount |
-| `steamdrake` | serpentine | bodyStyle == Serpent | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | fins | limbCount |
-| `magma` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | horns, armor_plates | limbCount |
-| `sparkwing` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | wings, spark_tail | limbCount |
-| `frostfin` | aquatic | locomotion lacks "walk" | Idle, Eat, Sleep, Happy, Swim, Rest, Wake, LookAround, Curious | — | fins | — |
-| `mossback` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | shell, fins | limbCount |
-| `blossom` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | wings | limbCount |
-| `solaris` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | crest, wings, feathers_or_fur, fan_tail | limbCount |
-| `leviathan` | serpentine (dưới nước) | bodyStyle == Serpent | Idle, Eat, Sleep, Happy, Swim, Rest, Wake, LookAround, Curious | — | fins | — |
-| `amberhorn` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | 4 | horns, armor_plates | — |
-| `aurorawing` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | wings, feathers_or_fur, aurora_tail | limbCount |
-| `celestia` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | horns, wings, star_tail | limbCount |
-| `gaia` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask | chưa nêu | horns, armor_plates, fins | limbCount |
+| `emberling` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Nuzzle | 4 | flame_tail | — |
+| `droplet` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, SwimIdle, SwimRest, SwimSurface, WaterEnter, WaterExit, Nuzzle | chưa nêu | fins, webbed_feet, flat_tail, ear_fins | limbCount |
+| `sprout` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, DigPrep, BurrowEnter, BurrowEmerge, Nuzzle | 4 | leaf_sprout, leaf_tail | — |
+| `zephyr` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Perch, Nuzzle | chưa nêu | wings, feathers_or_fur, cloud_tail, perching_feet | limbCount |
+| `steamdrake` | serpentine | bodyStyle == Serpent | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, SwimIdle, SwimRest, SwimSurface, WaterEnter, WaterExit, Nuzzle | chưa nêu | fins | limbCount |
+| `magma` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, DigPrep, BurrowEnter, BurrowEmerge, Nuzzle | chưa nêu | horns, armor_plates | limbCount |
+| `sparkwing` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Nuzzle | chưa nêu | wings, spark_tail | limbCount |
+| `frostfin` | aquatic | locomotion lacks "walk" | Idle, Eat, Sleep, Happy, Swim, Rest, Wake, LookAround, Curious, Greet, SwimIdle, SwimRest, Nuzzle | — | fins | — |
+| `mossback` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, SwimIdle, SwimRest, SwimSurface, WaterEnter, WaterExit, Nuzzle | chưa nêu | shell, fins | limbCount |
+| `blossom` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Perch, Nuzzle | chưa nêu | wings, perching_feet | limbCount |
+| `solaris` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Nuzzle | chưa nêu | crest, wings, feathers_or_fur, fan_tail | limbCount |
+| `leviathan` | serpentine (dưới nước) | bodyStyle == Serpent | Idle, Eat, Sleep, Happy, Swim, Rest, Wake, LookAround, Curious, Greet, SwimIdle, SwimRest, Nuzzle | — | fins | — |
+| `amberhorn` | quadruped | walks; silhouette states "bốn chân" | Idle, Eat, Sleep, Happy, Walk, Run, Burrow, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, DigPrep, BurrowEnter, BurrowEmerge, Nuzzle | 4 | horns, armor_plates | — |
+| `aurorawing` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Nuzzle | chưa nêu | wings, feathers_or_fur, aurora_tail | limbCount |
+| `celestia` | winged | locomotion contains "fly" | Idle, Eat, Sleep, Happy, Walk, Run, Fly, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, Nuzzle | chưa nêu | horns, wings, star_tail | limbCount |
+| `gaia` | walker | walks; limb count not stated (quadruped template once limbCount=4 is supplied) | Idle, Eat, Sleep, Happy, Walk, Run, Swim, Rest, Wake, LookAround, Curious, Drink, Stretch, Bask, Greet, SwimIdle, SwimRest, SwimSurface, WaterEnter, WaterExit, Nuzzle | chưa nêu | horns, armor_plates, fins | limbCount |
 
 ## Template xương
 

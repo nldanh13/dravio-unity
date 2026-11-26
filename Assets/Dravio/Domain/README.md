@@ -189,7 +189,7 @@ Hướng dẫn tích hợp đầy đủ (chữ ký API, DTO, ví dụ, mã lỗi
   - Chuyển chỗ quyết toán sản xuất đúng tại thời điểm chuyển (đã có từ U2.3).
 - **Mở thế giới** (ADR 0201), lệnh `unlockZone(zoneId)`:
   - Thủy Vực cần hướng dẫn hoàn tất, đủ 3 sinh cảnh Khởi Nguyên và nhiệm vụ `QUEST_AQUATIC_EXPLORATION`. Thiên Giới cần Thủy Vực và `QUEST_SKY_EXPLORATION`. Không có điều kiện vàng hay cấp độ.
-  - Nội dung nhiệm vụ là TBD, nên save mới vẫn khóa cả hai thế giới. `WorldExpansion.ApplyQuestComplete` là hàm engine cho hệ nhiệm vụ sau này.
+  - Nội dung nhiệm vụ là TBD, nên save mới vẫn khóa cả hai thế giới. `WorldExpansion.ApplyQuestComplete` là hàm engine cho hệ nhiệm vụ. Từ U2.11 (ADR 0206) lệnh `completeQuest` gọi hàm này cho nhiệm vụ cổng; xem `Docs/u2.11/WORLD_PROGRESSION.md`.
   - Khi mở: mở zone cùng mọi microhabitat; trao một lần trứng Droplet/Zephyr cố định, Normal, không tính pity. Kho đầy hoặc đang có trứng chờ → trứng nằm trong `rewardQueue`, giao sau lệnh thành công đầu tiên có chỗ.
 - **Thám hiểm** (GDD tr. 22):
 
@@ -246,6 +246,19 @@ Quyết định và phần chờ duyệt: [ADR 0203](../../../Docs/adr/0203-u2-9
 | Môi trường → comfort (ADR 0202 P8 / 0203 C1–C2) | `Behavior/HabitatEcology.cs` (`EcologyComfort`) | **tắt** (`EcologyComfortRules.Production`) |
 | Cấp nghiên cứu, mở hồ sơ Codex theo cấp, sổ quan sát tập tính | `Behavior/Research.cs` | **tắt** (`ResearchRules.Production`); sổ quan sát chưa lưu (Schema v9 chờ duyệt) |
 | Truy vấn cho Unity | `Queries/BehaviorQueries.cs` | bật |
+
+## 5g. U2.10 — Nghiên cứu, sinh thái xã hội, tiến trình thế giới
+
+Quyết định và phần chờ duyệt: [ADR 0204](../../../Docs/adr/0204-u2-10-research-social-progression.md) (đề xuất). Thiết kế: [Docs/u2.10](../../../Docs/u2.10/). Toàn bộ là **implementation mới**, chỉ đọc. **Không đổi Save Schema (vẫn v8), không có lệnh hay event mới, không đổi giá hay công thức.**
+
+| Phần | Code | Trạng thái |
+|---|---|---|
+| Sổ nghiên cứu, nhịp theo ngày, phát hiện tập tính / pha / sinh cảnh / cá thể, cơ hội quan sát | `Behavior/ResearchProgress.cs` | **tắt** (`ResearchPacing.Production`); sổ chưa lưu |
+| Bản nháp khối `research` Schema v9 + migration v8 → v9 + validator | `Behavior/ResearchProgress.cs` (`ResearchSchemaDraft`) | **chỉ bản nháp**, chưa nối Persistence |
+| Tập tính xã hội 16 loài, độ hòa đồng, độ quen từ phả hệ, ứng viên tương tác trình diễn | `Behavior/SocialEcology.cs` | bật (chỉ đọc, trình diễn) |
+| Tác động comfort của quan hệ | `Behavior/SocialEcology.cs` (`ComfortTargetModifier`) | **tắt** (`SocialRules.Production`) |
+| Nội dung nhiệm vụ cổng và nhiệm vụ phụ, evaluator | `Progression/QuestProposals.cs` | **tắt** (`QuestRules.Production`): không hoàn thành nhiệm vụ nào |
+| Truy vấn cho Unity | `Queries/ProgressionQueries.cs` | bật |
 
 ## 6. Kiểm thử
 

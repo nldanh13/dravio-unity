@@ -136,7 +136,8 @@ namespace Dravio.Domain.Tests
                 Assert.That(a.Expedition.Rewards.Sum(kv => kv.Value), Is.InRange(2, 4), "tổng 2–4 đơn vị, không phải mỗi loại");
                 clock.Set(a.Expedition.FinishAtMs);
                 GameState c = Ok(a, new ClaimExpeditionCommand("c"), clock).State;
-                Assert.That(Ecosystem.Materials(c).Sum(m => m.Quantity), Is.EqualTo(a.Expedition.Rewards.Sum(kv => kv.Value)));
+                // U2.11: + mốc thám hiểm đầu tiên (2 gỗ + 2 hạt giống, một lần mỗi save).
+                Assert.That(Ecosystem.Materials(c).Sum(m => m.Quantity), Is.EqualTo(a.Expedition.Rewards.Sum(kv => kv.Value) + 4));
                 clock.Set(T0);
             }
         }

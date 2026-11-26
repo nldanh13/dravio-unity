@@ -31,7 +31,8 @@ public struct SanctuaryDragonFrame {
     float turnRateDegPerSec;                // >= 60 khi Idle -> bước tại chỗ
     bool hasLookTarget; Vector3 lookTarget; // người chơi, thức ăn, rồng khác
 }
-enum DragonBehaviorIntent { None, Idle, Walk, Run, Swim, Fly, Burrow, Sleep, Rest, Bask, Eat, Drink, Play, LookAround, Curious, Stretch, Recover }
+enum DragonBehaviorIntent { None, Idle, Walk, Run, Swim, Fly, Burrow, Sleep, Rest, Bask, Eat, Drink, Play, LookAround, Curious, Stretch, Recover,
+                           SwimIdle, SwimRest, SwimSurface, Glide, Perch, Underground, Greet /* U1-CHAR.7, xem MOTION_API.md */ }
 enum DragonReaction { None, Petted, Fed, Called }
 ```
 
@@ -85,3 +86,7 @@ void OnDestroy() { sync.Clear(); }
 - Tìm đường, và việc loài nào được dùng điểm tương tác nào.
 - Sức khoẻ, bệnh, phần thưởng, thành tựu.
 - Âm thanh và VFX phản hồi. Vị trí đặt VFX lấy bằng `TryGetAnchor`.
+
+## U1-CHAR.7: chuyển động theo môi trường
+
+Đổi môi trường (nước, không trung, chỗ đậu, dưới đất), readiness, khoá dịch chuyển, root offset, ẩn model khi ở dưới đất, shaper: xem [MOTION_API.md](MOTION_API.md).
