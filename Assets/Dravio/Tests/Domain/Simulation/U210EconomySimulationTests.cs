@@ -89,6 +89,23 @@ namespace Dravio.Domain.Tests.Simulation
             Assert.That(GameStateValidator.Validate(sim.State).IsValid, Is.True, GameStateValidator.Validate(sim.State).ToString());
         }
 
+        [Test]
+        public void Proposed_full_variant_adds_a_long_term_sink_and_lets_morning_players_finish_the_day_night_cycle()
+        {
+            Schedule morning = EconomySimulationTests.Schedules[0];
+            double h90 = 24 * 90;
+            var cur = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.Current);
+            var pro = new EconomySimulator(Policy.Researcher, morning, 3, EconomyVariant.ProposedFull);
+            RunResult a = cur.Run(new[] { h90 }), b = pro.Run(new[] { h90 });
+            Assert.That(a.At[h90].UpgradeLevels, Is.GreaterThan(0), "người chơi có mua nâng cấp");
+            Assert.That(b.At[h90].Projects, Is.GreaterThan(0));
+            Assert.That(b.At[h90].GoldG - b.At[h90].VirtualSinkG, Is.LessThan(a.At[h90].GoldG - a.At[h90].VirtualSinkG), "dự án Sanctuary hút bớt vàng tồn");
+            Assert.That(b.At[h90].Ethology, Is.GreaterThan(a.At[h90].Ethology), "nhật ký đêm: người chơi buổi sáng vẫn hoàn thành chu kỳ ngày đêm");
+            Assert.That(b.At[h90].Species, Is.EqualTo(a.At[h90].Species).Within(2), "điểm tiêu không làm chậm sưu tầm");
+            Assert.That(GameStateValidator.Validate(pro.State).IsValid, Is.True, GameStateValidator.Validate(pro.State).ToString());
+            Assert.That(ResearchSchemaDraft.Validate(pro.Research.ToSnapshot(), pro.State), Is.Empty);
+        }
+
         // ------------------------------------------------------------------ báo cáo
 
         private static double Pct(IEnumerable<double> xs, double q)
@@ -102,6 +119,12 @@ namespace Dravio.Domain.Tests.Simulation
 
         private static string F(double v) => double.IsNaN(v) ? "—" : Math.Abs(v) >= 1_000_000 ? (v / 1_000_000).ToString("0.00", CultureInfo.InvariantCulture) + " M"
             : Math.Abs(v) >= 100 ? v.ToString("N0", CultureInfo.InvariantCulture) : v.ToString("0.##", CultureInfo.InvariantCulture);
+
+        private static double Balance(Snapshot x) => x.GoldG - x.VirtualSinkG;
+        /// <summary>Nguồn vàng: sản xuất + bán + thưởng thành tựu.</summary>
+        private static double Faucets(Snapshot x) => x.EarnedG + x.SoldG + x.RewardsG;
+        /// <summary>Điểm tiêu: gói + lai + nâng cấp + quỹ ảo (chênh giá đề xuất và dự án Sanctuary).</summary>
+        private static double Sinks(Snapshot x) => x.SpentPacksG + x.SpentBreedG + x.SpentUpgradesG + x.VirtualSinkG;
 
         private static string Label(double h) => h == 24 ? "1 ngày" : (h / 24) + " ngày";
 
@@ -117,29 +140,30 @@ namespace Dravio.Domain.Tests.Simulation
             sb.AppendLine();
             sb.AppendLine("### Tóm tắt (trung vị, " + seeds + " seed)");
             sb.AppendLine();
-            sb.AppendLine("| Người chơi | Lịch | Biến thể | Số dư 7 ng | Số dư 30 ng | Số dư 90 ng | Vàng SX 90 ng | Bán 90 ng | Quỹ ảo 90 ng | G/s 90 ng | Loài 90 ng | Ô codex 90 ng |");
-            sb.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|");
+            sb.AppendLine("| Người chơi | Lịch | Biến thể | Số dư 7 ng | Số dư 30 ng | Số dư 90 ng | Nguồn 90 ng | Tiêu 90 ng | Tiêu / nguồn | Ngày thu nhập đang giữ | Bán 90 ng | Nâng cấp (cấp) | Dự án | Loài | Ô codex |");
+            sb.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
             var detail = new StringBuilder();
             var policies = ((Policy[])Enum.GetValues(typeof(Policy))).Where(p => p != Policy.Idle && (only == null || only.Split(',').Contains(p.ToString()))).ToList();
             foreach (Policy p in policies)
                 foreach (Schedule sc in EconomySimulationTests.Schedules)
-                    foreach (EconomyVariant v in new[] { EconomyVariant.Baseline, EconomyVariant.ProposedU210 })
+                    foreach (EconomyVariant v in new[] { EconomyVariant.Current, EconomyVariant.ProposedFull })
                     {
-                        if (v != EconomyVariant.Baseline && (p == Policy.Relaxed || p == Policy.Researcher)) continue; // biến thể không chạm hành vi của họ
                         var sims = Enumerable.Range(1, seeds).Select(i => new EconomySimulator(p, sc, i, v)).ToList();
                         var runs = sims.Select(x => x.Run(Horizons)).ToList();
                         Func<double, Func<Snapshot, double>, double, double> P = (h, f, q) => Pct(runs.Select(r => f(r.At[h])), q);
                         double last = Horizons.Last();
-                        sb.AppendLine($"| {p} | {sc.Name} | {v.Name} | {F(P(168, x => x.GoldG - x.VirtualSinkG, .5))} | {F(P(720, x => x.GoldG - x.VirtualSinkG, .5))} | {F(P(last, x => x.GoldG - x.VirtualSinkG, .5))} " +
-                            $"| {F(P(last, x => x.EarnedG, .5))} | {F(P(last, x => x.SoldG, .5))} | {F(P(last, x => x.VirtualSinkG, .5))} | {F(P(last, x => x.RateGPerSec, .5))} | {F(P(last, x => x.Species, .5))} | {F(P(last, x => x.Cells, .5))} |");
+                        sb.AppendLine($"| {p} | {sc.Name} | {v.Name} | {F(P(168, Balance, .5))} | {F(P(720, Balance, .5))} | {F(P(last, Balance, .5))} " +
+                            $"| {F(P(last, Faucets, .5))} | {F(P(last, Sinks, .5))} | {P(last, x => Sinks(x) / Math.Max(1, Faucets(x)), .5).ToString("0.00", CultureInfo.InvariantCulture)} " +
+                            $"| {F(P(last, x => Balance(x) / Math.Max(1, Faucets(x) / (x.Hours / 24)), .5))} | {F(P(last, x => x.SoldG, .5))} | {F(P(last, x => x.UpgradeLevels, .5))} | {F(P(last, x => x.Projects, .5))} " +
+                            $"| {F(P(last, x => x.Species, .5))} | {F(P(last, x => x.Cells, .5))} |");
                         detail.AppendLine($"#### {p} — {sc.Name} — {v.Name}");
                         detail.AppendLine();
-                        detail.AppendLine("| Mốc | Số dư sau quỹ ảo G (P10 / trung vị / P90) | Vàng SX | Bán | Chi gói | Chi lai | Quỹ ảo | G/s | Rồng | Loài | Ô codex | Thành tựu |" + (p == Policy.Researcher ? " Profiled | LifeCycle | Ethology | Cá thể hiểu rõ | Quan sát | Vật liệu dùng | Thế giới |" : ""));
-                        detail.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|" + (p == Policy.Researcher ? "---|---|---|---|---|---|---|" : ""));
+                        detail.AppendLine("| Mốc | Số dư sau quỹ ảo G (P10 / trung vị / P90) | Vàng SX | Bán | Chi gói | Chi lai | Chi nâng cấp | Dự án (G) | Quỹ ảo | G/s | Rồng | Loài | Ô codex | Thành tựu |" + (p == Policy.Researcher ? " Profiled | LifeCycle | Ethology | Cá thể hiểu rõ | Quan sát | Vật liệu dùng | Thế giới |" : ""));
+                        detail.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|" + (p == Policy.Researcher ? "---|---|---|---|---|---|---|" : ""));
                         foreach (double h in Horizons)
                         {
                             detail.Append($"| {Label(h)} | {F(P(h, x => x.GoldG - x.VirtualSinkG, .1))} / {F(P(h, x => x.GoldG - x.VirtualSinkG, .5))} / {F(P(h, x => x.GoldG - x.VirtualSinkG, .9))} " +
-                                $"| {F(P(h, x => x.EarnedG, .5))} | {F(P(h, x => x.SoldG, .5))} | {F(P(h, x => x.SpentPacksG, .5))} | {F(P(h, x => x.SpentBreedG, .5))} | {F(P(h, x => x.VirtualSinkG, .5))} " +
+                                $"| {F(P(h, x => x.EarnedG, .5))} | {F(P(h, x => x.SoldG, .5))} | {F(P(h, x => x.SpentPacksG, .5))} | {F(P(h, x => x.SpentBreedG, .5))} | {F(P(h, x => x.SpentUpgradesG, .5))} | {F(P(h, x => x.ProjectsG, .5))} | {F(P(h, x => x.VirtualSinkG, .5))} " +
                                 $"| {F(P(h, x => x.RateGPerSec, .5))} | {F(P(h, x => x.Dragons, .5))} | {F(P(h, x => x.Species, .5))} | {F(P(h, x => x.Cells, .5))} | {F(P(h, x => x.Achievements, .5))} |");
                             if (p == Policy.Researcher)
                                 detail.Append($" {F(P(h, x => x.Profiled, .5))} | {F(P(h, x => x.LifeCycle, .5))} | {F(P(h, x => x.Ethology, .5))} | {F(P(h, x => x.IndividualsKnown, .5))} | {F(P(h, x => x.Observations, .5))} | {F(P(h, x => x.MaterialsSpent, .5))} | {F(P(h, x => x.ZonesUnlocked, .5))} |");

@@ -44,8 +44,9 @@ namespace Dravio.Domain.Behavior
     public sealed class ResearchPacing
     {
         public ResearchPacing(bool enabled, long observationCooldownMs, int speciesFindingsPerDay, int minDistinctDaysForEthology,
-            int observationsForFavoriteHabitat, int observationsForFavoriteDiet)
+            int observationsForFavoriteHabitat, int observationsForFavoriteDiet, bool nightJournal = false)
         {
+            NightJournal = nightJournal;
             Enabled = enabled; ObservationCooldownMs = observationCooldownMs; SpeciesFindingsPerDay = speciesFindingsPerDay;
             MinDistinctDaysForEthology = minDistinctDaysForEthology; ObservationsForFavoriteHabitat = observationsForFavoriteHabitat;
             ObservationsForFavoriteDiet = observationsForFavoriteDiet;
@@ -63,11 +64,19 @@ namespace Dravio.Domain.Behavior
         /// <summary>Số lần quan sát cá thể tối thiểu (và đã thấy nó ăn hoặc tìm ăn) để hé lộ món ưa thích.</summary>
         public int ObservationsForFavoriteDiet { get; }
 
+        /// <summary>
+        /// R11 (đề xuất, chờ duyệt): "nhật ký đêm". Khi người chơi quay lại sau một đêm offline, mỗi loài có rồng ngủ/nghỉ ở sinh cảnh lúc nửa đêm
+        /// được ghi tối đa một phát hiện (tập tính nghỉ trước, rồi pha). Tính trong giới hạn ngày. Để người chơi chỉ online ban ngày vẫn hoàn thành chu kỳ ngày đêm.
+        /// </summary>
+        public bool NightJournal { get; }
+
         /// <summary>Bản chạy thật: TẮT. Khi tắt, Codex và hồ sơ cá thể hiển thị đầy đủ như hiện tại (không đổi trải nghiệm).</summary>
         public static readonly ResearchPacing Production = new ResearchPacing(false, 30_000, 2, 2, 3, 3);
         /// <summary>Đề xuất U2.10 (chỉ test, mô phỏng). 2 phát hiện/loài/ngày, Ethology cần ≥ 2 ngày.</summary>
         public static readonly ResearchPacing ProposedU210 = new ResearchPacing(true, 30_000, 2, 2, 3, 3);
         /// <summary>Tương đương ResearchRules.ProposedForReview của U2.9 (không giới hạn ngày) — để so sánh trước/sau.</summary>
+        /// <summary>Đề xuất U2.10 + nhật ký đêm R11 (chỉ test, mô phỏng).</summary>
+        public static readonly ResearchPacing ProposedU210NightJournal = new ResearchPacing(true, 30_000, 2, 2, 3, 3, nightJournal: true);
         public static readonly ResearchPacing UnpacedU29 = new ResearchPacing(true, 30_000, 0, 0, 3, 3);
     }
 
@@ -261,6 +270,50 @@ namespace Dravio.Domain.Behavior
             return new ResearchObservationResult { Recorded = true, Reason = "ok", Findings = findings, DeferredByDailyLimit = deferred };
         }
 
+        /// <summary>Giờ lấy mẫu của nhật ký đêm (phút trong ngày theo giờ hiển thị của Sanctuary): 02:00, giữa pha Night.</summary>
+        public const int NightJournalMinute = 2 * 60;
+
+        /// <summary>
+        /// Thời điểm 02:00 gần nhất nằm trong (lastOnlineMs, nowMs], theo giờ hiển thị (utcOffsetMinutes = độ lệch múi giờ của Sanctuary).
+        /// null nếu người chơi không offline qua đêm nào.
+        /// </summary>
+        public static long? LastNightSampleMs(long lastOnlineMs, long nowMs, int utcOffsetMinutes = 0)
+        {
+            const long DayMs = 86_400_000;
+            if (nowMs <= lastOnlineMs) return null;
+            long offset = utcOffsetMinutes * 60_000L;
+            long localNow = nowMs + offset;
+            long t = (long)Math.Floor(localNow / (double)DayMs) * DayMs + NightJournalMinute * 60_000L - offset;
+            if (t > nowMs) t -= DayMs;
+            return t > lastOnlineMs ? t : (long?)null;
+        }
+
+        /// <summary>
+        /// R11 "nhật ký đêm" (TẮT trừ khi <see cref="ResearchPacing.NightJournal"/>). Đọc quyết định của Behavioral Engine lúc nightSampleMs (pha Night):
+        /// mỗi loài có rồng đang ngủ/nghỉ ở sinh cảnh được tối đa một phát hiện mới (tập tính trước, rồi pha), tính vào giới hạn ngày của nowMs.
+        /// Không tính là một lần quan sát cá thể (không hồi, không hé lộ nét cá thể), không thêm ngày ghi chép, không đổi GameState.
+        /// </summary>
+        public List<ResearchFinding> WriteNightJournal(GameState s, long nightSampleMs, long nowMs, ResearchPacing pacing)
+        {
+            var o = new List<ResearchFinding>();
+            if (s == null || pacing == null || !pacing.Enabled || !pacing.NightJournal || nightSampleMs > nowMs) return o;
+            string day = JsCompat.UtcDay(nowMs);
+            var done = new HashSet<string>(StringComparer.Ordinal);
+            foreach (BehaviorDecision d in BehaviorEngine.DecideAll(s, nightSampleMs, DayPhase.Night))
+            {
+                if (d == null || !d.Visible || d.Behavior == null || d.ZoneId == null || IsActiveObservation(d)) continue;
+                if (!done.Add(d.SpeciesId) || FindingsLeftToday(d.SpeciesId, nowMs, pacing) <= 0) continue;
+                SpeciesResearchRecord sr = EnsureSpecies(d.SpeciesId);
+                ResearchFinding f;
+                if (sr.Behaviors.Add(d.Behavior.Value)) f = new ResearchFinding(ResearchFindingKind.Behavior, WireBehavior(d.Behavior.Value));
+                else if (sr.Phases.Add(d.Phase)) f = new ResearchFinding(ResearchFindingKind.Phase, WirePhase(d.Phase));
+                else continue;
+                sr.FindingsByDay[day] = (sr.FindingsByDay.TryGetValue(day, out int n) ? n : 0) + 1;
+                o.Add(f);
+            }
+            return o;
+        }
+
         /// <summary>Hoạt động = không phải Rest/Sleep. Dùng cho "chu kỳ ngày đêm" của cá thể.</summary>
         internal static bool IsActiveObservation(BehaviorDecision d) =>
             d.Behavior != DragonBehavior.Sleep && d.Behavior != DragonBehavior.Rest;
@@ -285,7 +338,9 @@ namespace Dravio.Domain.Behavior
                 foreach (DayPhase p in r.Phases) e.Phases.Add(WirePhase(p));
                 e.Habitats.AddRange(r.Habitats);
                 e.Days.AddRange(r.Days);
-                foreach (var kv in r.FindingsByDay) e.FindingsByDay.Add(new KeyValuePair<string, int>(kv.Key, kv.Value));
+                // Chỉ ngày hiện tại có tác dụng (giới hạn ngày); giữ tối đa MaxFindingDaysKept ngày gần nhất để save không phình.
+                int skip = Math.Max(0, r.FindingsByDay.Count - ResearchSchemaDraft.MaxFindingDaysKept);
+                foreach (var kv in r.FindingsByDay) { if (skip-- > 0) continue; e.FindingsByDay.Add(new KeyValuePair<string, int>(kv.Key, kv.Value)); }
                 snap.Species.Add(e);
             }
             foreach (IndividualResearchRecord r in _individuals.Values)

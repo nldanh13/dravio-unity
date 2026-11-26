@@ -204,6 +204,50 @@ namespace Dravio.Domain.Tests
                 string.Join(",", e.ActivePhases) + "|" + string.Join(",", e.RestPhases) + "|" + string.Join(",", e.Revealed)));
 
         [Test]
+        public void Night_journal_is_off_unless_enabled_and_records_one_rest_finding_per_species()
+        {
+            GameState s = WithDragons(At("a", "emberling", "origin_meadow"), At("b", "emberling", "origin_warm_rocks"), At("c", "sprout", "origin_meadow"));
+            var before = StateJson.ToJson(s);
+            long night = Day0 + 2 * Hour, morning = Day0 + 9 * Hour;
+            Assert.That(ResearchLog.LastNightSampleMs(Day0 - 3 * Hour, morning), Is.EqualTo(night));
+            Assert.That(ResearchLog.LastNightSampleMs(Day0 + 3 * Hour, morning), Is.Null, "không offline qua 02:00");
+            Assert.That(ResearchLog.LastNightSampleMs(Day0 - 8 * Hour, morning, utcOffsetMinutes: 7 * 60), Is.EqualTo(Day0 - 5 * Hour), "02:00 giờ Sanctuary (UTC+7)");
+
+            foreach (ResearchPacing off in new[] { ResearchPacing.Production, ResearchPacing.ProposedU210 })
+                Assert.That(new ResearchLog().WriteNightJournal(s, night, morning, off), Is.Empty);
+
+            var log = new ResearchLog();
+            List<ResearchFinding> first = log.WriteNightJournal(s, night, morning, ResearchPacing.ProposedU210NightJournal);
+            Assert.That(first.Count, Is.LessThanOrEqualTo(2), "tối đa một phát hiện mỗi loài");
+            Assert.That(first.Count, Is.GreaterThan(0), "loài ban ngày ngủ lúc 02:00");
+            foreach (SpeciesResearchRecord r in log.AllSpecies)
+            {
+                Assert.That(r.Behaviors.All(b => b == DragonBehavior.Sleep || b == DragonBehavior.Rest), Is.True);
+                Assert.That(r.Days, Is.Empty, "nhật ký đêm không tính là ngày ghi chép");
+            }
+            Assert.That(log.AllIndividuals, Is.Empty, "không tính là quan sát cá thể");
+            Assert.That(MiniJson.Diff(before, StateJson.ToJson(s)), Is.Null);
+
+            // Lần hai cùng đêm: chỉ thêm pha (nếu tập tính đã có), vẫn trong giới hạn 2 / loài / ngày.
+            log.WriteNightJournal(s, night, morning, ResearchPacing.ProposedU210NightJournal);
+            log.WriteNightJournal(s, night, morning, ResearchPacing.ProposedU210NightJournal);
+            foreach (SpeciesResearchRecord r in log.AllSpecies)
+                Assert.That(log.FindingsLeftToday(r.SpeciesId, morning, ResearchPacing.ProposedU210NightJournal), Is.GreaterThanOrEqualTo(0));
+            Assert.That(log.SpeciesRecord("emberling").Phases, Does.Contain(DayPhase.Night));
+        }
+
+        [Test]
+        public void Research_snapshot_keeps_at_most_fourteen_finding_days()
+        {
+            GameState s = WithDragons(At("a", "emberling", "origin_meadow"));
+            var log = new ResearchLog();
+            for (int d = 0; d < 20; d++) ObserveRange(s, log, ResearchPacing.ProposedU210, Day0 + d * Day + 10 * Hour, Day0 + d * Day + 10 * Hour + 2 * Min);
+            ResearchLogSnapshot snap = log.ToSnapshot();
+            Assert.That(snap.Species[0].FindingsByDay.Count, Is.LessThanOrEqualTo(ResearchSchemaDraft.MaxFindingDaysKept));
+            Assert.That(ResearchSchemaDraft.Validate(snap, s), Is.Empty);
+        }
+
+        [Test]
         public void Pruning_drops_sold_individuals_but_keeps_species_knowledge()
         {
             GameState s = WithDragons(At("a", "emberling", "origin_meadow"), At("b", "emberling", "origin_warm_rocks"));

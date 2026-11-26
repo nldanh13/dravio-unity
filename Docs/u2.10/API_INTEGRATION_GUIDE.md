@@ -16,6 +16,7 @@
 | `QuestRequirements(s, log?, pacing?, rules?)` | `QuestStatusView[]` | Bảng nhiệm vụ / hành trình |
 | `Overview(s, log?, pacing?, quests?)` | `ProgressionOverviewDto` | Màn tổng quan tiến trình dài hạn |
 | `Rules(pacing?, social?, quests?)` | `RuleFlagsDto` | UI biết hệ nào đang bật |
+| `ResearchLog.LastNightSampleMs(lastOnlineMs, nowMs, utcOffsetMinutes)` + `log.WriteNightJournal(s, sampleMs, nowMs, pacing)` | `ResearchFinding[]` (rỗng khi R11 tắt) | Trang "Nhật ký đêm" khi mở game sau một đêm offline (R11) |
 
 Tham số luật bỏ trống = bộ luật **Production** (đều tắt). `log` là `ResearchLog`. Ở production chưa có nơi lưu `ResearchLog` (Schema v9 chờ duyệt), nên truyền `null`. Khi thử nội bộ, tầng Platform có thể giữ một `ResearchLog` trong bộ nhớ, nhưng nó mất khi thoát.
 

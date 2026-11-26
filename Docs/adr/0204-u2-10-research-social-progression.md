@@ -11,7 +11,7 @@
 | Loại | Nội dung |
 |---|---|
 | **Đã triển khai (code chỉ đọc, chạy trong test và CI)** | `Behavior/ResearchProgress.cs` (ResearchLog, ResearchPacing, hồ sơ loài/cá thể, cơ hội quan sát, bản nháp khối v9), `Behavior/SocialEcology.cs` (bảng xã hội 16 loài, hồ sơ, độ quen, ứng viên tương tác), `Progression/QuestProposals.cs` (catalog + evaluator), `Queries/ProgressionQueries.cs` (DTO), test đơn vị và hồi quy |
-| **Thử nghiệm (chỉ trong mô phỏng, không phải luật)** | `EconomySimulator` thêm người chơi Relaxed / Breeder / Researcher, biến thể cân bằng bằng "quỹ ảo", và việc Researcher hoàn thành nhiệm vụ cổng theo đề xuất rồi gửi `unlockZone` thật |
+| **Thử nghiệm (chỉ trong mô phỏng, không phải luật)** | `EconomySimulator` thêm người chơi Relaxed / Breeder / Researcher, biến thể cân bằng bằng "quỹ ảo" (`current` = catalog hiện tại có mua nâng cấp; `proposed` = E1–E3 + dự án Sanctuary E5 + nhật ký đêm R11), việc Researcher đặt rồng vào sinh cảnh thế giới mới, hoàn thành nhiệm vụ cổng theo đề xuất rồi gửi `unlockZone` thật |
 | **Chỉ đề xuất (chưa có code production)** | Nối khối `research` vào Save Schema v9, lệnh `observeDragon` / `completeQuest` / giao vật liệu, lưu độ quen theo thời gian, tác động comfort của quan hệ xã hội, mọi thay đổi giá/phí/giới hạn mua |
 
 ## A. Nghiên cứu và khám phá (Workstream A)
@@ -27,9 +27,10 @@
 | R7 | **Phần thưởng không lạm phát:** không vàng, không XP, không bond, không tiền tệ mới. Thưởng là mở phần Codex (R1), ghi chú Codex, danh hiệu, tiến độ nhiệm vụ cổng (Q1) | thiết kế |
 | R8 | Save Schema v9 (khi duyệt): thêm khối `research { species[], individuals[] }` như `ResearchLogSnapshot`. Migration v8 → v9 tạo khối **rỗng** (không suy diễn từ Codex). Validator: loài đã có trong Codex, tập tính loài làm được, microhabitat bản địa, ngày `YYYY-MM-DD`, tối đa 14 ngày bộ đếm, cá thể phải còn trong kho (cắt bớt khi nạp). Ảnh v4 cho TS bỏ khối này | **bản nháp** (`ResearchSchemaDraft`), chưa nối Persistence |
 | R9 | Lệnh `observeDragon(uid)` (khi duyệt) dùng đúng `ResearchLog.Observe`; phiên lưu sau mỗi phát hiện. Trước khi duyệt, Platform có thể giữ `ResearchLog` trong bộ nhớ (mất khi thoát), chỉ cho thử nghiệm nội bộ | chỉ đề xuất |
+| R11 | **Nhật ký đêm** (giải quyết quyết định số 3): khi người chơi mở game sau một đêm offline, engine đọc quyết định hành vi lúc 02:00 (giờ Sanctuary); mỗi loài có rồng đang ngủ/nghỉ ở sinh cảnh được tối đa **1 phát hiện** (tập tính nghỉ trước, rồi pha Night), tính trong giới hạn R3. Không tính là quan sát cá thể, không thêm ngày ghi chép, không đổi GameState | có (`ResearchLog.WriteNightJournal`, `ResearchPacing.ProposedU210NightJournal`), TẮT |
 | R10 | Codex mở rộng: trang loài thêm "Nhật ký tập tính", "Chu kỳ ngày đêm", "Sinh cảnh đã ghi nhận"; trang cá thể thêm "Hiểu về bé" theo R5 | thiết kế (DTO có sẵn) |
 
-Hệ quả đo được (test và mô phỏng): không giới hạn (U2.9) thì đủ tập tính trong **1 ngày**; với R3–R4, cần **6–8 ngày** cho một loài với người chơi chăm chỉ, và tổng 16 loài trải dài nhiều tháng. Người chơi chỉ mở game buổi sáng **không bao giờ** đạt Ethology cho loài hoạt động ban ngày (không thấy chúng ngủ). Xem quyết định cần duyệt số 3.
+Hệ quả đo được (test và mô phỏng): không giới hạn (U2.9) thì đủ tập tính trong **1 ngày**; với R3–R4, cần **6–8 ngày** cho một loài với người chơi chăm chỉ, và tổng 16 loài trải dài nhiều tháng. Người chơi chỉ mở game buổi sáng **không bao giờ** đạt Ethology cho loài hoạt động ban ngày (không thấy chúng ngủ). R11 giải quyết điểm này mà không thêm cơ chế "bấm": xem mục kết quả trong `ECONOMY_SIMULATION.md`.
 
 ## B. Sinh thái xã hội (Workstream B)
 
@@ -68,7 +69,7 @@ Mô phỏng 20 seed × 6 kiểu người chơi × 3 lịch chơi × 90 ngày, tr
 | E2 | Giá Starter 100 → 150 G | EV/giá 1,41 → 0,94 ở luck 0 (vẫn 1,23 ở luck 8, nên cần E1) |
 | E3 | Phí lai Common × Common 80 → 120 G | EV con/phí 2,90 → 1,93; vẫn có lợi nhưng phí có vai trò tiêu hao |
 | E4 | Ẩn hoặc ghi "chuẩn bị cho G2" ở `islandCapacityLevel` cho tới khi Thủy Vực mở | ở G1 không tăng sản xuất (5 chỗ vật lý) |
-| E5 | Điểm tiêu dài hạn không lạm phát: chế tạo trang trí thẩm mỹ bằng vật liệu + vàng (mẫu trang trí từ nhiệm vụ Q5), phục hồi zone khi P7 được duyệt | 90 ngày số dư trung vị 10–20 M G, không còn gì để mua |
+| E5 | **Dự án Sanctuary**: điểm tiêu tự nguyện, chỉ thẩm mỹ (trang trí lớn, mở rộng cảnh quan, theo mẫu trang trí từ nhiệm vụ Q5). Dự án thứ n giá **20 000 × 1,25ⁿ G**, không giới hạn số dự án, không tăng sản xuất (không tạo vòng lặp lợi nhuận). Sau này thêm vật liệu vào công thức | 90 ngày số dư 10–20 M G, không còn gì để mua; mô phỏng E5 trong `ECONOMY_SIMULATION.md` |
 | E6 | Không thưởng vàng cho nghiên cứu, xã hội hay nhiệm vụ | giữ R7, Q5 |
 
 ## E. API (Workstream E)
@@ -79,14 +80,14 @@ Mô phỏng 20 seed × 6 kiểu người chơi × 3 lịch chơi × 90 ngày, tr
 
 1. **Nhịp nghiên cứu R3–R4:** đồng ý 2 phát hiện/loài/ngày và Ethology ≥ 2 ngày? (Phương án khác: 3/ngày; hoặc không giới hạn nhưng Ethology ≥ 3 ngày.)
 2. **Schema v9 (R8):** đồng ý thêm khối `research` và migration v8 → v9 tạo khối rỗng? Có cần cho phép bật nghiên cứu trước v9 (sổ trong bộ nhớ, mất khi thoát) không?
-3. **Chu kỳ ngày đêm và lịch chơi:** người chơi chỉ chơi một khung giờ không thấy được pha ngủ của loài ban ngày. Chọn: (a) cho quan sát theo `settings.timeMode` (Day/Sunset/Night) của Sanctuary; (b) "nhật ký đêm" tự ghi 1 phát hiện pha nghỉ khi người chơi mở game sau một đêm offline; (c) giữ như hiện tại.
+3. **Chu kỳ ngày đêm và lịch chơi:** người chơi chỉ chơi một khung giờ không thấy được pha ngủ của loài ban ngày. **Khuyến nghị: (b) nhật ký đêm R11**, đã có code và mô phỏng. Phương án khác: (a) cho quan sát theo `settings.timeMode` (Day/Sunset/Night) của Sanctuary; (c) giữ như hiện tại.
 4. **Bảng xã hội S1–S3:** duyệt phân loại Gregarious / Tolerant / Solitary của 16 loài và khoảng cách cá nhân, hay coi là tinh chỉnh trình diễn do Sanctuary tự chọn?
 5. **Tác động gameplay xã hội S8:** có muốn quan hệ ảnh hưởng comfort không? Nếu có, duyệt cùng ADR 0203 C1 và ADR 0202 P7.
 6. **Độ quen theo thời gian S7:** có cần lưu (Schema v9) không, hay chỉ dùng độ quen dẫn xuất từ phả hệ?
-7. **Nội dung hai nhiệm vụ cổng Q1–Q2:** duyệt yêu cầu và số lượng vật liệu; đồng ý nhiệm vụ cổng phụ thuộc vào nghiên cứu (nghĩa là phải duyệt R1–R8 trước, hoặc thay yêu cầu nghiên cứu bằng LifeCycle thuần)?
+7. **Nội dung hai nhiệm vụ cổng Q1–Q2:** duyệt yêu cầu và số lượng vật liệu (mô phỏng: Thủy Vực mở khoảng ngày 5–11, Thiên Giới khoảng ngày 13–29, 90–100 % seed trong 90 ngày, nên không cần hạ yêu cầu); đồng ý nhiệm vụ cổng phụ thuộc vào nghiên cứu (nghĩa là phải duyệt R1–R8 trước, hoặc thay yêu cầu nghiên cứu bằng LifeCycle thuần)?
 8. **Nhiệm vụ phụ và phần thưởng Q5:** duyệt danh sách, thưởng chỉ thẩm mỹ / Codex / danh hiệu?
 9. **Lệnh mới R9 / Q7** (`observeDragon`, `completeQuest`) và việc trừ vật liệu khi giao.
-10. **Kinh tế E1–E5:** chọn biến thể nào để áp dụng (có thể chỉ E1 + E4), sau đó chạy lại mô phỏng 1 000 seed trước khi đổi catalog.
+10. **Kinh tế E1–E5:** **khuyến nghị E1 + E2 + E5** (E3 hầu như không đổi gì, E4 chỉ là giao diện). Sau khi chọn, chạy lại mô phỏng 1 000 seed rồi mới đổi catalog.
 11. **Bảng thưởng `sky_cloud`** (ID "bụi sao") để mở Q6 — vẫn treo từ ADR 0201.
 
 ## Hệ quả

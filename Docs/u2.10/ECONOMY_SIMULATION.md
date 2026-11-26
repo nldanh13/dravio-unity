@@ -1,85 +1,89 @@
 # U2.10 — Economy Simulation 7 / 30 / 90 ngày
 
-> Quyết định và phần chờ duyệt: [ADR 0204](../adr/0204-u2-10-research-social-progression.md) mục D (E1–E6).
-> **Trạng thái:** chỉ là mô phỏng và đề xuất. **Không** đổi catalog, giá, phí hay luật production. Biến thể `proposed` chỉ tồn tại trong mã test (`EconomyVariant.ProposedU210`).
-> **Nguồn:** báo cáo audit kinh tế hiện có (`EconomySimulator`, U5) và catalog G0. GDD 3.1 không có trong repo nên mọi mục tiêu cân bằng là đề xuất.
+> Quyết định và phần chờ duyệt: [ADR 0204](../adr/0204-u2-10-research-social-progression.md) mục D (E1–E6) và R11.
+> **Trạng thái:** chỉ là mô phỏng và đề xuất. **Không** đổi catalog, giá, phí hay luật production. Biến thể `proposed` chỉ có trong mã test (`EconomyVariant.ProposedFull`).
+> **Nguồn:** `EconomySimulator` (U2.7), catalog G0. GDD 3.1 không có trong repo, nên mọi mục tiêu cân bằng là đề xuất.
 
 ## 1. Phương pháp
 
-- `Assets/Dravio/Tests/Domain/Simulation/EconomySimulator.cs` chạy **`CommandDispatcher` thật** trên `GameSession`: mua gói, ấp, cho ăn, lai, bán, nâng cấp, thám hiểm, mở zone. Không có công thức kinh tế viết lại riêng.
-- 6 kiểu người chơi × 3 lịch chơi × 20 seed × mốc 1 / 7 / 30 / 90 ngày. Số liệu dưới là **trung vị 20 seed**, bảng đầy đủ có P10 / P90.
-- Báo cáo đầy đủ từng kiểu người chơi (P10 / trung vị / P90 ở mọi mốc): [`sim/`](sim/).
-- Lịch chơi: **5 phút/ngày** (một phiên lúc 09:00), **3 × 10 phút/ngày** (sáng, chiều, tối), **60 phút/ngày** (chia nhiều phiên).
-- Thời gian offline dùng đúng luật offline đã duyệt (sản xuất vàng có trần offline). Không bật thiên tai, Comfort drift hay tiêu hao năng lượng.
+- `Assets/Dravio/Tests/Domain/Simulation/EconomySimulator.cs` chạy **`CommandDispatcher` thật** trên `GameSession`: mua gói, ấp, cho ăn, lai, bán, nâng cấp, thám hiểm, đặt rồng, mở zone. Không có công thức kinh tế viết lại.
+- 6 kiểu người chơi × 3 lịch chơi × 2 biến thể × 20 seed, mốc 1 / 7 / 30 / 90 ngày. Số liệu là **trung vị 20 seed**. Báo cáo đầy đủ (P10 / trung vị / P90 ở mọi mốc): [`sim/`](sim/).
+- Lịch chơi: **5 phút/ngày** (09:00), **3 × 10 phút/ngày**, **60 phút/ngày**. Offline dùng đúng luật offline đã duyệt. Không bật thiên tai, Comfort drift hay tiêu hao năng lượng.
 - Biến thể:
-  - `baseline` = catalog hiện tại.
-  - `proposed` = E1 + E2 + E3 (giới hạn 5 gói Starter/ngày, Starter 150 G, phí lai Common 120 G). Phần chênh giá được trừ vào một **"quỹ ảo"** (cột "Quỹ ảo") thay vì đổi catalog, nên production không bị chạm.
+  - `current` = catalog hiện tại. Người chơi mua nâng cấp (mỗi phiên tối đa một nâng cấp rẻ nhất có giá ≤ 50 % số dư).
+  - `proposed` = `current` + **E1** (5 gói Starter / ngày) + **E2** (Starter 150 G) + **E3** (phí lai Common 120 G) + **E5** (dự án Sanctuary 20 000 × 1,25ⁿ G, xây khi số dư ≥ 1,2 × giá) + **R11** (nhật ký đêm). Phần chênh giá và dự án trừ vào **quỹ ảo**, nên catalog không bị chạm.
+- Chỉ số theo dõi (theo cách EVE Online và Unity khuyên):
+  - **Nguồn** = sản xuất + bán + thưởng thành tựu.
+  - **Tiêu** = gói + lai + nâng cấp + quỹ ảo.
+  - **Tiêu / nguồn.** Gần 1 nghĩa là vàng vào bao nhiêu thì có chỗ ra bấy nhiêu.
+  - **Ngày thu nhập đang giữ** = số dư / thu nhập trung bình mỗi ngày.
 
 | Kiểu người chơi | Hành vi |
 |---|---|
-| Relaxed | Chỉ cho ăn, ấp gói rẻ khi có chỗ, không bán, không tối ưu |
-| Collector | Mua gói tốt nhất đủ tiền để lấp ô Codex, nâng cấp dần |
-| Breeder | Lai để tìm biến dị, giữ con tốt, bán con trùng |
-| Researcher | Xem hồ sơ, quan sát mọi rồng (có nhịp U2.10), thám hiểm bằng Adult rảnh, hoàn thành nhiệm vụ cổng theo đề xuất rồi gửi `unlockZone` thật |
-| StarterTrader | Khai thác: mua Starter – nuôi – bán liên tục |
+| Relaxed | Cho ăn, một gói mỗi ngày, không bán |
+| Collector | Mỗi phiên mua gói tốt nhất đủ tiền, lai khi có cặp |
+| Breeder | Lai cặp đắt nhất, gõ tổ, một gói mỗi ngày |
+| Researcher | Xem hồ sơ, quan sát mọi rồng, thám hiểm, đặt rồng vào sinh cảnh thế giới mới, giữ một Adult biết bay ở sinh cảnh, hoàn thành nhiệm vụ cổng theo đề xuất rồi gửi `unlockZone` thật |
+| StarterTrader | Khai thác: mua Starter, nuôi, bán liên tục |
 | BreedTrader | Khai thác: lai Emberling × Sprout rồi bán con |
 
-## 2. Tóm tắt 90 ngày (baseline, trung vị)
+## 2. Kết quả: trước / sau (90 ngày, trung vị)
 
-| Người chơi | Lịch | Số dư 7 ng | 30 ng | 90 ng | Vàng sản xuất 90 ng | Bán 90 ng | G/s ở ngày 90 | Loài | Ô Codex /64 |
-|---|---|---|---|---|---|---|---|---|---|
-| Relaxed | 5 phút | 73,420 | 2.77 M | 13.95 M | 16.49 M | 0 | 3.78 | 12 | 20 |
-| Relaxed | 3 × 10 | 67,908 | 2.42 M | 14.21 M | 16.76 M | 0 | 3.66 | 12.5 | 20.5 |
-| Relaxed | 60 phút | 62,826 | 2.48 M | 13.75 M | 16.33 M | 0 | 3.71 | 13 | 20.5 |
-| Collector | 5 phút | 79,412 | 2.43 M | 14.77 M | 17.74 M | 0 | 3.99 | 14 | 27.5 |
-| Collector | 3 × 10 | 68,846 | 1.87 M | 16.39 M | 23.24 M | 0 | 4.88 | 14 | 37 |
-| Collector | 60 phút | 65,670 | 2.03 M | 14.03 M | 19.01 M | 0 | 4.05 | 15 | 36.5 |
-| Breeder | 5 phút | 62,646 | 2.04 M | 12.33 M | 15.34 M | 0 | 3.74 | 14 | 28 |
-| Breeder | 3 × 10 | 104,398 | 1.86 M | 11.58 M | 15.97 M | 0 | 3.92 | 14 | 34 |
-| Breeder | 60 phút | 127,684 | 2.00 M | 13.34 M | 16.74 M | 0 | 3.63 | 14 | 34 |
-| Researcher | 5 phút | 46,932 | 2.14 M | 12.94 M | 15.52 M | 0 | 3.46 | 14 | 22 |
-| Researcher | 3 × 10 | 64,901 | 1.78 M | 11.46 M | 14.04 M | 0 | 3.42 | 14 | 20.5 |
-| Researcher | 60 phút | 69,872 | 1.83 M | 10.94 M | 13.52 M | 0 | 3.17 | 14 | 22 |
-| StarterTrader | 5 phút | 145,860 | 984,901 | 4.55 M | 4.52 M | 119,060 | 1.06 | 10 | 29 |
-| StarterTrader | 3 × 10 | 270,617 | 1.89 M | 7.82 M | 7.59 M | 760,734 | 1.58 | 10 | 37 |
-| StarterTrader | 60 phút | 366,464 | 2.40 M | 9.47 M | 9.00 M | 1.53 M | 1.92 | 10 | 39 |
-| BreedTrader | 5 phút | 65,870 | 663,578 | 3.05 M | 3.04 M | 15,010 | 0.69 | 3 | 8 |
-| BreedTrader | 3 × 10 | 136,855 | 981,936 | 4.45 M | 4.41 M | 53,190 | 1.01 | 3 | 10 |
-| BreedTrader | 60 phút | 163,858 | 1.14 M | 5.13 M | 5.07 M | 73,862 | 1.22 | 3 | 11 |
+| Người chơi | Lịch | Số dư trước | Số dư sau | Tiêu / nguồn trước → sau | Ngày thu nhập đang giữ trước → sau | Dự án | Loài | Ô Codex trước → sau |
+|---|---|---|---|---|---|---|---|---|
+| Relaxed | 5 phút | 12.73 M | 1.66 M | 0,22 → 0,91 | 70 → 8 | 22 | 13 → 12 | 24 → 22,5 |
+| Relaxed | 3 × 10 | 14.78 M | 1.61 M | 0,20 → 0,91 | 72 → 8 | 22,5 | 13 | 24 → 26 |
+| Relaxed | 60 phút | 14.68 M | 2.81 M | 0,20 → 0,85 | 72 → 13 | 23 | 13 | 25 → 24,5 |
+| Collector | 5 phút | 14.17 M | 2.04 M | 0,24 → 0,89 | 69 → 10 | 23 | 14 | 34 → 33,5 |
+| Collector | 3 × 10 | 19.83 M | 2.10 M | 0,24 → 0,93 | 68 → 6 | 24 | 14 | 41 → 41,5 |
+| Collector | 60 phút | 16.23 M | 1.87 M | 0,21 → 0,91 | 71 → 8 | 23 | 14 | 38,5 |
+| Breeder | 5 phút | 12.72 M | 1.86 M | 0,26 → 0,88 | 67 → 11 | 22 | 14 | 34 → 34,5 |
+| Breeder | 3 × 10 | 14.82 M | 1.91 M | 0,21 → 0,88 | 71 → 10 | 22,5 | 14 | 35,5 → 36,5 |
+| Breeder | 60 phút | 14.88 M | 2.44 M | 0,19 → 0,86 | 73 → 12 | 22 | 14 | 36 |
+| Researcher | 5 phút | 19.44 M | 3.65 M | 0,16 → 0,85 | 76 → 14 | 24,5 | 14 | 25 |
+| Researcher | 3 × 10 | 23.60 M | 3.02 M | 0,13 → 0,89 | 78 → 10 | 25 | 14 | 26 → 25 |
+| Researcher | 60 phút | 24.71 M | 2.89 M | 0,13 → 0,89 | 78 → 10 | 25 | 14 | 26 → 27 |
+| StarterTrader | 5 phút | 3.63 M | 0.46 M | 0,25 → 0,87 | 68 → 12 | 16 | 10 | 32 → 27 |
+| StarterTrader | 3 × 10 | 7.51 M | 0.57 M | 0,18 → 0,87 | 74 → 12 | 16 | 10 | 38 → 29 |
+| StarterTrader | 60 phút | 9.28 M | 0.54 M | 0,19 → 0,87 | 73 → 11 | 16 | 10 | 40 → 28 |
+| BreedTrader | 5 phút | 2.32 M | 0.45 M | 0,32 → 0,85 | 61 → 14 | 15 | 3 | 10 |
+| BreedTrader | 3 × 10 | 4.47 M | 0.61 M | 0,20 → 0,89 | 72 → 10 | 17 | 3 | 11 |
+| BreedTrader | 60 phút | 5.01 M | 0.74 M | 0,19 → 0,87 | 73 → 12 | 18 | 3 | 12 |
 
-### Kết luận chính
+Doanh thu bán của StarterTrader 60 phút/ngày: **1,88 M → 70,6 k**. Mọi kiểu người chơi đều nâng cấp tối đa (42 cấp) ở cả hai biến thể.
 
-1. **Sản xuất vàng tự động là nguồn vàng chính**, không phải bán. Người chơi thoải mái 5 phút/ngày có 14 M G sau 90 ngày, Collector 14–16 M, Breeder 12–13 M, đều nhiều hơn cả người khai thác 60 phút/ngày (9,5 M). Người chơi thường không bị thiệt so với người khai thác, đó là điều tốt.
-2. **Không còn chỗ tiêu vàng sau khoảng 30 ngày.** Tổng chi để nâng mọi cấp lên tối đa ≈ 1,1 M G (mục 4), trong khi số dư 90 ngày 10–20 M. Đây là vấn đề lớn nhất về dài hạn (E5).
-3. **Vòng Starter có lời**: EV bán / giá 1,41 (luck 0) đến 1,84 (luck 8). StarterTrader 60 phút/ngày bán 1,53 M trong 90 ngày. Không phá game (vẫn ít hơn sản xuất), nhưng là lối "bấm nhiều thì giàu" trái với chất cozy (E1, E2).
-4. **Vòng lai Emberling × Sprout có lời 2,9× phí** nhưng nhỏ (bán 15–74 k trong 90 ngày) vì bị giới hạn thời gian ấp và chỗ (E3).
-5. **Researcher không giàu hơn Relaxed** (nghiên cứu không tạo vàng, R7 / E6), trong khi đạt nhiều loài nhất (14) và mở thêm thế giới.
+## 3. Vấn đề đã tìm ra và cách giải quyết
 
-## 3. Trước / sau đề xuất (E1 + E2 + E3)
+| # | Vấn đề (catalog hiện tại) | Đo được | Cách giải quyết đề xuất | Kết quả trong mô phỏng |
+|---|---|---|---|---|
+| 1 | **Không có điểm tiêu dài hạn.** Nâng cấp tối đa chỉ tốn khoảng 1,1 M G, sau đó vàng chỉ tích lũy | Tiêu / nguồn 0,13–0,26; số dư 90 ngày 12–25 M; giữ 67–78 ngày thu nhập | **E5 dự án Sanctuary**: tự nguyện, chỉ thẩm mỹ, giá tăng 25 % mỗi dự án, không tăng sản xuất | Tiêu / nguồn **0,85–0,93**; số dư 1,6–3,7 M; giữ **6–14 ngày** thu nhập; mỗi người chơi luôn có mục tiêu tiếp theo (22–25 dự án sau 90 ngày) |
+| 2 | **Vòng mua Starter rồi bán có lời**: EV / giá 1,41–1,84 | StarterTrader 60 phút bán 1,88 M | **E1 + E2** | Bán 70,6 k; người khai thác nghèo hơn người chơi thường (0,5 M so với 1,6–3,7 M) |
+| 3 | **Người chơi chỉ chơi buổi sáng không đạt Ethology** cho loài ban ngày (không thấy chúng ngủ) | Researcher 5 phút: 0 loài Ethology ở ngày 30, 1 ở ngày 90 | **R11 nhật ký đêm** | **3 loài ở ngày 30, 3 ở ngày 90**, ngang người chơi nhiều phiên |
+| 4 | **Thiên Giới mở ở ít seed** (45–60 % trong báo cáo trước) | Nguyên nhân: Researcher trong mô phỏng cũ không bao giờ đặt rồng vào sinh cảnh Thủy Vực, nên không có loài nào "được ghi chép ở Thủy Vực" | Sửa người chơi mô phỏng (đặt rồng vào thế giới mới, giữ một Adult biết bay). **Không cần hạ yêu cầu Q2** | 90–95 % seed mở Thiên Giới trong 90 ngày với biến thể proposed (mục 4) |
 
-| Người chơi | Lịch | Số dư 90 ng trước | Sau | Bán 90 ng trước | Sau | Ô Codex trước | Sau |
-|---|---|---|---|---|---|---|---|
-| StarterTrader | 5 phút | 4.55 M | 3.96 M | 119,060 | 58,939 | 29 | 25.5 |
-| StarterTrader | 3 × 10 | 7.82 M | 3.59 M | 760,734 | 57,936 | 37 | 25 |
-| StarterTrader | 60 phút | 9.47 M | 3.47 M | 1.53 M | 58,757 | 39 | 25.5 |
-| BreedTrader | 5 phút | 3.05 M | 3.05 M | 15,010 | 15,010 | 8 | 8 |
-| BreedTrader | 3 × 10 | 4.45 M | 4.44 M | 53,190 | 53,190 | 10 | 10 |
-| BreedTrader | 60 phút | 5.13 M | 5.11 M | 73,862 | 73,862 | 11 | 11 |
-| Collector | 5 phút | 14.77 M | 12.96 M | 0 | 0 | 27.5 | 26 |
-| Collector | 3 × 10 | 16.39 M | 15.52 M | 0 | 0 | 37 | 36 |
-| Collector | 60 phút | 14.03 M | 13.57 M | 0 | 0 | 36.5 | 35.5 |
-| Breeder | 5 phút | 12.33 M | 13.43 M | 0 | 0 | 28 | 27.5 |
-| Breeder | 3 × 10 | 11.58 M | 12.46 M | 0 | 0 | 34 | 35 |
-| Breeder | 60 phút | 13.34 M | 12.45 M | 0 | 0 | 34 | 32.5 |
+Ghi chú:
 
-Đọc bảng:
+- Báo cáo trước (bản đầu của PR này) cho người chơi không mua nâng cấp. Báo cáo này cho họ mua nâng cấp, nên số dư `current` khác báo cáo cũ một chút. Kết luận không đổi.
+- **E3** (phí lai 120 G) gần như không ảnh hưởng BreedTrader, vì vòng lai bị giới hạn bởi thời gian ấp. E3 chỉ nên duyệt nếu muốn phí lai có vai trò tiêu hao.
+- Dự án Sanctuary không làm chậm sưu tầm: số loài và ô Codex trước và sau chênh không quá 1,5 ô, trừ StarterTrader (người khai thác mất bớt ô Codex vì E1).
+- Tiêu / nguồn không đạt 1 vì người chơi giữ lại khoảng 20 % làm dự trữ (quy tắc "xây khi số dư ≥ 1,2 × giá").
 
-- **E1 + E2 chặn đúng vòng khai thác Starter**: chơi nhiều hơn không còn giàu hơn (3,5–4,0 M ở mọi lịch), doanh thu bán giảm 96 % ở lịch 60 phút.
-- **E3 gần như không đổi gì** với BreedTrader (chênh < 0,5 %) vì vòng lai vốn bị giới hạn bởi thời gian. E3 chỉ nên duyệt nếu muốn phí lai có vai trò tiêu hao, không phải để chống khai thác.
-- Collector và Breeder chỉ trả thêm 100–750 G trong 90 ngày (cột "Quỹ ảo" trong báo cáo). Chênh số dư ±10 % là do giá đổi làm thứ tự mua và kết quả ngẫu nhiên đổi theo, không phải xu hướng: Breeder có lịch tăng, có lịch giảm.
-- Người chơi không khai thác (Relaxed, Researcher) mua ≤ 1 gói Starter mỗi ngày nên E1 không chạm tới họ; E2 làm họ trả thêm 50 G cho mỗi gói Starter, không đáng kể so với sản xuất.
+## 4. Researcher: nghiên cứu và mở thế giới (thử nghiệm)
 
-## 4. Giá trị kỳ vọng (phân tích, không ngẫu nhiên)
+| Lịch | Biến thể | Ethology 7 / 30 / 90 ng | Mở Thủy Vực (trung vị, P10–P90, % seed) | Mở Thiên Giới |
+|---|---|---|---|---|
+| 5 phút (09:00) | current | 0 / 0 / 1 | ngày 12 (7,7–26,3), 90 % | ngày 27,5 (13,3–44,4), 70 % |
+| 5 phút (09:00) | proposed | 0 / **3** / **3** | ngày 11 (8,9–15,3), **100 %** | ngày 29 (20,2–43,6), **90 %** |
+| 3 × 10 phút | current | 1 / 3 / 3 | ngày 5,5 (4,5–10,5), 100 % | ngày 10,2 (7,9–42,8), 95 % |
+| 3 × 10 phút | proposed | 1 / 3 / 3 | ngày 5,2 (4,2–10,5), 100 % | ngày 15 (8,2–37,6), 95 % |
+| 60 phút | current | 1 / 3 / 3 | ngày 5,5 (5–10,7), 100 % | ngày 11,7 (9–33,4), 100 % |
+| 60 phút | proposed | 1 / 3 / 3 | ngày 5,5 (4–10,3), 100 % | ngày 13 (8–46,6), 95 % |
+
+- Thủy Vực mở sau khoảng **1 tuần** với người chơi đều đặn, **khoảng 11 ngày** với 5 phút/ngày. Không lịch nào mở trong ngày đầu.
+- Thiên Giới mở sau khoảng **2 tuần** (chơi đều) đến **4 tuần** (5 phút/ngày).
+- Số "Quan sát" trong báo cáo đếm cả lần bấm bị hồi từ chối. Số phát hiện thật bị giới hạn 2 / loài / ngày.
+
+## 5. Giá trị kỳ vọng (phân tích, không ngẫu nhiên)
 
 E[hệ số bán theo biến dị]: luck 0 = 1,2995; luck 8 = 1,6912.
 
@@ -92,47 +96,38 @@ E[hệ số bán theo biến dị]: luck 0 = 1,2995; luck 8 = 1,6912.
 
 Lai Emberling × Sprout: EV con Adult 231,7 G. EV / phí: 80 G → **2,90**; đề xuất 120 G → 1,93.
 
-| Nâng cấp | Tổng chi tới cấp tối đa | Cấp 1 | Nhận xét |
-|---|---|---|---|
-| islandCapacityLevel | 275 635 | 500 | Ở G1 chỉ có 5 chỗ vật lý, nâng cấp không tăng sản xuất (E4) |
-| mutationLuckLevel | 684 696 | 1 500 | Đẩy EV Starter lên 1,84 |
-| foodQualityLevel | 71 566 | 200 | |
-| foodCooldownLevel | 34 123 | 250 | |
-| hatchSpeedLevel | 30 696 | 600 | |
-| **Tổng** | **≈ 1,10 M** | | Đạt được trước ngày 30 ở mọi kiểu người chơi thường |
+| Nâng cấp | Tổng chi tới cấp tối đa (G) | Cấp 1 (G) |
+|---|---|---|
+| islandCapacityLevel | 275 635 | 500 |
+| mutationLuckLevel | 684 696 | 1 500 |
+| foodQualityLevel | 71 566 | 200 |
+| foodCooldownLevel | 34 123 | 250 |
+| hatchSpeedLevel | 30 696 | 600 |
+| **Tổng** | **≈ 1,10 M** | |
 
-## 5. Nguồn và điểm tiêu vật liệu
+Dự án Sanctuary E5: dự án thứ n giá 20 000 × 1,25ⁿ G. Dự án 1 giá 20 k, dự án 10 khoảng 149 k, dự án 20 khoảng 1,39 M, dự án 25 khoảng 4,24 M. Không có trần, nên người chơi lâu năm vẫn có thứ để làm.
+
+## 6. Nguồn và điểm tiêu vật liệu
 
 | Vật liệu | Nguồn | Điểm tiêu hiện tại | Điểm tiêu đề xuất |
 |---|---|---|---|
-| wood, seed | `origin_forest` (2–4 / chuyến, 15 phút) | không có | Q_ORIGIN_FOREST_SURVEY, QUEST_AQUATIC_EXPLORATION |
-| crystal, coral | `ocean_reef` (30 phút, cần bơi) | không có | QUEST_SKY_EXPLORATION, Q_EXPEDITION_REEF |
+| wood, seed | `origin_forest` (2–4 mỗi chuyến, 15 phút) | không có | Q_ORIGIN_FOREST_SURVEY, QUEST_AQUATIC_EXPLORATION; sau này thêm vào công thức dự án E5 |
+| crystal, coral | `ocean_reef` (30 phút, cần bơi) | không có | QUEST_SKY_EXPLORATION, Q_EXPEDITION_REEF; sau này thêm vào công thức dự án E5 |
 | stone, bụi sao | chưa có | — | không dùng |
 
-Ở production vật liệu chỉ tích lũy. Researcher dùng 10–18 đơn vị trong 90 ngày cho nhiệm vụ cổng (cột "Vật liệu dùng"), nên vật liệu không thành tiền tệ lạm phát. E5 đề xuất thêm chế tạo trang trí làm điểm tiêu lâu dài.
-
-## 6. Researcher và nhiệm vụ (thử nghiệm, nhịp `ResearchPacing.ProposedU210`)
-
-| Lịch | Ethology 7 / 30 / 90 ng | Cá thể hiểu rõ 90 ng | Mở Thủy Vực (trung vị, P10–P90, % seed) | Mở Thiên Giới |
-|---|---|---|---|---|
-| 5 phút (09:00) | 0 / 1 / 1,5 | 3 | ngày 15,5 (9–22,3), 90 % | ngày 30 (18,4–59), 45 % |
-| 3 × 10 phút | 1 / 3 / 4 | 3,5 | ngày 5,3 (4,5–11,1), 100 % | ngày 13,5 (9,5–58), 55 % |
-| 60 phút | 1 / 3 / 3 | 4 | ngày 5,0 (4,5–10,5), 100 % | ngày 26 (11,1–37,8), 60 % |
-
-- Thủy Vực mở sau **khoảng 1 tuần** với người chơi đều đặn, **2 tuần** với 5 phút/ngày. Không lịch nào mở trong ngày đầu, nên nhiệm vụ không thể "cày" xong.
-- Thiên Giới chỉ mở ở 45–60 % seed trong 90 ngày. Lý do chính: cần 1 loài sống ở Thủy Vực đạt Ethology, trong khi loài Thủy Vực đến từ gói đắt và thường chỉ có 1 cá thể ngủ đúng lúc người chơi online. Đề xuất cân nhắc: hạ yêu cầu xuống "LifeCycle + 4 tập tính" hoặc chờ quyết định số 3 (nhật ký đêm).
-- Lịch 5 phút lúc 09:00 **không bao giờ đạt Ethology cho loài ban ngày** vì không thấy chúng ngủ (quyết định số 3 trong ADR).
-- Số "Quan sát" trong báo cáo đếm cả lần bấm bị hồi từ chối; số phát hiện thật bị giới hạn 2 / loài / ngày.
+Vật liệu vẫn chỉ tích lũy (Researcher giữ vài trăm đơn vị sau 90 ngày). Đưa vật liệu vào công thức dự án Sanctuary là bước tiếp theo tự nhiên.
 
 ## 7. Khai thác đã kiểm
 
-| Khai thác | Baseline | Với đề xuất | Ghi chú |
+| Khai thác | Hiện tại | Với đề xuất | Ghi chú |
 |---|---|---|---|
 | Mua – nuôi – bán Starter | lời 41–84 % mỗi vòng | 5 gói/ngày, EV 0,94–1,23 | E1 + E2 |
-| Lai Common rồi bán | lời 190 % mỗi vòng | 93 % | giới hạn tự nhiên bởi thời gian |
+| Lai Common rồi bán | lời 190 % mỗi vòng | 93 % | bị giới hạn tự nhiên bởi thời gian |
 | Spam quan sát | U2.9: Ethology trong 15–50 phút | 2 phát hiện / loài / ngày, hồi 30 s | R3, không tạo vàng |
-| Mở thế giới qua nhiệm vụ mà bỏ qua luật | — | không thể: `unlockZone` vẫn kiểm đủ điều kiện ADR 0201 | test `Researcher_is_paced_and_unlocks_worlds_only_through_canonical_commands` |
+| Nhật ký đêm | — | tối đa 1 phát hiện / loài / đêm, trong giới hạn ngày, chỉ khi có rồng đang ngủ ở sinh cảnh | R11, không tạo vàng |
+| Mở thế giới qua nhiệm vụ mà bỏ qua luật | — | không thể: `unlockZone` vẫn kiểm đủ điều kiện ADR 0201 | test `Researcher_progress_is_paced_over_days_and_unlocks_worlds_only_through_canonical_commands` |
 | Vàng từ nghiên cứu / xã hội | — | không có | test `U210_read_only_queries_do_not_change_the_economy` |
+| Dự án Sanctuary sinh lời | — | không: chỉ thẩm mỹ, không tăng sản xuất | E5 |
 
 ## 8. Chạy lại
 
@@ -140,11 +135,9 @@ Lai Emberling × Sprout: EV con Adult 231,7 G. EV / phí: 80 G → **2,90**; đ�
 cd Assets/Dravio/Tests/Domain/DotNet~
 # Bảng EV và nâng cấp
 DRAVIO_U210_EV_OUT=/tmp/ev.md dotnet test --filter "FullyQualifiedName~Write_u210_analytic_tables"
-# Báo cáo một kiểu người chơi (mặc định 20 seed; vài phút mỗi kiểu)
+# Báo cáo một kiểu người chơi (20 seed, khoảng 1–3 phút mỗi kiểu)
 DRAVIO_U210_SIM_OUT=/tmp/Researcher.md DRAVIO_SIM_SEEDS=20 DRAVIO_SIM_POLICIES=Researcher \
   dotnet test --filter "FullyQualifiedName~Write_u210_economy_report"
 ```
 
-Không đặt biến môi trường thì hai test báo cáo bỏ qua, CI chỉ chạy các test tất định nhanh trong `U210EconomySimulationTests`.
-
-Trước khi đổi catalog thật: chạy lại với 1 000 seed cho biến thể được chọn (ADR 0204 quyết định số 10).
+Không đặt biến môi trường thì hai test báo cáo bỏ qua. CI chỉ chạy các test tất định nhanh trong `U210EconomySimulationTests`. Trước khi đổi catalog thật, chạy lại với 1 000 seed cho biến thể được chọn (ADR 0204 quyết định số 10).

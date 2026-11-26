@@ -56,7 +56,25 @@ namespace Dravio.Domain.Tests.Simulation
         public long StarterPriceG = 100;
         /// <summary>Phí lai Common × Common đề xuất (G); phần chênh so với 80 G vào quỹ ảo.</summary>
         public long CommonBreedFeeG = 80;
+        /// <summary>Người chơi (không khai thác) mua nâng cấp: mỗi phiên tối đa một nâng cấp rẻ nhất có giá ≤ 50 % số dư.</summary>
+        public bool BuyUpgrades;
+        /// <summary>
+        /// E5 (đề xuất): "dự án Sanctuary" tự nguyện, chỉ thẩm mỹ (trang trí lớn, mở rộng cảnh quan). Dự án thứ n giá ProjectBaseG × ProjectScale^n;
+        /// người chơi xây khi số dư ≥ 1,2 × giá. Trừ vào quỹ ảo vì chưa có trong catalog. 0 = tắt.
+        /// </summary>
+        public long ProjectBaseG;
+        public double ProjectScale = 1.25;
+        /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
+        public ResearchPacing Pacing;
         public static readonly EconomyVariant Baseline = new EconomyVariant();
+        /// <summary>Catalog hiện tại, người chơi có mua nâng cấp (mốc so sánh thực tế cho U2.10).</summary>
+        public static readonly EconomyVariant Current = new EconomyVariant { Name = "current", BuyUpgrades = true };
+        /// <summary>Đề xuất đầy đủ: E1–E3 + nâng cấp + dự án Sanctuary E5 + nhật ký đêm R11.</summary>
+        public static readonly EconomyVariant ProposedFull = new EconomyVariant
+        {
+            Name = "proposed", StarterDailyCap = 5, StarterPriceG = 150, CommonBreedFeeG = 120, BuyUpgrades = true,
+            ProjectBaseG = 20_000, ProjectScale = 1.25, Pacing = Dravio.Domain.Behavior.ResearchPacing.ProposedU210NightJournal,
+        };
         /// <summary>Đề xuất E1–E3 của ADR 0204.</summary>
         public static readonly EconomyVariant ProposedU210 = new EconomyVariant { Name = "proposed", StarterDailyCap = 5, StarterPriceG = 150, CommonBreedFeeG = 120 };
     }
@@ -68,7 +86,8 @@ namespace Dravio.Domain.Tests.Simulation
         public double RateGPerSec;
         public int Dragons, Species, Cells, Achievements, PacksBought, Bred;
         // U2.10
-        public long VirtualSinkG, MaterialsHeld, MaterialsSpent;
+        public long VirtualSinkG, MaterialsHeld, MaterialsSpent, SpentUpgradesG, ProjectsG;
+        public int Projects, UpgradeLevels;
         public int Profiled, LifeCycle, Ethology, IndividualsKnown, ZonesUnlocked, Observations;
     }
 
@@ -104,16 +123,24 @@ namespace Dravio.Domain.Tests.Simulation
         private readonly Dictionary<string, int> _startersByDay = new Dictionary<string, int>();
         private bool _fedThisSession;
         private int _sessions;
+        private long _spentUpgrades, _projectsG, _lastOnlineMs;
+        private int _projects;
+        private bool _upgradedThisSession;
+        /// <summary>Rồng Researcher đặt có chủ đích (sinh cảnh thế giới mới, rồng biết bay); ArrangeProducers không đổi chỗ chúng.</summary>
+        private readonly HashSet<string> _pinned = new HashSet<string>();
         /// <summary>U2.10: sổ nghiên cứu của Researcher (ngoài GameState, như production).</summary>
         public ResearchLog Research { get; } = new ResearchLog();
         public static ResearchPacing ResearchPacing = Dravio.Domain.Behavior.ResearchPacing.ProposedU210;
 
         public static readonly long Start = new DateTimeOffset(2026, 12, 1, 9, 0, 0, TimeSpan.Zero).ToUnixTimeMilliseconds();
 
+        /// <summary>Nhịp nghiên cứu của lần chạy này.</summary>
+        public ResearchPacing Pacing => _variant.Pacing ?? ResearchPacing;
+
         public EconomySimulator(Policy policy, Schedule schedule, int seed, EconomyVariant variant = null)
         {
             _policy = policy; _schedule = schedule; _variant = variant ?? EconomyVariant.Baseline;
-            _now = Start;
+            _now = Start; _lastOnlineMs = Start;
             _s = InitialStateFactory.Create("sim-" + seed, _now, Rng.Create((uint)(seed * 2654435761u)));
             foreach (PackDef p in PackCatalog.All) _result.FirstAffordHours[p.Id] = null;
         }
@@ -147,6 +174,7 @@ namespace Dravio.Domain.Tests.Simulation
                         if (bs.FeeGoldMicro == 80 * 1_000_000L) _virtualSink += (_variant.CommonBreedFeeG - 80) * 1_000_000;
                     }
                     if (e is AchievementUnlocked a) _rewards += a.RewardGoldMicro;
+                    if (e is UpgradeBought ub) _spentUpgrades += ub.CostGoldMicro;
                     if (e is DragonHatched dh && !dh.Tutorial && r.State.FindDragon(dh.DragonUid)?.Origin == DragonOrigin.Breed) _bred++;
                 }
                 _s = r.State;
@@ -178,7 +206,12 @@ namespace Dravio.Domain.Tests.Simulation
                     if (marks.Count == 0) return _result;
                     Settle(sessionStart, AdvanceMode.Offline);
                     if (first) { Onboarding(); first = false; }
-                    _boughtThisSession = false; _fedThisSession = false; _sessions++;
+                    if (_policy == Policy.Researcher)
+                    {
+                        long? night = ResearchLog.LastNightSampleMs(_lastOnlineMs, sessionStart);
+                        if (night.HasValue) Research.WriteNightJournal(_s, night.Value, sessionStart, Pacing);
+                    }
+                    _boughtThisSession = false; _fedThisSession = false; _upgradedThisSession = false; _sessions++;
                     for (_now = sessionStart; _now < sessionEnd; _now += 30_000)
                     {
                         Do(new AdvanceTimeCommand(Rid(), AdvanceMode.Online));
@@ -187,6 +220,7 @@ namespace Dravio.Domain.Tests.Simulation
                         foreach (double h in marks.ToList())
                             if (Start + (long)(h * 3_600_000) <= _now) { Mark(h); marks.Remove(h); }
                     }
+                    _lastOnlineMs = sessionEnd;
                 }
             foreach (double h in marks) Mark(h);
             return _result;
@@ -224,14 +258,16 @@ namespace Dravio.Domain.Tests.Simulation
                 Achievements = _s.UnlockedAchievements.Count, PacksBought = _packs, Bred = _bred,
                 VirtualSinkG = _virtualSink / 1_000_000, MaterialsSpent = _materialsSpent, Observations = _observations,
                 MaterialsHeld = _s.Player.Inventory.Values.Sum(), ZonesUnlocked = _s.Zones.Count(z => z.Unlocked),
+                SpentUpgradesG = _spentUpgrades / 1_000_000, ProjectsG = _projectsG / 1_000_000, Projects = _projects,
+                UpgradeLevels = EconomyTables.Upgrades.Sum(u => u.LevelOf(_s.Player.Upgrades)),
             };
             if (_policy == Policy.Researcher)
             {
-                Dictionary<ResearchTier, int> tiers = ResearchProgress.TierCounts(_s, Research, ResearchPacing);
+                Dictionary<ResearchTier, int> tiers = ResearchProgress.TierCounts(_s, Research, Pacing);
                 Snapshot sn = _result.At[h];
                 sn.Profiled = tiers[ResearchTier.Profiled]; sn.LifeCycle = tiers[ResearchTier.LifeCycle]; sn.Ethology = tiers[ResearchTier.Ethology];
                 sn.IndividualsKnown = _s.Dragons.Count(d => d.Location.Kind != LocationKind.Released &&
-                    ResearchProgress.Individual(_s, d.Uid, Research, ResearchPacing)?.RevealedTraits.Count == 4);
+                    ResearchProgress.Individual(_s, d.Uid, Research, Pacing)?.RevealedTraits.Count == 4);
             }
         }
 
@@ -292,7 +328,7 @@ namespace Dravio.Domain.Tests.Simulation
                 if (best == null) break;
                 if (Zones.ZoneOccupancy(_s, "origin") >= 5)
                 {
-                    DragonState worst = inZone.Where(d => d.Activity == DragonActivity.Idle).OrderBy(Rate).FirstOrDefault();
+                    DragonState worst = inZone.Where(d => d.Activity == DragonActivity.Idle && !_pinned.Contains(d.Uid)).OrderBy(Rate).FirstOrDefault();
                     if (worst == null || Rate(worst) >= Rate(best)) break;
                     if (!Do(new MoveDragonCommand(Rid(), worst.Uid, MoveTarget.Storage)).Ok) break;
                 }
@@ -333,10 +369,81 @@ namespace Dravio.Domain.Tests.Simulation
                     break;
                 case Policy.Researcher:
                     DailyPack();
+                    PlaceForResearch();
                     ResearchActions();
                     break;
             }
             ArrangeProducers();
+            SpendLongTerm();
+        }
+
+        /// <summary>Nâng cấp (nếu biến thể bật) và dự án Sanctuary E5 (nếu bật). Mỗi phiên tối đa một nâng cấp.</summary>
+        private void SpendLongTerm()
+        {
+            if (_variant.BuyUpgrades && !_upgradedThisSession)
+            {
+                long budget = (_s.Player.Gold.Micro - _virtualSink) / 2;
+                UpgradeDef cheapest = null; long best = long.MaxValue;
+                foreach (UpgradeDef u in EconomyTables.Upgrades)
+                {
+                    long? c = EconomyRates.UpgradeCostG(u, u.LevelOf(_s.Player.Upgrades));
+                    if (c.HasValue && c.Value * 1_000_000 <= budget && c.Value < best) { best = c.Value; cheapest = u; }
+                }
+                if (cheapest != null && Do(new BuyUpgradeCommand(Rid(), cheapest.Id)).Ok) _upgradedThisSession = true;
+            }
+            if (_variant.ProjectBaseG > 0)
+            {
+                long cost = (long)Math.Floor(_variant.ProjectBaseG * Math.Pow(_variant.ProjectScale, _projects)) * 1_000_000;
+                if (_s.Player.Gold.Micro - _virtualSink >= cost + cost / 5)
+                {
+                    _virtualSink += cost; _projectsG += cost; _projects++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Researcher đặt rồng có chủ đích: sau khi mở thế giới mới, đưa tới 2 loài chưa ghi chép ở đó vào sinh cảnh của nó; giữ một Adult biết bay
+        /// ở sinh cảnh (cần cho nhiệm vụ Thiên Giới). Chỉ dùng lệnh moveDragon thật.
+        /// </summary>
+        private void PlaceForResearch()
+        {
+            foreach (ZoneState z in _s.Zones.Where(z => z.Unlocked && z.Id != "origin").ToList())
+            {
+                for (int guard = 0; guard < 2; guard++)
+                {
+                    if (_s.Dragons.Count(d => d.Location.Kind == LocationKind.Zone && d.Location.ZoneId == z.Id) >= 2) break;
+                    var here = new HashSet<string>(_s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && d.Location.ZoneId == z.Id).Select(d => d.SpeciesId));
+                    DragonState who = null; PlacementCheck spot = null;
+                    foreach (DragonState d in _s.Dragons.Where(d => d.Location.Kind == LocationKind.Storage && d.Activity == DragonActivity.Idle && !here.Contains(d.SpeciesId)))
+                    {
+                        spot = Zones.PlacementOptions(_s, d).Where(o => o.ZoneId == z.Id && o.Blocked == null).OrderByDescending(o => o.Result.Score).FirstOrDefault();
+                        if (spot != null) { who = d; break; }
+                    }
+                    if (who == null || !Do(new MoveDragonCommand(Rid(), who.Uid, MoveTarget.Zone(spot.ZoneId, spot.HabitatId))).Ok) break;
+                    _pinned.Add(who.Uid);
+                }
+            }
+            bool IsAdultFlyer(DragonState d)
+            {
+                DragonSpecies sp = SpeciesCatalog.Get(d.SpeciesId);
+                return BehaviorCatalog.Has(sp.Biology.Locomotion, Locomotion.Fly) && EconomyRates.GrowthStageOf(d.XpSec, sp) == GrowthStage.Adult;
+            }
+            if (_s.Dragons.Any(d => d.Location.Kind == LocationKind.Zone && IsAdultFlyer(d))) return;
+            foreach (DragonState f in _s.Dragons.Where(d => d.Location.Kind == LocationKind.Storage && d.Activity == DragonActivity.Idle && IsAdultFlyer(d)).ToList())
+            {
+                var options = Zones.PlacementOptions(_s, f).Where(o => o.Blocked == null || o.Blocked == DomainErrorCode.ZoneFull).OrderByDescending(o => o.Result.Score).ToList();
+                PlacementCheck spot = options.FirstOrDefault(o => o.Blocked == null);
+                if (spot == null && options.Count > 0)
+                {
+                    // Khu đầy: đưa rồng sinh vàng thấp nhất (không ghim) ở khu đó về kho để nhường chỗ.
+                    PlacementCheck full = options[0];
+                    DragonState worst = _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone && d.Location.ZoneId == full.ZoneId && d.Activity == DragonActivity.Idle && !_pinned.Contains(d.Uid))
+                        .OrderBy(Rate).FirstOrDefault();
+                    if (worst != null && Do(new MoveDragonCommand(Rid(), worst.Uid, MoveTarget.Storage)).Ok)
+                        spot = Zones.PlacementOptions(_s, _s.FindDragon(f.Uid)).Where(o => o.Blocked == null).OrderByDescending(o => o.Result.Score).FirstOrDefault();
+                }
+                if (spot != null && Do(new MoveDragonCommand(Rid(), f.Uid, MoveTarget.Zone(spot.ZoneId, spot.HabitatId))).Ok) { _pinned.Add(f.Uid); return; }
+            }
         }
 
         private void TryBreed(bool cheapest)
@@ -361,7 +468,7 @@ namespace Dravio.Domain.Tests.Simulation
         private void ObserveAll()
         {
             foreach (BehaviorDecision d in BehaviorEngine.DecideAll(_s, _now, PhaseAt(_now)))
-                if (Research.Observe(_s, d, _now, ResearchPacing).Recorded) _observations++;
+                if (Research.Observe(_s, d, _now, Pacing).Recorded) _observations++;
         }
 
         /// <summary>
@@ -411,7 +518,7 @@ namespace Dravio.Domain.Tests.Simulation
             }
 
             // THỬ NGHIỆM nhiệm vụ cổng (ADR 0204 Q1). Không phải luật production.
-            foreach (QuestStatusView q in QuestProposals.Evaluate(_s, Research, ResearchPacing, QuestRules.ProposedForReview).Where(v => v.IsCanonicalGate && v.CanComplete).ToList())
+            foreach (QuestStatusView q in QuestProposals.Evaluate(_s, Research, Pacing, QuestRules.ProposedForReview).Where(v => v.IsCanonicalGate && v.CanComplete).ToList())
             {
                 GameState w = _s.DeepClone();
                 foreach (QuestRequirementStatus r in q.Requirements.Where(r => r.Def.Kind == QuestRequirementKind.MaterialDelivery))
