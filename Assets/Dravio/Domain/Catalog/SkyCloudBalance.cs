@@ -15,9 +15,9 @@ namespace Dravio.Domain.Catalog
     /// <summary>
     /// U2.13 (ADR 0208) — bảng cân bằng tuyến thám hiểm <c>sky_cloud</c> ("Sân mây Thiên Giới", vật liệu <c>stardust</c> "Bụi sao").
     /// <para>
-    /// <b>CHƯA DUYỆT → TẮT trong game:</b> <see cref="Production"/> = <see cref="Disabled"/>, tuyến vẫn trả <c>route-rewards-undefined</c> như U2.11/U2.12.
-    /// Các bảng khác chỉ dùng trong mô phỏng và test qua <see cref="Use"/> (phạm vi theo luồng, như luật thiên tai của dispatcher), để chủ dự án
-    /// so sánh trước khi duyệt. Bật tuyến = đổi <see cref="Production"/> sang bảng được duyệt (một dòng), không đổi save (Schema v10).
+    /// <b>U2.15: ĐÃ DUYỆT bảng A → BẬT trong game:</b> <see cref="Production"/> = <see cref="ProposedA"/> (45 phút, 2–4 bụi sao, mốc 1 / 5 / 15 / 40 → +2 / 3 / 4 / 6).
+    /// <see cref="Disabled"/> (hành vi U2.11–U2.14: tuyến trả <c>route-rewards-undefined</c>) và các bảng B / C chỉ dùng trong mô phỏng và test qua <see cref="Use"/>
+    /// (phạm vi theo luồng, như luật thiên tai của dispatcher). Không đổi save (Schema v10): bộ đếm <c>expeditionsClaimed.sky_cloud</c> đã có từ U2.11.
     /// </para>
     /// <para>
     /// Đã duyệt độc lập với bảng: trứng Aurorawing một lần tại mốc <see cref="AurorawingEggClaims"/> chuyến sky_cloud đã nhận
@@ -80,8 +80,11 @@ namespace Dravio.Domain.Catalog
             new SkyCloudMilestone(1, 3, "note.cloud_first_flight"), new SkyCloudMilestone(5, 4, null),
             new SkyCloudMilestone(15, 6, "title.cloud_rider"), new SkyCloudMilestone(40, 8, "title.star_warden"));
 
-        /// <summary>Bảng của game thật. CHƯA DUYỆT → <see cref="Disabled"/>.</summary>
-        public static readonly SkyCloudBalance Production = Disabled;
+        /// <summary>
+        /// Bảng của game thật. U2.15 (issue #74): chủ dự án duyệt <see cref="ProposedA"/> ngày 2026-11-26 → tuyến sky_cloud mở trong game.
+        /// <see cref="Disabled"/> giữ lại làm mốc đối chứng U2.14 (chỉ qua <see cref="Use"/>); <see cref="ProposedB"/> / <see cref="ProposedC"/> chỉ còn là tài liệu nghiên cứu.
+        /// </summary>
+        public static readonly SkyCloudBalance Production = ProposedA;
 
         public static readonly IReadOnlyList<SkyCloudBalance> Candidates = Array.AsReadOnly(new[] { ProposedA, ProposedB, ProposedC });
 

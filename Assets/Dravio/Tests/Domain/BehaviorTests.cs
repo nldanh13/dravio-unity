@@ -77,8 +77,8 @@ namespace Dravio.Domain.Tests
                 for (int i = 0; i < 200; i++)
                 {
                     PersonalityProfile p = PersonalityProfiles.Of(Adult("x" + i, sp.Id));
-                    Assert.That(sp.Biology.DietIds, Does.Contain(p.FavoriteDiet), sp.Id);
-                    Assert.That(sp.Biology.HabitatRules, Does.Contain(p.FavoriteHabitatId), sp.Id);
+                    Assert.That(sp.Biology.DietIds, Has.Member(p.FavoriteDiet), sp.Id);
+                    Assert.That(sp.Biology.HabitatRules, Has.Member(p.FavoriteHabitatId), sp.Id);
                     Assert.That(p.SummaryKey, Is.EqualTo("personality.calm.summary"));
                 }
         }
@@ -167,19 +167,19 @@ namespace Dravio.Domain.Tests
                 }
             Assert.That(checkedDecisions, Is.GreaterThan(50_000));
             // Mọi hành vi trình diễn đều thực sự xuất hiện ở đâu đó.
-            foreach (DragonBehavior b in BehaviorCatalog.All.Where(x => BehaviorCatalog.Get(x).Ambient)) Assert.That(seen, Does.Contain(b), b.ToString());
+            foreach (DragonBehavior b in BehaviorCatalog.All.Where(x => BehaviorCatalog.Get(x).Ambient)) Assert.That(seen, Has.Member(b), b.ToString());
         }
 
         private static void AssertHintPossible(SpeciesBiology b, HabitatProfile h, LocomotionHint hint, string ctx)
         {
             switch (hint)
             {
-                case LocomotionHint.Swim: Assert.That(b.Locomotion, Does.Contain(Locomotion.Swim), ctx); break;
-                case LocomotionHint.Fly: Assert.That(b.Locomotion, Does.Contain(Locomotion.Fly), ctx); break;
-                case LocomotionHint.Burrow: Assert.That(b.Locomotion, Does.Contain(Locomotion.Burrow), ctx); break;
+                case LocomotionHint.Swim: Assert.That(b.Locomotion, Has.Member(Locomotion.Swim), ctx); break;
+                case LocomotionHint.Fly: Assert.That(b.Locomotion, Has.Member(Locomotion.Fly), ctx); break;
+                case LocomotionHint.Burrow: Assert.That(b.Locomotion, Has.Member(Locomotion.Burrow), ctx); break;
                 case LocomotionHint.Walk:
                 case LocomotionHint.Run:
-                    Assert.That(b.Locomotion, Does.Contain(Locomotion.Walk), ctx);
+                    Assert.That(b.Locomotion, Has.Member(Locomotion.Walk), ctx);
                     Assert.That(h.Realm, Is.Not.EqualTo(Realm.Ocean), ctx);
                     break;
             }
@@ -498,7 +498,7 @@ namespace Dravio.Domain.Tests
             s.FindDragon("a").XpSec = SpeciesCatalog.Get("droplet").GrowthTimeSec;
             Progression.Codex.Observe(s, null);
             Assert.That(BehaviorQueries.Research(s, "droplet", null, on).Tier, Is.EqualTo(ResearchTier.LifeCycle));
-            Assert.That(BehaviorQueries.Research(s, "droplet", null, on).ObservableBehaviors, Does.Contain(DragonBehavior.Swim).And.Not.Contain(DragonBehavior.Fly));
+            Assert.That(BehaviorQueries.Research(s, "droplet", null, on).ObservableBehaviors, Has.Member(DragonBehavior.Swim).And.Not.Member(DragonBehavior.Fly));
 
             // Quan sát qua nhiều nhịp, nhiều pha và cả hai microhabitat cho tới khi đủ mọi tập tính.
             var journal = new ObservationJournal();

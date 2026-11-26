@@ -11,8 +11,8 @@ namespace Dravio.Domain.Tests.Simulation
 {
     /// <summary>
     /// U2.14 — hành trình Alpha end-to-end. Save mới, người chơi theo hướng dẫn (Guided, 3 × 10 phút/ngày), MỌI hành động là lệnh chính thức
-    /// (kể cả quan sát: <c>observeDragon</c>), luật production (bảng sky_cloud TẮT, luật cho ăn A). Sau mỗi lệnh kiểm sổ vàng, sổ vật liệu, trần sản xuất,
-    /// và thưởng một lần (<see cref="AlphaJourney"/>). Bảng sky_cloud A chỉ chạy trong phạm vi <see cref="SkyCloudBalance.Use"/> ở test riêng.
+    /// (kể cả quan sát: <c>observeDragon</c>), luật production. Sau mỗi lệnh kiểm sổ vàng, sổ vật liệu, trần sản xuất, và thưởng một lần (<see cref="AlphaJourney"/>).
+    /// U2.15: production = bảng sky_cloud A đã duyệt (issue #74); hành trình với bảng TẮT giữ làm đối chứng U2.14 qua <c>EconomyVariant.Alpha(SkyCloudBalance.Disabled)</c>.
     /// </summary>
     public sealed class U214AlphaJourneyTests
     {
@@ -49,9 +49,15 @@ namespace Dravio.Domain.Tests.Simulation
             ("zone:sky", "Mở Thiên Giới"),
             ("expedition:origin_forest", "Thám hiểm rừng (nhận thưởng)"),
             ("expedition:ocean_reef", "Thám hiểm rạn (nhận thưởng)"),
-            ("milestone:ocean_reef:15", "Mốc thám hiểm rạn 15"),
+            // U2.15: slot thám hiểm chung chuyển sang sân mây (chi phí cơ hội có chủ đích, Q7 U2.13) → mốc rạn 15 không còn trong 40 ngày; giữ mốc rạn 5.
+            ("milestone:ocean_reef:5", "Mốc thám hiểm rạn 5"),
+            ("milestone:sky_cloud:15", "Mốc thám hiểm sân mây 15"),
             ("project:1", "Dự án Sanctuary đầu tiên"),
             ("project:10", "Dự án Sanctuary thứ 10"),
+            // U2.15: bảng A là production.
+            ("expedition:sky_cloud", "Thám hiểm sân mây (nhận thưởng)"),
+            ("quest:Q_EXPEDITION_CLOUD", "Nhiệm vụ Q_EXPEDITION_CLOUD"),
+            ("reward-egg:" + SkyCloudBalance.AurorawingEggRewardId, "Trứng Aurorawing (chuyến sân mây thứ 15)"),
         };
 
         [Test]
@@ -66,10 +72,11 @@ namespace Dravio.Domain.Tests.Simulation
             Assert.That(s.Tutorial.Completed, Is.EqualTo(ProgressCatalog.TutorialStepIds));
             Assert.That(s.Zones.All(z => z.Unlocked), Is.True);
             Assert.That(GameStateValidator.Validate(s).IsValid, Is.True, GameStateValidator.Validate(s).ToString());
-            // 16 / 17 nhiệm vụ: chỉ Q_EXPEDITION_CLOUD cần bảng sky_cloud (chưa duyệt).
+            // U2.15: 17 / 17 nhiệm vụ với bảng A.
             var all = QuestProposals.All.Select(q => q.Id).ToList();
             var done = s.CompletedQuests.Concat(s.CompletedSideQuests).ToList();
-            Assert.That(all.Except(done), Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }), "seed " + seed);
+            Assert.That(all.Count, Is.EqualTo(17));
+            Assert.That(all.Except(done), Is.Empty, "seed " + seed);
             Assert.That(done.Count, Is.EqualTo(done.Distinct().Count()));
             // Hành trình thật dùng đủ các lệnh của đề bài.
             foreach (string type in new[] { "feed", "consumeFood", "buyTutorialPack", "buyPack", "claimPack", "startBreed", "tapEgg", "claimBreed", "surveyHabitat", "unlockHabitat",
@@ -77,22 +84,32 @@ namespace Dravio.Domain.Tests.Simulation
                 Assert.That(j.OkByType.ContainsKey(type), Is.True, "lệnh chưa dùng: " + type);
             Assert.That(j.FirstAt["zone:ocean"], Is.LessThan(j.FirstAt["zone:sky"]));
             Assert.That(j.FirstAt["reward-egg:ZONE_EGG_OCEAN"], Is.EqualTo(j.FirstAt["zone:ocean"]));
-            Assert.That(j.FirstAt.ContainsKey("reward-egg:" + SkyCloudBalance.AurorawingEggRewardId), Is.False, "tuyến sky_cloud tắt: không trứng Aurorawing");
+            Assert.That(j.PaidOnce["reward-egg:" + SkyCloudBalance.AurorawingEggRewardId], Is.EqualTo(1), "trứng Aurorawing đúng một lần");
+            Assert.That(s.GrantedRewards.Count(id => id == SkyCloudBalance.AurorawingEggRewardId), Is.EqualTo(1));
+            Assert.That(j.FirstAt["reward-egg:" + SkyCloudBalance.AurorawingEggRewardId], Is.GreaterThan(j.FirstAt["zone:sky"]));
+            TestContext.Progress.WriteLine($"U2.15 seed {seed}: sky zone {j.FirstAt["zone:sky"] / 24:0.0} d, Aurorawing egg {j.FirstAt["reward-egg:" + SkyCloudBalance.AurorawingEggRewardId] / 24:0.0} d, Q_EXPEDITION_CLOUD {j.FirstAt["quest:Q_EXPEDITION_CLOUD"] / 24:0.0} d");
         }
 
         [Test]
-        public void Production_rules_stay_off_and_the_sky_route_is_refused_throughout_the_journey()
+        public void Legacy_disabled_table_journey_refuses_the_sky_route_and_stops_at_16_of_17_quests()
         {
-            AlphaJourney j = Production(1);
-            Assert.That(SkyCloudBalance.Production, Is.SameAs(SkyCloudBalance.Disabled));
-            Assert.That(SkyCloudBalance.Current.Enabled, Is.False);
-            Assert.That(j.Sim.State.ExpeditionsClaimed.TryGetValue(SkyCloudBalance.RouteId, out int sky) ? sky : 0, Is.EqualTo(0));
-            Assert.That(j.Sim.State.Player.Inventory.TryGetValue(SkyCloudBalance.MaterialId, out long dust) ? dust : 0, Is.EqualTo(0));
-            DragonState flyer = j.Sim.State.Dragons.FirstOrDefault(d => d.Location.Kind != LocationKind.Released && d.SpeciesId == "zephyr");
+            // Đối chứng U2.14 (bảng tắt chỉ trong phạm vi Use).
+            AlphaJourney j = AlphaJourney.Run(Policy.Guided, ThreeTimesTen, 1, JourneyDays, EconomyVariant.Alpha(SkyCloudBalance.Disabled));
+            Assert.That(SkyCloudBalance.Current, Is.SameAs(SkyCloudBalance.ProposedA), "phạm vi Use đã đóng: game thật dùng bảng A");
+            Assert.That(j.Violations, Is.Empty, string.Join("\n", j.Violations.Take(10)));
+            GameState s = j.Sim.State;
+            Assert.That(QuestProposals.All.Select(q => q.Id).Except(s.CompletedQuests.Concat(s.CompletedSideQuests)), Is.EqualTo(new[] { "Q_EXPEDITION_CLOUD" }));
+            Assert.That(s.ExpeditionsClaimed.TryGetValue(SkyCloudBalance.RouteId, out int sky) ? sky : 0, Is.EqualTo(0));
+            Assert.That(s.Player.Inventory.TryGetValue(SkyCloudBalance.MaterialId, out long dust) ? dust : 0, Is.EqualTo(0));
+            Assert.That(j.FirstAt.ContainsKey("reward-egg:" + SkyCloudBalance.AurorawingEggRewardId), Is.False);
+            DragonState flyer = s.Dragons.FirstOrDefault(d => d.Location.Kind != LocationKind.Released && d.SpeciesId == "zephyr");
             Assume.That(flyer, Is.Not.Null);
-            DispatchResult r = CommandDispatcher.Dispatch(j.Sim.State, new StartExpeditionCommand("u214-sky", SkyCloudBalance.RouteId, flyer.Uid), new FixedClock(j.Sim.State.Clock.LastProcessedAtMs));
-            Assert.That(r.Ok, Is.False);
-            Assert.That(r.Error.Code, Is.EqualTo(DomainErrorCode.RouteRewardsUndefined), "kiểm bảng thưởng trước khi kiểm slot / rồng");
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                DispatchResult r = CommandDispatcher.Dispatch(s, new StartExpeditionCommand("u214-sky", SkyCloudBalance.RouteId, flyer.Uid), new FixedClock(s.Clock.LastProcessedAtMs));
+                Assert.That(r.Ok, Is.False);
+                Assert.That(r.Error.Code, Is.EqualTo(DomainErrorCode.RouteRewardsUndefined), "kiểm bảng thưởng trước khi kiểm slot / rồng");
+            }
         }
 
         [Test]
@@ -101,7 +118,7 @@ namespace Dravio.Domain.Tests.Simulation
             AlphaJourney j = Production(2);
             Assert.That(j.PaidOnce.Where(kv => kv.Value != 1).Select(kv => kv.Key), Is.Empty);
             GameState s = j.Sim.State;
-            Assert.That(j.PaidOnce.Keys.Count(k => k.StartsWith("quest:", StringComparison.Ordinal)), Is.EqualTo(16));
+            Assert.That(j.PaidOnce.Keys.Count(k => k.StartsWith("quest:", StringComparison.Ordinal)), Is.EqualTo(17));
             Assert.That(j.PaidOnce.Keys.Count(k => k.StartsWith("expedition:", StringComparison.Ordinal)), Is.EqualTo(s.ExpeditionsClaimed.Values.Sum()));
             // Mốc: đúng các mốc của tuyến đã vượt, mỗi mốc một lần.
             foreach (var kv in s.ExpeditionsClaimed)
@@ -139,10 +156,11 @@ namespace Dravio.Domain.Tests.Simulation
         }
 
         [Test]
-        public void With_table_A_in_scope_the_same_journey_reaches_17_of_17_quests_and_one_aurorawing_egg_simulation_only()
+        public void Explicit_table_A_scope_gives_the_same_journey_as_production()
         {
             AlphaJourney j = AlphaJourney.Run(Policy.Guided, ThreeTimesTen, 1, JourneyDays, EconomyVariant.Alpha(SkyCloudBalance.ProposedA));
-            Assert.That(SkyCloudBalance.Current.Enabled, Is.False, "phạm vi Use đã đóng: game thật vẫn tắt");
+            Assert.That(SkyCloudBalance.Current, Is.SameAs(SkyCloudBalance.Production));
+            Assert.That(j.FirstAt, Is.EquivalentTo(Production(1).FirstAt), "production = bảng A: cùng hành trình từng mốc");
             Assert.That(j.Violations, Is.Empty, string.Join("\n", j.Violations.Take(10)));
             GameState s = j.Sim.State;
             Assert.That(s.CompletedQuests.Concat(s.CompletedSideQuests).Count(), Is.EqualTo(17));

@@ -47,9 +47,11 @@ namespace Dravio.Domain.Core
 
     public sealed class FoodSpawned : DomainEvent
     {
-        public FoodSpawned(string foodId, DietId dietId, string zoneId, string habitatId, long expiresAtMs)
+        public FoodSpawned(string foodId, DietId dietId, string zoneId, string habitatId, long expiresAtMs) : this(foodId, dietId, zoneId, habitatId, expiresAtMs, null) { }
+
+        public FoodSpawned(string foodId, DietId dietId, string zoneId, string habitatId, long expiresAtMs, string targetDragonUid)
         {
-            FoodId = foodId; DietId = dietId; ZoneId = zoneId; HabitatId = habitatId; ExpiresAtMs = expiresAtMs;
+            FoodId = foodId; DietId = dietId; ZoneId = zoneId; HabitatId = habitatId; ExpiresAtMs = expiresAtMs; TargetDragonUid = targetDragonUid;
         }
         public override string Type => "foodSpawned";
         public string FoodId { get; }
@@ -57,6 +59,8 @@ namespace Dravio.Domain.Core
         public string ZoneId { get; }
         public string HabitatId { get; }
         public long ExpiresAtMs { get; }
+        /// <summary>U2.15: rồng được chọn ghi trên lệnh feed (null = không ưu tiên). Không bảo đảm rồng đó sẽ ăn: xem <see cref="Behavior.BehaviorEngine.AssignmentOf"/>.</summary>
+        public string TargetDragonUid { get; }
     }
 
     public sealed class FoodExpired : DomainEvent
@@ -68,11 +72,21 @@ namespace Dravio.Domain.Core
 
     public sealed class FoodConsumed : DomainEvent
     {
-        public FoodConsumed(string foodId, string dragonUid, int xpGainedSec) { FoodId = foodId; DragonUid = dragonUid; XpGainedSec = xpGainedSec; }
+        public FoodConsumed(string foodId, string dragonUid, int xpGainedSec) : this(foodId, dragonUid, xpGainedSec, null) { }
+
+        public FoodConsumed(string foodId, string dragonUid, int xpGainedSec, string targetDragonUid)
+        {
+            FoodId = foodId; DragonUid = dragonUid; XpGainedSec = xpGainedSec; TargetDragonUid = targetDragonUid;
+        }
         public override string Type => "foodConsumed";
         public string FoodId { get; }
+        /// <summary>Rồng thật sự ăn (người nhận thật).</summary>
         public string DragonUid { get; }
         public int XpGainedSec { get; }
+        /// <summary>U2.15: rồng được chọn khi thả phần ăn (null = không ưu tiên).</summary>
+        public string TargetDragonUid { get; }
+        /// <summary>U2.15: true khi có mục tiêu và chính mục tiêu ăn.</summary>
+        public bool AteTarget => TargetDragonUid != null && TargetDragonUid == DragonUid;
     }
 
     public sealed class BondChanged : DomainEvent

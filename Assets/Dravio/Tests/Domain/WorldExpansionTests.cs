@@ -94,8 +94,8 @@ namespace Dravio.Domain.Tests
                     if (got == null)
                     {
                         reachable++;
-                        if (h.ZoneId == "ocean") Assert.That(loco, Does.Contain(Locomotion.Swim), sp.Id + " vào Thủy Vực phải bơi được");
-                        if (h.ZoneId == "sky") Assert.That(loco, Does.Contain(Locomotion.Fly), sp.Id + " lên Thiên Giới phải bay được");
+                        if (h.ZoneId == "ocean") Assert.That(loco, Has.Member(Locomotion.Swim), sp.Id + " vào Thủy Vực phải bơi được");
+                        if (h.ZoneId == "sky") Assert.That(loco, Has.Member(Locomotion.Fly), sp.Id + " lên Thiên Giới phải bay được");
                         DispatchResult r = Ok(s, new MoveDragonCommand(Rid(), "x", MoveTarget.Zone(h.ZoneId, h.Id)), clock);
                         Assert.That(r.State.FindDragon("x").Location.HabitatId, Is.EqualTo(h.Id));
                     }
@@ -237,15 +237,17 @@ namespace Dravio.Domain.Tests
             Assert.That(skyDetail, Is.EqualTo("requires-fly"));
             Assert.That(Detail("origin_forest", "baby"), Is.EqualTo("not-adult"));
             Assert.That(Ok(s, new StartExpeditionCommand(Rid(), "ocean_reef", "le"), clock).State.Expedition.Rewards.Select(k => k.Key), Is.SubsetOf(new[] { "crystal", "coral" }));
-            // Sân mây: bảng thưởng chưa duyệt (GDD "bụi sao" không có ID chuẩn) → tuyến khóa (ADR U2.8-0201).
-            Fail(s, new StartExpeditionCommand(Rid(), "sky_cloud", "ze"), clock, DomainErrorCode.RouteRewardsUndefined);
+            // Sân mây: U2.15 bảng A đã duyệt → tuyến mở, chỉ trả bụi sao. Bảng tắt (đối chứng U2.14) vẫn khóa (ADR U2.8-0201).
+            Assert.That(Ok(s, new StartExpeditionCommand(Rid(), "sky_cloud", "ze"), clock).State.Expedition.Rewards.Select(k => k.Key), Is.EqualTo(new[] { "stardust" }));
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+                Fail(s, new StartExpeditionCommand(Rid(), "sky_cloud", "ze"), clock, DomainErrorCode.RouteRewardsUndefined);
             foreach (DragonSpecies sp in SpeciesCatalog.All)
             {
                 var loco = SpeciesCatalog.GetBiology(sp.Id).Locomotion;
                 GameState one = With(s, A("t", sp.Id));
                 Assert.That(Expeditions.CheckStart(one, "ocean_reef", "t", out _) == null, Is.EqualTo(loco.Contains(Locomotion.Swim)), sp.Id);
                 ExpeditionRoute sky = ExpeditionCatalog.Routes.Single(r => r.Id == "sky_cloud");
-                Assert.That(Expeditions.DragonBlock(one, sky, one.FindDragon("t"), out _) == null, Is.EqualTo(loco.Contains(Locomotion.Fly)), sp.Id + " (điều kiện bay vẫn kiểm dù tuyến đang khóa)");
+                Assert.That(Expeditions.DragonBlock(one, sky, one.FindDragon("t"), out _) == null, Is.EqualTo(loco.Contains(Locomotion.Fly)), sp.Id + " (điều kiện bay)");
                 Assert.That(Expeditions.CheckStart(one, "origin_forest", "t", out _) == null, Is.EqualTo(sp.Realms.Contains(Realm.Land)), sp.Id);
             }
         }
@@ -317,7 +319,9 @@ namespace Dravio.Domain.Tests
             List<ZoneOverview> world = Ecosystem.World(s);
             Assert.That(world.Select(z => z.ZoneId + ":" + z.Unlocked + ":" + z.Habitats.Count), Is.EqualTo(new[] { "origin:True:3", "ocean:True:3", "sky:True:1" }));
             Assert.That(world.Single(z => z.ZoneId == "ocean").Edges.Single(), Is.EqualTo(new KeyValuePair<string, bool>("origin_ocean_estuary", true)));
-            Assert.That(Ecosystem.ExpeditionOptions(s).Select(o => o.Blocked), Is.EqualTo(new DomainErrorCode?[] { DomainErrorCode.ExpeditionBusy, DomainErrorCode.ExpeditionBusy, DomainErrorCode.RouteRewardsUndefined }));
+            Assert.That(Ecosystem.ExpeditionOptions(s).Select(o => o.Blocked), Is.EqualTo(new DomainErrorCode?[] { DomainErrorCode.ExpeditionBusy, DomainErrorCode.ExpeditionBusy, DomainErrorCode.ExpeditionBusy }), "U2.15: sky_cloud mở (bảng A), chỉ bận vì đang có chuyến");
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+                Assert.That(Ecosystem.ExpeditionOptions(s).Select(o => o.Blocked), Is.EqualTo(new DomainErrorCode?[] { DomainErrorCode.ExpeditionBusy, DomainErrorCode.ExpeditionBusy, DomainErrorCode.RouteRewardsUndefined }));
             DiscoveryProgress dp = Ecosystem.Discovery(s);
             Assert.That((dp.SpeciesTotal, dp.CodexCellsTotal, dp.ZonesUnlocked.Count), Is.EqualTo((16, 64, 3)));
             // Truy vấn không đổi state.

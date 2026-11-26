@@ -73,7 +73,7 @@ namespace Dravio.Domain.Tests.Simulation
         public bool RunExpeditions;
         /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
         public ResearchPacing Pacing;
-        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, tức tuyến tắt).</summary>
+        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, từ U2.15 là bảng A).</summary>
         public SkyCloudBalance Sky;
         /// <summary>U2.13: luật vật liệu dự án Sanctuary (null = <see cref="SanctuaryMaterialRules.Production"/>, vật liệu theo thế giới).</summary>
         public SanctuaryMaterialRules ProjectMaterials;

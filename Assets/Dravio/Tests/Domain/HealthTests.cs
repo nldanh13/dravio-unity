@@ -134,7 +134,7 @@ namespace Dravio.Domain.Tests
             Rejected(s, new SellDragonCommand(Rid(), "pb"), clock, DomainErrorCode.DragonBusy);
             Rejected(s, new StartExpeditionCommand(Rid(), "origin_forest", "pb"), clock, DomainErrorCode.DragonBusy);
             Rejected(s, new MoveDragonCommand(Rid(), "pb", MoveTarget.Storage), clock, DomainErrorCode.DragonUnavailable);
-            Assert.That(HealthChecks.BreedingShortfalls(s, s.FindDragon("pb")), Does.Contain(HealthChecks.NoOpenCase));
+            Assert.That(HealthChecks.BreedingShortfalls(s, s.FindDragon("pb")), Has.Member(HealthChecks.NoOpenCase));
             // Hộ chiếu (truy vấn) vẫn xem được.
             Assert.That(HealthQueries.Dragon(s, "pb").OpenCaseId, Is.EqualTo("case-a"));
         }
@@ -410,7 +410,7 @@ namespace Dravio.Domain.Tests
             Assert.That(r.State.HealthCases.Where(c => c.EventId == ev.Id).Select(c => c.DragonId), Is.EqualTo(chosen));
             Assert.That(struck.CaseIds.Count, Is.LessThanOrEqualTo(HealthCatalog.MaxCasesPerEvent));
             foreach (HealthCase c in r.State.HealthCases)
-                Assert.That(HealthCatalog.SitesFor(HazardId.Wildfire), Does.Contain(c.Site));
+                Assert.That(HealthCatalog.SitesFor(HazardId.Wildfire), Has.Member(c.Site));
             // Không roll lại: cùng state + cùng thời điểm luôn cho cùng kết quả.
             DispatchResult again = Run(before, new AdvanceTimeCommand("other-rid", AdvanceMode.Online), clock, Always);
             Assert.That(again.State.HealthCases.Select(c => c.CaseId + c.DragonId + c.Site), Is.EqualTo(r.State.HealthCases.Select(c => c.CaseId + c.DragonId + c.Site)));
@@ -443,7 +443,7 @@ namespace Dravio.Domain.Tests
             Assert.That(struck.CaseIds, Is.Empty);
             Assert.That(r.State.Player.Gold.Micro, Is.EqualTo(gold), "trong nơi trú không sản xuất");
             Assert.That(r.State.FindDragon(ember).Location.HabitatId, Is.EqualTo("origin_meadow"));
-            Assert.That(r.State.ProductionDragonIds, Does.Contain(ember), "trả lại ngân sách sản xuất");
+            Assert.That(r.State.ProductionDragonIds, Has.Member(ember), "trả lại ngân sách sản xuất");
             Assert.That(r.State.Disasters, Is.Empty);
             Assert.That(r.Events.OfType<DisasterClosed>().Single().CooldownUntilMs, Is.EqualTo(clock.NowMs() + 24 * Hour));
         }
