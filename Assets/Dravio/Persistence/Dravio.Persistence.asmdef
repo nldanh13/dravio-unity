@@ -1,0 +1,14 @@
+{
+    "name": "Dravio.Persistence",
+    "rootNamespace": "Dravio.Persistence",
+    "references": ["Dravio.Domain"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

@@ -16,7 +16,7 @@ namespace Dravio.Editor
         const string Target = Root + "/Scenes/AncientSanctuary.unity";
         const string Art = Root + "/Art/U1";
 
-        [MenuItem("Dravio/Create or Open Ancient Sanctuary")]
+        [MenuItem("Dravio/Legacy Previews/Create or Open Ancient Sanctuary")]
         public static void CreateOrOpen()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

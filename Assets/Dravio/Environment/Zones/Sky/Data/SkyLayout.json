@@ -1,0 +1,328 @@
+{
+ "version": 1,
+ "seed": 8803,
+ "zoneId": "sky",
+ "camera": {
+  "anchorPosition": [
+   0.0,
+   15.262,
+   -20.2219
+  ],
+  "eulerAngles": [
+   32.0,
+   0.0,
+   0.0
+  ],
+  "orthographicSize": 6.0,
+  "rightPanelScreenHeights": 0.5,
+  "leftMarginScreenHeights": 0.05,
+  "topMarginScreenHeights": 0.06,
+  "bottomMarginScreenHeights": 0.05,
+  "minAspect": 1.7778,
+  "supportedAspects": [
+   "16:9",
+   "19.5:9",
+   "20:9"
+  ]
+ },
+ "placements": [
+  {
+   "asset": "SM_ENV_Sky_Cloud_Sea",
+   "x": 0,
+   "y": -5.5,
+   "z": 6.0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Island_Main",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_East",
+   "x": 5.5,
+   "y": 0.9,
+   "z": -1.643,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Shrine",
+   "x": -5.883,
+   "y": 1.6,
+   "z": 3.717,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Bridge",
+   "x": 3.55,
+   "y": 0.0,
+   "z": -1.0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Gate",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 6.9,
+   "yaw": 0.0,
+   "scale": 0.7,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Column",
+   "x": -2.9,
+   "y": 0.0,
+   "z": 5.2,
+   "yaw": 15,
+   "scale": 0.8,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Column_Broken",
+   "x": 2.5,
+   "y": 0.0,
+   "z": 4.9,
+   "yaw": -25,
+   "scale": 0.85,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Shrine",
+   "x": -6.1,
+   "y": 1.6,
+   "z": 4.2,
+   "yaw": 0.0,
+   "scale": 0.65,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Runestone",
+   "x": 1.7,
+   "y": 0.0,
+   "z": 3.9,
+   "yaw": -18,
+   "scale": 0.9,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Tree_Blossom",
+   "x": -3.2,
+   "y": 0.0,
+   "z": 3.4,
+   "yaw": 40,
+   "scale": 0.85,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Spire_Perch",
+   "x": -3.9,
+   "y": 0.0,
+   "z": -4.2,
+   "yaw": 20,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Spire_Perch",
+   "x": 6.3,
+   "y": 0.9,
+   "z": -3.0,
+   "yaw": -40,
+   "scale": 0.8,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Shrub",
+   "x": 2.4,
+   "y": 0.0,
+   "z": -3.9,
+   "yaw": 60,
+   "scale": 0.9,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Shrub",
+   "x": -3.6,
+   "y": 0.0,
+   "z": 0.4,
+   "yaw": 200,
+   "scale": 0.8,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Shrub",
+   "x": 6.2,
+   "y": 0.9,
+   "z": 0.2,
+   "yaw": 10,
+   "scale": 0.7,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Float_A",
+   "x": -10.8,
+   "y": 1.2,
+   "z": 2.2,
+   "yaw": 30,
+   "scale": 1.0,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Float_A",
+   "x": 10.2,
+   "y": 2.4,
+   "z": 6.2,
+   "yaw": 160,
+   "scale": 1.2,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Float_B",
+   "x": 4.2,
+   "y": 2.8,
+   "z": 12.5,
+   "yaw": 80,
+   "scale": 1.4,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Float_B",
+   "x": -6.8,
+   "y": 2.2,
+   "z": 11.6,
+   "yaw": 250,
+   "scale": 1.1,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Islet_Float_B",
+   "x": 11.8,
+   "y": 0.4,
+   "z": -2.6,
+   "yaw": 10,
+   "scale": 0.9,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": -9.6,
+   "y": -1.6,
+   "z": -2.2,
+   "yaw": 0.0,
+   "scale": 1.4,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": 9.2,
+   "y": -1.2,
+   "z": -4.8,
+   "yaw": 90,
+   "scale": 1.6,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": 12.0,
+   "y": -0.6,
+   "z": 1.6,
+   "yaw": 40,
+   "scale": 1.3,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": -12.4,
+   "y": -0.4,
+   "z": 6.4,
+   "yaw": 200,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": 6.0,
+   "y": -2.4,
+   "z": 10.0,
+   "yaw": 120,
+   "scale": 1.8,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": -3.8,
+   "y": -2.6,
+   "z": 10.4,
+   "yaw": 300,
+   "scale": 1.7,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": -6.4,
+   "y": -3.2,
+   "z": -6.6,
+   "yaw": 10,
+   "scale": 1.6,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cloud_Puff",
+   "x": 5.4,
+   "y": -3.4,
+   "z": -7.2,
+   "yaw": 70,
+   "scale": 1.5,
+   "habitat": ""
+  },
+  {
+   "asset": "SM_ENV_Sky_Cover_Main",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Cover_East",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  },
+  {
+   "asset": "SM_ENV_Sky_Cover_Shrine",
+   "x": 0,
+   "y": 0.0,
+   "z": 0,
+   "yaw": 0.0,
+   "scale": 1.0,
+   "habitat": "sky_low_island"
+  }
+ ],
+ "scene": {
+  "name": "Sky_Environment",
+  "displayNameVi": "Thiên Giới",
+  "displayNameEn": "Sky Realm",
+  "background": [
+   0.7,
+   0.82,
+   0.96
+  ]
+ }
+}
