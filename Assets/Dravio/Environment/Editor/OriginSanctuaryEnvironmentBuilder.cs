@@ -120,9 +120,10 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (painterlyOk)
             {
                 ConfigurePainterly(mats["ENV_Props"], atlas, emission, wind: 0.05f, path: 0f, clip: false);
-                mats["ENV_Props"].SetColor("_EmissionColor", new Color(1.7f, 1.7f, 1.7f, 1f));
+                mats["ENV_Props"].SetColor("_EmissionColor", new Color(2.0f, 2.0f, 2.0f, 1f));
                 ConfigurePainterly(mats["ENV_Foliage"], foliage, null, wind: 0.11f, path: 0f, clip: true);
                 ConfigurePainterly(mats["ENV_Ground"], ground, null, wind: 0f, path: 1f, clip: false);
+                foreach (var key in new[] { "ENV_Props", "ENV_Foliage", "ENV_Ground" }) ApplyOriginVis1Grade(mats[key]);
                 mats["ENV_Ground"].SetFloat("_RimStrength", 0f);
             }
             else
@@ -189,6 +190,18 @@ namespace Dravio.EnvironmentArt.EditorTools
                 m.renderQueue = (int)RenderQueue.Geometry;
             }
             m.enableInstancing = true;
+        }
+
+        // VIS.1 (Issue #80): Origin-only shading grade (cooler shadow tint, crisper ramp,
+        // warmer and slightly stronger rim, deeper earth path). Ocean/Sky keep the U1-ENV defaults.
+        internal static void ApplyOriginVis1Grade(Material m)
+        {
+            m.SetColor("_ShadowTint", new Color(0.56f, 0.62f, 0.90f, 1f));
+            m.SetFloat("_RampThreshold", 0.02f);
+            m.SetFloat("_RampSoftness", 0.26f);
+            m.SetColor("_RimColor", new Color(1f, 0.88f, 0.66f, 1f));
+            m.SetFloat("_RimStrength", 0.22f);
+            m.SetColor("_PathColor", new Color(0.50f, 0.38f, 0.25f, 1f));
         }
 
         internal static void ConfigureLitFallback(Material m, Texture2D baseMap, Texture2D emission, bool clip, bool transparent)
@@ -438,24 +451,25 @@ namespace Dravio.EnvironmentArt.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             // Lighting: warm key light, cool painted ambient, soft distance fog.
-            Color sky = new Color(0.70f, 0.80f, 0.66f);
+            // VIS.1 (Issue #80) grade; equals the 13:00 keyframe of OriginSanctuaryLiving.json.
+            Color sky = new Color(0.80f, 0.84f, 0.70f);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.80f, 0.86f, 0.95f);
-            RenderSettings.ambientEquatorColor = new Color(0.66f, 0.72f, 0.58f);
-            RenderSettings.ambientGroundColor = new Color(0.40f, 0.36f, 0.30f);
+            RenderSettings.ambientSkyColor = new Color(0.56f, 0.66f, 0.84f);
+            RenderSettings.ambientEquatorColor = new Color(0.50f, 0.56f, 0.48f);
+            RenderSettings.ambientGroundColor = new Color(0.34f, 0.28f, 0.22f);
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = sky;
-            RenderSettings.fogStartDistance = 24f;
-            RenderSettings.fogEndDistance = 52f;
+            RenderSettings.fogStartDistance = 28f;  // VIS.1: keep the gate and statue crisp
+            RenderSettings.fogEndDistance = 64f;
 
             var sunGo = new GameObject("Warm Sun");
             var sun = sunGo.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = new Color(1f, 0.92f, 0.78f);
-            sun.intensity = 1.35f;
+            sun.color = new Color(1f, 0.86f, 0.66f);
+            sun.intensity = 1.12f;
             sun.shadows = LightShadows.Soft;
             sun.shadowStrength = 0.75f;
             sunGo.transform.rotation = Quaternion.Euler(46f, -38f, 0f);

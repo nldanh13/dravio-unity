@@ -77,10 +77,11 @@ class TimeOfDayTests(unittest.TestCase):
         s = living.evaluate(living.DEFAULT_HOUR)
         self.assertAlmostEqual(s["lightElevation"], 46.0)
         self.assertAlmostEqual(s["lightAzimuth"], -38.0)
-        self.assertAlmostEqual(s["lightIntensity"], 1.35)
-        for got, want in ((s["lightColor"], (1.0, 0.92, 0.78)), (s["ambientSky"], (0.80, 0.86, 0.95)),
-                          (s["ambientEquator"], (0.66, 0.72, 0.58)), (s["ambientGround"], (0.40, 0.36, 0.30)),
-                          (s["fogColor"], (0.70, 0.80, 0.66))):
+        # VIS.1 (Issue #80) grade; must equal the static lighting in OriginSanctuaryEnvironmentBuilder.
+        self.assertAlmostEqual(s["lightIntensity"], 1.12)
+        for got, want in ((s["lightColor"], (1.0, 0.86, 0.66)), (s["ambientSky"], (0.56, 0.66, 0.84)),
+                          (s["ambientEquator"], (0.50, 0.56, 0.48)), (s["ambientGround"], (0.34, 0.28, 0.22)),
+                          (s["fogColor"], (0.80, 0.84, 0.70))):
             for a, b in zip(got, want):
                 self.assertAlmostEqual(a, b)
         self.assertEqual(s["nightGlow"], 0.0)

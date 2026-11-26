@@ -267,20 +267,20 @@ MonoBehaviour:
     - 1
     - 0.88
     - 0.74
-    lightIntensity: 1.18
+    lightIntensity: 0.98
     shadowStrength: 0.65
     ambientSky:
-    - 0.78
-    - 0.84
-    - 0.94
+    - 0.56
+    - 0.6
+    - 0.68
     ambientEquator:
-    - 0.66
-    - 0.7
-    - 0.58
+    - 0.48
+    - 0.5
+    - 0.42
     ambientGround:
-    - 0.38
-    - 0.34
-    - 0.29
+    - 0.27
+    - 0.24
+    - 0.21
     fogColor:
     - 0.72
     - 0.79
@@ -303,26 +303,26 @@ MonoBehaviour:
     lightAzimuth: -38
     lightColor:
     - 1
-    - 0.92
-    - 0.78
-    lightIntensity: 1.35
+    - 0.86
+    - 0.66
+    lightIntensity: 1.12
     shadowStrength: 0.75
     ambientSky:
-    - 0.8
-    - 0.86
-    - 0.95
+    - 0.56
+    - 0.66
+    - 0.84
     ambientEquator:
-    - 0.66
-    - 0.72
-    - 0.58
+    - 0.5
+    - 0.56
+    - 0.48
     ambientGround:
-    - 0.4
-    - 0.36
-    - 0.3
+    - 0.34
+    - 0.28
+    - 0.22
     fogColor:
-    - 0.7
     - 0.8
-    - 0.66
+    - 0.84
+    - 0.7
     nightGlow: 0
     ambientFloorCut: 0
     wind: 1
@@ -343,20 +343,20 @@ MonoBehaviour:
     - 1
     - 0.84
     - 0.62
-    lightIntensity: 1.2
+    lightIntensity: 1
     shadowStrength: 0.72
     ambientSky:
-    - 0.8
-    - 0.8
-    - 0.86
+    - 0.58
+    - 0.58
+    - 0.62
     ambientEquator:
-    - 0.7
-    - 0.66
-    - 0.52
+    - 0.5
+    - 0.48
+    - 0.38
     ambientGround:
-    - 0.4
-    - 0.33
-    - 0.26
+    - 0.29
+    - 0.24
+    - 0.19
     fogColor:
     - 0.78
     - 0.76

@@ -22,7 +22,7 @@ import layout
 LIVING_VERSION = 1
 
 # ------------------------------------------------------------------ time of day
-DEFAULT_HOUR = 13.0          # matches the U1-ENV.2 static lighting exactly
+DEFAULT_HOUR = 13.0          # matches the static scene lighting exactly (VIS.1 grade since Issue #80)
 DAY_LENGTH_MINUTES = 24.0    # real minutes for a full simulated day (designer setting)
 
 PHASES = [  # [start, end) in hours; night wraps over midnight
@@ -32,9 +32,15 @@ PHASES = [  # [start, end) in hours; night wraps over midnight
     {"id": "night", "start": 19.5, "end": 5.0},
 ]
 
-DAY_SUN = {"elev": 46.0, "azim": -38.0, "color": (1.0, 0.92, 0.78), "intensity": 1.35}
-DAY_AMBIENT = {"sky": (0.80, 0.86, 0.95), "equator": (0.66, 0.72, 0.58), "ground": (0.40, 0.36, 0.30)}
-DAY_FOG = (0.70, 0.80, 0.66)
+# VIS.1 (Issue #80) Ancient Fantasy grade: golden key light, cooler sky fill, warm bounce,
+# warm haze. Same sun direction as U1-ENV.2, so shadows and readability of paths are kept.
+# U1-ENV.2 values were sun (1.0, 0.92, 0.78) x1.35, sky (0.80, 0.86, 0.95),
+# equator (0.66, 0.72, 0.58), ground (0.40, 0.36, 0.30), fog (0.70, 0.80, 0.66).
+# The day keys (8:00, 13:00, 16:30) are also ~25 % lower in total light than U1-ENV.2, which
+# clipped sunlit grass and stone to near white; the painted textures now keep their values.
+DAY_SUN = {"elev": 46.0, "azim": -38.0, "color": (1.0, 0.86, 0.66), "intensity": 1.12}
+DAY_AMBIENT = {"sky": (0.56, 0.66, 0.84), "equator": (0.50, 0.56, 0.48), "ground": (0.34, 0.28, 0.22)}
+DAY_FOG = (0.80, 0.84, 0.70)
 
 
 def K(hour, elev, azim, color, intensity, shadow, sky, equator, ground, fog, glow=0.0, floor_cut=0.0,
@@ -73,12 +79,12 @@ KEYFRAMES = [
       glow=0.7, floor_cut=0.5, wind=0.5, fireflies=0.3, rings=0.2, crickets=0.4, frogs=0.2, wind_bed=0.3),
     K(6.0, 9, 74, (1.0, 0.66, 0.50), 0.62, 0.45, (0.70, 0.62, 0.72), (0.62, 0.52, 0.50), (0.30, 0.25, 0.24), (0.78, 0.62, 0.60),
       glow=0.35, floor_cut=0.2, wind=0.7, fireflies=0.1, dust=0.35, rings=0.4, birds=1.0, crickets=0.15, wind_bed=0.4),
-    K(8.0, 30, 40, (1.0, 0.88, 0.74), 1.18, 0.65, (0.78, 0.84, 0.94), (0.66, 0.70, 0.58), (0.38, 0.34, 0.29), (0.72, 0.79, 0.68),
+    K(8.0, 30, 40, (1.0, 0.88, 0.74), 0.98, 0.65, (0.56, 0.60, 0.68), (0.48, 0.50, 0.42), (0.27, 0.24, 0.21), (0.72, 0.79, 0.68),
       dust=0.55, rings=0.5, birds=0.85, wind_bed=0.5),
     K(DEFAULT_HOUR, DAY_SUN["elev"], DAY_SUN["azim"], DAY_SUN["color"], DAY_SUN["intensity"], 0.75,
       DAY_AMBIENT["sky"], DAY_AMBIENT["equator"], DAY_AMBIENT["ground"], DAY_FOG,
       dust=0.45, rings=0.5, birds=0.6, insects=0.7, wind_bed=0.6),
-    K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.2, 0.72, (0.80, 0.80, 0.86), (0.70, 0.66, 0.52), (0.40, 0.33, 0.26), (0.78, 0.76, 0.60),
+    K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.0, 0.72, (0.58, 0.58, 0.62), (0.50, 0.48, 0.38), (0.29, 0.24, 0.19), (0.78, 0.76, 0.60),
       wind=1.1, dust=0.8, rings=0.5, birds=0.6, insects=0.8, wind_bed=0.7),
     K(18.3, 7, -78, (1.0, 0.56, 0.34), 0.78, 0.55, (0.66, 0.50, 0.58), (0.68, 0.48, 0.42), (0.30, 0.22, 0.20), (0.86, 0.56, 0.46),
       glow=0.45, floor_cut=0.2, wind=0.9, fireflies=0.35, dust=0.55, rings=0.45, birds=0.3, crickets=0.35, insects=0.3, wind_bed=0.5),
@@ -91,6 +97,19 @@ KEYFRAMES = [
     K(21.0, 32, 34, MOON, 0.38, 0.40, NIGHT_SKY, NIGHT_EQ, NIGHT_GROUND, NIGHT_FOG,
       glow=1.0, floor_cut=0.75, wind=0.6, fireflies=1.0, rings=0.25, crickets=1.0, frogs=0.9, wind_bed=0.3, moon=True),
 ]
+
+# U1-ENV.2 day keys, kept for the Ocean / Sky zones (zone_common derives their keyframes
+# from these). VIS.1 (Issue #80) regrades the Origin day only; Ocean/Sky follow later,
+# after owner review.
+_U1_ENV2_DAY = {
+    8.0: K(8.0, 30, 40, (1.0, 0.88, 0.74), 1.18, 0.65, (0.78, 0.84, 0.94), (0.66, 0.70, 0.58), (0.38, 0.34, 0.29),
+           (0.72, 0.79, 0.68), dust=0.55, rings=0.5, birds=0.85, wind_bed=0.5),
+    DEFAULT_HOUR: K(DEFAULT_HOUR, 46.0, -38.0, (1.0, 0.92, 0.78), 1.35, 0.75, (0.80, 0.86, 0.95), (0.66, 0.72, 0.58),
+                    (0.40, 0.36, 0.30), (0.70, 0.80, 0.66), dust=0.45, rings=0.5, birds=0.6, insects=0.7, wind_bed=0.6),
+    16.5: K(16.5, 26, -62, (1.0, 0.84, 0.62), 1.2, 0.72, (0.80, 0.80, 0.86), (0.70, 0.66, 0.52), (0.40, 0.33, 0.26),
+            (0.78, 0.76, 0.60), wind=1.1, dust=0.8, rings=0.5, birds=0.6, insects=0.8, wind_bed=0.7),
+}
+U1_ENV2_KEYFRAMES = [_U1_ENV2_DAY.get(k["hour"], k) for k in KEYFRAMES]
 
 SCALAR_KEYS = ["lightElevation", "lightAzimuth", "lightIntensity", "shadowStrength", "nightGlow", "ambientFloorCut",
                "wind", "fireflies", "dust", "pondRings", "audioBirds", "audioCrickets", "audioFrogs", "audioInsects",

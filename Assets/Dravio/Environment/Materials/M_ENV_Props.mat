@@ -41,18 +41,18 @@ Material:
     - _EmissionPulse: 0.35
     - _PathBlend: 0
     - _PulseSpeed: 1.3
-    - _RampSoftness: 0.32
-    - _RampThreshold: 0.05
-    - _RimStrength: 0.12
+    - _RampSoftness: 0.26
+    - _RampThreshold: 0.02
+    - _RimStrength: 0.22
     - _VertexAO: 1
     - _WindSpeed: 1.6
     - _WindStrength: 0.05
     m_Colors:
     - _AmbientFloor: {r: 0.23999995, g: 0.25999996, b: 0.29999998, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 1.7, g: 1.7, b: 1.7, a: 1}
-    - _PathColor: {r: 0.62, g: 0.49, b: 0.32999998, a: 1}
-    - _RimColor: {r: 1, g: 0.92, b: 0.74, a: 1}
-    - _ShadowTint: {r: 0.62, g: 0.65999997, b: 0.86, a: 1}
+    - _EmissionColor: {r: 2, g: 2, b: 2, a: 1}
+    - _PathColor: {r: 0.5, g: 0.38, b: 0.25, a: 1}
+    - _RimColor: {r: 1, g: 0.88, b: 0.66, a: 1}
+    - _ShadowTint: {r: 0.56, g: 0.62, b: 0.9, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

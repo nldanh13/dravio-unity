@@ -226,6 +226,22 @@ def tile_leaves(rng):
     return c
 
 
+def tile_leaves_vis1(rng):
+    """VIS.1 canopy: soft scalloped leaf masses (no high-frequency camo dashes), warm
+    yellow-green tops, cool blue-green pockets. Large shapes read at phone scale."""
+    c, field, _ = base_tile(rng, "#3c6a34", "#7fb44e", base=2, contrast=1.15, bands=4)
+    for _ in range(150):  # big rounded leaf clumps, darker underside then lit cap
+        x, y = rng.random() * T, rng.random() * T
+        r = 16 + rng.random() * 16
+        c.stamp(x, y + r * 0.25, 0, 0.1, r * 2.0, hex_rgb("#2f5a2e"), 0.55, rng=rng, bristle=0, hardness=0.5)
+        c.stamp(x, y, 0, 0.1, r * 1.8, field[int(y) % T, int(x) % T] * 1.05, 0.8, rng=rng, bristle=0, hardness=0.6)
+        c.stamp(x - r * 0.2, y - r * 0.3, 0, 0.1, r * 0.9, hex_rgb("#a9cf5f"), 0.55, rng=rng, bristle=0,
+                hardness=0.55)
+    strokes(c, rng, field, 90, 0, 3.0, 3, 8, 0.3, palette=[hex_rgb("#c8e07c"), hex_rgb("#b5d66a")], bristle=0)
+    strokes(c, rng, field, 50, 0, 3.0, 3, 8, 0.3, palette=[hex_rgb("#2a5a3c")], bristle=0)
+    return c
+
+
 def tile_statue(rng):
     c = tile_stone(rng, "#5b706b", "#9cb0a5", angle=1.2, specks="#44534f")
     # verdigris / lichen stains
@@ -320,7 +336,9 @@ def build_props_atlas(seed=1303):
         "moss": lambda: tile_moss(rng),
         "bark": lambda: tile_bark(rng),
         "root": lambda: tile_bark(rng, "#7a5a3e", "#b5916a"),
-        "leaf_canopy": lambda: tile_leaves(rng),
+        # VIS.1: the U1-ENV tile is still drawn (and discarded) so the shared rng advances
+        # exactly as before and every other tile stays bit-identical; the new tile has its own seed.
+        "leaf_canopy": lambda: (tile_leaves(rng), tile_leaves_vis1(np.random.default_rng(seed + 6)))[1],
         "statue_stone": lambda: tile_statue(rng),
         "mushroom_cap": lambda: tile_cap(rng, "#b0402c", "#e27748", "#f6e4bb"),
         "mushroom_stem": lambda: tile_bark(rng, "#cdb48a", "#f3e6c6"),
@@ -364,6 +382,28 @@ def build_ground(seed=77, size=512):
     strokes(c, rng, field, 500, -1.2, 0.5, 10, 4, 0.45, palette=[hex_rgb("#46682b")], bristle=0)
     for _ in range(70):  # tiny painted blossoms
         col = [hex_rgb("#f2c0d6"), hex_rgb("#fff1b0"), hex_rgb("#bfe6f2")][int(rng.integers(3))]
+        c.stamp(rng.random() * size, rng.random() * size, 0, 0.1, 4.5, col, 0.9, rng=rng, bristle=0, hardness=0.7)
+    return c.to_uint8()
+
+
+def build_ground_vis1(seed=77, size=512):
+    """VIS.1 meadow: broad sunlit / shaded value patches, warm yellow-green highlights,
+    clover drifts and fewer dark dashes, so props and the dragon read on top of it."""
+    rng = np.random.default_rng(seed)
+    field, n = painted_field(size, rng, hex_rgb("#4f843a"), hex_rgb("#bccd6c"), base=2, contrast=1.7, bands=4)
+    c = Canvas(size, size)
+    c.rgb[:] = field
+    strokes(c, rng, field, 1300, -1.2, 0.5, 15, 6, 0.3, tint=0.06, bristle=0.1)
+    strokes(c, rng, field, 380, -1.2, 0.6, 10, 5, 0.38,
+            palette=[hex_rgb("#d4dc82"), hex_rgb("#c3d671")], bristle=0)
+    strokes(c, rng, field, 200, -1.2, 0.5, 9, 4, 0.25, palette=[hex_rgb("#4a7a3a")], bristle=0)
+    for _ in range(36):  # clover drifts: soft round cool-green dabs
+        x, y = rng.random() * size, rng.random() * size
+        for _ in range(6):
+            c.stamp(x + rng.normal() * 10, y + rng.normal() * 7, 0, 0.1, 9, hex_rgb("#5f9a4a"), 0.4,
+                    rng=rng, bristle=0, hardness=0.6)
+    for _ in range(110):  # tiny painted blossoms
+        col = [hex_rgb("#f6c4d8"), hex_rgb("#fff0a8"), hex_rgb("#c6e8f4"), hex_rgb("#ffffff")][int(rng.integers(4))]
         c.stamp(rng.random() * size, rng.random() * size, 0, 0.1, 4.5, col, 0.9, rng=rng, bristle=0, hardness=0.7)
     return c.to_uint8()
 
@@ -467,6 +507,18 @@ def build_foliage(seed=21):
                 if s % 3 == 0:
                     sgn = 1 if s % 6 == 0 else -1
                     leaf(c, xx, y, math.pi / 2 + sgn * 1.2, 34, 22, "#3a6a2f", "#8fbd52")
+            # VIS.1: flowering ivy (Origin concept), separate rng keeps other cells identical.
+            brng = np.random.default_rng(4111)
+            for s in range(9):
+                y = 20 + s * (ch - 40) / 8 + brng.normal() * 6
+                xx = x + math.sin((y - 6) / (ch - 12) * 9) * 10 + (1 if s % 2 else -1) * (14 + brng.random() * 8)
+                petal = ("#f2a6c8", "#ffd56e", "#f7f1ff", "#9fd3ea")[s % 4]
+                for kk in range(5):
+                    a = kk * 2 * math.pi / 5
+                    c.stamp(xx + math.cos(a) * 5, y + math.sin(a) * 5, a, 7, 8, hex_rgb(petal), 1.0, wrap=False,
+                            rng=brng, bristle=0, write_alpha=True, hardness=0.65)
+                c.stamp(xx, y, 0, 0.1, 5, hex_rgb("#fff0a6"), 1.0, wrap=False, rng=brng, bristle=0,
+                        write_alpha=True, hardness=0.7)
         elif name in ("reed", "cattail"):
             for k in range(7 if name == "reed" else 5):
                 x0 = cw * 0.5 + rng.normal() * cw * 0.13
@@ -525,7 +577,7 @@ def generate_all(out_dir):
         "T_ENV_PropsAtlas.png": props,
         "T_ENV_PropsEmission.png": emission,
         "T_ENV_Foliage.png": build_foliage(),
-        "T_ENV_Ground.png": build_ground(),
+        "T_ENV_Ground.png": build_ground_vis1(),
         "T_ENV_Water.png": build_water(),
     }
     for name, img in files.items():
