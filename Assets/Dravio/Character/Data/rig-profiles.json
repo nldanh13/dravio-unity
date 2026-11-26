@@ -8,6 +8,7 @@
   "motionDefaults": {
     "_note": "U1-CHAR.7 pipeline defaults (no GDD value), exported to rig.json motion and the catalog. U1-CHAR.7b: the nominal in-place swim/fly speed comes from the Strouhal number (strouhal) of the stroke measured on each model (cruising animals 0.2-0.4); swim/flyLengthsPerCycle are only the fallback when there is no stroke tip bone. The air turn limit is derived per model from a coordinated turn at maxBankDeg (= MotionShapeSolver.MaxBankDeg); ground/water turn limits stay defaults. Sources: BIOMECHANICS_RESEARCH.md. Art director to confirm.",
     "strouhal": 0.3,
+    "swimAmplitudeBandL": [0.1, 0.3],
     "maxBankDeg": 30,
     "swimLengthsPerCycle": 0.6,
     "flyLengthsPerCycle": 3.0,
@@ -60,8 +61,9 @@
     },
     "droplet": {"swim": {"frames": 48, "style": "paddle", "tailStroke": 0.35, "tailBase": 0.45, "finFlap": 0.45}},
     "sprout": {"burrow": {"digReachLegs": 0.32, "digCycles": 2, "footFollow": 0.5}},
+    "magma": {"run": {"liftLegs": 0.24}},
     "steamdrake": {},
     "zephyr": {}
   },
-  "_changes": {"U1-CHAR.7b": "Biomechanics (Assets/Dravio/Character/BIOMECHANICS_RESEARCH.md): quadruped/winged walk and run period from Alexander's stride/h = 2.3 Fr^0.3 at the authored stride (cadence: froude; frames is the fallback); takeoff.launchShare 0.9 (leg-driven launch: birds get 80-95 % of lift-off velocity from the legs); land.flarePitch 0.3 rad (pitch-up braking; pigeons tilt the stroke plane about 17 deg); swim/fly nominal speed from Strouhal 0.3 on the measured stroke tip; air turn limit from a coordinated turn at maxBankDeg. Strides, amplitudes and QA thresholds unchanged.", "U1-CHAR.7": "winged takeoff.crouchH 0.08 -> 0.05 (TakeOff is chained to Idle/Fly and no longer rescaled; the deeper crouch rolled the toes under the ground); quadruped dig: dropH 0.015, footFollow 0 (a following paw rolled under while the body dropped). motionDefaults added.", "U1-CHAR.5": "quadruped sleep.footFollow 0.5 -> 0.8 and burrow.footFollow 0.5 (a flat planted paw under a folding shin pinched the ankle); droplet swim.tailBase 0.45 (tail bend grows from the root instead of starting at 60 % at the hip). Timing/amplitude unchanged; thresholds unchanged."}
+  "_changes": {"U1-CHAR.7b": "Biomechanics (Assets/Dravio/Character/BIOMECHANICS_RESEARCH.md): quadruped/winged walk and run period from Alexander's stride/h = 2.3 Fr^0.3 at the authored stride (cadence: froude; frames is the fallback); takeoff.launchShare 0.9 (leg-driven launch: birds get 80-95 % of lift-off velocity from the legs); land.flarePitch 0.3 rad (pitch-up braking; pigeons tilt the stroke plane about 17 deg); swim/fly nominal speed from Strouhal 0.3 on the measured stroke tip; air turn limit from a coordinated turn at maxBankDeg; swim keeps lengthsPerCycle when the measured tail amplitude is outside the fish band swimAmplitudeBandL (flagged for review). magma run.liftLegs 0.24 (fit on the SAMPLE block mesh: the shorter Run cycle sampled a Run pose at 1.601 stretch, limit 1.6). Strides, other amplitudes and QA thresholds unchanged.", "U1-CHAR.7": "winged takeoff.crouchH 0.08 -> 0.05 (TakeOff is chained to Idle/Fly and no longer rescaled; the deeper crouch rolled the toes under the ground); quadruped dig: dropH 0.015, footFollow 0 (a following paw rolled under while the body dropped). motionDefaults added.", "U1-CHAR.5": "quadruped sleep.footFollow 0.5 -> 0.8 and burrow.footFollow 0.5 (a flat planted paw under a folding shin pinched the ankle); droplet swim.tailBase 0.45 (tail bend grows from the root instead of starting at 60 % at the hip). Timing/amplitude unchanged; thresholds unchanged."}
 }

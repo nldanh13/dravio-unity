@@ -98,7 +98,7 @@ class Reports(unittest.TestCase):
         self.assertIn('static', rows['magma']['models']['Adult'])
         self.assertIsNone(rows['gaia']['models']['Adult'])
         self.assertIn('| magma |', (self.out / 'capability-matrix.md').read_text(encoding='utf-8'))
-        self.assertTrue((self.out / 'motion-report.md').exists())
+        self.assertIn('Sinh cơ học', (self.out / 'motion-report.md').read_text(encoding='utf-8'))
 
     def test_refuses_out_equal_work_and_missing_assets(self):
         with self.assertRaises(SystemExit):

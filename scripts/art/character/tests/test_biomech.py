@@ -53,6 +53,9 @@ class Strouhal(unittest.TestCase):
         st = PROFILES['motionDefaults']['strouhal']
         self.assertTrue(0.2 <= st <= 0.4, 'Taylor et al. 2003: cruising swimmers and flyers 0.2-0.4')
 
+    def test_swim_amplitude_band_is_the_fish_band(self):
+        self.assertEqual(PROFILES['motionDefaults']['swimAmplitudeBandL'], [0.1, 0.3], 'Saadat et al. 2017')
+
     def test_strouhal_of_nothing_is_zero(self):
         self.assertEqual(rg.strouhal(0.3, 0.0, 1.0), 0.0)
 

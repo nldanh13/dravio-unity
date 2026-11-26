@@ -1530,9 +1530,17 @@ def main():
             amp = anim.tip_amplitude(tip, axis, ranges[c]) if st > 0 else 0.0
             info = {'tipBone': tip, 'tipAmplitudePP_m': round(amp, 4), 'strouhalTarget': st,
                     'lengthsPerCycleDefault': lpc}
-            if amp > 0.01 * body['length_m']:
+            band = motion_defaults.get('swimAmplitudeBandL', [0.0, 1e9]) if key == 'swim' else [0.0, 1e9]
+            rel = amp / body['length_m']
+            info['tipAmplitudeL'] = round(rel, 3)
+            if amp > 0.01 * body['length_m'] and band[0] <= rel <= band[1]:
                 lpc = rg.strouhal_lengths_per_cycle(amp, body['length_m'], st)
                 info['source'] = 'Taylor, Nudds & Thomas 2003: cruising St = fA/U in 0.2-0.4'
+            elif amp > 0.01 * body['length_m']:
+                # a tail stroke outside the fish band (Saadat et al. 2017: A/L 0.1-0.3) would give a non-biological
+                # speed through St: keep the stride default (fish cover ~0.6-0.7 L per tail beat) and flag it
+                info['source'] = 'motionDefaults lengthsPerCycle (tail amplitude outside the fish band; art director to review)'
+                info['amplitudeOutsideBand'] = band
             else:
                 info['source'] = 'motionDefaults lengthsPerCycle (no measurable stroke tip)'
             if lpc > 0 and n > 0:  # in-place clip: nominal speed = distance per cycle / period
