@@ -32,9 +32,11 @@ namespace Dravio.Tests
             Assert.That(economy.StarterPacksLeftToday,Is.EqualTo(5));
             Assert.That(economy.StarterPriceGoldMicro,Is.EqualTo(150000000L));
             Assert.That(economy.ProjectsBuilt,Is.Zero);
-            Assert.That(rules.ResearchPacingEnabled||rules.SocialGameplayEffectsEnabled||rules.QuestCompletionEnabled||
+            // U2.11 (ADR 0206): hoàn thành nhiệm vụ là luật thật. Khóa Codex, tác động xã hội, comfort drift, thiên tai, tiêu hao năng lượng vẫn TẮT.
+            Assert.That(rules.QuestCompletionEnabled,Is.True);
+            Assert.That(rules.ResearchPacingEnabled||rules.SocialGameplayEffectsEnabled||
                 rules.ComfortDriftEnabled||rules.NaturalDisastersEnabled||rules.EnergyDrainEnabled,Is.False);
-            foreach(var q in ProgressionQueries.QuestRequirements(state))Assert.That(q.CanComplete,Is.False);
+            foreach(var q in ProgressionQueries.QuestRequirements(state))Assert.That(q.CanComplete,Is.False,"save mới chưa đủ điều kiện nhiệm vụ nào");
             foreach(var c in ProgressionQueries.SocialInteractionCandidates(state,now,DayPhase.Day))
             {Assert.That(c.AffectsGameplay,Is.False);Assert.That(c.Role,Is.EqualTo(BehaviorRole.Presentation));}
             Assert.That(ProgressionQueries.Overview(state).CodexCells,Is.EqualTo(overview.CodexCells));
