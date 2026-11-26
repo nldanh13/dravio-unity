@@ -66,17 +66,110 @@ namespace Dravio
             if(p.RevealedSections.Contains(CodexSection.Behavior))lines.Add((vi?"Tập tính còn thiếu: ":"Missing behaviors: ")+List(p.ObservableBehaviors.Except(p.ObservedBehaviors)));
             return string.Join("\n\n",lines);
         }
+        public static string ZoneName(string id,bool vi)=>id switch
+        {
+            "origin"=>vi?"Khởi Nguyên":"Origin",
+            "ocean"=>vi?"Thủy Vực":"Ocean",
+            "sky"=>vi?"Thiên Giới":"Sky",
+            _=>id
+        };
+        public static string QuestName(string id,bool vi)=>id switch
+        {
+            "Q_ORIGIN_FIELD_NOTES"=>vi?"Ghi chép Khởi Nguyên":"Origin field notes",
+            "Q_ORIGIN_FOREST_SURVEY"=>vi?"Khảo sát rừng":"Forest survey",
+            "QUEST_AQUATIC_EXPLORATION"=>vi?"Khám phá Thủy Vực":"Aquatic exploration",
+            "QUEST_SKY_EXPLORATION"=>vi?"Khám phá Thiên Giới":"Sky exploration",
+            "Q_RESEARCH_NIGHT_WATCH"=>vi?"Canh đêm":"Night watch",
+            "Q_RESEARCH_PERSONALITIES"=>vi?"Tìm hiểu cá tính":"Personalities",
+            "Q_RESEARCH_ETHOLOGIST"=>vi?"Nhà nghiên cứu tập tính":"Ethologist",
+            "Q_RESEARCH_TIDE_JOURNAL"=>vi?"Nhật ký thủy triều":"Tide journal",
+            "Q_RESEARCH_SKY_CHRONICLE"=>vi?"Biên niên Thiên Giới":"Sky chronicle",
+            "Q_CONSERVE_AT_HOME"=>vi?"Bảo tồn tại nhà":"Conserve at home",
+            "Q_CONSERVE_TIDES"=>vi?"Bảo tồn Thủy Vực":"Conserve tides",
+            "Q_CONSERVE_SKIES"=>vi?"Bảo tồn Thiên Giới":"Conserve skies",
+            "Q_SOCIAL_FIRST_FRIENDS"=>vi?"Những người bạn đầu tiên":"First friends",
+            "Q_SOCIAL_CLOSE_BOND"=>vi?"Mối quan hệ thân thiết":"Close bond",
+            "Q_EXPEDITION_PATHFINDER"=>vi?"Người tìm đường":"Pathfinder",
+            "Q_EXPEDITION_REEF"=>vi?"Khảo sát rạn san hô":"Reef survey",
+            "Q_EXPEDITION_CLOUD"=>vi?"Khảo sát sân mây":"Cloud survey",
+            _=>id
+        };
+        public static string Missing(string id,bool vi)
+        {
+            if(id=="tutorial-completed")return vi?"Hoàn thành hướng dẫn":"Complete tutorial";
+            if(id=="origin-habitats")return vi?"Mở đủ sinh cảnh Khởi Nguyên":"Unlock all Origin habitats";
+            if(id.StartsWith("zone:",StringComparison.Ordinal))return (vi?"Mở ":"Unlock ")+ZoneName(id.Substring(5),vi);
+            if(id.StartsWith("quest:",StringComparison.Ordinal))return (vi?"Nhận nhiệm vụ: ":"Claim quest: ")+QuestName(id.Substring(6),vi);
+            if(id=="route-rewards-undefined")return vi?"Chưa duyệt bảng thưởng tuyến":"Route reward table not approved";
+            return id;
+        }
+        // Return a claim or an exact zone ID, never both. Domain is the only eligibility authority.
+        public static string QuestAction(QuestLogDto log,string id)
+        {
+            if(log==null||id==null)return null;
+            var q=log.Quests.FirstOrDefault(x=>x.QuestId==id);
+            if(q==null)return null;
+            if(q.CanComplete&&log.ReadyQuestIds.Contains(id))return "claim";
+            if(q.State!=QuestState.Completed||!q.IsCanonicalGate||!q.RewardId.StartsWith("zone.",StringComparison.Ordinal))return null;
+            string zone=q.RewardId.Substring(5);
+            return log.ZoneUnlockMissing.TryGetValue(zone,out var missing)&&missing.Count==0?zone:null;
+        }
+        public static string WorldProgress(QuestLogDto log,bool vi)
+        {
+            var lines=new List<string>();
+            foreach(string zone in new[]{"ocean","sky"})
+            {
+                string name=ZoneName(zone,vi);
+                if(!log.ZoneUnlockMissing.TryGetValue(zone,out var missing))lines.Add(name+": "+(vi?"Đã mở":"Unlocked"));
+                else if(missing.Count==0)lines.Add(name+": "+(vi?"Có thể mở trong nhiệm vụ cổng":"Ready to unlock in gate quest"));
+                else lines.Add(name+": "+string.Join("; ",missing.Select(m=>Missing(m,vi))));
+            }
+            return string.Join("\n",lines);
+        }
+        static string RequirementName(QuestRequirementDef def,bool vi)
+        {
+            string name=def.Kind switch
+            {
+                QuestRequirementKind.ResearchTier=>vi?"Loài đạt cấp nghiên cứu":"Species at research tier",
+                QuestRequirementKind.AdultWithLocomotion=>vi?"Rồng trưởng thành ở sinh cảnh":"Adult residents with locomotion",
+                QuestRequirementKind.MaterialDelivery=>vi?"Vật liệu giao khi nhận":"Materials delivered on claim",
+                QuestRequirementKind.ResidentsThriving=>vi?"Cư dân có độ phù hợp tốt":"Residents with good suitability",
+                QuestRequirementKind.ResidentsAtHome=>vi?"Cư dân ở sinh cảnh ưa thích":"Residents in preferred habitats",
+                QuestRequirementKind.CircadianRecords=>vi?"Loài đủ ghi chép ngày/đêm":"Species with active/rest records",
+                QuestRequirementKind.IndividualsKnown=>vi?"Cá thể đã rõ cá tính và nơi ưa thích":"Individuals with known traits and habitat",
+                QuestRequirementKind.SpeciesRecordedInRealm=>vi?"Loài được ghi chép tại thế giới":"Species recorded in realm",
+                QuestRequirementKind.RouteAvailable=>vi?"Tuyến thám hiểm khả dụng":"Expedition route available",
+                QuestRequirementKind.RelationPairs=>vi?"Cặp rồng đạt bậc quan hệ":"Pairs at relationship tier",
+                QuestRequirementKind.ExpeditionsClaimed=>vi?"Chuyến đã nhận thưởng":"Expeditions claimed",
+                _=>def.Kind.ToString()
+            };
+            string param=def.Param;
+            if(vi)param=param switch{"wood"=>"Gỗ","seed"=>"Hạt giống","crystal"=>"Pha lê","coral"=>"San hô",_=>param};
+            return name+(string.IsNullOrEmpty(param)?"":" · "+param)+
+                (def.Realm.HasValue?" · "+def.Realm:"")+(def.Locomotion.HasValue?" · "+def.Locomotion:"")+
+                (def.Tier!=ResearchTier.Unknown?" · "+def.Tier:"")+
+                (def.Kind==QuestRequirementKind.RelationPairs?" · "+def.Relation:"");
+        }
         public static string Quest(QuestStatusView q,bool enabled,bool vi)
         {
             if(q==null)return "—";
-            var lines=new List<string>{q.QuestId+" · "+q.State+" · "+q.ProgressPct+"%",
-                q.IsCanonicalGate?(vi?"Cổng thế giới canonical":"Canonical world gate"):(vi?"Nhiệm vụ đề xuất":"Proposed quest"),
-                enabled?(vi?"Luật hoàn thành đã bật; màn này chỉ đọc.":"Completion rules enabled; this screen is read-only."):(vi?"Chưa bật hoàn thành và phần thưởng.":"Completion and rewards disabled.")};
-            if(q.LockedBy.Count>0)lines.Add((vi?"Điều kiện mở: ":"Locked by: ")+List(q.LockedBy));
+            string status=q.State switch
+            {
+                QuestState.Completed=>vi?"Đã nhận":"Claimed",
+                QuestState.Ready=>vi?"Đủ yêu cầu":"Ready",
+                QuestState.Locked=>vi?"Đang khóa":"Locked",
+                _=>vi?"Đang thực hiện":"In progress"
+            };
+            var lines=new List<string>{QuestName(q.QuestId,vi)+" · "+status+" · "+q.ProgressPct+"%",
+                q.IsCanonicalGate?(vi?"Nhiệm vụ cổng. Nhận nhiệm vụ không tự mở thế giới.":"Gate quest. Claiming does not unlock the world."):(vi?"Nhiệm vụ phụ":"Side quest"),
+                (vi?"Phần thưởng: ":"Reward: ")+q.RewardId};
+            if(!enabled)lines.Add(vi?"Chưa bật hoàn thành và phần thưởng.":"Completion and rewards disabled.");
+            if(q.LockedBy.Count>0)lines.Add((vi?"Điều kiện mở: ":"Locked by: ")+string.Join("; ",q.LockedBy.Select(m=>Missing(m,vi))));
+            if(q.State==QuestState.Completed)return string.Join("\n\n",lines);
             foreach(var req in q.Requirements)
-                lines.Add(req.Def.Kind+" "+(req.Def.Param??"")+(req.Def.Realm.HasValue?" "+req.Def.Realm:"")+
-                    (req.Def.Locomotion.HasValue?" "+req.Def.Locomotion:"")+(req.Def.Tier!=ResearchTier.Unknown?" "+req.Def.Tier:"")+
-                    "\n"+req.Current+"/"+req.Target+" · "+req.State+(string.IsNullOrEmpty(req.Detail)?"":" · "+req.Detail));
+                lines.Add(RequirementName(req.Def,vi)+"\n"+req.Current+"/"+req.Target+" · "+req.State+
+                    (string.IsNullOrEmpty(req.Detail)?"":" · "+Missing(req.Detail,vi)));
+            if(q.CanComplete&&enabled)lines.Add(vi?"Nhấn Nhận nhiệm vụ để giao vật liệu yêu cầu (nếu có) và nhận thưởng.":"Press Claim quest to deliver required materials (if any) and claim the reward.");
             return string.Join("\n\n",lines);
         }
     }

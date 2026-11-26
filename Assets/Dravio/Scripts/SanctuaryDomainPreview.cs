@@ -441,7 +441,7 @@ namespace Dravio
             if(id=="tutorial-completed")return vi?"Hoàn thành hướng dẫn":"Complete tutorial";
             if(id=="origin-habitats")return vi?"Mở đủ sinh cảnh Khởi Nguyên":"Unlock Origin habitats";
             if(id.StartsWith("zone:",StringComparison.Ordinal))return (vi?"Mở ":"Unlock ")+ZoneName(id.Substring(5));
-            if(id.StartsWith("quest:",StringComparison.Ordinal))return (vi?"Nhiệm vụ (chưa có nội dung): ":"Quest (not implemented): ")+id.Substring(6);
+            if(id.StartsWith("quest:",StringComparison.Ordinal))return (vi?"Nhận nhiệm vụ: ":"Claim quest: ")+ResearchDiscoveryView.QuestName(id.Substring(6),vi);
             return id;
         }
 

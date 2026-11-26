@@ -3,6 +3,7 @@ using Dravio.Domain;
 using Dravio.Domain.Behavior;
 using Dravio.Domain.Core;
 using Dravio.Domain.Queries;
+using Dravio.Domain.Progression;
 using NUnit.Framework;
 namespace Dravio.Tests
 {
@@ -45,6 +46,34 @@ namespace Dravio.Tests
             Assert.That(ResearchDiscoveryView.CanRecord(opportunity),Is.False);
             Assert.That(opportunity.CooldownRemainingMs,Is.GreaterThan(0));
             Assert.That(ProgressionQueries.IndividualResearch(result.State,uid).Observations,Is.EqualTo(1));
+        }
+        [Test] public void QuestActionUsesExactCanonicalEligibilityAndDoesNotAutoUnlock()
+        {
+            var s=New();var log=ProgressionQueries.QuestLog(s);
+            Assert.That(ResearchDiscoveryView.QuestAction(log,"QUEST_AQUATIC_EXPLORATION"),Is.Null);
+            Assert.That(ResearchDiscoveryView.QuestAction(log,"unknown"),Is.Null);
+            Assert.That(ResearchDiscoveryView.WorldProgress(log,true),Does.Contain("Hoàn thành hướng dẫn"));
+            // DTO-only fixtures exercise presentation; production eligibility remains in Domain.
+            var q=log.Quests.Single(x=>x.QuestId=="QUEST_AQUATIC_EXPLORATION");
+            q.State=QuestState.Ready;q.CanComplete=true;
+            log.ReadyQuestIds=new[]{"QUEST_AQUATIC_EXPLORATION"};
+            Assert.That(ResearchDiscoveryView.QuestAction(log,q.QuestId),Is.EqualTo("claim"));
+            q.State=QuestState.Completed;q.CanComplete=false;
+            Assert.That(ResearchDiscoveryView.QuestAction(log,q.QuestId),Is.Null);
+            log.ZoneUnlockMissing=new System.Collections.Generic.Dictionary<string,System.Collections.Generic.IReadOnlyList<string>>
+                {{"ocean",new string[0]}};
+            Assert.That(ResearchDiscoveryView.QuestAction(log,q.QuestId),Is.EqualTo("ocean"));
+            Assert.That(ResearchDiscoveryView.QuestAction(log,"Q_ORIGIN_FIELD_NOTES"),Is.Null);
+            log.ZoneUnlockMissing=new System.Collections.Generic.Dictionary<string,System.Collections.Generic.IReadOnlyList<string>>();
+            Assert.That(ResearchDiscoveryView.QuestAction(log,q.QuestId),Is.Null);
+        }
+        [Test] public void QuestDetailsExposeDeliveryAndLockedRoute()
+        {
+            var s=New();var log=ProgressionQueries.QuestLog(s);
+            var q=log.Quests.Single(x=>x.QuestId=="Q_ORIGIN_FOREST_SURVEY");
+            Assert.That(ResearchDiscoveryView.Quest(q,true,true),Does.Contain("Vật liệu giao khi nhận").And.Contain("Gỗ").And.Contain("blueprint.forest_lantern"));
+            Assert.That(ResearchDiscoveryView.Missing("route-rewards-undefined",true),Does.Contain("Chưa duyệt"));
+            Assert.That(ResearchDiscoveryView.QuestName("QUEST_SKY_EXPLORATION",true),Is.EqualTo("Khám phá Thiên Giới"));
         }
         [Test] public void QuestAndCodexBrowsingDoesNotMutateCanonicalState()
         {
