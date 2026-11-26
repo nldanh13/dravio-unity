@@ -7,7 +7,7 @@ using Dravio.Domain.Economy;
 
 namespace Dravio.Domain.Behavior
 {
-    // U2.10 Workstream B — Social Ecology (ADR 0204 S1–S9, ĐỀ XUẤT, prototype CHỈ ĐỌC).
+    // U2.10 Workstream B — Social Ecology (ADR 0204 S1–S9). U2.11 (ADR 0206): độ quen cộng thời gian sống chung đã lưu (Relations.cs); vẫn chỉ trình diễn.
     // Lớp trên Behavioral Engine U2.9: chỉ ghép cặp các quyết định TRÌNH DIỄN đã có. Không có lệnh, không đổi GameState,
     // không đánh nhau, không thương tổn, không tử vong; offline không có tương tác nào (hàm chỉ được gọi khi Sanctuary đang hiển thị).
 
