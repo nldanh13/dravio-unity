@@ -28,8 +28,9 @@ def module_constant(path, name):
 
 class EmberlingVerticalSlice(unittest.TestCase):
     def test_committed_fbx_is_the_measured_one(self):
-        h = load('HASHES.json')['sha256']
-        self.assertEqual(hashlib.sha256(FBX.read_bytes()).hexdigest(), h['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx'])
+        # CHAR.9c (issue #95, approved by the owner 2026-11-27) replaced this FBX; the CHAR.9b reports stay as history
+        h9c = json.loads((REPORTS.parent / 'reports_char9c/HASHES.json').read_text(encoding='utf-8'))['sha256']
+        self.assertEqual(hashlib.sha256(FBX.read_bytes()).hexdigest(), h9c['ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx'])
 
     def test_limits_not_loosened(self):
         lim = json.loads(BUDGETS.read_text(encoding='utf-8'))['animationQa']

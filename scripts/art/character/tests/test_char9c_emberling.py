@@ -38,9 +38,11 @@ def limits():
 class Char9cEmberling(unittest.TestCase):
     def test_sources_and_contract_fbx_untouched(self):
         h = load(R9C, 'HASHES.json')['sha256']
-        # CHAR.9b contract FBX in Assets is NOT overwritten (Unity integration keeps using it until approval)
-        self.assertEqual(sha(CONTRACT_FBX), load(R9B, 'HASHES.json')['sha256']['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx'])
+        # owner approved the candidate (2026-11-27): the Assets contract FBX IS the measured candidate, byte for byte
+        self.assertEqual(sha(CONTRACT_FBX), h['ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx'])
         self.assertEqual(sha(CONTRACT_FBX), h['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx'])
+        # the .meta (GUID referenced by prefab/controller/scene) is unchanged since CHAR.9b
+        self.assertEqual(sha(Path(str(CONTRACT_FBX) + '.meta')), h['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx.meta'])
         audit = load(R9C, 'source_glb_audit.json')['files']
         self.assertEqual(len(audit), 16)
         for row in audit:
@@ -50,7 +52,8 @@ class Char9cEmberling(unittest.TestCase):
         h = load(R9C, 'HASHES.json')['sha256']
         self.assertEqual(sha(CANDIDATE), h['ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx'])
         self.assertEqual(load(R9C, 'verify_candidate_fbx.json')['sha256'], sha(CANDIDATE))
-        self.assertEqual(load(R9C, 'verify_char9b_fbx.json')['sha256'], sha(CONTRACT_FBX))
+        self.assertEqual(load(R9C, 'verify_char9b_fbx.json')['sha256'],
+                         load(R9B, 'HASHES.json')['sha256']['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx'])
 
     def test_limits_not_loosened(self):
         lim = limits()

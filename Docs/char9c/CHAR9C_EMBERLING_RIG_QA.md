@@ -9,7 +9,7 @@ Issue: https://github.com/nldanh13/dravio-unity/issues/95 (tiêu chí gốc #76)
 | **Blender verified** (Blender 5.3.0, module `bpy`, chạy thật trong môi trường này) | FBX ứng viên `ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx`: **5/5 clip hợp đồng PASS ở mọi frame** sau khi import lại FBX vào scene trống, skinning tuyến tính; **15/15 clip rig v7 PASS ở mọi frame**; khe nứt đường nối = 0 mm. Ngưỡng không đổi. |
 | Unity Editor verified | **NOT RUN** (không có Unity trong môi trường này). |
 | Android verified | **NOT RUN**. |
-| APPROVED | Không. Chỉ chủ dự án/AI3 duyệt. FBX hợp đồng trong `Assets/` **chưa bị thay** (vẫn bản CHAR.9b, sha256 `0e27862d…`). |
+| APPROVED | **Chủ dự án duyệt ngày 27/11/2026** (trong thread). FBX ứng viên đã thay `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` (giữ nguyên `.meta`/GUID), sha256 `a1fc66ae…`. Bản CHAR.9b cũ: `0e27862d…`. Unity vẫn NOT RUN: AI Unity (#91) cần reimport và kiểm. |
 
 ## 1. Baseline khác với báo cáo trước — bằng chứng
 
@@ -110,16 +110,16 @@ Phát hiện P1 đáng chú ý:
 
 Thứ tự đề xuất sau khi Emberling được duyệt (chờ chủ dự án/AI3): (1) bật `seamWeld` cho cả 15 loài, đo lại; (2) quadruped cùng archetype Emberling: magma, droplet, amberhorn, sprout, mossback, gaia (mai/giáp theo Spine/Chest); (3) winged: solaris, zephyr, aurorawing, sparkwing, blossom, celestia; (4) serpentine/aquatic: steamdrake, frostfin, leviathan (giảm biên độ cuộn). Không ép chung rig; không tạo 48 biến thể giai đoạn trước nghiệm thu.
 
-## 5. Bàn giao cho AI kỹ thuật Unity (#91) — chỉ sau khi duyệt
+## 5. Bàn giao cho AI kỹ thuật Unity (#91) — đã duyệt, FBX đã thay trong nhánh này
 
 | File | Vai trò | SHA-256 |
 |---|---|---|
 | `ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx` | FBX ứng viên (thay `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` khi được duyệt) | `a1fc66aef92c7b16b0a193d50c9d74f4e53bc2c1830a43f4292210bde90f63ea` |
 | `ArtStaging/Character/Emberling/EmberlingRefinedGLB_contract_rig.json` | khoảng frame, contact, `groundSpeed` của 5 clip hợp đồng | như trên |
-| `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` | **không đổi** (CHAR.9b) | `0e27862d4ceb017d5f884c5a240ee043f514a37b071cb3925466982b920710ab` |
+| `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` | **đã thay** bằng FBX ứng viên (giống từng byte); bản CHAR.9b trước đó `0e27862d4ceb017d5f884c5a240ee043f514a37b071cb3925466982b920710ab` | `a1fc66aef92c7b16b0a193d50c9d74f4e53bc2c1830a43f4292210bde90f63ea` |
 | `ArtSource/Dragons/images/01_emberling.glb` | nguồn, **không đổi** | `42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f` |
 
-Cách thay (một bước, có thể hoàn tác): copy FBX ứng viên đè lên `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx`, **giữ nguyên `.meta`** (GUID không đổi nên prefab/controller/scene đang tham chiếu không vỡ), Reimport, chạy **Dravio ▸ Character ▸ Validate Refined GLB FBX** (mong đợi PASS cấu trúc), rồi xem 5 clip trong Game view, nhất là cận cảnh đầu khi Eat/Doze (vết nứt phải biến mất) và vòng lặp Walk. Không đổi tên bone, tên clip, số frame → `EmberlingModelPipeline`, `EmberlingAssetAudit`, prefab `EmberlingRefinedGLBVisual`, controller và chuỗi scene `Dravio ▸ Open Game` không phải sửa. Gói 16 rồng (`DragonVisualCatalog`) chưa tái tạo.
+Việc còn lại trong Unity: kéo nhánh, Reimport `EmberlingRefinedGLB.fbx` (`.meta` giữ nguyên nên GUID không đổi, prefab/controller/scene đang tham chiếu không vỡ), chạy **Dravio ▸ Character ▸ Validate Refined GLB FBX** (mong đợi PASS cấu trúc), rồi xem 5 clip trong Game view, nhất là cận cảnh đầu khi Eat/Doze (vết nứt phải biến mất) và vòng lặp Walk. Không đổi tên bone, tên clip, số frame → `EmberlingModelPipeline`, `EmberlingAssetAudit`, prefab `EmberlingRefinedGLBVisual`, controller và chuỗi scene `Dravio ▸ Open Game` không phải sửa. Gói 16 rồng (`DragonVisualCatalog`) chưa tái tạo.
 
 Không chạm: Domain/Persistence, economy, UI, camera, môi trường, shader chung, scene gameplay, prefab/catalog/bootstrap runtime, nhánh AI3 #89/#92, PR #94.
 
