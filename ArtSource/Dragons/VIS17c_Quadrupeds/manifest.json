@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "status": "source-only workflow; no dragon texture output",
+  "baseline": "49934580dc115c3450a880db51b0662f5f891e12",
+  "species": [
+    {
+      "id": "emberling",
+      "sourcePath": "ArtSource/Dragons/images/01_emberling.glb",
+      "sourceSha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+      "canonicalPalette": {
+        "primary": "#D86B47",
+        "secondary": "#A83D36",
+        "belly": "#F9D59A",
+        "accent": "#FFD66C"
+      },
+      "studies": [
+        "Scale"
+      ],
+      "silhouette": "Bốn chân, đuôi lửa tròn, không cánh.",
+      "rigStatus": {
+        "status": "CHAR9c owner-approved FBX merged; Unity reimport pending verification",
+        "priority": "reference-only",
+        "reportedContractClipsPassed": 5
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "reference pilot only after FBX UV correspondence and Unity review"
+    },
+    {
+      "id": "droplet",
+      "sourcePath": "ArtSource/Dragons/images/02_droplet.glb",
+      "sourceSha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+      "canonicalPalette": {
+        "primary": "#61BBD0",
+        "secondary": "#337FA4",
+        "belly": "#C7F2EE",
+        "accent": "#86E5DE"
+      },
+      "studies": [
+        "Scale",
+        "Membrane"
+      ],
+      "silhouette": "Thân tròn, vây tai, đuôi dẹt, màng chân.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 16,
+        "seamGapMaxRel": 0.11477,
+        "worstClip": "Run",
+        "worstStretch": 5.18,
+        "otherWarnings": []
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    },
+    {
+      "id": "sprout",
+      "sourcePath": "ArtSource/Dragons/images/03_sprout.glb",
+      "sourceSha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+      "canonicalPalette": {
+        "primary": "#75B57D",
+        "secondary": "#397C58",
+        "belly": "#E3EAC0",
+        "accent": "#E7B864"
+      },
+      "studies": [
+        "Scale"
+      ],
+      "silhouette": "Mầm lá, bốn chân, đuôi lá.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 18,
+        "seamGapMaxRel": 0.15898,
+        "worstClip": "Run",
+        "worstStretch": 5.245,
+        "otherWarnings": []
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    },
+    {
+      "id": "magma",
+      "sourcePath": "ArtSource/Dragons/images/06_magma.glb",
+      "sourceSha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+      "canonicalPalette": {
+        "primary": "#9F5544",
+        "secondary": "#523B48",
+        "belly": "#F1A55C",
+        "accent": "#FFD261"
+      },
+      "studies": [
+        "Armor",
+        "Horn"
+      ],
+      "silhouette": "Giáp đá, sừng ngắn, chân chắc.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.11227,
+        "worstClip": "Run",
+        "worstStretch": 4.179,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    },
+    {
+      "id": "mossback",
+      "sourcePath": "ArtSource/Dragons/images/09_mossback.glb",
+      "sourceSha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+      "canonicalPalette": {
+        "primary": "#829D66",
+        "secondary": "#506C4C",
+        "belly": "#D6D7A2",
+        "accent": "#A7CD84"
+      },
+      "studies": [
+        "Armor"
+      ],
+      "silhouette": "Mai rêu, chi bè, vây đuôi.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 19,
+        "seamGapMaxRel": 0.10167,
+        "worstClip": "Swim",
+        "worstStretch": 11.001,
+        "otherWarnings": []
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    },
+    {
+      "id": "amberhorn",
+      "sourcePath": "ArtSource/Dragons/images/13_amberhorn.glb",
+      "sourceSha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+      "canonicalPalette": {
+        "primary": "#C58C45",
+        "secondary": "#855B39",
+        "belly": "#F3DCA4",
+        "accent": "#FFE08A"
+      },
+      "studies": [
+        "Armor",
+        "Horn"
+      ],
+      "silhouette": "Sừng hổ phách, giáp lưng, bốn chân.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 14,
+        "seamGapMaxRel": 0.1344,
+        "worstClip": "Burrow",
+        "worstStretch": 3.808,
+        "otherWarnings": [
+          "ground"
+        ]
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    },
+    {
+      "id": "gaia",
+      "sourcePath": "ArtSource/Dragons/images/16_gaia.glb",
+      "sourceSha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+      "canonicalPalette": {
+        "primary": "#629B7D",
+        "secondary": "#385D57",
+        "belly": "#DDE5B6",
+        "accent": "#E8C97F"
+      },
+      "studies": [
+        "Armor",
+        "Membrane"
+      ],
+      "silhouette": "Sừng cây, giáp đá-rêu, chân màng và vây.",
+      "rigStatus": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.2742,
+        "worstClip": "Swim",
+        "worstStretch": 13.334,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "status": "hold actual bake; manual full-resolution UV masks, protected eyes/markings and projected tone maps required",
+      "notes": "character AI repair before runtime promotion"
+    }
+  ],
+  "checks": "12 synthetic bake-core assertions executed; CLI not run; actual source/mask/FBX not decoded",
+  "limitations": "Review declaration is not independent approval; manually project tonal studies into source UV, no automatic tiling or masks. No actual grade, Blender, Unity or Android. No runtime changes."
+}
