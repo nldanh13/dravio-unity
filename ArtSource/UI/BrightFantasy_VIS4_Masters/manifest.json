@@ -764,9 +764,124 @@
       "coverage": 0.802734375,
       "bytes": 58313,
       "blob": "59eb830afcbe9e9d5b8f546a35813936a9ab1361"
+    },
+    {
+      "id": "card",
+      "role": "Card",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_card.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_card.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 21057,
+      "blob": "f3bfc16430a7f67b0eb1338dac1901522f55c03d"
+    },
+    {
+      "id": "slot_common",
+      "role": "SlotCommon",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_common.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_common.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22231,
+      "blob": "84fff5f54677d50a75bb1388e4411db607f82aaf"
+    },
+    {
+      "id": "slot_rare",
+      "role": "SlotRare",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_rare.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_rare.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22186,
+      "blob": "64cf35e4a81d2379587a19cb556772fa3b1d4f32"
+    },
+    {
+      "id": "slot_epic",
+      "role": "SlotEpic",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_epic.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_epic.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22187,
+      "blob": "69a0a16c48f7b8ecaa9dc1cfe5b5f76ff5f6e6dc"
+    },
+    {
+      "id": "slot_legendary",
+      "role": "SlotLegendary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_legendary.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_legendary.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22067,
+      "blob": "f069c408ae1fe075c7440cca81fdc41951678149"
     }
   ],
-  "pending": "43 remaining icon/item roles, rarity/card slots, close/back, ornament overlays and actual visual QA",
+  "pending": "43 remaining icon/item roles, close/back controls, ornament overlays and actual visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
