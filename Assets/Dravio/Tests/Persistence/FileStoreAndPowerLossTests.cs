@@ -53,16 +53,44 @@ namespace Dravio.Persistence.Tests
         }
 
         [Test]
-        public void Leftover_temp_files_from_a_crash_are_ignored_and_cleaned()
+        public void Cleanup_removes_only_temporary_saves_for_published_generations()
         {
             var store = new FileSaveStore(_tmp);
             var mgr = new SaveManager(store, () => PFix.T0);
             List<GameState> states = Chain(2);
             mgr.Save(states[0]);
-            File.WriteAllText(Path.Combine(_tmp, "save-000000000002.json.deadbeef.tmp"), "{\"half");
+            string orphan = Path.Combine(_tmp, "save-000000000002.json." + Guid.NewGuid().ToString("N") + ".tmp");
+            string future = Path.Combine(_tmp, "save-000000000003.json." + Guid.NewGuid().ToString("N") + ".tmp");
+            string unrelated = Path.Combine(_tmp, "notes.json." + Guid.NewGuid().ToString("N") + ".tmp");
+            foreach (string path in new[] { orphan, future, unrelated }) File.WriteAllText(path, "{\"half");
             Assert.That(new SaveManager(new FileSaveStore(_tmp), () => PFix.T0).Load().Save.State.Revision, Is.EqualTo(states[0].Revision));
-            mgr.Save(states[1]);
-            Assert.That(Directory.GetFiles(_tmp, "*.tmp"), Is.Empty);
+            Assert.That(mgr.Save(states[1]), Is.True);
+            Assert.That(File.Exists(orphan), Is.False);
+            Assert.That(File.Exists(future), Is.True);
+            Assert.That(File.Exists(unrelated), Is.True);
+        }
+
+        [Test]
+        public void Interrupted_cleanup_keeps_a_committed_save_and_the_same_writer_can_save_again()
+        {
+            var fs = new MemoryFileSystem();
+            var store = new FileSaveStore("/saves", fs);
+            var mgr = new SaveManager(store, () => PFix.T0);
+            mgr.Load();
+            List<GameState> states = Chain(5);
+            for (int i = 0; i < 3; i++) Assert.That(mgr.Save(states[i]), Is.True);
+            // The temporary write and rename succeed. The first attempt to delete an older generation fails.
+            fs.CrashAfterOperations = fs.MutatingOperations + 2;
+
+            Assert.That(mgr.Save(states[3]), Is.True);
+            Assert.That(fs.Crashed, Is.True);
+            fs.Reboot();
+
+            Assert.That(store.Generations(), Is.EqualTo(new long[] { 4, 3, 2, 1 }));
+            Assert.That(Rev(store.Get(SaveSlot.Main)), Is.EqualTo(states[3].Revision));
+            Assert.That(mgr.Save(states[4]), Is.True);
+            Assert.That(mgr.Block, Is.EqualTo(WriteBlock.None));
+            Assert.That(store.Generations(), Is.EqualTo(new long[] { 5, 4, 3 }));
         }
 
         private static IEnumerable<TestCaseData> Corruptions()
