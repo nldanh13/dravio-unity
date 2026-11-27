@@ -879,9 +879,147 @@
       "sliceEndpointDelta": 0,
       "bytes": 22067,
       "blob": "f069c408ae1fe075c7440cca81fdc41951678149"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 103900,
+      "blob": "149e9e4c4ae4f92f5b9e1ea0623ace0df248367c"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close_pressed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 94928,
+      "blob": "87a068ebf5b4ac3a11ea069cab820d0b90915929"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close_disabled.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 74038,
+      "blob": "144c38c0037bb998f982cbb1b84d46f102c52273"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 110105,
+      "blob": "23176d2aa56600dea3c6412c0f6ddfb591d50b7e"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back_pressed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 101456,
+      "blob": "fe6196d4a28667e5d9185ab991efdf533fa5bcd7"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back_disabled.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 76791,
+      "blob": "f20c0ec0a3f1d9c8a8faad51375e512d9031a7ac"
     }
   ],
-  "pending": "43 remaining icon/item roles, close/back controls, ornament overlays and actual visual QA",
+  "pending": "43 remaining icon/item roles; optional ornament overlays; actual visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
@@ -900,5 +1038,11 @@
     "blob": "db49ea34f6e60fa2eaa1c85b902e7b509531dd93",
     "bytes": 96744,
     "notes": "Gold, egg, fruit, leaf, water, energy at 128/48/32/24 px; nearest-neighbor preview not Unity."
+  },
+  "cardsPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_cards_controls.png",
+    "blob": "517776608ff6fb2c568ccd32581072abd0734359",
+    "bytes": 72534,
+    "notes": "card/common/rare/epic/legendary; close then back, normal/pressed/disabled; 112 and 48px controls, source composite"
   }
 }
