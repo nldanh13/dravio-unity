@@ -114,15 +114,14 @@ class Char9cEmberling(unittest.TestCase):
             self.assertLessEqual(c.get('footSlideRel') or 0.0, lim['maxFootSlideRel'], name)
             self.assertEqual(c['seamGapRel'], 0.0, name)
 
-    def test_repair_config_emberling_only(self):
+    def test_repair_config_emberling_unchanged(self):
         ov = json.loads(OVERRIDES.read_text(encoding='utf-8'))
         rep = ov['species']['emberling']['repair']
         self.assertEqual(rep['skinning'], 'linear')
         self.assertEqual(rep['blendWidth_m'], 0.24)
         self.assertIs(rep['seamWeld'], True)
         self.assertEqual(rep['amplitude']['Run'], {'legs': 0.6})
-        others = [k for k, v in ov['species'].items() if k != 'emberling' and 'repair' in v]
-        self.assertEqual(others, [])
+        self.assertNotIn('pinTransitions', rep)  # approved CHAR.9c config; other species: test_char9c_species.py
 
     def test_contact_clearance_measured_on_candidate(self):
         d = load(R9C, 'contact_clearance_origin.json')

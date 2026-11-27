@@ -72,10 +72,12 @@ class EmberlingVerticalSlice(unittest.TestCase):
         for bone in module_constant(REPO / 'scripts/art/character/export_emberling_legacy_contract.py', 'CONTRACT_BONES'):
             self.assertIn(bone, qa['bones'])
 
-    def test_repair_config_is_emberling_only_and_linear(self):
+    def test_repair_config_only_after_qa_and_linear(self):
         ov = json.loads(OVERRIDES.read_text(encoding='utf-8'))
         with_repair = [s for s, v in ov['species'].items() if 'repair' in v] + [f for f, v in ov.get('files', {}).items() if 'repair' in v]
-        self.assertEqual(with_repair, ['emberling'], 'other species get the repair only after their own QA run')
+        # other species get the repair only after their own QA run (CHAR.9c: reports_char9c/species_tune/summary.json)
+        measured = json.loads((REPO / 'scripts/art/character/reports_char9c/species_tune/summary.json').read_text(encoding='utf-8'))['species']
+        self.assertEqual(sorted(with_repair), sorted(['emberling', *measured]))
         rp = ov['species']['emberling']['repair']
         self.assertEqual(rp['skinning'], 'linear')
         for clip, groups in rp['amplitude'].items():

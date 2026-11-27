@@ -1,0 +1,1603 @@
+{
+ "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass).",
+ "species": {
+  "amberhorn": {
+   "archetype": "quadruped",
+   "height_m": 1.197,
+   "clips": 19,
+   "failBefore": 14,
+   "seamGapRelBefore": 0.1344,
+   "failWelded": 6,
+   "failingClips": [],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.614,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.722,
+      "tail": 0.722
+     },
+     "Burrow": {
+      "legs": 0.614,
+      "tail": 0.614
+     },
+     "Rest": {
+      "legs": 0.722,
+      "tail": 0.722
+     },
+     "Run": {
+      "body": 0.614,
+      "legs": 0.614
+     },
+     "Sleep": {
+      "tail": 0.614,
+      "legs": 0.614
+     },
+     "Wake": {
+      "legs": 0.722,
+      "tail": 0.722
+     }
+    }
+   },
+   "worst": {},
+   "otherWarnings": [
+    "BurrowEmerge:ground",
+    "BurrowEnter:ground"
+   ],
+   "reach_m": {
+    "front": 1.033,
+    "back": 1.001,
+    "side": 0.484,
+    "radius": 1.033
+   },
+   "verdict": "DEFORMATION_PASS"
+  },
+  "aurorawing": {
+   "archetype": "winged",
+   "height_m": 1.4653,
+   "clips": 19,
+   "failBefore": 14,
+   "seamGapRelBefore": 0.14417,
+   "failWelded": 14,
+   "failingClips": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Land",
+    "LookAround",
+    "Sleep",
+    "TakeOff",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.522,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Curious": {
+      "body": 0.85,
+      "tail": 0.85
+     },
+     "Happy": {
+      "tail": 0.722,
+      "legs": 0.85,
+      "body": 0.85
+     },
+     "Nuzzle": {
+      "body": 0.722,
+      "head": 0.722
+     },
+     "Rest": {
+      "body": 0.522,
+      "legs": 0.614,
+      "head": 0.85
+     },
+     "Run": {
+      "body": 0.722,
+      "legs": 0.722
+     }
+    }
+   },
+   "worst": {
+    "Bask": {
+     "stretch": 1.713,
+     "compress": 0.351,
+     "worstBones": [
+      "Pelvis",
+      "WingUpper_R",
+      "Spine"
+     ]
+    },
+    "Drink": {
+     "stretch": 4.196,
+     "compress": 0.498,
+     "worstBones": [
+      "Spine",
+      "Pelvis",
+      "Neck"
+     ]
+    },
+    "Eat": {
+     "stretch": 3.954,
+     "compress": 0.501,
+     "worstBones": [
+      "Spine",
+      "Pelvis",
+      "Neck"
+     ]
+    },
+    "Fly": {
+     "stretch": 2.427,
+     "compress": 0.474,
+     "worstBones": [
+      "WingUpper_R",
+      "Spine",
+      "WingUpper_L"
+     ]
+    },
+    "Land": {
+     "stretch": 2.427,
+     "compress": 0.278,
+     "worstBones": [
+      "WingUpper_R",
+      "Pelvis",
+      "Spine"
+     ]
+    },
+    "LookAround": {
+     "stretch": 4.396,
+     "compress": 0.545,
+     "worstBones": [
+      "Spine",
+      "Neck",
+      "WingUpper_R"
+     ]
+    },
+    "Sleep": {
+     "stretch": 3.318,
+     "compress": 0.354,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Neck"
+     ]
+    },
+    "TakeOff": {
+     "stretch": 2.494,
+     "compress": 0.321,
+     "worstBones": [
+      "WingUpper_R",
+      "Spine",
+      "Pelvis"
+     ]
+    },
+    "Wake": {
+     "stretch": 3.293,
+     "compress": 0.354,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Neck"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones"
+   ],
+   "reach_m": {
+    "front": 1.132,
+    "back": 1.137,
+    "side": 0.923,
+    "radius": 1.166
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "blossom": {
+   "archetype": "winged",
+   "height_m": 1.1301,
+   "clips": 20,
+   "failBefore": 17,
+   "seamGapRelBefore": 0.16734,
+   "failWelded": 9,
+   "failingClips": [
+    "Drink",
+    "Eat"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Land": {
+      "tail": 0.5,
+      "wings": 0.722,
+      "legs": 0.614
+     },
+     "Perch": {
+      "tail": 0.85,
+      "legs": 0.85
+     },
+     "Run": {
+      "legs": 0.522,
+      "tail": 0.522
+     },
+     "Sleep": {
+      "tail": 0.722,
+      "head": 0.722
+     },
+     "TakeOff": {
+      "legs": 0.722,
+      "tail": 0.722
+     },
+     "Wake": {
+      "tail": 0.722,
+      "legs": 0.722
+     },
+     "Walk": {
+      "legs": 0.85,
+      "tail": 0.85
+     }
+    }
+   },
+   "worst": {
+    "Drink": {
+     "stretch": 1.567,
+     "compress": 0.414,
+     "worstBones": [
+      "Neck",
+      "Chest",
+      "Head"
+     ]
+    },
+    "Eat": {
+     "stretch": 1.518,
+     "compress": 0.424,
+     "worstBones": [
+      "Neck",
+      "Chest",
+      "Head"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones",
+    "Land:ground",
+    "TakeOff:ground"
+   ],
+   "reach_m": {
+    "front": 1.022,
+    "back": 1.088,
+    "side": 0.766,
+    "radius": 1.089
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "celestia": {
+   "archetype": "winged",
+   "height_m": 1.1989,
+   "clips": 19,
+   "failBefore": 15,
+   "seamGapRelBefore": 0.21637,
+   "failWelded": 13,
+   "failingClips": [
+    "Drink",
+    "Eat",
+    "Run",
+    "Stretch"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.522,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.722
+     },
+     "Fly": {
+      "legs": 0.614,
+      "wings": 0.722
+     },
+     "Glide": {
+      "legs": 0.722
+     },
+     "Land": {
+      "wings": 0.522,
+      "legs": 0.522
+     },
+     "Rest": {
+      "legs": 0.85
+     },
+     "Sleep": {
+      "head": 0.85,
+      "legs": 0.85
+     },
+     "TakeOff": {
+      "legs": 0.614,
+      "wings": 0.722
+     },
+     "Wake": {
+      "legs": 0.85
+     },
+     "Walk": {
+      "legs": 0.522
+     }
+    }
+   },
+   "worst": {
+    "Drink": {
+     "stretch": 2.241,
+     "compress": 0.353,
+     "worstBones": [
+      "Pelvis",
+      "Neck",
+      "WingUpper_R"
+     ]
+    },
+    "Eat": {
+     "stretch": 2.111,
+     "compress": 0.369,
+     "worstBones": [
+      "Pelvis",
+      "Neck",
+      "WingUpper_R"
+     ]
+    },
+    "Run": {
+     "stretch": 2.921,
+     "compress": 0.367,
+     "worstBones": [
+      "Pelvis",
+      "ForeUpper_R",
+      "HindLower_R"
+     ]
+    },
+    "Stretch": {
+     "stretch": 2.3,
+     "compress": 0.495,
+     "worstBones": [
+      "Pelvis",
+      "WingUpper_R",
+      "WingUpper_L"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones",
+    "Bask:ground",
+    "Bask:wings",
+    "Curious:wings",
+    "Drink:wings",
+    "Eat:wings",
+    "Fly:wings",
+    "Glide:wings",
+    "Idle:wings",
+    "Land:ground",
+    "Land:groundContact",
+    "Land:wings",
+    "LookAround:wings",
+    "Nuzzle:wings",
+    "Rest:ground",
+    "Run:wings",
+    "Sleep:ground",
+    "Stretch:wings",
+    "TakeOff:ground",
+    "TakeOff:wings",
+    "Walk:wings"
+   ],
+   "reach_m": {
+    "front": 1.022,
+    "back": 1.062,
+    "side": 0.542,
+    "radius": 1.062
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "droplet": {
+   "archetype": "quadruped",
+   "height_m": 1.0282,
+   "clips": 21,
+   "failBefore": 16,
+   "seamGapRelBefore": 0.11477,
+   "failWelded": 12,
+   "failingClips": [
+    "Run"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.522,
+      "body": 0.85
+     },
+     "Drink": {
+      "body": 0.722,
+      "legs": 0.722
+     },
+     "Eat": {
+      "body": 0.722,
+      "legs": 0.85,
+      "head": 0.85
+     },
+     "Rest": {
+      "legs": 0.522,
+      "body": 0.85
+     },
+     "Sleep": {
+      "legs": 0.614,
+      "head": 0.614
+     },
+     "Swim": {
+      "legs": 0.5,
+      "body": 0.722
+     },
+     "SwimSurface": {
+      "legs": 0.722
+     },
+     "Wake": {
+      "legs": 0.522,
+      "head": 0.522
+     },
+     "Walk": {
+      "legs": 0.722
+     },
+     "WaterEnter": {
+      "legs": 0.614
+     },
+     "WaterExit": {
+      "legs": 0.614
+     }
+    }
+   },
+   "worst": {
+    "Run": {
+     "stretch": 2.776,
+     "compress": 0.302,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_R",
+      "HindLower_L"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "Bask:ground",
+    "Rest:ground",
+    "Sleep:ground",
+    "Wake:ground"
+   ],
+   "reach_m": {
+    "front": 1.011,
+    "back": 0.999,
+    "side": 0.569,
+    "radius": 1.011
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "frostfin": {
+   "archetype": "aquatic",
+   "height_m": 1.7372,
+   "clips": 13,
+   "failBefore": 11,
+   "seamGapRelBefore": 0.09468,
+   "failWelded": 11,
+   "failingClips": [
+    "Eat",
+    "Happy",
+    "Sleep",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Curious": {
+      "body": 0.5,
+      "tail": 0.5
+     },
+     "Greet": {
+      "body": 0.522,
+      "tail": 0.522
+     },
+     "Idle": {
+      "body": 0.722,
+      "tail": 0.722
+     },
+     "LookAround": {
+      "body": 0.85,
+      "head": 0.85
+     },
+     "Nuzzle": {
+      "body": 0.722,
+      "tail": 0.722
+     },
+     "Rest": {
+      "body": 0.85,
+      "tail": 0.85
+     },
+     "Swim": {
+      "fins": 0.722,
+      "body": 0.614,
+      "tail": 0.85
+     }
+    }
+   },
+   "worst": {
+    "Eat": {
+     "stretch": 2.048,
+     "compress": 0.798,
+     "worstBones": [
+      "Spine1",
+      "Tail1",
+      "Spine4"
+     ]
+    },
+    "Happy": {
+     "stretch": 3.723,
+     "compress": 0.537,
+     "worstBones": [
+      "Tail1",
+      "Spine1",
+      "Spine4"
+     ]
+    },
+    "Sleep": {
+     "stretch": 2.133,
+     "compress": 0.674,
+     "worstBones": [
+      "Tail1",
+      "Spine1",
+      "Spine4"
+     ]
+    },
+    "Wake": {
+     "stretch": 2.087,
+     "compress": 0.68,
+     "worstBones": [
+      "Spine1",
+      "Tail1",
+      "Spine4"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones"
+   ],
+   "reach_m": {
+    "front": 0.482,
+    "back": 0.426,
+    "side": 1.032,
+    "radius": 1.061
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "gaia": {
+   "archetype": "quadruped",
+   "height_m": 1.1186,
+   "clips": 21,
+   "failBefore": 17,
+   "seamGapRelBefore": 0.2742,
+   "failWelded": 15,
+   "failingClips": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Rest",
+    "Run",
+    "Sleep",
+    "Swim",
+    "SwimSurface",
+    "Wake",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Happy": {
+      "tail": 0.522,
+      "body": 0.5,
+      "legs": 0.85
+     },
+     "LookAround": {
+      "body": 0.522,
+      "head": 0.522
+     },
+     "SwimIdle": {
+      "legs": 0.522
+     },
+     "Walk": {
+      "legs": 0.722
+     }
+    }
+   },
+   "worst": {
+    "Bask": {
+     "stretch": 2.737,
+     "compress": 0.387,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_L",
+      "HindUpper_R"
+     ]
+    },
+    "Drink": {
+     "stretch": 3.611,
+     "compress": 0.358,
+     "worstBones": [
+      "Chest",
+      "Pelvis",
+      "Neck"
+     ]
+    },
+    "Eat": {
+     "stretch": 3.393,
+     "compress": 0.368,
+     "worstBones": [
+      "Chest",
+      "Pelvis",
+      "Neck"
+     ]
+    },
+    "Rest": {
+     "stretch": 2.737,
+     "compress": 0.387,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_L",
+      "HindUpper_R"
+     ]
+    },
+    "Run": {
+     "stretch": 2.698,
+     "compress": 0.383,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_R",
+      "HindLower_R"
+     ]
+    },
+    "Sleep": {
+     "stretch": 2.844,
+     "compress": 0.348,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_L",
+      "Head"
+     ]
+    },
+    "Swim": {
+     "stretch": 7.302,
+     "compress": 0.349,
+     "worstBones": [
+      "Pelvis",
+      "ForeUpper_L",
+      "ForeLower_R"
+     ]
+    },
+    "SwimSurface": {
+     "stretch": 5.096,
+     "compress": 0.354,
+     "worstBones": [
+      "Pelvis",
+      "Chest",
+      "ForeLower_R"
+     ]
+    },
+    "Wake": {
+     "stretch": 2.781,
+     "compress": 0.348,
+     "worstBones": [
+      "Pelvis",
+      "Chest",
+      "HindLower_L"
+     ]
+    },
+    "WaterEnter": {
+     "stretch": 7.302,
+     "compress": 0.368,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_R",
+      "ForeUpper_L"
+     ]
+    },
+    "WaterExit": {
+     "stretch": 7.302,
+     "compress": 0.368,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_R",
+      "ForeUpper_L"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones",
+    "Curious:ground"
+   ],
+   "reach_m": {
+    "front": 1.015,
+    "back": 1.006,
+    "side": 0.65,
+    "radius": 1.015
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "leviathan": {
+   "archetype": "serpentine",
+   "height_m": 1.9885,
+   "clips": 13,
+   "failBefore": 11,
+   "seamGapRelBefore": 0.09649,
+   "failWelded": 10,
+   "failingClips": [
+    "Happy",
+    "LookAround",
+    "Sleep",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.522,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Curious": {
+      "body": 0.85,
+      "tail": 0.85
+     },
+     "Eat": {
+      "body": 0.522,
+      "head": 0.522
+     },
+     "Greet": {
+      "body": 0.522,
+      "tail": 0.522
+     },
+     "Idle": {
+      "body": 0.522,
+      "tail": 0.522
+     },
+     "Nuzzle": {
+      "body": 0.722,
+      "tail": 0.722
+     },
+     "Swim": {
+      "body": 0.722,
+      "tail": 0.722
+     }
+    }
+   },
+   "worst": {
+    "Happy": {
+     "stretch": 4.068,
+     "compress": 0.362,
+     "worstBones": [
+      "Spine8",
+      "Tail1",
+      "Tail4"
+     ]
+    },
+    "LookAround": {
+     "stretch": 2.589,
+     "compress": 0.481,
+     "worstBones": [
+      "Head",
+      "Spine4",
+      "Spine1"
+     ]
+    },
+    "Sleep": {
+     "stretch": 3.583,
+     "compress": 0.326,
+     "worstBones": [
+      "Spine8",
+      "Tail4",
+      "Tail1"
+     ]
+    },
+    "Wake": {
+     "stretch": 3.583,
+     "compress": 0.326,
+     "worstBones": [
+      "Spine8",
+      "Tail1",
+      "Tail4"
+     ]
+    }
+   },
+   "otherWarnings": [],
+   "reach_m": {
+    "front": 0.696,
+    "back": 0.701,
+    "side": 0.932,
+    "radius": 0.998
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "magma": {
+   "archetype": "quadruped",
+   "height_m": 1.199,
+   "clips": 19,
+   "failBefore": 15,
+   "seamGapRelBefore": 0.11227,
+   "failWelded": 9,
+   "failingClips": [],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.722
+     },
+     "Burrow": {
+      "legs": 0.722,
+      "body": 0.722
+     },
+     "Drink": {
+      "head": 0.85,
+      "legs": 0.85
+     },
+     "Eat": {
+      "head": 0.85,
+      "legs": 0.85
+     },
+     "Rest": {
+      "legs": 0.722
+     },
+     "Run": {
+      "legs": 0.5
+     },
+     "Sleep": {
+      "legs": 0.722
+     },
+     "Wake": {
+      "legs": 0.722
+     },
+     "Walk": {
+      "legs": 0.85,
+      "body": 0.85
+     }
+    }
+   },
+   "worst": {},
+   "otherWarnings": [
+    "-:bones"
+   ],
+   "reach_m": {
+    "front": 1.023,
+    "back": 0.997,
+    "side": 0.498,
+    "radius": 1.023
+   },
+   "verdict": "DEFORMATION_PASS"
+  },
+  "mossback": {
+   "archetype": "quadruped",
+   "height_m": 1.121,
+   "clips": 21,
+   "failBefore": 19,
+   "seamGapRelBefore": 0.10167,
+   "failWelded": 14,
+   "failingClips": [
+    "Rest",
+    "Run",
+    "Sleep",
+    "Swim",
+    "SwimSurface",
+    "Wake",
+    "WaterEnter",
+    "WaterExit"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.5
+     },
+     "Drink": {
+      "body": 0.522,
+      "head": 0.614,
+      "legs": 0.85
+     },
+     "Eat": {
+      "body": 0.522,
+      "head": 0.614,
+      "legs": 0.85
+     },
+     "Stretch": {
+      "legs": 0.85,
+      "body": 0.85
+     },
+     "SwimIdle": {
+      "legs": 0.722
+     },
+     "Walk": {
+      "legs": 0.722
+     }
+    }
+   },
+   "worst": {
+    "Rest": {
+     "stretch": 1.862,
+     "compress": 0.402,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_R",
+      "HindLower_L"
+     ]
+    },
+    "Run": {
+     "stretch": 2.63,
+     "compress": 0.349,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_R",
+      "HindLower_L"
+     ]
+    },
+    "Sleep": {
+     "stretch": 1.848,
+     "compress": 0.384,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_R",
+      "Neck"
+     ]
+    },
+    "Swim": {
+     "stretch": 4.62,
+     "compress": 0.46,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_L",
+      "ForeLower_R"
+     ]
+    },
+    "SwimSurface": {
+     "stretch": 3.282,
+     "compress": 0.479,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_L",
+      "ForeLower_R"
+     ]
+    },
+    "Wake": {
+     "stretch": 1.828,
+     "compress": 0.337,
+     "worstBones": [
+      "Pelvis",
+      "HindLower_R",
+      "HindLower_L"
+     ]
+    },
+    "WaterEnter": {
+     "stretch": 4.62,
+     "compress": 0.453,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_R",
+      "ForeLower_L"
+     ]
+    },
+    "WaterExit": {
+     "stretch": 4.62,
+     "compress": 0.453,
+     "worstBones": [
+      "Pelvis",
+      "ForeLower_R",
+      "ForeLower_L"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "Bask:ground",
+    "Drink:footSliding",
+    "Eat:footSliding"
+   ],
+   "reach_m": {
+    "front": 1.025,
+    "back": 1.024,
+    "side": 0.496,
+    "radius": 1.025
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "solaris": {
+   "archetype": "winged",
+   "height_m": 1.3135,
+   "clips": 19,
+   "failBefore": 12,
+   "seamGapRelBefore": 0.0892,
+   "failWelded": 10,
+   "failingClips": [
+    "Bask",
+    "Drink",
+    "Eat",
+    "Fly",
+    "Land",
+    "Sleep",
+    "TakeOff",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.614,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Rest": {
+      "body": 0.614,
+      "legs": 0.614
+     },
+     "Run": {
+      "body": 0.722,
+      "legs": 0.722
+     }
+    }
+   },
+   "worst": {
+    "Bask": {
+     "stretch": 2.081,
+     "compress": 0.303,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "WingUpper_R"
+     ]
+    },
+    "Drink": {
+     "stretch": 2.305,
+     "compress": 0.468,
+     "worstBones": [
+      "Pelvis",
+      "Head",
+      "Spine"
+     ]
+    },
+    "Eat": {
+     "stretch": 2.25,
+     "compress": 0.487,
+     "worstBones": [
+      "Pelvis",
+      "Head",
+      "Spine"
+     ]
+    },
+    "Fly": {
+     "stretch": 2.823,
+     "compress": 0.489,
+     "worstBones": [
+      "Spine",
+      "WingUpper_R",
+      "WingUpper_L"
+     ]
+    },
+    "Land": {
+     "stretch": 2.823,
+     "compress": 0.341,
+     "worstBones": [
+      "Spine",
+      "Pelvis",
+      "WingUpper_R"
+     ]
+    },
+    "Sleep": {
+     "stretch": 2.033,
+     "compress": 0.303,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Head"
+     ]
+    },
+    "TakeOff": {
+     "stretch": 2.867,
+     "compress": 0.374,
+     "worstBones": [
+      "Spine",
+      "Pelvis",
+      "WingUpper_R"
+     ]
+    },
+    "Wake": {
+     "stretch": 1.963,
+     "compress": 0.303,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Head"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "Curious:ground",
+    "Land:facing",
+    "Land:ground"
+   ],
+   "reach_m": {
+    "front": 1.13,
+    "back": 1.101,
+    "side": 0.897,
+    "radius": 1.13
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "sparkwing": {
+   "archetype": "winged",
+   "height_m": 1.1489,
+   "clips": 19,
+   "failBefore": 15,
+   "seamGapRelBefore": 0.15708,
+   "failWelded": 13,
+   "failingClips": [
+    "Drink",
+    "Eat",
+    "Run",
+    "Stretch"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.522,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "legs": 0.522,
+      "wings": 0.722
+     },
+     "Fly": {
+      "legs": 0.522,
+      "wings": 0.522
+     },
+     "Glide": {
+      "legs": 0.722
+     },
+     "Land": {
+      "wings": 0.522,
+      "legs": 0.522
+     },
+     "Rest": {
+      "legs": 0.614
+     },
+     "Sleep": {
+      "legs": 0.614,
+      "head": 0.85
+     },
+     "TakeOff": {
+      "legs": 0.522,
+      "wings": 0.522
+     },
+     "Wake": {
+      "legs": 0.614
+     },
+     "Walk": {
+      "legs": 0.522
+     }
+    }
+   },
+   "worst": {
+    "Drink": {
+     "stretch": 1.993,
+     "compress": 0.377,
+     "worstBones": [
+      "Pelvis",
+      "WingUpper_L",
+      "Head"
+     ]
+    },
+    "Eat": {
+     "stretch": 1.888,
+     "compress": 0.405,
+     "worstBones": [
+      "Pelvis",
+      "WingUpper_L",
+      "Head"
+     ]
+    },
+    "Run": {
+     "stretch": 3.298,
+     "compress": 0.387,
+     "worstBones": [
+      "Pelvis",
+      "ForeUpper_R",
+      "HindUpper_L"
+     ]
+    },
+    "Stretch": {
+     "stretch": 2.309,
+     "compress": 0.515,
+     "worstBones": [
+      "Pelvis",
+      "WingUpper_L",
+      "HindLower_R"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "Bask:ground",
+    "Fly:wings",
+    "Land:ground",
+    "Land:groundContact",
+    "Rest:ground",
+    "Rest:wings",
+    "Sleep:ground",
+    "Sleep:wings",
+    "Stretch:wings",
+    "TakeOff:ground",
+    "TakeOff:wings",
+    "Wake:ground",
+    "Wake:wings"
+   ],
+   "reach_m": {
+    "front": 1.017,
+    "back": 1.09,
+    "side": 0.503,
+    "radius": 1.09
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "sprout": {
+   "archetype": "quadruped",
+   "height_m": 1.4877,
+   "clips": 19,
+   "failBefore": 18,
+   "seamGapRelBefore": 0.15898,
+   "failWelded": 13,
+   "failingClips": [
+    "Burrow",
+    "BurrowEmerge",
+    "BurrowEnter",
+    "Drink",
+    "Eat",
+    "Run",
+    "Sleep",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.614,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Bask": {
+      "tail": 0.85,
+      "legs": 0.85
+     },
+     "Happy": {
+      "tail": 0.85,
+      "legs": 0.85
+     },
+     "LookAround": {
+      "head": 0.85,
+      "body": 0.85
+     },
+     "Rest": {
+      "tail": 0.85,
+      "legs": 0.85
+     },
+     "Walk": {
+      "tail": 0.614,
+      "legs": 0.614
+     }
+    }
+   },
+   "worst": {
+    "Burrow": {
+     "stretch": 1.87,
+     "compress": 0.3,
+     "worstBones": [
+      "Tail1",
+      "Pelvis",
+      "HindLower_R"
+     ]
+    },
+    "BurrowEmerge": {
+     "stretch": 1.537,
+     "compress": 0.389,
+     "worstBones": [
+      "Spine",
+      "Pelvis",
+      "ForeUpper_R"
+     ]
+    },
+    "BurrowEnter": {
+     "stretch": 1.54,
+     "compress": 0.39,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "ForeUpper_R"
+     ]
+    },
+    "Drink": {
+     "stretch": 2.475,
+     "compress": 0.195,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Tail1"
+     ]
+    },
+    "Eat": {
+     "stretch": 2.368,
+     "compress": 0.205,
+     "worstBones": [
+      "Pelvis",
+      "Spine",
+      "Tail1"
+     ]
+    },
+    "Run": {
+     "stretch": 2.77,
+     "compress": 0.337,
+     "worstBones": [
+      "Pelvis",
+      "Tail1",
+      "HindLower_R"
+     ]
+    },
+    "Sleep": {
+     "stretch": 2.067,
+     "compress": 0.302,
+     "worstBones": [
+      "Tail1",
+      "Spine",
+      "Neck"
+     ]
+    },
+    "Wake": {
+     "stretch": 2.067,
+     "compress": 0.305,
+     "worstBones": [
+      "Tail1",
+      "Spine",
+      "HindLower_R"
+     ]
+    }
+   },
+   "otherWarnings": [],
+   "reach_m": {
+    "front": 1.032,
+    "back": 0.994,
+    "side": 0.502,
+    "radius": 1.032
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "steamdrake": {
+   "archetype": "serpentine",
+   "height_m": 1.129,
+   "clips": 21,
+   "failBefore": 17,
+   "seamGapRelBefore": 0.06054,
+   "failWelded": 11,
+   "failingClips": [
+    "Bask",
+    "Rest",
+    "Sleep",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Drink": {
+      "body": 0.5,
+      "head": 0.614,
+      "legs": 0.722
+     },
+     "Run": {
+      "body": 0.522,
+      "legs": 0.522
+     },
+     "Swim": {
+      "body": 0.522,
+      "legs": 0.522
+     },
+     "SwimSurface": {
+      "body": 0.722,
+      "legs": 0.722
+     },
+     "Walk": {
+      "body": 0.614,
+      "legs": 0.614
+     },
+     "WaterEnter": {
+      "body": 0.522,
+      "legs": 0.522
+     },
+     "WaterExit": {
+      "body": 0.522,
+      "legs": 0.522
+     }
+    }
+   },
+   "worst": {
+    "Bask": {
+     "stretch": 1.67,
+     "compress": 0.261,
+     "worstBones": [
+      "Spine3",
+      "Spine7",
+      "Spine8"
+     ]
+    },
+    "Rest": {
+     "stretch": 1.731,
+     "compress": 0.279,
+     "worstBones": [
+      "Spine3",
+      "Spine7",
+      "HindLower_R"
+     ]
+    },
+    "Sleep": {
+     "stretch": 2.043,
+     "compress": 0.21,
+     "worstBones": [
+      "Spine3",
+      "HindLower_R",
+      "Spine7"
+     ]
+    },
+    "Wake": {
+     "stretch": 2.043,
+     "compress": 0.2,
+     "worstBones": [
+      "Spine3",
+      "Spine8",
+      "Spine7"
+     ]
+    }
+   },
+   "otherWarnings": [],
+   "reach_m": {
+    "front": 1.022,
+    "back": 1.0,
+    "side": 0.571,
+    "radius": 1.022
+   },
+   "verdict": "NEEDS_ART"
+  },
+  "zephyr": {
+   "archetype": "winged",
+   "height_m": 1.3094,
+   "clips": 20,
+   "failBefore": 12,
+   "seamGapRelBefore": 0.16575,
+   "failWelded": 8,
+   "failingClips": [
+    "Land",
+    "Sleep",
+    "Wake"
+   ],
+   "seamGapRelMax": 0,
+   "minAmplitude": 0.5,
+   "config": {
+    "skinning": "linear",
+    "seamWeld": true,
+    "blendWidth_m": 0.24,
+    "pinTransitions": true,
+    "amplitude": {
+     "Drink": {
+      "head": 0.522,
+      "wings": 0.522
+     },
+     "Eat": {
+      "head": 0.522,
+      "wings": 0.522
+     },
+     "LookAround": {
+      "head": 0.722,
+      "wings": 0.722
+     },
+     "Perch": {
+      "legs": 0.722,
+      "tail": 0.722
+     },
+     "TakeOff": {
+      "body": 0.5,
+      "legs": 0.5
+     }
+    }
+   },
+   "worst": {
+    "Land": {
+     "stretch": 2.349,
+     "compress": 0.346,
+     "worstBones": [
+      "WingUpper_L",
+      "WingUpper_R",
+      "Spine"
+     ]
+    },
+    "Sleep": {
+     "stretch": 1.684,
+     "compress": 0.527,
+     "worstBones": [
+      "WingUpper_L",
+      "HindLower_R",
+      "Head"
+     ]
+    },
+    "Wake": {
+     "stretch": 1.684,
+     "compress": 0.518,
+     "worstBones": [
+      "WingUpper_L",
+      "HindLower_R",
+      "Tail1"
+     ]
+    }
+   },
+   "otherWarnings": [
+    "-:bones",
+    "Curious:ground",
+    "Land:facing",
+    "Land:ground",
+    "Run:footSliding",
+    "Stretch:ground",
+    "TakeOff:ground",
+    "TakeOff:groundContact"
+   ],
+   "reach_m": {
+    "front": 1.035,
+    "back": 1.039,
+    "side": 0.912,
+    "radius": 1.071
+   },
+   "verdict": "NEEDS_ART"
+  }
+ }
+}
