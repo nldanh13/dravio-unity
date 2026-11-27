@@ -116,56 +116,56 @@
       "loop": false,
       "groundSpeed": 0.0,
       "deformation": {
-        "stretchP999": 1.611,
-        "compressP001": 0.863,
-        "stretchMax": 4.297,
+        "stretchP999": 1.353,
+        "compressP001": 0.916,
+        "stretchMax": 2.868,
         "worstFrame": 167,
         "framesMeasured": 61,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.048,
-        "worstFrameCompressP001": 0.798,
+        "worstFrameStretchP999": 1.592,
+        "worstFrameCompressP001": 0.893,
         "worstBones": [
           {
             "bone": "Spine1",
             "region": "body",
-            "share": 0.62
-          },
-          {
-            "bone": "Tail1",
-            "region": "tail",
-            "share": 0.17
-          },
-          {
-            "bone": "Spine4",
-            "region": "body",
-            "share": 0.141
+            "share": 0.649
           },
           {
             "bone": "Head",
             "region": "head",
-            "share": 0.07
+            "share": 0.144
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.138
+          },
+          {
+            "bone": "Spine4",
+            "region": "body",
+            "share": 0.069
           }
         ]
       },
       "seamGapRel": 0.0,
       "reach_m": {
-        "front": 0.43,
-        "back": 0.386,
+        "front": 0.412,
+        "back": 0.381,
         "side": 0.994,
         "radius": 1.047
       },
       "bounds": {
         "min": [
           -0.9943,
-          -0.4303,
+          -0.4118,
           -0.0
         ],
         "max": [
           0.9958,
-          0.3862,
-          1.7544
+          0.3814,
+          1.7497
         ],
-        "diagGrowth": 1.011
+        "diagGrowth": 1.008
       },
       "facing": {
         "headBehindChestFrames": 0
@@ -938,13 +938,6 @@
       "limit": {
         "mirrorErrorRel": 0.01
       }
-    },
-    {
-      "clip": "Eat",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 1.611,
-      "limit": 1.6
     },
     {
       "clip": "Sleep",

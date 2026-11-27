@@ -1,5 +1,5 @@
 {
- "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result. CHAR.9c step 4: tune_repair.py --local (pull-back around the worst frame, step 0.8, floor 0.3) on the 13 failing species; a fix is kept only if the clip then passes AND gets no new ground/foot/transition warning (pulling legs back without foot IK makes feet slide): gaia Rest+Bask, leviathan LookAround, mossback SwimSurface. beforeLocal keeps the previous failing list.",
+ "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result. CHAR.9c step 4: tune_repair.py --local (pull-back around the worst frame, step 0.8, floor 0.3) on the 13 failing species; a fix is kept only if the clip then passes AND gets no new ground/foot/transition warning (pulling legs back without foot IK makes feet slide): gaia Rest+Bask, leviathan LookAround, mossback SwimSurface. beforeLocal keeps the previous failing list. CHAR.9c step 5 (owner chose a deeper reduction, 27/11): tune_repair.py --floor 0.3 from the committed configs; a clip fix is kept only if the clip passes and gets no new ground/foot/transition warning. beforeFloor03 keeps the previous failing list.",
  "species": {
   "amberhorn": {
    "archetype": "quadruped",
@@ -64,10 +64,8 @@
    "seamGapRelBefore": 0.14417,
    "failWelded": 14,
    "failingClips": [
-    "Bask",
     "Drink",
     "Eat",
-    "Fly",
     "Land",
     "LookAround",
     "Sleep",
@@ -75,7 +73,7 @@
     "Wake"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.522,
+   "minAmplitude": 0.3,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -103,19 +101,19 @@
      "Run": {
       "body": 0.722,
       "legs": 0.722
+     },
+     "Bask": {
+      "wings": 0.377,
+      "body": 0.3,
+      "legs": 0.722
+     },
+     "Fly": {
+      "wings": 0.377,
+      "body": 0.377
      }
     }
    },
    "worst": {
-    "Bask": {
-     "stretch": 1.713,
-     "compress": 0.351,
-     "worstBones": [
-      "Pelvis",
-      "WingUpper_R",
-      "Spine"
-     ]
-    },
     "Drink": {
      "stretch": 4.196,
      "compress": 0.498,
@@ -134,17 +132,8 @@
       "Neck"
      ]
     },
-    "Fly": {
-     "stretch": 2.427,
-     "compress": 0.474,
-     "worstBones": [
-      "WingUpper_R",
-      "Spine",
-      "WingUpper_L"
-     ]
-    },
     "Land": {
-     "stretch": 2.427,
+     "stretch": 2.058,
      "compress": 0.278,
      "worstBones": [
       "WingUpper_R",
@@ -198,7 +187,20 @@
     "side": 0.923,
     "radius": 1.166
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeFloor03": {
+    "failingClips": [
+     "Bask",
+     "Drink",
+     "Eat",
+     "Fly",
+     "Land",
+     "LookAround",
+     "Sleep",
+     "TakeOff",
+     "Wake"
+    ]
+   }
   },
   "blossom": {
    "archetype": "winged",
@@ -500,13 +502,12 @@
    "seamGapRelBefore": 0.09468,
    "failWelded": 11,
    "failingClips": [
-    "Eat",
     "Happy",
     "Sleep",
     "Wake"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.5,
+   "minAmplitude": 0.3,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -541,19 +542,15 @@
       "fins": 0.722,
       "body": 0.614,
       "tail": 0.85
+     },
+     "Eat": {
+      "body": 0.3,
+      "tail": 0.444,
+      "head": 0.614
      }
     }
    },
    "worst": {
-    "Eat": {
-     "stretch": 2.048,
-     "compress": 0.798,
-     "worstBones": [
-      "Spine1",
-      "Tail1",
-      "Spine4"
-     ]
-    },
     "Happy": {
      "stretch": 3.723,
      "compress": 0.537,
@@ -591,7 +588,15 @@
     "side": 1.032,
     "radius": 1.061
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeFloor03": {
+    "failingClips": [
+     "Eat",
+     "Happy",
+     "Sleep",
+     "Wake"
+    ]
+   }
   },
   "gaia": {
    "archetype": "quadruped",
@@ -603,7 +608,6 @@
    "failingClips": [
     "Drink",
     "Eat",
-    "Run",
     "Sleep",
     "Swim",
     "SwimSurface",
@@ -612,7 +616,7 @@
     "WaterExit"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.5,
+   "minAmplitude": 0.32,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -633,6 +637,9 @@
      },
      "Walk": {
       "legs": 0.722
+     },
+     "Run": {
+      "legs": 0.32
      }
     },
     "local": {
@@ -721,15 +728,6 @@
       "Neck"
      ]
     },
-    "Run": {
-     "stretch": 2.698,
-     "compress": 0.383,
-     "worstBones": [
-      "Pelvis",
-      "ForeLower_R",
-      "HindLower_R"
-     ]
-    },
     "Sleep": {
      "stretch": 2.844,
      "compress": 0.348,
@@ -811,7 +809,20 @@
      "WaterExit"
     ]
    },
-   "minLocalK": 0.41
+   "minLocalK": 0.41,
+   "beforeFloor03": {
+    "failingClips": [
+     "Drink",
+     "Eat",
+     "Run",
+     "Sleep",
+     "Swim",
+     "SwimSurface",
+     "Wake",
+     "WaterEnter",
+     "WaterExit"
+    ]
+   }
   },
   "leviathan": {
    "archetype": "serpentine",
@@ -821,12 +832,10 @@
    "seamGapRelBefore": 0.09649,
    "failWelded": 10,
    "failingClips": [
-    "Happy",
-    "Sleep",
-    "Wake"
+    "Happy"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.522,
+   "minAmplitude": 0.3,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -856,6 +865,16 @@
      "Swim": {
       "body": 0.722,
       "tail": 0.722
+     },
+     "Sleep": {
+      "body": 0.3,
+      "tail": 0.32,
+      "head": 0.522
+     },
+     "Wake": {
+      "body": 0.3,
+      "tail": 0.444,
+      "head": 0.377
      }
     },
     "local": {
@@ -896,32 +915,14 @@
       "Tail1",
       "Tail4"
      ]
-    },
-    "Sleep": {
-     "stretch": 3.583,
-     "compress": 0.326,
-     "worstBones": [
-      "Spine8",
-      "Tail4",
-      "Tail1"
-     ]
-    },
-    "Wake": {
-     "stretch": 3.583,
-     "compress": 0.326,
-     "worstBones": [
-      "Spine8",
-      "Tail1",
-      "Tail4"
-     ]
     }
    },
    "otherWarnings": [],
    "reach_m": {
-    "front": 0.696,
+    "front": 0.607,
     "back": 0.701,
     "side": 0.932,
-    "radius": 0.998
+    "radius": 0.965
    },
    "verdict": "NEEDS_ART",
    "beforeLocal": {
@@ -932,7 +933,14 @@
      "Wake"
     ]
    },
-   "minLocalK": 0.328
+   "minLocalK": 0.328,
+   "beforeFloor03": {
+    "failingClips": [
+     "Happy",
+     "Sleep",
+     "Wake"
+    ]
+   }
   },
   "magma": {
    "archetype": "quadruped",
@@ -1004,7 +1012,6 @@
    "failWelded": 14,
    "failingClips": [
     "Rest",
-    "Run",
     "Sleep",
     "Swim",
     "Wake",
@@ -1012,7 +1019,7 @@
     "WaterExit"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.5,
+   "minAmplitude": 0.444,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -1041,6 +1048,9 @@
      },
      "Walk": {
       "legs": 0.722
+     },
+     "Run": {
+      "legs": 0.444
      }
     },
     "local": {
@@ -1100,15 +1110,6 @@
     "Rest": {
      "stretch": 1.862,
      "compress": 0.402,
-     "worstBones": [
-      "Pelvis",
-      "HindLower_R",
-      "HindLower_L"
-     ]
-    },
-    "Run": {
-     "stretch": 2.63,
-     "compress": 0.349,
      "worstBones": [
       "Pelvis",
       "HindLower_R",
@@ -1185,7 +1186,18 @@
      "WaterExit"
     ]
    },
-   "minLocalK": 0.41
+   "minLocalK": 0.41,
+   "beforeFloor03": {
+    "failingClips": [
+     "Rest",
+     "Run",
+     "Sleep",
+     "Swim",
+     "Wake",
+     "WaterEnter",
+     "WaterExit"
+    ]
+   }
   },
   "solaris": {
    "archetype": "winged",
@@ -1195,16 +1207,12 @@
    "seamGapRelBefore": 0.0892,
    "failWelded": 10,
    "failingClips": [
-    "Bask",
     "Drink",
-    "Fly",
     "Land",
-    "Sleep",
-    "TakeOff",
-    "Wake"
+    "TakeOff"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.5,
+   "minAmplitude": 0.3,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -1237,19 +1245,30 @@
      "LookAround": {
       "head": 0.85,
       "body": 0.85
+     },
+     "Bask": {
+      "body": 0.3,
+      "wings": 0.32,
+      "legs": 0.614
+     },
+     "Fly": {
+      "body": 0.3,
+      "wings": 0.3,
+      "legs": 0.722
+     },
+     "Sleep": {
+      "head": 0.32,
+      "body": 0.3,
+      "legs": 0.614
+     },
+     "Wake": {
+      "body": 0.3,
+      "head": 0.377,
+      "legs": 0.522
      }
     }
    },
    "worst": {
-    "Bask": {
-     "stretch": 2.102,
-     "compress": 0.303,
-     "worstBones": [
-      "Pelvis",
-      "Spine",
-      "WingUpper_R"
-     ]
-    },
     "Drink": {
      "stretch": 2.459,
      "compress": 0.459,
@@ -1259,31 +1278,13 @@
       "Neck"
      ]
     },
-    "Fly": {
-     "stretch": 2.823,
-     "compress": 0.509,
-     "worstBones": [
-      "Spine",
-      "WingUpper_R",
-      "WingUpper_L"
-     ]
-    },
     "Land": {
-     "stretch": 2.823,
+     "stretch": 2.448,
      "compress": 0.343,
      "worstBones": [
       "Pelvis",
       "Spine",
       "WingUpper_R"
-     ]
-    },
-    "Sleep": {
-     "stretch": 2.001,
-     "compress": 0.303,
-     "worstBones": [
-      "Pelvis",
-      "Head",
-      "Spine"
      ]
     },
     "TakeOff": {
@@ -1293,15 +1294,6 @@
       "Spine",
       "Pelvis",
       "WingUpper_R"
-     ]
-    },
-    "Wake": {
-     "stretch": 1.943,
-     "compress": 0.303,
-     "worstBones": [
-      "Pelvis",
-      "Spine",
-      "Head"
      ]
     }
    },
@@ -1346,7 +1338,18 @@
      }
     }
    },
-   "excess": 4.313
+   "excess": 4.313,
+   "beforeFloor03": {
+    "failingClips": [
+     "Bask",
+     "Drink",
+     "Fly",
+     "Land",
+     "Sleep",
+     "TakeOff",
+     "Wake"
+    ]
+   }
   },
   "sparkwing": {
    "archetype": "winged",
@@ -1472,7 +1475,6 @@
    "seamGapRelBefore": 0.15898,
    "failWelded": 13,
    "failingClips": [
-    "Burrow",
     "BurrowEmerge",
     "BurrowEnter",
     "Drink",
@@ -1482,7 +1484,7 @@
     "Wake"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.614,
+   "minAmplitude": 0.32,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -1508,19 +1510,15 @@
      "Walk": {
       "tail": 0.614,
       "legs": 0.614
+     },
+     "Burrow": {
+      "tail": 0.32,
+      "legs": 0.377,
+      "body": 0.85
      }
     }
    },
    "worst": {
-    "Burrow": {
-     "stretch": 1.87,
-     "compress": 0.3,
-     "worstBones": [
-      "Tail1",
-      "Pelvis",
-      "HindLower_R"
-     ]
-    },
     "BurrowEmerge": {
      "stretch": 1.537,
      "compress": 0.389,
@@ -1592,7 +1590,19 @@
     "side": 0.502,
     "radius": 1.032
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeFloor03": {
+    "failingClips": [
+     "Burrow",
+     "BurrowEmerge",
+     "BurrowEnter",
+     "Drink",
+     "Eat",
+     "Run",
+     "Sleep",
+     "Wake"
+    ]
+   }
   },
   "steamdrake": {
    "archetype": "serpentine",
@@ -1701,12 +1711,10 @@
    "seamGapRelBefore": 0.16575,
    "failWelded": 8,
    "failingClips": [
-    "Land",
-    "Sleep",
-    "Wake"
+    "Land"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.5,
+   "minAmplitude": 0.32,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -1732,6 +1740,16 @@
      "TakeOff": {
       "body": 0.5,
       "legs": 0.5
+     },
+     "Sleep": {
+      "wings": 0.32,
+      "legs": 0.377,
+      "head": 0.85
+     },
+     "Wake": {
+      "wings": 0.32,
+      "legs": 0.614,
+      "head": 0.522
      }
     }
    },
@@ -1743,24 +1761,6 @@
       "WingUpper_L",
       "WingUpper_R",
       "Spine"
-     ]
-    },
-    "Sleep": {
-     "stretch": 1.684,
-     "compress": 0.527,
-     "worstBones": [
-      "WingUpper_L",
-      "HindLower_R",
-      "Head"
-     ]
-    },
-    "Wake": {
-     "stretch": 1.684,
-     "compress": 0.518,
-     "worstBones": [
-      "WingUpper_L",
-      "HindLower_R",
-      "Tail1"
      ]
     }
    },
@@ -1780,7 +1780,14 @@
     "side": 0.912,
     "radius": 1.071
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeFloor03": {
+    "failingClips": [
+     "Land",
+     "Sleep",
+     "Wake"
+    ]
+   }
   }
  }
 }

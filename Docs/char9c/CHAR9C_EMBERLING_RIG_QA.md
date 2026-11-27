@@ -267,3 +267,31 @@ Tổng cộng 15 loài hiện còn **65/283 clip** vượt ngưỡng biến dạ
 Kết luận: 65 clip còn lại phải sửa ở **keyframe** (giảm góc gập chân/đầu gối và tư thế nằm/bơi sao cho hợp với chân ngắn) hoặc **vẽ trọng số bằng tay** ở vùng nối chân với bụng. Không nới ngưỡng.
 
 Gói ảnh cho animator: `scripts/art/character/reports_char9c/species_tune/failing_clips/<loài>.jpg`, 13 tờ, 65 clip. Mỗi clip có 2 góc nhìn ở frame tệ nhất: đỏ là giãn > 1,6, xanh là nén < 0,45. Kèm tên clip, số frame (theo timeline rig v7), mức giãn/nén và 3 xương gây lỗi nhiều nhất. Hầu hết vùng lỗi nằm ở chỗ nối chân với bụng.
+
+## 13. Sàn biên độ 0,3 (chủ dự án chọn, 27/11)
+
+Chạy `tune_repair.py --floor 0.3` cho 13 loài, bắt đầu từ cấu hình đang dùng. Clip có giảm chân vẫn nhân `groundSpeed` cùng hệ số, nên bàn chân không trượt khi phát ở đúng tốc độ. Một fix chỉ được nhận nếu clip qua ngưỡng **và** không sinh cảnh báo mới (chân trượt, xuyên đất, hở chạm đất, chuyển tiếp).
+
+**Nhận 14 clip:**
+- aurorawing: Bask, Fly
+- frostfin: Eat
+- gaia: Run
+- leviathan: Sleep, Wake
+- mossback: Run
+- solaris: Bask, Fly, Sleep, Wake
+- sprout: Burrow
+- zephyr: Sleep, Wake
+
+**Không nhận 13 clip** vì sinh cảnh báo mới:
+- blossom: Drink, Eat
+- celestia: Run
+- droplet: Run
+- mossback: Rest, Sleep, Wake
+- solaris: Drink
+- sparkwing: Run
+- sprout: Run
+- steamdrake: Bask, Rest, Sleep, Wake
+
+Còn **51/283 clip** vượt ngưỡng (lúc đầu 223/283).
+
+**Cần duyệt bằng mắt**: nhiều hệ số đã xuống 0,3–0,45. Ví dụ cánh khi Fly của aurorawing và solaris chỉ còn 0,3–0,38, nghĩa là vỗ cánh nhỏ đi khoảng 3 lần. Ảnh trước/sau ở frame tệ nhất cũ: `reports_char9c/species_tune/floor03_before_after.jpg`. Hệ số từng clip nằm trong `asset-overrides` → `species.<loài>.repair.amplitude`. Ngưỡng QA không đổi; Unity NOT RUN.

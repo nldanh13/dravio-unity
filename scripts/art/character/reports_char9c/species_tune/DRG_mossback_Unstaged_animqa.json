@@ -391,38 +391,38 @@
       "loop": {
         "poseErrorDeg": 0.056,
         "poseErrorRel": 0.0,
-        "seamSpeedMismatchDegPerFrame": 8.288
+        "seamSpeedMismatchDegPerFrame": 3.88
       },
-      "groundSpeed": 1.1267,
+      "groundSpeed": 0.5003,
       "deformation": {
-        "stretchP999": 2.172,
-        "compressP001": 0.411,
-        "stretchMax": 5.044,
+        "stretchP999": 1.432,
+        "compressP001": 0.628,
+        "stretchMax": 2.721,
         "worstFrame": 385,
         "framesMeasured": 16,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.63,
-        "worstFrameCompressP001": 0.349,
+        "worstFrameStretchP999": 1.588,
+        "worstFrameCompressP001": 0.588,
         "worstBones": [
           {
             "bone": "Pelvis",
             "region": "body",
-            "share": 0.595
+            "share": 0.489
           },
           {
             "bone": "HindLower_R",
             "region": "hindLeg",
-            "share": 0.135
+            "share": 0.188
           },
           {
             "bone": "HindLower_L",
             "region": "hindLeg",
-            "share": 0.117
+            "share": 0.138
           },
           {
             "bone": "ForeLower_L",
             "region": "foreLeg",
-            "share": 0.077
+            "share": 0.09
           }
         ]
       },
@@ -430,29 +430,29 @@
       "reach_m": {
         "front": 0.997,
         "back": 0.99,
-        "side": 0.334,
+        "side": 0.34,
         "radius": 0.997
       },
       "bounds": {
         "min": [
-          -0.3334,
+          -0.3398,
           -0.9972,
-          0.0028
+          -0.008
         ],
         "max": [
-          0.334,
+          0.3398,
           0.99,
           1.1491
         ],
-        "diagGrowth": 1.009
+        "diagGrowth": 1.012
       },
       "facing": {
         "headBehindChestFrames": 0
       },
-      "groundPenetrationRel": 0.0,
-      "footSlideRel": 0.0,
-      "contactGapRel": 0.0002,
-      "stanceTravel_m": 0.2066
+      "groundPenetrationRel": 0.0071,
+      "footSlideRel": 0.0076,
+      "contactGapRel": 0.0255,
+      "stanceTravel_m": 0.0944
     },
     "Swim": {
       "frames": [
@@ -1538,20 +1538,6 @@
       "check": "deformation",
       "message": "edge compression over limit",
       "value": 0.384,
-      "limit": 0.45
-    },
-    {
-      "clip": "Run",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 2.172,
-      "limit": 1.6
-    },
-    {
-      "clip": "Run",
-      "check": "deformation",
-      "message": "edge compression over limit",
-      "value": 0.411,
       "limit": 0.45
     },
     {
