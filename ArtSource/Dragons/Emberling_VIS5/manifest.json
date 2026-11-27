@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "status": "material reference studies, not mapped to source mesh",
+  "sourceConcept": {
+    "path": "ArtSource/Dragons/images/01_emberling.jpg",
+    "blob": "05910fd17630e09fb747ad650c99b65454475341"
+  },
+  "sourceModel": {
+    "path": "ArtSource/Dragons/images/01_emberling.glb",
+    "blob": "826ebe5f6e321a045eecd50b5b0dc8fe61dee54b",
+    "binaryRead": "unavailable via connector"
+  },
+  "canonicalPalette": {
+    "primary": "#D86B47",
+    "secondary": "#A83D36",
+    "belly": "#F9D59A",
+    "accent": "#FFD66C"
+  },
+  "assets": [
+    {
+      "id": "iris_amber",
+      "path": "ArtSource/Dragons/Emberling_VIS5/Textures/T_Emberling_VIS5_iris_amber.png",
+      "width": 512,
+      "height": 512,
+      "kind": "iris reference disk; not UV aligned",
+      "alpha": {
+        "transparent": 56396,
+        "partial": 4616,
+        "opaque": 201132
+      },
+      "repeatError": null,
+      "bytes": 448735,
+      "blob": "de4075512de56393db0acb8f993d74d60241d2ef"
+    },
+    {
+      "id": "skin_scale",
+      "path": "ArtSource/Dragons/Emberling_VIS5/Textures/T_Emberling_VIS5_skin_scale.png",
+      "width": 512,
+      "height": 512,
+      "kind": "repeatable body scale albedo study",
+      "alpha": {
+        "transparent": 0,
+        "partial": 0,
+        "opaque": 262144
+      },
+      "repeatError": 5.684341886080802e-14,
+      "bytes": 100897,
+      "blob": "231d5acad80240bc5957767d0fe21dfed484b955"
+    },
+    {
+      "id": "belly_cream",
+      "path": "ArtSource/Dragons/Emberling_VIS5/Textures/T_Emberling_VIS5_belly_cream.png",
+      "width": 512,
+      "height": 512,
+      "kind": "repeatable belly albedo study",
+      "alpha": {
+        "transparent": 0,
+        "partial": 0,
+        "opaque": 262144
+      },
+      "repeatError": 3.694822225952521e-13,
+      "bytes": 36059,
+      "blob": "508e84159e917e7e6efc9fc983c9ceddfaa5bd9c"
+    },
+    {
+      "id": "horn_russet",
+      "path": "ArtSource/Dragons/Emberling_VIS5/Textures/T_Emberling_VIS5_horn_russet.png",
+      "width": 512,
+      "height": 512,
+      "kind": "repeatable horn/snout ridge reference",
+      "alpha": {
+        "transparent": 0,
+        "partial": 0,
+        "opaque": 262144
+      },
+      "repeatError": 2.2737367544323206e-13,
+      "bytes": 203688,
+      "blob": "aec64395a3c87df3974e403b48a545b452491a33"
+    },
+    {
+      "id": "flame_ramp",
+      "path": "ArtSource/Dragons/Emberling_VIS5/Textures/T_Emberling_VIS5_flame_ramp.png",
+      "width": 512,
+      "height": 128,
+      "kind": "horizontal color ramp, dark base to bright tip; not emission map",
+      "alpha": {
+        "transparent": 0,
+        "partial": 0,
+        "opaque": 65536
+      },
+      "repeatError": null,
+      "bytes": 49235,
+      "blob": "9fba2d64e8adc4ffadca530ccb64926ac0236ad4"
+    }
+  ],
+  "preview": {
+    "path": "ArtSource/Dragons/Emberling_VIS5/preview_material_studies.png",
+    "bytes": 163906,
+    "blob": "ff539229bb9354c1f314a26d4c1c9db2dd738919",
+    "order": "iris, skin, belly, horn; flame ramp; canonical palette"
+  },
+  "checks": "finite samples, PNG pixel roundtrip; analytical tile periodicity on 128 translated samples for skin/belly/horn; no GLB UV verification or render"
+}

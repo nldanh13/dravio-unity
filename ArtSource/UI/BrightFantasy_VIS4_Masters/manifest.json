@@ -1,0 +1,2361 @@
+{
+  "version": 1,
+  "status": "procedural raster candidates, visual QA pending",
+  "contract": "Assets/Dravio/UI/Data/ui-sprite-slots.json @ 4b3d598",
+  "borderOrder": "Unity left,bottom,right,top; symmetric",
+  "format": "RGBA8 straight alpha sRGB",
+  "assets": [
+    {
+      "id": "btn_primary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29145,
+      "blob": "b0d2a144fbb7835609646a42f98a5beb2d8dd434"
+    },
+    {
+      "id": "btn_primary",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary_pressed.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29037,
+      "blob": "46fced51cae07ceee0be61032515a638831479fa"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29078,
+      "blob": "6c45f55840106bcd28da90e6af7613ce93e4cbc6"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary_pressed.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28727,
+      "blob": "d6a00ad3a2bd63b6762de85c3d0673abc9288c0a"
+    },
+    {
+      "id": "btn_reward",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28977,
+      "blob": "97508cf4373dc002c7de9834d4e1597cd919def7"
+    },
+    {
+      "id": "btn_reward",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward_pressed.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28703,
+      "blob": "fd41afc762e588bfda46ec6937c82a462d3eef30"
+    },
+    {
+      "id": "btn_danger",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29028,
+      "blob": "64f818257b62cc3853a05c5a7d7230596725988e"
+    },
+    {
+      "id": "btn_danger",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger_pressed.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29006,
+      "blob": "6280ecd07a65b3b2227d385f5f2c82683d4b171a"
+    },
+    {
+      "id": "tab",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab.png",
+      "role": "Tab",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab.png",
+      "width": 512,
+      "height": 256,
+      "borderLTRB": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "alpha": {
+        "transparent": 10540,
+        "opaque": 114856,
+        "partial": 5676
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19773,
+      "blob": "90a930a03446009004b94686ded6818b025691cc"
+    },
+    {
+      "id": "tab_active",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab_active.png",
+      "role": "TabActive",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_active.png",
+      "width": 512,
+      "height": 256,
+      "borderLTRB": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "alpha": {
+        "transparent": 10540,
+        "opaque": 114856,
+        "partial": 5676
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19869,
+      "blob": "3b46279fb11207c43accc342d4ed6b852f74e46c"
+    },
+    {
+      "id": "panel",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_panel.png",
+      "role": "Panel",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_panel.png",
+      "width": 1024,
+      "height": 1024,
+      "borderLTRB": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "alpha": {
+        "transparent": 28692,
+        "opaque": 1004128,
+        "partial": 15756
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 64704,
+      "blob": "9ceddca3f3db455a4048c63593f1071acda5dc44"
+    },
+    {
+      "id": "header",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_header.png",
+      "role": "HeaderBar",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_header.png",
+      "width": 1024,
+      "height": 256,
+      "borderLTRB": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "alpha": {
+        "transparent": 16380,
+        "opaque": 236024,
+        "partial": 9740
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 26951,
+      "blob": "7e88e16fdc0a322988ad3373d1b6e199e42e164d"
+    },
+    {
+      "id": "page_bg",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_page_bg.png",
+      "role": "PageBackground",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_page_bg.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        64,
+        64,
+        64,
+        64
+      ],
+      "alpha": {
+        "transparent": 10824,
+        "opaque": 243516,
+        "partial": 7804
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19915,
+      "blob": "07bc0d6109b48f6fee198a85f38a6350fed87bab"
+    },
+    {
+      "id": "btn_primary",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary_disabled.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28068,
+      "blob": "84f489c71d2a870e181784e77af41412f40929ab"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary_disabled.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 26701,
+      "blob": "fac047f7508ebe85e1c4555239cdbee74898bd61"
+    },
+    {
+      "id": "btn_reward",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward_disabled.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28149,
+      "blob": "1860d9bf75b9f6da8611704a6f5d0c36fb57a3f3"
+    },
+    {
+      "id": "btn_danger",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger_disabled.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28940,
+      "blob": "d2bcc0b58465351b68cbc09c63f27814dbcf7159"
+    },
+    {
+      "id": "progress_frame",
+      "role": "ProgressFrame",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_frame.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_frame.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "alpha": {
+        "transparent": 19568,
+        "partial": 276,
+        "opaque": 111228
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 10236,
+      "blob": "760bd4f4b4b505396189b24b9c11ca0b051bb1c7"
+    },
+    {
+      "id": "progress_fill",
+      "role": "ProgressFill",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_fill.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_fill.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "alpha": {
+        "transparent": 14368,
+        "partial": 188,
+        "opaque": 116516
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 6202,
+      "blob": "5f552b082b6ddef11d5c71cb82005a90886e1eb4"
+    },
+    {
+      "id": "progress_highlight",
+      "role": "ProgressHighlight",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_highlight.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_highlight.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 93128,
+        "partial": 37944,
+        "opaque": 0
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 4271,
+      "blob": "00962cec8d71d3516ed2399573b209f92735766e"
+    },
+    {
+      "id": "portrait",
+      "role": "Portrait",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Portraits/ui_portrait_frame.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Portraits/ui_portrait_frame.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 192696,
+        "partial": 2356,
+        "opaque": 67092
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 58045,
+      "blob": "2101702abdb47c9b40416eba1db3f999ec0120a7"
+    },
+    {
+      "id": "tab_indicator",
+      "role": "TabIndicator",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab_indicator.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_indicator.png",
+      "width": 256,
+      "height": 64,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 6296,
+        "partial": 120,
+        "opaque": 9968
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 2078,
+      "blob": "44d437309e16eccd3479231272f7a20f1968bf9d"
+    },
+    {
+      "id": "divider",
+      "role": "Divider",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Decor/ui_divider.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Decor/ui_divider.png",
+      "width": 512,
+      "height": 128,
+      "borderLTRB": [
+        160,
+        0,
+        160,
+        0
+      ],
+      "alpha": {
+        "transparent": 55238,
+        "partial": 1152,
+        "opaque": 9146
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 12775,
+      "blob": "5ac7f51dc30ba24c0b62552f730f92b689403f8c"
+    },
+    {
+      "id": "item:gold",
+      "role": "Gold",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_gold.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_gold.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141017,
+        "partial": 1545,
+        "opaque": 119582
+      },
+      "bounds": [
+        49,
+        62,
+        461,
+        450
+      ],
+      "coverage": 0.806640625,
+      "bytes": 144162,
+      "blob": "243b2e53dd73153b2c1921e70956009728408b5a"
+    },
+    {
+      "id": "item:egg",
+      "role": "Egg",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_egg.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_egg.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 159542,
+        "partial": 1422,
+        "opaque": 101180
+      },
+      "bounds": [
+        95,
+        52,
+        416,
+        461
+      ],
+      "coverage": 0.80078125,
+      "bytes": 103193,
+      "blob": "56655cc8ffc1dad2bed373f389af28d5c6fa8a0f"
+    },
+    {
+      "id": "item:fruit",
+      "role": "Fruit",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_fruit.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_fruit.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 142294,
+        "partial": 1439,
+        "opaque": 118411
+      },
+      "bounds": [
+        51,
+        62,
+        460,
+        451
+      ],
+      "coverage": 0.80078125,
+      "bytes": 116537,
+      "blob": "3ed3e73906a29bef19c86a05c6f7547fb56a8a19"
+    },
+    {
+      "id": "icon:leaf",
+      "role": "Leaf",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_leaf.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_leaf.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 154646,
+        "partial": 1418,
+        "opaque": 106080
+      },
+      "bounds": [
+        53,
+        53,
+        458,
+        458
+      ],
+      "coverage": 0.79296875,
+      "bytes": 106491,
+      "blob": "6bd9465ddeb5a43859ce4a5f3abf5159a596eb66"
+    },
+    {
+      "id": "icon:water",
+      "role": "Water",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_water.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_water.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 167530,
+        "partial": 1126,
+        "opaque": 93488
+      },
+      "bounds": [
+        87,
+        49,
+        424,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 114147,
+      "blob": "8ddfa112b1d2801e126ac52dcef04dc4e202a61a"
+    },
+    {
+      "id": "icon:energy",
+      "role": "Energy",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_energy.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_energy.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 217225,
+        "partial": 1305,
+        "opaque": 43614
+      },
+      "bounds": [
+        98,
+        50,
+        411,
+        460
+      ],
+      "coverage": 0.802734375,
+      "bytes": 58313,
+      "blob": "59eb830afcbe9e9d5b8f546a35813936a9ab1361"
+    },
+    {
+      "id": "card",
+      "role": "Card",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_card.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_card.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 21057,
+      "blob": "f3bfc16430a7f67b0eb1338dac1901522f55c03d"
+    },
+    {
+      "id": "slot_common",
+      "role": "SlotCommon",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_common.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_common.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22231,
+      "blob": "84fff5f54677d50a75bb1388e4411db607f82aaf"
+    },
+    {
+      "id": "slot_rare",
+      "role": "SlotRare",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_rare.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_rare.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22186,
+      "blob": "64cf35e4a81d2379587a19cb556772fa3b1d4f32"
+    },
+    {
+      "id": "slot_epic",
+      "role": "SlotEpic",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_epic.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_epic.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22187,
+      "blob": "69a0a16c48f7b8ecaa9dc1cfe5b5f76ff5f6e6dc"
+    },
+    {
+      "id": "slot_legendary",
+      "role": "SlotLegendary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Cards/ui_slot_legendary.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Cards/ui_slot_legendary.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 21560,
+        "partial": 392,
+        "opaque": 240192
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 22067,
+      "blob": "f069c408ae1fe075c7440cca81fdc41951678149"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 103900,
+      "blob": "149e9e4c4ae4f92f5b9e1ea0623ace0df248367c"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close_pressed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 94928,
+      "blob": "87a068ebf5b4ac3a11ea069cab820d0b90915929"
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_close_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close_disabled.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 74038,
+      "blob": "144c38c0037bb998f982cbb1b84d46f102c52273"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 110105,
+      "blob": "23176d2aa56600dea3c6412c0f6ddfb591d50b7e"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back_pressed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 101456,
+      "blob": "fe6196d4a28667e5d9185ab991efdf533fa5bcd7"
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_back_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back_disabled.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121640,
+        "partial": 1308,
+        "opaque": 139196
+      },
+      "sliceEndpointDelta": 0,
+      "bytes": 76791,
+      "blob": "f20c0ec0a3f1d9c8a8faad51375e512d9031a7ac"
+    },
+    {
+      "id": "item:wood",
+      "role": "wood",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_wood.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_wood.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 185794,
+        "partial": 1209,
+        "opaque": 75141
+      },
+      "bounds": [
+        53,
+        81,
+        459,
+        429
+      ],
+      "coverage": 0.794921875,
+      "bytes": 110345,
+      "blob": "6f18cf0d650d15a3b8ebe08501b99d983fd3174d"
+    },
+    {
+      "id": "item:seed",
+      "role": "seed",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_seed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_seed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 164495,
+        "partial": 1720,
+        "opaque": 95929
+      },
+      "bounds": [
+        63,
+        52,
+        448,
+        459
+      ],
+      "coverage": 0.796875,
+      "bytes": 110082,
+      "blob": "7b2e91a2d23fc45e0bd1259577824a6f6ca223d0"
+    },
+    {
+      "id": "item:stone",
+      "role": "stone",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_stone.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_stone.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 175668,
+        "partial": 1076,
+        "opaque": 85400
+      },
+      "bounds": [
+        53,
+        113,
+        462,
+        399
+      ],
+      "coverage": 0.80078125,
+      "bytes": 70986,
+      "blob": "5ed410cbc28b53dd1c37406fe189cb3f27d36952"
+    },
+    {
+      "id": "item:crystal",
+      "role": "crystal",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_crystal.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_crystal.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 173722,
+        "partial": 1415,
+        "opaque": 87007
+      },
+      "bounds": [
+        76,
+        51,
+        436,
+        459
+      ],
+      "coverage": 0.798828125,
+      "bytes": 121594,
+      "blob": "04221f49ddd1d3c9655fd6bbb20d472ea0bc60e8"
+    },
+    {
+      "id": "item:coral",
+      "role": "coral",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_coral.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_coral.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 188441,
+        "partial": 2464,
+        "opaque": 71239
+      },
+      "bounds": [
+        58,
+        49,
+        454,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 100887,
+      "blob": "938677f81fff56cc20f8b9cb3548a47f60d06782"
+    },
+    {
+      "id": "item:stardust",
+      "role": "stardust",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_stardust.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_stardust.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 169775,
+        "partial": 1963,
+        "opaque": 90406
+      },
+      "bounds": [
+        83,
+        49,
+        432,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 113113,
+      "blob": "c420d8293e41b59cb2e9e72c7eeeeb6719286eac"
+    },
+    {
+      "id": "item:aquatic",
+      "role": "aquatic",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_aquatic.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_aquatic.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 172456,
+        "partial": 2529,
+        "opaque": 87159
+      },
+      "bounds": [
+        52,
+        64,
+        461,
+        444
+      ],
+      "coverage": 0.80078125,
+      "bytes": 128405,
+      "blob": "1645815901d5c08e18d21eb8739ca67359716fa5"
+    },
+    {
+      "id": "item:aether",
+      "role": "aether",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_aether.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_aether.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 147620,
+        "partial": 1542,
+        "opaque": 112982
+      },
+      "bounds": [
+        76,
+        43,
+        443,
+        461
+      ],
+      "coverage": 0.818359375,
+      "bytes": 130471,
+      "blob": "961fe673fc31fcb1cee3546fd787784ae8724066"
+    },
+    {
+      "id": "item:pack_starter",
+      "role": "pack_starter",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_pack_starter.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_pack_starter.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 137110,
+        "partial": 1286,
+        "opaque": 123748
+      },
+      "bounds": [
+        50,
+        51,
+        461,
+        459
+      ],
+      "coverage": 0.8046875,
+      "bytes": 121113,
+      "blob": "c7664f1495da139d8d7d69922b4ead469c77407a"
+    },
+    {
+      "id": "item:pack_elemental",
+      "role": "pack_elemental",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_pack_elemental.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_pack_elemental.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 137110,
+        "partial": 1286,
+        "opaque": 123748
+      },
+      "bounds": [
+        50,
+        51,
+        461,
+        459
+      ],
+      "coverage": 0.8046875,
+      "bytes": 120589,
+      "blob": "d31616db3a8716d613f70b567fbce038f232bfdc"
+    },
+    {
+      "id": "item:pack_mystic",
+      "role": "pack_mystic",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_pack_mystic.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_pack_mystic.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 137110,
+        "partial": 1286,
+        "opaque": 123748
+      },
+      "bounds": [
+        50,
+        51,
+        461,
+        459
+      ],
+      "coverage": 0.8046875,
+      "bytes": 122518,
+      "blob": "803abdf6ce5271ed673e8255dd84b17d582e4c05"
+    },
+    {
+      "id": "item:pack_astral",
+      "role": "pack_astral",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_pack_astral.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_pack_astral.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 137110,
+        "partial": 1286,
+        "opaque": 123748
+      },
+      "bounds": [
+        50,
+        51,
+        461,
+        459
+      ],
+      "coverage": 0.8046875,
+      "bytes": 126270,
+      "blob": "603d2bb5f3afd5ea402c1d46006e8e7cd245127d"
+    },
+    {
+      "id": "item:blueprint",
+      "role": "blueprint",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_blueprint.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_blueprint.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 121845,
+        "partial": 1675,
+        "opaque": 138624
+      },
+      "bounds": [
+        55,
+        50,
+        454,
+        458
+      ],
+      "coverage": 0.798828125,
+      "bytes": 117509,
+      "blob": "1dfebb02354b46bf43591613ff7002b12f7afbf1"
+    },
+    {
+      "id": "item:leaf",
+      "role": "Leaf item",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_leaf.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_leaf.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 154646,
+        "partial": 1418,
+        "opaque": 106080
+      },
+      "bounds": [
+        53,
+        53,
+        458,
+        458
+      ],
+      "coverage": 0.79296875,
+      "bytes": 106491,
+      "blob": "6bd9465ddeb5a43859ce4a5f3abf5159a596eb66",
+      "reuses": "icon:leaf"
+    },
+    {
+      "id": "icon:care",
+      "role": "care",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_care.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_care.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 157292,
+        "partial": 1813,
+        "opaque": 103039
+      },
+      "bounds": [
+        49,
+        64,
+        459,
+        447
+      ],
+      "coverage": 0.802734375,
+      "bytes": 59533,
+      "blob": "9dafb8b620a953b1302554562c7862ea728599d9"
+    },
+    {
+      "id": "icon:biology",
+      "role": "biology",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_biology.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_biology.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 194080,
+        "partial": 3136,
+        "opaque": 64928
+      },
+      "bounds": [
+        127,
+        49,
+        384,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 91453,
+      "blob": "9f039bb6ffe27275a31caabacc50ec38eb6f602a"
+    },
+    {
+      "id": "icon:dragons",
+      "role": "dragons",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_dragons.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_dragons.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 160786,
+        "partial": 1515,
+        "opaque": 99843
+      },
+      "bounds": [
+        49,
+        57,
+        460,
+        447
+      ],
+      "coverage": 0.8046875,
+      "bytes": 73891,
+      "blob": "4680c3d3e7932b154c4be4b16ea63e4409874b5e"
+    },
+    {
+      "id": "icon:eggs",
+      "role": "eggs",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_eggs.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_eggs.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 140144,
+        "partial": 1621,
+        "opaque": 120379
+      },
+      "bounds": [
+        51,
+        67,
+        461,
+        443
+      ],
+      "coverage": 0.802734375,
+      "bytes": 67190,
+      "blob": "6fb86d4f0a6e50bb76cfe5ec30b5a3cec1483052"
+    },
+    {
+      "id": "icon:world",
+      "role": "world",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_world.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_world.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 126812,
+        "partial": 2480,
+        "opaque": 132852
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 97653,
+      "blob": "d43824fb008884dc69bc926744fb4387a483bf3a"
+    },
+    {
+      "id": "icon:quests",
+      "role": "quests",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_quests.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_quests.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141164,
+        "partial": 1354,
+        "opaque": 119626
+      },
+      "bounds": [
+        103,
+        49,
+        408,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 57559,
+      "blob": "7c9fa450b8667e0ad4e75408c0b871f849ad8322"
+    },
+    {
+      "id": "icon:expedition",
+      "role": "expedition",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_expedition.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_expedition.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 128276,
+        "partial": 1270,
+        "opaque": 132598
+      },
+      "bounds": [
+        49,
+        49,
+        460,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 86252,
+      "blob": "5196312d6059c1173f363ecd371a8ac756d5a7b2"
+    },
+    {
+      "id": "icon:inventory",
+      "role": "inventory",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_inventory.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_inventory.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 104632,
+        "partial": 1510,
+        "opaque": 156002
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        458
+      ],
+      "coverage": 0.80859375,
+      "bytes": 67428,
+      "blob": "be79eaa302fa95b7a65fa48c6ef6c3e7a7ff381f"
+    },
+    {
+      "id": "icon:feed",
+      "role": "feed",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_feed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_feed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 168892,
+        "partial": 1405,
+        "opaque": 91847
+      },
+      "bounds": [
+        49,
+        105,
+        460,
+        402
+      ],
+      "coverage": 0.8046875,
+      "bytes": 56536,
+      "blob": "d146bea33fd73f3c9350adf179ef563c440de993"
+    },
+    {
+      "id": "icon:pet",
+      "role": "pet",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_pet.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_pet.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 148177,
+        "partial": 2168,
+        "opaque": 111799
+      },
+      "bounds": [
+        49,
+        58,
+        462,
+        453
+      ],
+      "coverage": 0.80859375,
+      "bytes": 82905,
+      "blob": "51df9bb14e0887bf3f37b31f5a0cf428556778fc"
+    },
+    {
+      "id": "icon:rest",
+      "role": "rest",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_rest.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_rest.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 166116,
+        "partial": 1868,
+        "opaque": 94160
+      },
+      "bounds": [
+        49,
+        56,
+        460,
+        455
+      ],
+      "coverage": 0.8046875,
+      "bytes": 49262,
+      "blob": "e845bbf8196155198914bf97d258eb29b448397e"
+    },
+    {
+      "id": "icon:inspect",
+      "role": "inspect",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_inspect.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_inspect.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 170570,
+        "partial": 1329,
+        "opaque": 90245
+      },
+      "bounds": [
+        51,
+        49,
+        457,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 63525,
+      "blob": "53c38d6fdfd185dc66a6d1ac7ed8b6f8556babdd"
+    },
+    {
+      "id": "icon:build",
+      "role": "build",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_build.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_build.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 202390,
+        "partial": 1340,
+        "opaque": 58414
+      },
+      "bounds": [
+        100,
+        49,
+        408,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 43949,
+      "blob": "adc744e910fa6ef99c0669b2844b23ca781046e3"
+    },
+    {
+      "id": "icon:research",
+      "role": "research",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_research.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_research.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141424,
+        "partial": 1448,
+        "opaque": 119272
+      },
+      "bounds": [
+        54,
+        86,
+        462,
+        423
+      ],
+      "coverage": 0.798828125,
+      "bytes": 70107,
+      "blob": "0069e24c706bd54f988241812103b20623e0dafe"
+    },
+    {
+      "id": "icon:health",
+      "role": "health",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_health.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_health.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 167066,
+        "partial": 1274,
+        "opaque": 93804
+      },
+      "bounds": [
+        50,
+        73,
+        461,
+        441
+      ],
+      "coverage": 0.8046875,
+      "bytes": 46104,
+      "blob": "5a1c30586277f46ba91468739d594e4ad8772acf"
+    },
+    {
+      "id": "icon:settings",
+      "role": "settings",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_settings.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_settings.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 145244,
+        "partial": 1680,
+        "opaque": 115220
+      },
+      "bounds": [
+        50,
+        50,
+        461,
+        461
+      ],
+      "coverage": 0.8046875,
+      "bytes": 73279,
+      "blob": "c706e10ab4b26901851fbe65864189d19772b8e4"
+    },
+    {
+      "id": "icon:day",
+      "role": "day",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_day.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_day.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 199668,
+        "partial": 2568,
+        "opaque": 59908
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 44546,
+      "blob": "76c8229f5d8c153ac97678941d3e5bbc11064c3d"
+    },
+    {
+      "id": "icon:night",
+      "role": "night",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_night.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_night.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 206301,
+        "partial": 1818,
+        "opaque": 54025
+      },
+      "bounds": [
+        49,
+        61,
+        460,
+        445
+      ],
+      "coverage": 0.8046875,
+      "bytes": 40687,
+      "blob": "8c609765ade1d25385677bcbc7e20e377165402b"
+    },
+    {
+      "id": "icon:lock",
+      "role": "lock",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_lock.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_lock.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 153234,
+        "partial": 1816,
+        "opaque": 107094
+      },
+      "bounds": [
+        77,
+        49,
+        434,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 47321,
+      "blob": "93f7a3ed1292befd2ad29551d231b04fa1d302a4"
+    },
+    {
+      "id": "icon:done",
+      "role": "done",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_done.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_done.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 126740,
+        "partial": 1260,
+        "opaque": 134144
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 93800,
+      "blob": "13065f2757d027315a136fc394711e6bd18edb84"
+    },
+    {
+      "id": "icon:warning",
+      "role": "warning",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_warning.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_warning.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 186640,
+        "partial": 1240,
+        "opaque": 74264
+      },
+      "bounds": [
+        49,
+        75,
+        462,
+        436
+      ],
+      "coverage": 0.80859375,
+      "bytes": 33173,
+      "blob": "c854a3021a3e81c15f57d6a838966f1818572fd6"
+    },
+    {
+      "id": "icon:upgrade",
+      "role": "upgrade",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_upgrade.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_upgrade.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 183453,
+        "partial": 1387,
+        "opaque": 77304
+      },
+      "bounds": [
+        56,
+        49,
+        457,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 43574,
+      "blob": "64bee6f93f7052c7dbb06d854f66e345ffd03b40"
+    },
+    {
+      "id": "icon:reward",
+      "role": "reward",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_reward.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_reward.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 125219,
+        "partial": 1880,
+        "opaque": 135045
+      },
+      "bounds": [
+        49,
+        57,
+        460,
+        452
+      ],
+      "coverage": 0.8046875,
+      "bytes": 63809,
+      "blob": "cb98f651c0746799c2cc457440e6360d342145a8"
+    },
+    {
+      "id": "icon:hunger",
+      "role": "hunger",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_hunger.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_hunger.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 194940,
+        "partial": 2599,
+        "opaque": 64605
+      },
+      "bounds": [
+        89,
+        49,
+        422,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 69782,
+      "blob": "ba54713978d7ac2dfd8254cd32f37160463870c6"
+    },
+    {
+      "id": "icon:temperature",
+      "role": "temperature",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_temperature.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_temperature.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 195012,
+        "partial": 1064,
+        "opaque": 66068
+      },
+      "bounds": [
+        141,
+        49,
+        370,
+        459
+      ],
+      "coverage": 0.802734375,
+      "bytes": 58121,
+      "blob": "672a555c7464a83f1d8dfcd83058161e0b7729b0"
+    },
+    {
+      "id": "icon:bond",
+      "role": "bond",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_bond.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_bond.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 195992,
+        "partial": 1540,
+        "opaque": 64612
+      },
+      "bounds": [
+        50,
+        68,
+        459,
+        442
+      ],
+      "coverage": 0.80078125,
+      "bytes": 48660,
+      "blob": "1f7657f3eabf5928f2526a718442b7b3e972d062"
+    },
+    {
+      "id": "icon:close",
+      "role": "close",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_close.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_close.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 164276,
+        "partial": 2564,
+        "opaque": 95304
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 37287,
+      "blob": "804e28d04039c7fd2b893f70188834d38a74cc67"
+    },
+    {
+      "id": "icon:back",
+      "role": "back",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_back.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_back.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 221912,
+        "partial": 1154,
+        "opaque": 39078
+      },
+      "bounds": [
+        49,
+        131,
+        460,
+        378
+      ],
+      "coverage": 0.8046875,
+      "bytes": 20736,
+      "blob": "bc47520bdb1cb74d31e53bab72148edcfced3f65"
+    },
+    {
+      "id": "icon:next",
+      "role": "next",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_next.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_next.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 221954,
+        "partial": 1154,
+        "opaque": 39036
+      },
+      "bounds": [
+        49,
+        133,
+        459,
+        381
+      ],
+      "coverage": 0.802734375,
+      "bytes": 20336,
+      "blob": "ac39701db6677b1d174020d0f84ce7c898738835"
+    }
+  ],
+  "pending": "Optional ornament overlays outside required slot contract; owner art approval and Unity/device QA",
+  "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
+  "preview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
+    "blob": "c5d3bbb7d04efe093677b702f8ee7b986559fbb2",
+    "bytes": 34136,
+    "layout": "button rows primary/secondary/reward/danger; columns normal/pressed/disabled; bottom panel, page, header, tab, active tab"
+  },
+  "detailsPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_details.png",
+    "blob": "69ca3be111900f8f3c66b7a6bee17c7a69b22012",
+    "bytes": 45947,
+    "notes": "Actual generated pixels; progress composite clipped at 24/57/89%, not Unity."
+  },
+  "iconPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_icons.png",
+    "blob": "db49ea34f6e60fa2eaa1c85b902e7b509531dd93",
+    "bytes": 96744,
+    "notes": "Gold, egg, fruit, leaf, water, energy at 128/48/32/24 px; nearest-neighbor preview not Unity."
+  },
+  "cardsPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_cards_controls.png",
+    "blob": "517776608ff6fb2c568ccd32581072abd0734359",
+    "bytes": 72534,
+    "notes": "card/common/rare/epic/legendary; close then back, normal/pressed/disabled; 112 and 48px controls, source composite"
+  },
+  "itemsPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_items.png",
+    "blob": "5d15eea71f3ed13f6b2f541e790ab4f6a91251b2",
+    "bytes": 154964,
+    "notes": "13 new item shapes, 110/32/24 px; excludes previously committed gold/egg/fruit and item leaf shared with function leaf. Source composite, not Unity."
+  },
+  "functionPreviews": [
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_1.png",
+      "blob": "70aade6c6e30e8b7bf6432e9b8c96562f9f1bb50",
+      "bytes": 98486,
+      "order": [
+        "icon:care",
+        "icon:biology",
+        "icon:dragons",
+        "icon:eggs",
+        "icon:world",
+        "icon:quests",
+        "icon:expedition",
+        "icon:inventory"
+      ]
+    },
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_2.png",
+      "blob": "822ff3a0c3b2d37c89e017ff0d1063f2a407c6e3",
+      "bytes": 82584,
+      "order": [
+        "icon:feed",
+        "icon:pet",
+        "icon:rest",
+        "icon:inspect",
+        "icon:build",
+        "icon:research",
+        "icon:health",
+        "icon:settings"
+      ]
+    },
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_3.png",
+      "blob": "63ec3f2dfbb87a27936cf896866f754e0b152163",
+      "bytes": 63493,
+      "order": [
+        "icon:day",
+        "icon:night",
+        "icon:lock",
+        "icon:done",
+        "icon:warning",
+        "icon:upgrade",
+        "icon:reward"
+      ]
+    },
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_4.png",
+      "blob": "22a477bc77ea1fcc39d01b4f4ce693f5ee5c4219",
+      "bytes": 40791,
+      "order": [
+        "icon:hunger",
+        "icon:temperature",
+        "icon:bond",
+        "icon:close",
+        "icon:back",
+        "icon:next"
+      ]
+    }
+  ]
+}
