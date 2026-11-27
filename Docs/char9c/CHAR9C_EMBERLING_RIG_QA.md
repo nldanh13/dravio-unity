@@ -239,3 +239,31 @@ Thêm vào `repair_chibi_rig.py` (tự chọn bật, mặc định tắt, Emberl
 | **solaris** | 8 | 11 | **7** (Eat đạt) | **dùng** |
 
 Kết luận thẳng: sửa trọng số tự động **chỉ cứu thêm 1 clip** (solaris Eat). Với phần lớn clip còn hỏng, giảm biên độ tới 0,5 vẫn không đủ, còn trọng số không phải chỗ nghẽn chính. Nghẽn nằm ở **keyframe của rig v7** quá gắt so với tỉ lệ từng model: Sleep/Rest/Bask nằm sấp, Swim gập chân, Drink/Eat cúi sâu, Fly/TakeOff/Land vỗ cánh. Bước tiếp theo cần animator: dựng lại các clip đó theo từng loài, có thể dùng `worstBones` và frame tệ nhất trong `*_animqa.json` để biết chỗ cần sửa. Không nới ngưỡng, không làm phẳng chuyển động để qua QA.
+
+
+## 11. Kéo lùi keyframe cục bộ (27/11, sau khi merge #102)
+
+`repair.local` (mới trong `repair_chibi_rig.py`): `{clip: [[nhóm xương, frame, k, nửa độ rộng], ...]}`. Chỉ quanh frame bị giãn quá ngưỡng, nhóm xương gây lỗi bị kéo về tư thế nghỉ theo hệ số k (hình chuông theo thời gian, vòng tròn nếu clip loop). Phần còn lại của clip giữ nguyên chuyển động gốc, đầu và cuối clip có chuyển tiếp vẫn giữ hệ số 1. `tune_repair.py --local` tự đặt các điểm này: mỗi vòng thêm hoặc tăng điểm ở frame tệ nhất (bước 0,8, sàn 0,3).
+
+Chạy cho 13 loài còn hỏng. Tool đưa thêm 14 clip qua ngưỡng biến dạng, nhưng **10 clip trong số đó sinh lỗi mới**: chân trượt, xuyên đất, hở chạm đất (Run, Eat/Drink, Rest/Bask, Burrow của blossom, gaia, mossback, sparkwing, sprout, steamdrake). Lý do là kéo chân về mà không có IK giữ bàn chân thì bàn chân rời chỗ đặt. Các fix đó **không được nhận**. Chỉ giữ fix làm clip qua ngưỡng mà không thêm cảnh báo nào:
+
+| Loài | Clip được sửa | Hệ số nhỏ nhất | Clip còn hỏng |
+|---|---|---|---|
+| gaia | Rest, Bask | 0,41 (chân, gần như cả clip) | 9 |
+| leviathan | LookAround | 0,33 (đầu + thân, quanh frame 608) | 3 |
+| mossback | SwimSurface | 0,41 (chân) | 7 |
+
+Ba clip này thay đổi chuyển động rõ, **cần animator xem**.
+
+Tổng cộng 15 loài hiện còn **65/283 clip** vượt ngưỡng biến dạng ở frame tệ nhất (lúc đầu 223/283). Muốn đi tiếp bằng công cụ thì cần IK khóa bàn chân khi kéo chân về. Đó là thay đổi lớn ở dây chuyền animation của rig v7, nên đi cùng việc animator dựng lại các clip nằm, bơi, ăn/uống và bay.
+
+## 12. Hai hướng tự động nữa đã thử (không nhận) và gói ảnh cho animator
+
+Đo trên droplet Run (giãn 2,78, chủ yếu ở các đỉnh có trọng số Pelvis + ForeLower/HindLower):
+- **Xương phụ nửa góc ở hông/vai** (`*_Half`: con của Pelvis/Chest, quay 50 % góc của Upper, nhận phần trọng số chung Pelvis/Upper): 2,78 → 2,78. Không tác dụng, vì đỉnh bị rách gắn thẳng vào Pelvis và **Lower** (đầu gối gập 53–67°): chân của model ngắn tới mức khớp gối nằm sát bụng.
+- **Chỉ giảm đầu gối** (`knees` 0,5 / 0,3): 2,84 / 2,97. Còn tệ hơn.
+- **IK giữ bàn chân**: không thử chạy. Với lỗi do chân, giữ bàn chân đúng chỗ cũ thì IK hai đoạn cho lại đúng tư thế chân gốc, tức là lỗi quay lại.
+
+Kết luận: 65 clip còn lại phải sửa ở **keyframe** (giảm góc gập chân/đầu gối và tư thế nằm/bơi sao cho hợp với chân ngắn) hoặc **vẽ trọng số bằng tay** ở vùng nối chân với bụng. Không nới ngưỡng.
+
+Gói ảnh cho animator: `scripts/art/character/reports_char9c/species_tune/failing_clips/<loài>.jpg`, 13 tờ, 65 clip. Mỗi clip có 2 góc nhìn ở frame tệ nhất: đỏ là giãn > 1,6, xanh là nén < 0,45. Kèm tên clip, số frame (theo timeline rig v7), mức giãn/nén và 3 xương gây lỗi nhiều nhất. Hầu hết vùng lỗi nằm ở chỗ nối chân với bụng.

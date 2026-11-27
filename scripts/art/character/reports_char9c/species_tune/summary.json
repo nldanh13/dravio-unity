@@ -1,5 +1,5 @@
 {
- "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result.",
+ "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result. CHAR.9c step 4: tune_repair.py --local (pull-back around the worst frame, step 0.8, floor 0.3) on the 13 failing species; a fix is kept only if the clip then passes AND gets no new ground/foot/transition warning (pulling legs back without foot IK makes feet slide): gaia Rest+Bask, leviathan LookAround, mossback SwimSurface. beforeLocal keeps the previous failing list.",
  "species": {
   "amberhorn": {
    "archetype": "quadruped",
@@ -601,10 +601,8 @@
    "seamGapRelBefore": 0.2742,
    "failWelded": 15,
    "failingClips": [
-    "Bask",
     "Drink",
     "Eat",
-    "Rest",
     "Run",
     "Sleep",
     "Swim",
@@ -636,18 +634,75 @@
      "Walk": {
       "legs": 0.722
      }
+    },
+    "local": {
+     "Rest": [
+      [
+       "legs",
+       450,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       510,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       480,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       540,
+       0.512,
+       14.4
+      ],
+      [
+       "legs",
+       435,
+       0.8,
+       14.4
+      ]
+     ],
+     "Bask": [
+      [
+       "legs",
+       966,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       1026,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       996,
+       0.41,
+       14.4
+      ],
+      [
+       "legs",
+       1056,
+       0.512,
+       14.4
+      ],
+      [
+       "legs",
+       951,
+       0.8,
+       14.4
+      ]
+     ]
     }
    },
    "worst": {
-    "Bask": {
-     "stretch": 2.737,
-     "compress": 0.387,
-     "worstBones": [
-      "Pelvis",
-      "HindLower_L",
-      "HindUpper_R"
-     ]
-    },
     "Drink": {
      "stretch": 3.611,
      "compress": 0.358,
@@ -664,15 +719,6 @@
       "Chest",
       "Pelvis",
       "Neck"
-     ]
-    },
-    "Rest": {
-     "stretch": 2.737,
-     "compress": 0.387,
-     "worstBones": [
-      "Pelvis",
-      "HindLower_L",
-      "HindUpper_R"
      ]
     },
     "Run": {
@@ -749,7 +795,23 @@
     "side": 0.65,
     "radius": 1.015
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeLocal": {
+    "failingClips": [
+     "Bask",
+     "Drink",
+     "Eat",
+     "Rest",
+     "Run",
+     "Sleep",
+     "Swim",
+     "SwimSurface",
+     "Wake",
+     "WaterEnter",
+     "WaterExit"
+    ]
+   },
+   "minLocalK": 0.41
   },
   "leviathan": {
    "archetype": "serpentine",
@@ -760,7 +822,6 @@
    "failWelded": 10,
    "failingClips": [
     "Happy",
-    "LookAround",
     "Sleep",
     "Wake"
    ],
@@ -796,6 +857,34 @@
       "body": 0.722,
       "tail": 0.722
      }
+    },
+    "local": {
+     "LookAround": [
+      [
+       "head",
+       608,
+       0.328,
+       10.8
+      ],
+      [
+       "body",
+       608,
+       0.328,
+       10.8
+      ],
+      [
+       "head",
+       644,
+       0.64,
+       10.8
+      ],
+      [
+       "body",
+       644,
+       0.64,
+       10.8
+      ]
+     ]
     }
    },
    "worst": {
@@ -806,15 +895,6 @@
       "Spine8",
       "Tail1",
       "Tail4"
-     ]
-    },
-    "LookAround": {
-     "stretch": 2.589,
-     "compress": 0.481,
-     "worstBones": [
-      "Head",
-      "Spine4",
-      "Spine1"
      ]
     },
     "Sleep": {
@@ -843,7 +923,16 @@
     "side": 0.932,
     "radius": 0.998
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeLocal": {
+    "failingClips": [
+     "Happy",
+     "LookAround",
+     "Sleep",
+     "Wake"
+    ]
+   },
+   "minLocalK": 0.328
   },
   "magma": {
    "archetype": "quadruped",
@@ -918,7 +1007,6 @@
     "Run",
     "Sleep",
     "Swim",
-    "SwimSurface",
     "Wake",
     "WaterEnter",
     "WaterExit"
@@ -954,6 +1042,58 @@
      "Walk": {
       "legs": 0.722
      }
+    },
+    "local": {
+     "SwimSurface": [
+      [
+       "legs",
+       1353,
+       0.41,
+       5.8
+      ],
+      [
+       "legs",
+       1375,
+       0.41,
+       5.8
+      ],
+      [
+       "legs",
+       1340,
+       0.512,
+       5.8
+      ],
+      [
+       "legs",
+       1364,
+       0.41,
+       5.8
+      ],
+      [
+       "legs",
+       1382,
+       0.64,
+       5.8
+      ],
+      [
+       "legs",
+       1347,
+       0.64,
+       5.8
+      ],
+      [
+       "body",
+       1370,
+       0.8,
+       5.8
+      ],
+      [
+       "body",
+       1358,
+       0.8,
+       5.8
+      ]
+     ]
     }
    },
    "worst": {
@@ -987,15 +1127,6 @@
     "Swim": {
      "stretch": 4.62,
      "compress": 0.46,
-     "worstBones": [
-      "Pelvis",
-      "ForeLower_L",
-      "ForeLower_R"
-     ]
-    },
-    "SwimSurface": {
-     "stretch": 3.282,
-     "compress": 0.479,
      "worstBones": [
       "Pelvis",
       "ForeLower_L",
@@ -1041,7 +1172,20 @@
     "side": 0.496,
     "radius": 1.025
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeLocal": {
+    "failingClips": [
+     "Rest",
+     "Run",
+     "Sleep",
+     "Swim",
+     "SwimSurface",
+     "Wake",
+     "WaterEnter",
+     "WaterExit"
+    ]
+   },
+   "minLocalK": 0.41
   },
   "solaris": {
    "archetype": "winged",

@@ -13,6 +13,9 @@ that carries most of the bad edges (anim_qa `worstBones`) has that clip's rotati
 A group already at `floor` is not reduced further: the clip is reported as NEEDS_ART (authored motion or
 weights must change; the tool will not flatten an animation to pass). Ground/foot/bone warnings are reported,
 not tuned. Output: <out_dir>/tune_<name>.json with every round, the best config and what is left.
+--local (CHAR.9c step 4): keeps the --start config and instead adds repair.local pull-backs (that group's rotation
+toward rest, Gaussian in time around the clip's worst frame, step 0.8, floor 0.3); `proposed` drops the entries of
+clips that still fail, so nothing is flattened without a pass.
 """
 import argparse
 import json
@@ -71,7 +74,7 @@ def summary(qa):
         d = c['deformation']
         s, k = d.get('worstFrameStretchP999', d['stretchP999']), d.get('worstFrameCompressP001', d['compressP001'])
         out[n] = {'stretch': s, 'compress': k, 'fail': s > lim['maxStretchP999'] or k < lim['minCompressP001'],
-                  'worstBones': d.get('worstBones', [])[:4]}
+                  'worstBones': d.get('worstBones', [])[:4], 'worstFrame': d.get('worstFrame'), 'frames': c['frames']}
     return out
 
 
@@ -84,6 +87,12 @@ def main():
     ap.add_argument('--step', type=float, default=0.85)
     ap.add_argument('--floor', type=float, default=0.5)
     ap.add_argument('--keep-rounds', action='store_true')
+    ap.add_argument('--local', action='store_true',
+                    help='keep the --start amplitude and add LOCAL pull-backs (repair.local) around the worst frame of '
+                         'each failing clip instead; entries of clips that still fail are removed from the result')
+    ap.add_argument('--local-step', type=float, default=0.8)
+    ap.add_argument('--local-floor', type=float, default=0.3)
+    ap.add_argument('--local-width', type=float, default=0.12, help='Gaussian half width, fraction of the clip')
     a = ap.parse_args()
     base, out = Path(a.base).resolve(), Path(a.out).resolve()
     name = base.name
@@ -111,6 +120,30 @@ def main():
         if not a.keep_rounds and rnd:
             shutil.rmtree(out / f'{name}_r{rnd - 1}', ignore_errors=True)
         changed = False
+        if a.local:
+            loc = cfg.setdefault('local', {})
+            for n in fails:
+                f0, f1 = s[n]['frames']; wf = s[n]['worstFrame']
+                hw = max(2.0, round(a.local_width * (f1 - f0), 1))
+                gs = target_groups(s[n]['worstBones'])
+                moved = False
+                for g in gs:
+                    es = [e for e in loc.setdefault(n, []) if e[0] == g and abs(e[1] - wf) <= hw]
+                    if es:
+                        e = es[0]
+                        if e[2] > a.local_floor + 1e-9:
+                            e[2] = round(max(a.local_floor, e[2] * a.local_step), 3); moved = True
+                    else:
+                        loc[n].append([g, int(wf), a.local_step, hw]); moved = True
+                if moved:
+                    changed = True; needs_art.pop(n, None)
+                else:
+                    needs_art[n] = {'groups': gs, 'stretch': s[n]['stretch'], 'compress': s[n]['compress'],
+                                    'worstFrame': wf, 'worstBones': s[n]['worstBones']}
+            cfg['local'] = {k: v for k, v in loc.items() if v}
+            if not fails or not changed:
+                break
+            continue
         for n in fails:
             cur = cfg['amplitude'].setdefault(n, {})
             gs = [g for g in target_groups(s[n]['worstBones']) if cur.get(g, 1.0) > a.floor + 1e-9]
@@ -136,6 +169,9 @@ def main():
            'history': history}
     if res['best']['config'].get('amplitude') == {}:
         res['best']['config'].pop('amplitude')
+    if a.local:  # no pull-back is kept on a clip it did not fix
+        loc = {k: v for k, v in res['best']['config'].get('local', {}).items() if k not in res['best']['failingClips']}
+        res['proposed'] = dict(res['best']['config'], local=loc) if loc else {k: v for k, v in res['best']['config'].items() if k != 'local'}
     (out / f'tune_{name}.json').write_text(json.dumps(res, indent=1), encoding='utf-8')
     print(json.dumps({'name': name, 'status': res['status'], 'failing': best['failingClips'],
                       'other': best['otherWarnings']}))
