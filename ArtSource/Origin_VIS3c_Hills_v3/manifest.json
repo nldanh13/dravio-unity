@@ -1,0 +1,37 @@
+{
+  "version": 3,
+  "status": "scenery source candidate, not placed",
+  "baseline": "2b702e1626eeac18a93406868d2875f795ee1fc2",
+  "coordinateSystem": "glTF Y up; view from -Z; near warm low hills in negative Z, far cool tall hills in positive Z; pivot centered XZ, base Y=0",
+  "assets": [
+    {
+      "name": "Origin_Soft_Hills",
+      "triangles": 1920,
+      "vertices": 5760,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -8.75,
+          0,
+          -3.75
+        ],
+        "max": [
+          8.75,
+          3.493000030517578,
+          3.75
+        ]
+      },
+      "bytes": 208352,
+      "path": "ArtSource/Origin_VIS3c_Hills_v3/Origin_Soft_Hills.glb",
+      "blob": "099ac636465530e38bac2327c77e5cea7fdc5d5d"
+    }
+  ],
+  "checks": [
+    "layer center/height ordering assertion",
+    "deterministic regeneration",
+    "1920 triangle budget unchanged",
+    "finite positions and normals, nondegenerate triangles",
+    "centered pivot"
+  ],
+  "limitations": "Actual camera visibility and layering render, external glTF validation and Unity NOT RUN. No source/runtime modifications to v2 architecture."
+}
