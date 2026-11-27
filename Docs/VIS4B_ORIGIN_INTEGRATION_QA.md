@@ -29,7 +29,8 @@ Môi trường: Linux container, **không có Unity Editor, không có thiết b
 | 3 GLB `Origin_VIS3c` (v1) | **FAIL – báo AI3** → v2 xem mục 10 | Validator 0 lỗi, nhưng mặt bên cửa/cửa sổ bị lật, mặt trước quay ngược camera |
 | Chuyển GLB → FBX thử | DONE cho v2 (staging, ngoài Assets) | Mục 10; chưa import, chưa đặt |
 | Thử bố cục | DONE (Blender, không phải scene Unity) | Không có vị trí đọc tốt mà không đổi camera |
-| UI kit #87 theo hợp đồng #88 | **0/83 đạt** | Không tích hợp sprite nào; theme giữ fallback màu |
+| UI kit #87 theo hợp đồng #88 | **0/83 đạt** | Không dùng; thay bằng bộ master #92 (mục 11) |
+| UI master #92 theo hợp đồng #88 | **83/83 đạt (offline)** | Đã chép vào `Assets/Dravio/UI/Sprites`; chưa tạo/gán theme (mục 11) |
 | Landscape 16:9/20:9/4:3, notch, Focus, chữ Việt/Anh, input | **NOT RUN** | Cần Unity/thiết bị; chỉ có test logic `UiFoundationTests` pass |
 | Ảnh Game View 8h/13h/16h30/đêm | **NOT RUN** | Thay bằng render Blender trước/sau cùng camera (mục 6) |
 | Draw calls / tris / materials / texture memory / FPS | Một phần | Tris & materials & texture tính offline; draw calls/FPS **NOT RUN** |
@@ -199,3 +200,20 @@ Quan sát (trên render Blender): quả đỏ VIS.3b đọc được là chấm 
 2. AI3 thêm ô trắng/trung tính vào atlas props (đổi texture, ảnh hưởng ngân sách texture).
 
 Bố cục vẫn chờ composition review (mục 5.4); không đặt asset nào vào scene thật.
+
+## 11. Bộ UI master #92 (`45c277f`, AI3 VIS.4–6)
+
+Đã merge #92 vào nhánh QA. #92 không sửa file nào trong `Assets/`.
+
+- Audit của AI3 `node scripts/art/ui/audit_vis6_masters.mjs --self-test`: 16 kiểm tra tổng hợp đạt. Chạy thật trên PNG đã commit: master 83/83, alternatives 6, **0 lỗi** (`vis4b/ui_masters/ui-vis6-audit.json`).
+- Kiểm tra độc lập `scripts/qa/vis4b/check_ui_masters_vis4.py` theo hợp đồng #88: **83/83 không lỗi cứng**.
+  - Kích thước, border 9-slice, đường dẫn runtime và state đều đúng hợp đồng. `ValidateBorder` sạch.
+  - Tỉ lệ mẫu với kích thước import mà `UiSpritePolicy` đề xuất: ≥ 1.03 ở canvas 2.67 (thấp nhất là button/tab), ≥ 2.75 ở 720p. Không bị phóng to.
+  - Các state button/close/back cùng canvas và cùng khung nội dung (normal/pressed/disabled).
+  - Coverage icon/item nằm trong khoảng 75–85 %.
+  - Cảnh báo: `ui_icon_night` có 1 pixel alpha lẻ tại (410, 338), không thấy được khi import ≤ 256 px, báo AI3 xoá. `ui_progress_highlight` có viền mềm sáng, đúng với vai trò lớp bóng sáng.
+- Ảnh 9-slice ở canvas 1.0 và 2.67 (`vis4b/ui_masters/ui_masters_vis4_scale_preview.png`): góc sắc, không còn mảnh sót từ sheet, không bị rail.
+- **Tích hợp:** chép 83 PNG đạt vào đúng đường dẫn hợp đồng `Assets/Dravio/UI/Sprites/...`, giống byte với ArtSource. **Không kèm `.meta`**: Unity tạo `.meta` khi mở, và `DravioUiSpriteImporter` tự áp thiết lập + border. Không tạo hay gán theme, và không có code runtime nào nạp các đường dẫn này. HUD vẫn dùng màu fallback cho đến khi ai đó chạy *Dravio > UI > Theme > Create Bright Fantasy v1 Theme* và *Assign*.
+- Bộ nhớ ước tính nếu theme dùng hết 83 sprite ở kích thước import đề xuất: **RGBA32 khoảng 20.8 MiB** (standalone, không nén), **ASTC 4×4 khoảng 5.2 MiB** (Android/iOS). Cần đo trong Unity Profiler; nên cân nhắc Sprite Atlas.
+- Alternatives (2 bộ button 3 state) và ornaments của `BrightFantasy_VIS5_Polish` **chưa tích hợp**: giữ riêng theo yêu cầu AI3, không trộn với master.
+- **NOT RUN:** Unity import, `Dravio > UI > Validate`, Game View 16:9/20:9/4:3/notch, độ tương phản chữ Việt/Anh trên nút, input/chuyển tab. Mở Unity xong cần commit các `.meta` được sinh ra.
