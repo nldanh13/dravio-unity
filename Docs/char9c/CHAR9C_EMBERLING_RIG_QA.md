@@ -256,3 +256,14 @@ Chạy cho 13 loài còn hỏng. Tool đưa thêm 14 clip qua ngưỡng biến d
 Ba clip này thay đổi chuyển động rõ, **cần animator xem**.
 
 Tổng cộng 15 loài hiện còn **65/283 clip** vượt ngưỡng biến dạng ở frame tệ nhất (lúc đầu 223/283). Muốn đi tiếp bằng công cụ thì cần IK khóa bàn chân khi kéo chân về. Đó là thay đổi lớn ở dây chuyền animation của rig v7, nên đi cùng việc animator dựng lại các clip nằm, bơi, ăn/uống và bay.
+
+## 12. Hai hướng tự động nữa đã thử (không nhận) và gói ảnh cho animator
+
+Đo trên droplet Run (giãn 2,78, chủ yếu ở các đỉnh có trọng số Pelvis + ForeLower/HindLower):
+- **Xương phụ nửa góc ở hông/vai** (`*_Half`: con của Pelvis/Chest, quay 50 % góc của Upper, nhận phần trọng số chung Pelvis/Upper): 2,78 → 2,78. Không tác dụng, vì đỉnh bị rách gắn thẳng vào Pelvis và **Lower** (đầu gối gập 53–67°): chân của model ngắn tới mức khớp gối nằm sát bụng.
+- **Chỉ giảm đầu gối** (`knees` 0,5 / 0,3): 2,84 / 2,97. Còn tệ hơn.
+- **IK giữ bàn chân**: không thử chạy. Với lỗi do chân, giữ bàn chân đúng chỗ cũ thì IK hai đoạn cho lại đúng tư thế chân gốc, tức là lỗi quay lại.
+
+Kết luận: 65 clip còn lại phải sửa ở **keyframe** (giảm góc gập chân/đầu gối và tư thế nằm/bơi sao cho hợp với chân ngắn) hoặc **vẽ trọng số bằng tay** ở vùng nối chân với bụng. Không nới ngưỡng.
+
+Gói ảnh cho animator: `scripts/art/character/reports_char9c/species_tune/failing_clips/<loài>.jpg`, 13 tờ, 65 clip. Mỗi clip có 2 góc nhìn ở frame tệ nhất: đỏ là giãn > 1,6, xanh là nén < 0,45. Kèm tên clip, số frame (theo timeline rig v7), mức giãn/nén và 3 xương gây lỗi nhiều nhất. Hầu hết vùng lỗi nằm ở chỗ nối chân với bụng.
