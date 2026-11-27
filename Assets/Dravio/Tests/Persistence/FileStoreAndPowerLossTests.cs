@@ -93,6 +93,23 @@ namespace Dravio.Persistence.Tests
             Assert.That(store.Generations(), Is.EqualTo(new long[] { 5, 4, 3 }));
         }
 
+        [Test]
+        public void Noncanonical_numbered_files_cannot_hide_or_duplicate_real_save_slots()
+        {
+            var store = new FileSaveStore(_tmp);
+            store.Rotate("first");
+            store.Rotate("second");
+            string[] foreign = { "save-3.json", "save-0000000000002.json", "save-000000000000.json" };
+            foreach (string name in foreign) File.WriteAllText(Path.Combine(_tmp, name), "other");
+
+            Assert.That(store.Get(SaveSlot.Main), Is.EqualTo("second"));
+            Assert.That(store.Get(SaveSlot.Backup1), Is.EqualTo("first"));
+            Assert.That(store.Get(SaveSlot.Backup2), Is.Null);
+            store.Rotate("third", new RotateOptions { HasExpectMain = true, ExpectMain = "second" });
+            Assert.That(store.Generations(), Is.EqualTo(new long[] { 3, 2, 1 }));
+            foreach (string name in foreign) Assert.That(File.ReadAllText(Path.Combine(_tmp, name)), Is.EqualTo("other"));
+        }
+
         private static IEnumerable<TestCaseData> Corruptions()
         {
             yield return new TestCaseData((Func<byte[], byte[]>)(b => b.Take(b.Length / 2).ToArray())).SetName("Main_truncated_falls_back_to_backup1");

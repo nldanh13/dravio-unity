@@ -60,7 +60,8 @@ namespace Dravio.Persistence.Storage
             generation = 0;
             if (!name.StartsWith(GenPrefix, StringComparison.Ordinal) || !name.EndsWith(GenSuffix, StringComparison.Ordinal)) return false;
             string digits = name.Substring(GenPrefix.Length, name.Length - GenPrefix.Length - GenSuffix.Length);
-            return long.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out generation);
+            return long.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out generation)
+                && generation > 0 && name == GenName(generation);
         }
 
         public string Get(SaveSlot slot)
