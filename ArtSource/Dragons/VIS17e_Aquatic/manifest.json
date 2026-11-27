@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "baseline": "ba92ac41035f640bc30b2e607f0c47cadf5df596",
+  "status": "source-only guarded workflow",
+  "species": [
+    {
+      "id": "steamdrake",
+      "sourcePath": "ArtSource/Dragons/images/05_steamdrake.glb",
+      "sourceSha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+      "studies": [
+        "Scale"
+      ],
+      "canonical": {
+        "silhouetteVi": "Thân dài, vây sống lưng, chi ngắn.",
+        "palette": {
+          "primary": "#92BFC0",
+          "secondary": "#527E83",
+          "belly": "#E5E5CB",
+          "accent": "#ECAD78"
+        },
+        "locomotion": [
+          "walk",
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Serpent",
+        "realms": [
+          "ocean",
+          "land"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "serpentine",
+        "clips": 21,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.06054,
+        "worstClip": "Swim",
+        "worstStretch": 4.442,
+        "otherWarnings": []
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19998,
+        "islands": 1,
+        "uvFlippedShare": 0.3332,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Maintain long body, dorsal fin and short limbs; project scale rhythm head-to-tail, protect transitions into fins and limb roots.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "frostfin",
+      "sourcePath": "ArtSource/Dragons/images/08_frostfin.glb",
+      "sourceSha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+      "studies": [
+        "Scale"
+      ],
+      "canonical": {
+        "silhouetteVi": "Vây ngực lớn như cánh; không chân đi, không bay.",
+        "palette": {
+          "primary": "#8ABADD",
+          "secondary": "#4B75AB",
+          "belly": "#E0F5FF",
+          "accent": "#BDEDF4"
+        },
+        "locomotion": [
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "ocean"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "aquatic",
+        "clips": 13,
+        "strictFail": 11,
+        "seamGapMaxRel": 0.09468,
+        "worstClip": "Happy",
+        "worstStretch": 5.33,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.5855,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Preserve paired pectoral fins, no walking legs or flight. Inspect upper/lower fin surfaces and mirrored UV orientation; no invented membrane.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "leviathan",
+      "sourcePath": "ArtSource/Dragons/images/12_leviathan.glb",
+      "sourceSha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+      "studies": [
+        "Scale"
+      ],
+      "canonical": {
+        "silhouetteVi": "Thân biển dài, vây san hô, không chi đất.",
+        "palette": {
+          "primary": "#427C9A",
+          "secondary": "#27526E",
+          "belly": "#C7E4D7",
+          "accent": "#E38F86"
+        },
+        "locomotion": [
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Serpent",
+        "realms": [
+          "ocean"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "serpentine",
+        "clips": 13,
+        "strictFail": 11,
+        "seamGapMaxRel": 0.09649,
+        "worstClip": "Sleep",
+        "worstStretch": 7.999,
+        "otherWarnings": []
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19996,
+        "islands": 1,
+        "uvFlippedShare": 0.4246,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Maintain marine serpent silhouette and coral fins. Protect coral color and tail/neck transitions; no automatic emission.",
+      "status": "hold actual bake and runtime promotion"
+    }
+  ],
+  "priorRigQA": {
+    "clips": 47,
+    "strictFail": 39
+  },
+  "checks": {
+    "syntheticBake": 12,
+    "syntheticSeam": 6,
+    "syntheticMip": 9,
+    "levels": [
+      2048,
+      1024,
+      512,
+      256
+    ],
+    "boundaryModes": [
+      "clamp",
+      "repeat"
+    ],
+    "proposedMaxAddedBilinearSeamDifferenceSrgb8": 2
+  },
+  "limitations": "Exact float32 position edge pairing in one primitive only, fail closed on unsupported topology. Four CPU approximate opaque sRGB mips, box averaging in linear RGB, no actual Unity texture importer/GPU compression, trilinear/aniso or animation tests. No actual UV masks or GLB decoding, CLI/FBX/Blender/Unity/device not run. No texture or runtime edits."
+}
