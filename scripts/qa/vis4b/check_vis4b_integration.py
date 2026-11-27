@@ -45,6 +45,7 @@ shaders = {
     "Dravio/Environment/Painterly Lit": ENV / "Shaders" / "DravioPainterlyLit.shader",
     "Dravio/Environment/Painterly Water": ENV / "Shaders" / "DravioPainterlyWater.shader",
     "Dravio/Environment/Painterly Flow": ENV / "Shaders" / "DravioPainterlyFlow.shader",
+    "Dravio/Environment/Caustics": ENV / "Shaders" / "DravioCaustics.shader",
 }
 guid_to_shader = {}
 for name, p in shaders.items():
@@ -56,7 +57,7 @@ for name, p in shaders.items():
     missing = sorted(x for x in numeric if x not in cb)
     check(not missing, f"{p.name}: all numeric properties in UnityPerMaterial {missing or ''}")
 
-for mat in sorted((ENV / "Materials").glob("M_ENV_*.mat")):
+for mat in sorted(ENV.rglob("M_ENV_*.mat")):
     txt = mat.read_text()
     g = re.search(r"m_Shader: \{fileID: \d+, guid: (\w+)", txt)
     if not g or g.group(1) not in guid_to_shader:
