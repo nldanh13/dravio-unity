@@ -7,6 +7,21 @@ namespace Dravio.Tests
 {
     public sealed class AutonomousPresentationPolicyTests
     {
+        [TestCase(null,0,0)]
+        [TestCase(1000L,1000L,8)]
+        [TestCase(1000L,8999L,1)]
+        [TestCase(1000L,9000L,0)]
+        public void FeedWaitMatchesMealCooldown(long? lastMeal,long now,int expected)
+            =>Assert.That(SanctuaryFeedback.FeedWaitSeconds(lastMeal,now),Is.EqualTo(expected));
+
+        [TestCase(200L,152000000L,true,"200 G · Thiếu 48 G")]
+        [TestCase(200L,199999999L,true,"200 G · Thiếu 0,000001 G")]
+        [TestCase(200L,199500000L,false,"200 G · Need 0.5 G")]
+        [TestCase(200L,200000000L,false,"200 G")]
+        [TestCase(null,0L,true,"Đã tối đa")]
+        public void UpgradePriceShowsActualShortfall(long? price,long balance,bool vietnamese,string expected)
+            =>Assert.That(SanctuaryFeedback.UpgradePrice(price,balance,vietnamese),Is.EqualTo(expected));
+
         [TestCase(320,180)]
         [TestCase(844,390)]
         [TestCase(1920,1080)]

@@ -23,6 +23,7 @@
     <Compile Include="../../Scripts/ExpeditionPresentation.cs" />
     <Compile Include="ExpeditionPresentationTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
+    <Compile Include="../../Scripts/SanctuaryFeedback.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
     <Compile Include="../../Scripts/Navigation/SanctuaryRoutePlanner.cs" />
     <Compile Include="SanctuaryRoutePlannerTests.cs" />

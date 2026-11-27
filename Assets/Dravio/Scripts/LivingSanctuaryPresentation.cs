@@ -1226,6 +1226,11 @@ namespace Dravio
             title.text=(string.IsNullOrEmpty(d.Nickname)?d.SpeciesId:d.Nickname)+" · "+snapshot.Stage;
             progress.text="XP "+d.XpSec.ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"/"+SpeciesCatalog.Get(d.SpeciesId).GrowthTimeSec+
                 " · "+(vi?"Gắn kết ":"Bond ")+d.Bond+"/100";
+            if(foodId==null && !sharedFoodAllocation && Ready && residents.TryGetValue(d.Uid,out var hungryResident) && !hungryResident.Spatial)
+            {
+                int wait=SanctuaryFeedback.FeedWaitSeconds(d.LastFeedXpAtMs,NowMs);
+                if(wait>0)progress.text+=vi?$" · Vừa ăn, còn {wait} giây":$" · Just ate, {wait}s left";
+            }
             string visual=vi?"Không ở sinh cảnh hiện tại":"Not in current habitat view";
             if(residents.TryGetValue(d.Uid,out var r))
             {
