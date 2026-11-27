@@ -590,9 +590,183 @@
       "coreNonzero": 0,
       "bytes": 12775,
       "blob": "5ac7f51dc30ba24c0b62552f730f92b689403f8c"
+    },
+    {
+      "id": "item:gold",
+      "role": "Gold",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_gold.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_gold.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141017,
+        "partial": 1545,
+        "opaque": 119582
+      },
+      "bounds": [
+        49,
+        62,
+        461,
+        450
+      ],
+      "coverage": 0.806640625,
+      "bytes": 144162,
+      "blob": "243b2e53dd73153b2c1921e70956009728408b5a"
+    },
+    {
+      "id": "item:egg",
+      "role": "Egg",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_egg.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_egg.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 159542,
+        "partial": 1422,
+        "opaque": 101180
+      },
+      "bounds": [
+        95,
+        52,
+        416,
+        461
+      ],
+      "coverage": 0.80078125,
+      "bytes": 103193,
+      "blob": "56655cc8ffc1dad2bed373f389af28d5c6fa8a0f"
+    },
+    {
+      "id": "item:fruit",
+      "role": "Fruit",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_fruit.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_fruit.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 142294,
+        "partial": 1439,
+        "opaque": 118411
+      },
+      "bounds": [
+        51,
+        62,
+        460,
+        451
+      ],
+      "coverage": 0.80078125,
+      "bytes": 116537,
+      "blob": "3ed3e73906a29bef19c86a05c6f7547fb56a8a19"
+    },
+    {
+      "id": "icon:leaf",
+      "role": "Leaf",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_leaf.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_leaf.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 154646,
+        "partial": 1418,
+        "opaque": 106080
+      },
+      "bounds": [
+        53,
+        53,
+        458,
+        458
+      ],
+      "coverage": 0.79296875,
+      "bytes": 106491,
+      "blob": "6bd9465ddeb5a43859ce4a5f3abf5159a596eb66"
+    },
+    {
+      "id": "icon:water",
+      "role": "Water",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_water.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_water.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 167530,
+        "partial": 1126,
+        "opaque": 93488
+      },
+      "bounds": [
+        87,
+        49,
+        424,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 114147,
+      "blob": "8ddfa112b1d2801e126ac52dcef04dc4e202a61a"
+    },
+    {
+      "id": "icon:energy",
+      "role": "Energy",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_energy.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_energy.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 217225,
+        "partial": 1305,
+        "opaque": 43614
+      },
+      "bounds": [
+        98,
+        50,
+        411,
+        460
+      ],
+      "coverage": 0.802734375,
+      "bytes": 58313,
+      "blob": "59eb830afcbe9e9d5b8f546a35813936a9ab1361"
     }
   ],
-  "pending": "icons, rarity/card slots, close/back, ornament overlays, visual QA",
+  "pending": "43 remaining icon/item roles, rarity/card slots, close/back, ornament overlays and actual visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
@@ -605,5 +779,11 @@
     "blob": "69ca3be111900f8f3c66b7a6bee17c7a69b22012",
     "bytes": 45947,
     "notes": "Actual generated pixels; progress composite clipped at 24/57/89%, not Unity."
+  },
+  "iconPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_icons.png",
+    "blob": "db49ea34f6e60fa2eaa1c85b902e7b509531dd93",
+    "bytes": 96744,
+    "notes": "Gold, egg, fruit, leaf, water, energy at 128/48/32/24 px; nearest-neighbor preview not Unity."
   }
 }
