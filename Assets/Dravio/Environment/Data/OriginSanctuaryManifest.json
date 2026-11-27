@@ -103,8 +103,8 @@
    "budget": 3500
   },
   "SM_ENV_Tree_Ancient": {
-   "triangles": 3344,
-   "vertices": 1776,
+   "triangles": 3584,
+   "vertices": 1902,
    "materials": [
     "ENV_Props",
     "ENV_Foliage"
@@ -360,8 +360,8 @@
    "budget": 2600
   },
   "SM_ENV_Tree_Ancient_B": {
-   "triangles": 2450,
-   "vertices": 1294,
+   "triangles": 2770,
+   "vertices": 1462,
    "materials": [
     "ENV_Props",
     "ENV_Foliage"
@@ -506,6 +506,12 @@
  },
  "layout": {
   "placements": 45,
-  "scene_triangles": 33352
+  "scene_triangles": 34472
+ },
+ "vis3b": {
+  "generator": "scripts/art/environment/build_origin_vis3_models.py",
+  "blender": "5.3.0",
+  "staged": true,
+  "imported_by": "VIS.4b QA branch (issue #91): automated checks passed; Unity import/visual acceptance NOT RUN"
  }
 }
