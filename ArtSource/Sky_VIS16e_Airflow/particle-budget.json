@@ -1,0 +1,1240 @@
+{
+  "zoneId": "sky",
+  "tiers": [
+    {
+      "name": "Low",
+      "scale": 0.35,
+      "caps": [
+        {
+          "id": "star_motes",
+          "channel": "fireflies",
+          "cap": 14
+        },
+        {
+          "id": "shrine_motes",
+          "channel": "firefliesPond",
+          "cap": 5
+        },
+        {
+          "id": "petals",
+          "channel": "dust",
+          "cap": 14
+        },
+        {
+          "id": "cloud_wisps",
+          "channel": "pondRings",
+          "cap": 4
+        }
+      ],
+      "totalCap": 37,
+      "maxKeyTargetAlive": 23.8,
+      "maxKeyEmissionPerSecond": 3.314063714063714,
+      "keys": [
+        {
+          "hour": 0,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 14,
+              "emissionPerSecond": 2
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 4.199999999999999,
+              "emissionPerSecond": 0.7636363636363636
+            },
+            {
+              "id": "petals",
+              "targetAlive": 3.5,
+              "emissionPerSecond": 0.3888888888888889
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.1,
+              "emissionPerSecond": 0.16153846153846155
+            }
+          ],
+          "totalTargetAlive": 23.8,
+          "totalEmissionPerSecond": 3.314063714063714
+        },
+        {
+          "hour": 3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 9.799999999999999,
+              "emissionPerSecond": 1.4
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 2.9399999999999995,
+              "emissionPerSecond": 0.5345454545454544
+            },
+            {
+              "id": "petals",
+              "targetAlive": 3.5,
+              "emissionPerSecond": 0.3888888888888889
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.1,
+              "emissionPerSecond": 0.16153846153846155
+            }
+          ],
+          "totalTargetAlive": 18.34,
+          "totalEmissionPerSecond": 2.484972804972805
+        },
+        {
+          "hour": 4.8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 5.6000000000000005,
+              "emissionPerSecond": 0.8
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 1.6799999999999997,
+              "emissionPerSecond": 0.3054545454545454
+            },
+            {
+              "id": "petals",
+              "targetAlive": 5.04,
+              "emissionPerSecond": 0.56
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.24,
+              "emissionPerSecond": 0.17230769230769233
+            }
+          ],
+          "totalTargetAlive": 14.56,
+          "totalEmissionPerSecond": 1.8377622377622378
+        },
+        {
+          "hour": 5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 4.2,
+              "emissionPerSecond": 0.6
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 1.2599999999999998,
+              "emissionPerSecond": 0.22909090909090904
+            },
+            {
+              "id": "petals",
+              "targetAlive": 5.81,
+              "emissionPerSecond": 0.6455555555555555
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.31,
+              "emissionPerSecond": 0.1776923076923077
+            }
+          ],
+          "totalTargetAlive": 13.58,
+          "totalEmissionPerSecond": 1.6523387723387724
+        },
+        {
+          "hour": 5.05,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 4.2,
+              "emissionPerSecond": 0.6
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 1.2599999999999998,
+              "emissionPerSecond": 0.22909090909090904
+            },
+            {
+              "id": "petals",
+              "targetAlive": 5.81,
+              "emissionPerSecond": 0.6455555555555555
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.31,
+              "emissionPerSecond": 0.1776923076923077
+            }
+          ],
+          "totalTargetAlive": 13.58,
+          "totalEmissionPerSecond": 1.6523387723387724
+        },
+        {
+          "hour": 6,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 1.4000000000000001,
+              "emissionPerSecond": 0.2
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0.41999999999999993,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 8.505,
+              "emissionPerSecond": 0.9450000000000001
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.5549999999999997,
+              "emissionPerSecond": 0.19653846153846152
+            }
+          ],
+          "totalTargetAlive": 12.88,
+          "totalEmissionPerSecond": 1.3415384615384616
+        },
+        {
+          "hour": 8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 11.200000000000001,
+              "emissionPerSecond": 1.2444444444444445
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.8000000000000003,
+              "emissionPerSecond": 0.2153846153846154
+            }
+          ],
+          "totalTargetAlive": 14.000000000000002,
+          "totalEmissionPerSecond": 1.45982905982906
+        },
+        {
+          "hour": 13,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 11.200000000000001,
+              "emissionPerSecond": 1.2444444444444445
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.8000000000000003,
+              "emissionPerSecond": 0.2153846153846154
+            }
+          ],
+          "totalTargetAlive": 14.000000000000002,
+          "totalEmissionPerSecond": 1.45982905982906
+        },
+        {
+          "hour": 16.5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 11.200000000000001,
+              "emissionPerSecond": 1.2444444444444445
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.8000000000000003,
+              "emissionPerSecond": 0.2153846153846154
+            }
+          ],
+          "totalTargetAlive": 14.000000000000002,
+          "totalEmissionPerSecond": 1.45982905982906
+        },
+        {
+          "hour": 18.3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 4.8999999999999995,
+              "emissionPerSecond": 0.7
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 1.4699999999999998,
+              "emissionPerSecond": 0.2672727272727272
+            },
+            {
+              "id": "petals",
+              "targetAlive": 7.734999999999999,
+              "emissionPerSecond": 0.8594444444444443
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.485,
+              "emissionPerSecond": 0.19115384615384615
+            }
+          ],
+          "totalTargetAlive": 16.59,
+          "totalEmissionPerSecond": 2.0178710178710175
+        },
+        {
+          "hour": 19.2,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 11.9,
+              "emissionPerSecond": 1.7
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.5699999999999994,
+              "emissionPerSecond": 0.6490909090909089
+            },
+            {
+              "id": "petals",
+              "targetAlive": 4.655,
+              "emissionPerSecond": 0.5172222222222222
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.205,
+              "emissionPerSecond": 0.1696153846153846
+            }
+          ],
+          "totalTargetAlive": 22.33,
+          "totalEmissionPerSecond": 3.0359285159285156
+        },
+        {
+          "hour": 19.4,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 12.6,
+              "emissionPerSecond": 1.8
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.7799999999999994,
+              "emissionPerSecond": 0.6872727272727271
+            },
+            {
+              "id": "petals",
+              "targetAlive": 4.27,
+              "emissionPerSecond": 0.4744444444444444
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.17,
+              "emissionPerSecond": 0.16692307692307692
+            }
+          ],
+          "totalTargetAlive": 22.82,
+          "totalEmissionPerSecond": 3.1286402486402487
+        },
+        {
+          "hour": 19.45,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 12.6,
+              "emissionPerSecond": 1.8
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.7799999999999994,
+              "emissionPerSecond": 0.6872727272727271
+            },
+            {
+              "id": "petals",
+              "targetAlive": 4.27,
+              "emissionPerSecond": 0.4744444444444444
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.17,
+              "emissionPerSecond": 0.16692307692307692
+            }
+          ],
+          "totalTargetAlive": 22.82,
+          "totalEmissionPerSecond": 3.1286402486402487
+        },
+        {
+          "hour": 21,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 14,
+              "emissionPerSecond": 2
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 4.199999999999999,
+              "emissionPerSecond": 0.7636363636363636
+            },
+            {
+              "id": "petals",
+              "targetAlive": 3.5,
+              "emissionPerSecond": 0.3888888888888889
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 2.1,
+              "emissionPerSecond": 0.16153846153846155
+            }
+          ],
+          "totalTargetAlive": 23.8,
+          "totalEmissionPerSecond": 3.314063714063714
+        }
+      ]
+    },
+    {
+      "name": "Medium",
+      "scale": 0.65,
+      "caps": [
+        {
+          "id": "star_motes",
+          "channel": "fireflies",
+          "cap": 26
+        },
+        {
+          "id": "shrine_motes",
+          "channel": "firefliesPond",
+          "cap": 8
+        },
+        {
+          "id": "petals",
+          "channel": "dust",
+          "cap": 26
+        },
+        {
+          "id": "cloud_wisps",
+          "channel": "pondRings",
+          "cap": 7
+        }
+      ],
+      "totalCap": 67,
+      "maxKeyTargetAlive": 44.199999999999996,
+      "maxKeyEmissionPerSecond": 6.1546897546897545,
+      "keys": [
+        {
+          "hour": 0,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 26,
+              "emissionPerSecond": 3.7142857142857144
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 7.800000000000001,
+              "emissionPerSecond": 1.4181818181818182
+            },
+            {
+              "id": "petals",
+              "targetAlive": 6.5,
+              "emissionPerSecond": 0.7222222222222222
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 3.9,
+              "emissionPerSecond": 0.3
+            }
+          ],
+          "totalTargetAlive": 44.199999999999996,
+          "totalEmissionPerSecond": 6.1546897546897545
+        },
+        {
+          "hour": 3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 18.2,
+              "emissionPerSecond": 2.6
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 5.46,
+              "emissionPerSecond": 0.9927272727272727
+            },
+            {
+              "id": "petals",
+              "targetAlive": 6.5,
+              "emissionPerSecond": 0.7222222222222222
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 3.9,
+              "emissionPerSecond": 0.3
+            }
+          ],
+          "totalTargetAlive": 34.06,
+          "totalEmissionPerSecond": 4.614949494949495
+        },
+        {
+          "hour": 4.8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 10.4,
+              "emissionPerSecond": 1.4857142857142858
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.1200000000000006,
+              "emissionPerSecond": 0.5672727272727274
+            },
+            {
+              "id": "petals",
+              "targetAlive": 9.36,
+              "emissionPerSecond": 1.04
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.16,
+              "emissionPerSecond": 0.32
+            }
+          ],
+          "totalTargetAlive": 27.040000000000003,
+          "totalEmissionPerSecond": 3.412987012987013
+        },
+        {
+          "hour": 5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 7.8,
+              "emissionPerSecond": 1.1142857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 2.3400000000000003,
+              "emissionPerSecond": 0.42545454545454553
+            },
+            {
+              "id": "petals",
+              "targetAlive": 10.79,
+              "emissionPerSecond": 1.198888888888889
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.29,
+              "emissionPerSecond": 0.33
+            }
+          ],
+          "totalTargetAlive": 25.22,
+          "totalEmissionPerSecond": 3.0686291486291486
+        },
+        {
+          "hour": 5.05,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 7.8,
+              "emissionPerSecond": 1.1142857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 2.3400000000000003,
+              "emissionPerSecond": 0.42545454545454553
+            },
+            {
+              "id": "petals",
+              "targetAlive": 10.79,
+              "emissionPerSecond": 1.198888888888889
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.29,
+              "emissionPerSecond": 0.33
+            }
+          ],
+          "totalTargetAlive": 25.22,
+          "totalEmissionPerSecond": 3.0686291486291486
+        },
+        {
+          "hour": 6,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 2.6,
+              "emissionPerSecond": 0.37142857142857144
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0.7800000000000001,
+              "emissionPerSecond": 0.14181818181818184
+            },
+            {
+              "id": "petals",
+              "targetAlive": 15.795000000000002,
+              "emissionPerSecond": 1.7550000000000001
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.745,
+              "emissionPerSecond": 0.365
+            }
+          ],
+          "totalTargetAlive": 23.92,
+          "totalEmissionPerSecond": 2.6332467532467536
+        },
+        {
+          "hour": 8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 20.8,
+              "emissionPerSecond": 2.3111111111111113
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 5.2,
+              "emissionPerSecond": 0.4
+            }
+          ],
+          "totalTargetAlive": 26,
+          "totalEmissionPerSecond": 2.7111111111111112
+        },
+        {
+          "hour": 13,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 20.8,
+              "emissionPerSecond": 2.3111111111111113
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 5.2,
+              "emissionPerSecond": 0.4
+            }
+          ],
+          "totalTargetAlive": 26,
+          "totalEmissionPerSecond": 2.7111111111111112
+        },
+        {
+          "hour": 16.5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 20.8,
+              "emissionPerSecond": 2.3111111111111113
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 5.2,
+              "emissionPerSecond": 0.4
+            }
+          ],
+          "totalTargetAlive": 26,
+          "totalEmissionPerSecond": 2.7111111111111112
+        },
+        {
+          "hour": 18.3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 9.1,
+              "emissionPerSecond": 1.3
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 2.73,
+              "emissionPerSecond": 0.49636363636363634
+            },
+            {
+              "id": "petals",
+              "targetAlive": 14.365,
+              "emissionPerSecond": 1.596111111111111
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.615,
+              "emissionPerSecond": 0.35500000000000004
+            }
+          ],
+          "totalTargetAlive": 30.810000000000002,
+          "totalEmissionPerSecond": 3.7474747474747474
+        },
+        {
+          "hour": 19.2,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 22.099999999999998,
+              "emissionPerSecond": 3.157142857142857
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 6.630000000000001,
+              "emissionPerSecond": 1.2054545454545456
+            },
+            {
+              "id": "petals",
+              "targetAlive": 8.645,
+              "emissionPerSecond": 0.9605555555555555
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.095,
+              "emissionPerSecond": 0.315
+            }
+          ],
+          "totalTargetAlive": 41.47,
+          "totalEmissionPerSecond": 5.638152958152959
+        },
+        {
+          "hour": 19.4,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 23.400000000000002,
+              "emissionPerSecond": 3.342857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 7.0200000000000005,
+              "emissionPerSecond": 1.2763636363636364
+            },
+            {
+              "id": "petals",
+              "targetAlive": 7.93,
+              "emissionPerSecond": 0.8811111111111111
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.03,
+              "emissionPerSecond": 0.31
+            }
+          ],
+          "totalTargetAlive": 42.38,
+          "totalEmissionPerSecond": 5.81033189033189
+        },
+        {
+          "hour": 19.45,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 23.400000000000002,
+              "emissionPerSecond": 3.342857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 7.0200000000000005,
+              "emissionPerSecond": 1.2763636363636364
+            },
+            {
+              "id": "petals",
+              "targetAlive": 7.93,
+              "emissionPerSecond": 0.8811111111111111
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 4.03,
+              "emissionPerSecond": 0.31
+            }
+          ],
+          "totalTargetAlive": 42.38,
+          "totalEmissionPerSecond": 5.81033189033189
+        },
+        {
+          "hour": 21,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 26,
+              "emissionPerSecond": 3.7142857142857144
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 7.800000000000001,
+              "emissionPerSecond": 1.4181818181818182
+            },
+            {
+              "id": "petals",
+              "targetAlive": 6.5,
+              "emissionPerSecond": 0.7222222222222222
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 3.9,
+              "emissionPerSecond": 0.3
+            }
+          ],
+          "totalTargetAlive": 44.199999999999996,
+          "totalEmissionPerSecond": 6.1546897546897545
+        }
+      ]
+    },
+    {
+      "name": "High",
+      "scale": 1,
+      "caps": [
+        {
+          "id": "star_motes",
+          "channel": "fireflies",
+          "cap": 40
+        },
+        {
+          "id": "shrine_motes",
+          "channel": "firefliesPond",
+          "cap": 12
+        },
+        {
+          "id": "petals",
+          "channel": "dust",
+          "cap": 40
+        },
+        {
+          "id": "cloud_wisps",
+          "channel": "pondRings",
+          "cap": 10
+        }
+      ],
+      "totalCap": 102,
+      "maxKeyTargetAlive": 68,
+      "maxKeyEmissionPerSecond": 9.46875346875347,
+      "keys": [
+        {
+          "hour": 0,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 40,
+              "emissionPerSecond": 5.714285714285714
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 12,
+              "emissionPerSecond": 2.1818181818181817
+            },
+            {
+              "id": "petals",
+              "targetAlive": 10,
+              "emissionPerSecond": 1.1111111111111112
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6,
+              "emissionPerSecond": 0.46153846153846156
+            }
+          ],
+          "totalTargetAlive": 68,
+          "totalEmissionPerSecond": 9.46875346875347
+        },
+        {
+          "hour": 3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 28,
+              "emissionPerSecond": 4
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 8.399999999999999,
+              "emissionPerSecond": 1.5272727272727271
+            },
+            {
+              "id": "petals",
+              "targetAlive": 10,
+              "emissionPerSecond": 1.1111111111111112
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6,
+              "emissionPerSecond": 0.46153846153846156
+            }
+          ],
+          "totalTargetAlive": 52.4,
+          "totalEmissionPerSecond": 7.0999222999223
+        },
+        {
+          "hour": 4.8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 16,
+              "emissionPerSecond": 2.2857142857142856
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 4.800000000000001,
+              "emissionPerSecond": 0.8727272727272729
+            },
+            {
+              "id": "petals",
+              "targetAlive": 14.399999999999999,
+              "emissionPerSecond": 1.5999999999999999
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.4,
+              "emissionPerSecond": 0.49230769230769234
+            }
+          ],
+          "totalTargetAlive": 41.6,
+          "totalEmissionPerSecond": 5.250749250749251
+        },
+        {
+          "hour": 5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 12,
+              "emissionPerSecond": 1.7142857142857142
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.5999999999999996,
+              "emissionPerSecond": 0.6545454545454544
+            },
+            {
+              "id": "petals",
+              "targetAlive": 16.599999999999998,
+              "emissionPerSecond": 1.844444444444444
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.6000000000000005,
+              "emissionPerSecond": 0.5076923076923078
+            }
+          ],
+          "totalTargetAlive": 38.8,
+          "totalEmissionPerSecond": 4.7209679209679205
+        },
+        {
+          "hour": 5.05,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 12,
+              "emissionPerSecond": 1.7142857142857142
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 3.5999999999999996,
+              "emissionPerSecond": 0.6545454545454544
+            },
+            {
+              "id": "petals",
+              "targetAlive": 16.599999999999998,
+              "emissionPerSecond": 1.844444444444444
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.6000000000000005,
+              "emissionPerSecond": 0.5076923076923078
+            }
+          ],
+          "totalTargetAlive": 38.8,
+          "totalEmissionPerSecond": 4.7209679209679205
+        },
+        {
+          "hour": 6,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 4,
+              "emissionPerSecond": 0.5714285714285714
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 1.2000000000000002,
+              "emissionPerSecond": 0.21818181818181823
+            },
+            {
+              "id": "petals",
+              "targetAlive": 24.3,
+              "emissionPerSecond": 2.7
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 7.3,
+              "emissionPerSecond": 0.5615384615384615
+            }
+          ],
+          "totalTargetAlive": 36.8,
+          "totalEmissionPerSecond": 4.051148851148851
+        },
+        {
+          "hour": 8,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 32,
+              "emissionPerSecond": 3.5555555555555554
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 8,
+              "emissionPerSecond": 0.6153846153846154
+            }
+          ],
+          "totalTargetAlive": 40,
+          "totalEmissionPerSecond": 4.17094017094017
+        },
+        {
+          "hour": 13,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 32,
+              "emissionPerSecond": 3.5555555555555554
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 8,
+              "emissionPerSecond": 0.6153846153846154
+            }
+          ],
+          "totalTargetAlive": 40,
+          "totalEmissionPerSecond": 4.17094017094017
+        },
+        {
+          "hour": 16.5,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 0,
+              "emissionPerSecond": 0
+            },
+            {
+              "id": "petals",
+              "targetAlive": 32,
+              "emissionPerSecond": 3.5555555555555554
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 8,
+              "emissionPerSecond": 0.6153846153846154
+            }
+          ],
+          "totalTargetAlive": 40,
+          "totalEmissionPerSecond": 4.17094017094017
+        },
+        {
+          "hour": 18.3,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 14,
+              "emissionPerSecond": 2
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 4.199999999999999,
+              "emissionPerSecond": 0.7636363636363636
+            },
+            {
+              "id": "petals",
+              "targetAlive": 22.1,
+              "emissionPerSecond": 2.4555555555555557
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 7.1,
+              "emissionPerSecond": 0.5461538461538461
+            }
+          ],
+          "totalTargetAlive": 47.4,
+          "totalEmissionPerSecond": 5.765345765345765
+        },
+        {
+          "hour": 19.2,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 34,
+              "emissionPerSecond": 4.857142857142857
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 10.2,
+              "emissionPerSecond": 1.8545454545454545
+            },
+            {
+              "id": "petals",
+              "targetAlive": 13.3,
+              "emissionPerSecond": 1.4777777777777779
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.3,
+              "emissionPerSecond": 0.4846153846153846
+            }
+          ],
+          "totalTargetAlive": 63.8,
+          "totalEmissionPerSecond": 8.674081474081474
+        },
+        {
+          "hour": 19.4,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 36,
+              "emissionPerSecond": 5.142857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 10.8,
+              "emissionPerSecond": 1.9636363636363638
+            },
+            {
+              "id": "petals",
+              "targetAlive": 12.2,
+              "emissionPerSecond": 1.3555555555555554
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.2,
+              "emissionPerSecond": 0.47692307692307695
+            }
+          ],
+          "totalTargetAlive": 65.2,
+          "totalEmissionPerSecond": 8.93897213897214
+        },
+        {
+          "hour": 19.45,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 36,
+              "emissionPerSecond": 5.142857142857143
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 10.8,
+              "emissionPerSecond": 1.9636363636363638
+            },
+            {
+              "id": "petals",
+              "targetAlive": 12.2,
+              "emissionPerSecond": 1.3555555555555554
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6.2,
+              "emissionPerSecond": 0.47692307692307695
+            }
+          ],
+          "totalTargetAlive": 65.2,
+          "totalEmissionPerSecond": 8.93897213897214
+        },
+        {
+          "hour": 21,
+          "counts": [
+            {
+              "id": "star_motes",
+              "targetAlive": 40,
+              "emissionPerSecond": 5.714285714285714
+            },
+            {
+              "id": "shrine_motes",
+              "targetAlive": 12,
+              "emissionPerSecond": 2.1818181818181817
+            },
+            {
+              "id": "petals",
+              "targetAlive": 10,
+              "emissionPerSecond": 1.1111111111111112
+            },
+            {
+              "id": "cloud_wisps",
+              "targetAlive": 6,
+              "emissionPerSecond": 0.46153846153846156
+            }
+          ],
+          "totalTargetAlive": 68,
+          "totalEmissionPerSecond": 9.46875346875347
+        }
+      ]
+    }
+  ],
+  "airflowOptionalInstances": {
+    "Low": 0,
+    "Medium": 0,
+    "High": 1
+  },
+  "scope": "CPU estimate from authored keyframes and EnvironmentAmbientParticles formulas; not actual simultaneous count, burst budget, GPU overdraw, or device performance. Stop-emitting threshold modeled, existing particles can survive phase changes.",
+  "baseline": "681d7ef4d236b0bb3e74d4292662d37a916a3574",
+  "source": "Assets/Dravio/Environment/Zones/Sky/Data/SkyLiving.json"
+}
