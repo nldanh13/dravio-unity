@@ -73,7 +73,7 @@ function items(group="materials"){
  }
  return p}
  let b=[512,512,0,0];for(let y=0;y<512;y+=4)for(let x=0;x<512;x+=4)if(sample(x+2,y+2,1)[3]>.5){b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x+4);b[3]=Math.max(b[3],y+4)}
- let sc=409.6/Math.max(b[2]-b[0],b[3]-b[1]),cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;
+ let sc=(id==="aether"?390:409.6)/Math.max(b[2]-b[0],b[3]-b[1]),cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;
  let w=512,h=512,pixels=new Uint8Array(w*h*4),bounds=[512,512,0,0],alpha=[0,0,0];
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){let p=sample(cx+(x+.5-256)/sc,cy+(y+.5-256)/sc,sc),i=(y*w+x)*4,a=Math.round(cl(p[3])*255);for(let k=0;k<3;k++)pixels[i+k]=Math.round(cl(a?p[k]:[153,130,94][k],0,255));pixels[i+3]=a;alpha[a===0?0:a===255?2:1]++;if(a>127){bounds[0]=Math.min(bounds[0],x);bounds[1]=Math.min(bounds[1],y);bounds[2]=Math.max(bounds[2],x);bounds[3]=Math.max(bounds[3],y)}}
  let coverage=Math.max(bounds[2]-bounds[0]+1,bounds[3]-bounds[1]+1)/512;if(coverage<.75||coverage>.85||!alpha[0]||!alpha[2])throw Error("coverage "+id+" "+coverage);
