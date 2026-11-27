@@ -504,6 +504,42 @@ namespace Dravio
             RefreshProfile();
         }
         bool IsFoodTarget(Resident r)=>foodId!=null && r.uid==foodUid;
+
+        void OnGUI()
+        {
+            if(Event.current.type!=EventType.Repaint || !Ready || cameraView==null)return;
+            bool selectedGetsFood=foodId!=null && selected==foodUid;
+            DrawDragonLabel(selected,selectedGetsFood?(vi?"Đang chọn · Thức ăn":"Selected · Food"):(vi?"Đang chọn":"Selected"));
+            if(foodId!=null && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food");
+        }
+
+        void DrawDragonLabel(string uid,string label)
+        {
+            if(string.IsNullOrEmpty(uid) || !manager.TryGet(uid,out var instance))return;
+            var bounds=instance.WorldBounds();
+            var point=cameraView.WorldToScreenPoint(bounds.center+Vector3.up*bounds.extents.y);
+            if(point.z<=0 || !cameraView.pixelRect.Contains(new Vector2(point.x,point.y)))return;
+            var size=GUI.skin.box.CalcSize(new GUIContent(label));
+            GUI.Label(new Rect(point.x-size.x*.5f,Screen.height-point.y-size.y,size.x,size.y),label,GUI.skin.box);
+        }
+
+        string FeedingNotice()
+        {
+            if(foodId==null)return vi?messageVi:messageEn;
+            var assignment=BehaviorEngine.AssignmentOf(State,foodId,NowMs);
+            if(assignment==null)return vi?messageVi:messageEn;
+            var recipient=State.FindDragon(assignment.AssignedDragonUid);
+            string reason="";
+            if(assignment.TargetBlockedReason=="cooldown")
+            {
+                var target=State.FindDragon(assignment.TargetDragonUid);
+                if(target!=null)reason=DragonName(target)+(vi?" vừa ăn. ":" just ate. ");
+            }
+            return reason+(recipient==null?(vi?"Chưa có rồng nhận thức ăn.":"No dragon has claimed the food."):
+                (vi?"Rồng nhận thức ăn: ":"Food assigned to: ")+DragonName(recipient));
+        }
+
+        static string DragonName(DragonState dragon)=>string.IsNullOrEmpty(dragon.Nickname)?dragon.SpeciesId:dragon.Nickname;
         bool SocialEligible(Resident r,SocialInteractionKind kind,bool initiator)
         {
             if(r==null||r.Spatial||!r.walking||r.decision==null||!r.decision.Visible||
@@ -1239,7 +1275,7 @@ namespace Dravio
 #if UNITY_EDITOR
             if(experimentalFoodPerception || UseFoodGate)profile.text+="\nTL.11: "+(UseFoodGate?foodGate.Phase.ToString():"next marker")+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests+" · last "+lastFoodGateOutcome;
 #endif
-            if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
+            if(notice!=null)notice.text=FeedingNotice()+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
         }
         void AppendProgression(DragonState d)
