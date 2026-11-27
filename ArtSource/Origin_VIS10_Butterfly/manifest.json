@@ -1,0 +1,26 @@
+{
+  "name": "Origin_Butterfly_Amber",
+  "triangles": 384,
+  "materialSlots": 1,
+  "meshes": 3,
+  "nodes": 4,
+  "clip": "Flutter_Loop",
+  "durationSeconds": 0.6,
+  "keyframesPerWing": 9,
+  "wingAngleDegrees": [
+    -19.48056503444799,
+    72.19268218648374
+  ],
+  "textures": 0,
+  "bytes": 45016,
+  "path": "ArtSource/Origin_VIS10_Butterfly/Origin_Butterfly_Amber.glb",
+  "blob": "fd7489e6c108b5fc1f712f31d67c1cc9f6c33081",
+  "status": "original procedural animated source candidate",
+  "checks": [
+    "nondegenerate faces and outward corner normals in generator",
+    "unit quaternions and equal first/last key",
+    "deterministic GLB",
+    "triangle cap <=600"
+  ],
+  "limitations": "No external glTF validation or animation playback, no trajectory, no prefab, no particle integration, no collider. Wing overlap and clipping during flap not visually evaluated. No new runtime material or instance allocation."
+}
