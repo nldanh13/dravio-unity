@@ -440,7 +440,10 @@ namespace Dravio.EnvironmentArt.EditorTools
                 if (!mats.TryGetValue(f.texture, out var mat))
                 {
                     string texPath = z.Textures + "/" + f.texture + ".png";
-                    mat = LivingEnvironmentBuilder.ParticleMaterial("M_ENV_" + z.prefix + "_" + f.texture.Replace("T_ENV_", ""), texPath, true, z.Materials);
+                    string matName = "M_ENV_" + z.prefix + "_" + f.texture.Replace("T_ENV_", "");
+                    mat = f.kind == "caustics"
+                        ? CausticsMaterial(matName, texPath, z.Materials)
+                        : LivingEnvironmentBuilder.ParticleMaterial(matName, texPath, true, z.Materials);
                     mats[f.texture] = mat;
                 }
                 var go = new GameObject(f.id);
@@ -466,6 +469,45 @@ namespace Dravio.EnvironmentArt.EditorTools
             }
             comp.entries = entries.ToArray();
             comp.fullLightIntensity = FullLightIntensity(living);
+        }
+
+        // Seabed caustics: "Dravio/Environment/Caustics" (photon-traced web, wobble from mip-5 noise,
+        // second layer scrolled in the shader). Falls back to the URP particle material if the shader is missing.
+        static Material CausticsMaterial(string name, string texturePath, string materialsDir)
+        {
+            var shader = Shader.Find("Dravio/Environment/Caustics");
+            if (shader == null || !shader.isSupported || ShaderUtil.ShaderHasError(shader))
+            {
+                Debug.LogWarning("Dravio Environment: caustics shader unavailable; using URP particle material for " + name + ".");
+                return LivingEnvironmentBuilder.ParticleMaterial(name, texturePath, true, materialsDir);
+            }
+            OriginSanctuaryEnvironmentBuilder.EnsureFolder(materialsDir);
+            string path = materialsDir + "/" + name + ".mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m == null)
+            {
+                m = new Material(shader) { name = name };
+                AssetDatabase.CreateAsset(m, path);
+            }
+            m.shader = shader;
+            m.shaderKeywords = System.Array.Empty<string>();
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+            if (tex == null) Debug.LogWarning("Dravio Environment: caustics texture missing: " + texturePath);
+            m.SetTexture("_BaseMap", tex);
+            m.SetColor("_BaseColor", Color.white);
+            m.SetFloat("_ScaleB", 1.31f);
+            m.SetFloat("_RotateB", 0.52f);
+            m.SetVector("_ScrollB", new Vector4(-0.008f, 0.006f, 0f, 0f));
+            m.SetFloat("_Mix", 0.35f);
+            m.SetFloat("_Warp", 0.04f);
+            m.SetFloat("_TexScale", 0.5f);
+            m.SetFloat("_WarpSpeed", 1f);
+            m.SetFloat("_Patches", 0.5f);
+            m.SetVector("_NoiseRange", new Vector4(0.05f, 0.30f, 0f, 0f));
+            m.SetFloat("_Intensity", 3f);
+            m.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(m);
+            return m;
         }
 
         // Light at which the FX reach their authored alpha: the zone's own default-hour (day) light.
