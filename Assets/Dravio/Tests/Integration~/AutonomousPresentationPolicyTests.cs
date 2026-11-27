@@ -29,12 +29,30 @@ namespace Dravio.Tests
             var d=s.Dragons[0];
             s.Food.Drops.Add(new FoodDrop{Id="f",ZoneId=d.Location.ZoneId,HabitatId=d.Location.HabitatId,
                 DietId=DietId.Fruit,SpawnedAtMs=now,ExpiresAtMs=now+12000});
-            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now,DayPhase.Day,false),Is.True);
-            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now,DayPhase.Day,true),Is.True);
-            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,"another","f",now,DayPhase.Day,false),Is.False);
-            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now+12000,DayPhase.Day,false),Is.False);
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now,DayPhase.Day),Is.True);
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,"another","f",now,DayPhase.Day),Is.False);
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now+12000,DayPhase.Day),Is.False);
             s.Food.Drops.Clear();
-            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now,DayPhase.Day,true),Is.False);
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,d.Uid,d.Uid,"f",now,DayPhase.Day),Is.False);
+        }
+
+        [Test]
+        public void FoodMarkerRevalidatesTheFallbackWhenTheSelectedDragonRecovers()
+        {
+            const long now=1795000000000;
+            var s=InitialStateFactory.Create("food-marker-test",now,Rng.Create(1));
+            var selected=s.Dragons[0];
+            var fallback=selected.Clone();
+            fallback.Uid="fallback";
+            s.Dragons.Add(fallback);
+            selected.LastFeedXpAtMs=now;
+            s.Food.Drops.Add(new FoodDrop{Id="f",ZoneId=selected.Location.ZoneId,HabitatId=selected.Location.HabitatId,
+                DietId=DietId.Fruit,SpawnedAtMs=now,ExpiresAtMs=now+12000,TargetDragonUid=selected.Uid});
+
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,fallback.Uid,fallback.Uid,"f",now,DayPhase.Day),Is.True);
+            const long afterCooldown=now+8000;
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,fallback.Uid,fallback.Uid,"f",afterCooldown,DayPhase.Day),Is.False);
+            Assert.That(AutonomousPresentationPolicy.CanConsumeMarker(s,selected.Uid,selected.Uid,"f",afterCooldown,DayPhase.Day),Is.True);
         }
 
         [TestCase(DragonBehavior.Bask,"bask",true)]

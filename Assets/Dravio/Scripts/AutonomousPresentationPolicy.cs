@@ -16,14 +16,13 @@ namespace Dravio
             role==BehaviorRole.Presentation && UsesPoint(behavior);
 
         // Called again immediately before Send; never replace the Domain reducer's checks.
-        public static bool CanConsumeMarker(GameState s,string uid,string markerUid,string foodId,long nowMs,DayPhase phase,bool shared)
+        public static bool CanConsumeMarker(GameState s,string uid,string markerUid,string foodId,long nowMs,DayPhase phase)
         {
             if(s==null || string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(foodId) ||
                 !string.Equals(uid,markerUid,StringComparison.Ordinal))return false;
             var d=s.FindDragon(uid);
             var f=s.Food.Drops.Find(x=>x.Id==foodId);
             if(d==null || f==null || !BehaviorEngine.CanEat(d,f,nowMs))return false;
-            if(!shared)return true;
             var decision=BehaviorQueries.Dragon(s,uid,nowMs,phase);
             return decision?.Role==BehaviorRole.Gameplay && decision.Behavior==DragonBehavior.SeekFood && decision.TargetFoodId==foodId;
         }

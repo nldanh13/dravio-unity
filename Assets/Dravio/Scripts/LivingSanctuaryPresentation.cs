@@ -31,7 +31,7 @@ namespace Dravio
         [SerializeField] DragonCarePreview legacy;
         [SerializeField] SanctuaryDomainPreview adapter;
         [SerializeField] GameObject fruit;
-        [Tooltip("Experimental ADR 0203 B7/A4: assign food by preference instead of selected UID. Off until approved.")]
+        [Tooltip("Experimental ADR 0203 B7/A4: use the selected dragon's favorite diet without prioritizing that dragon.")]
         [SerializeField] bool sharedFoodAllocation;
 #if UNITY_EDITOR
         [Tooltip("TL.11 experimental selected-UID food perception/action sequence. Off by default; ignored with shared allocation.")]
@@ -41,11 +41,6 @@ namespace Dravio
         bool UseFoodGate=>foodGateForMarker;
         string lastFoodGateOutcome="—";
 #endif
-        bool SharedAllocationForMarker=>sharedFoodAllocation
-#if UNITY_EDITOR
-            && !UseFoodGate
-#endif
-            ;
         [SerializeField] Text title,status,progress,notice,profile,travel;
         [SerializeField] Button feed,pet,sleep,inspect,resume,rosterInspect,nextDragon,observe,nextTravel,move,store;
         [SerializeField] Button researchObserve;
@@ -130,7 +125,6 @@ namespace Dravio
         float socialRetryAt;
         string socialLast="—";
         SocialPresentationLease Social=>socialScheduler.Active;
-        string foodRequestedUid;
         bool feedPending;
         GameSession session;
         GameState lastState;
@@ -499,11 +493,12 @@ namespace Dravio
                 r.decision=d;
                 if(d.UntilMs>now)decisionDeadline=Math.Min(decisionDeadline,d.UntilMs);
             }
-            // Shared allocation is an experimental gameplay change, not silently enabled.
-            // Default mode keeps the existing selected-UID food contract.
-            if(foodId!=null && SharedAllocationForMarker)
+            if(foodId!=null)
             {
                 var assigned=all.FirstOrDefault(d=>d.Behavior==DragonBehavior.SeekFood && d.TargetFoodId==foodId);
+#if UNITY_EDITOR
+                if(UseFoodGate && foodUid!=assigned?.Uid)foodGate.Clear();
+#endif
                 foodUid=assigned?.Uid;
             }
             RefreshProfile();
@@ -717,7 +712,7 @@ namespace Dravio
         {
             // Actual gameplay authority stays in the existing policy. Health recovery wins over the experiment.
             return !(r.decision?.Role==BehaviorRole.Gameplay && r.decision.Behavior==DragonBehavior.Rest) &&
-                AutonomousPresentationPolicy.CanConsumeMarker(State,r.uid,foodUid,foodId,NowMs,phase,false);
+                AutonomousPresentationPolicy.CanConsumeMarker(State,r.uid,foodUid,foodId,NowMs,phase);
         }
         DragonBehaviorIntent ExperimentalFoodIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
         {
@@ -1009,14 +1004,14 @@ namespace Dravio
             if(personality==null)return;
             var diets=SpeciesCatalog.Get(d.SpeciesId).Biology.DietIds;
             if(diets.Count==0)return;
-            // Preserve existing selected UID / first diet unless experimental allocation is enabled.
             var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
+            string targetUid=sharedFoodAllocation?null:d.Uid;
             StopSocial("player-feed");r.manualRestUntil=0;ReleasePoint(r);
             var point=r.position+r.rotation*Vector3.forward*.4f;
             foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
-            foodRequestedUid=d.Uid;feedPending=true;
-            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId));}
-            finally{feedPending=false;foodRequestedUid=null;}
+            feedPending=true;
+            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId,targetUid));}
+            finally{feedPending=false;}
         }
         void Consume()
         {
@@ -1025,7 +1020,7 @@ namespace Dravio
             if(drop==null){ClearFood();return;}
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
-            if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,SharedAllocationForMarker))return;
+            if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase))return;
             var idToEat=foodId;var who=foodUid;
 #if UNITY_EDITOR
             if(UseFoodGate && !foodGate.TryRequest(who,idToEat,r.habitat,NowMs,drop.ExpiresAtMs,
@@ -1061,9 +1056,9 @@ namespace Dravio
             if(viewSuspended)return;
             foreach(var e in events)
             {
-                if(e is FoodSpawned f && feedPending && foodRequestedUid!=null && foodId==null)
+                if(e is FoodSpawned f && feedPending && foodId==null)
                 {
-                    foodId=f.FoodId;foodUid=sharedFoodAllocation?null:foodRequestedUid;consumeAfter=Time.unscaledTime+.6f;
+                    foodId=f.FoodId;consumeAfter=Time.unscaledTime+.6f;
 #if UNITY_EDITOR
                     foodGateForMarker=experimentalFoodPerception && !sharedFoodAllocation;
                     if(foodGateForMarker)lastFoodGateOutcome="pending";
@@ -1081,7 +1076,6 @@ namespace Dravio
                 else if(e is ExpeditionStarted trip)
                 {
                     if(Social!=null&&Social.Contains(trip.DragonUid))StopSocial("expedition-start");
-                    if(foodUid==trip.DragonUid)ClearFood(); // visual marker only; canonical food expires normally
                     if(selected==trip.DragonUid)StopFollow();
                 }
                 else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
