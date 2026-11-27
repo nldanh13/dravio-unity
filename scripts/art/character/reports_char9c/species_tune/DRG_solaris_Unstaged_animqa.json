@@ -1286,34 +1286,34 @@
       "loop": false,
       "groundSpeed": 0.0,
       "deformation": {
-        "stretchP999": 2.154,
-        "compressP001": 0.58,
-        "stretchMax": 6.818,
-        "worstFrame": 1329,
+        "stretchP999": 1.406,
+        "compressP001": 0.678,
+        "stretchMax": 4.088,
+        "worstFrame": 1315,
         "framesMeasured": 41,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.448,
-        "worstFrameCompressP001": 0.343,
+        "worstFrameStretchP999": 1.553,
+        "worstFrameCompressP001": 0.459,
         "worstBones": [
           {
             "bone": "Pelvis",
             "region": "body",
-            "share": 0.323
+            "share": 0.339
           },
           {
             "bone": "Spine",
             "region": "body",
-            "share": 0.248
+            "share": 0.268
           },
           {
             "bone": "WingUpper_R",
             "region": "wing",
-            "share": 0.15
+            "share": 0.133
           },
           {
             "bone": "WingUpper_L",
             "region": "wing",
-            "share": 0.092
+            "share": 0.067
           }
         ]
       },
@@ -1328,22 +1328,22 @@
         "min": [
           -0.88,
           -0.9937,
-          -0.0193
+          -0.0485
         ],
         "max": [
           0.88,
           1.1014,
-          1.9992
+          1.9841
         ],
-        "diagGrowth": 1.151
+        "diagGrowth": 1.154
       },
       "facing": {
         "headBehindChestFrames": 15
       },
       "wingBodyPenetrationFrac": 0.0,
-      "groundPenetrationRel": 0.0147,
-      "footSlideRel": 0.0,
-      "contactGapRel": 0.0
+      "groundPenetrationRel": 0.0369,
+      "footSlideRel": 0.0032,
+      "contactGapRel": 0.0293
     }
   },
   "transitions": [
@@ -1436,20 +1436,6 @@
     },
     {
       "clip": "Land",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 2.154,
-      "limit": 1.6
-    },
-    {
-      "clip": "Land",
-      "check": "deformation",
-      "message": "edge compression over limit at the worst single frame",
-      "value": 0.343,
-      "limit": 0.45
-    },
-    {
-      "clip": "Land",
       "check": "facing",
       "message": "head behind the chest (face turned backwards)",
       "value": 15,
@@ -1459,7 +1445,7 @@
       "clip": "Land",
       "check": "ground",
       "message": "mesh below the ground plane",
-      "value": 0.0147,
+      "value": 0.0369,
       "limit": 0.01
     }
   ],

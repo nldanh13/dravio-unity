@@ -178,62 +178,62 @@
         303
       ],
       "loop": {
-        "poseErrorDeg": 0.125,
+        "poseErrorDeg": 0.128,
         "poseErrorRel": 0.0,
-        "seamSpeedMismatchDegPerFrame": 0.003
+        "seamSpeedMismatchDegPerFrame": 0.016
       },
       "groundSpeed": 0.0,
       "deformation": {
-        "stretchP999": 2.125,
-        "compressP001": 0.677,
-        "stretchMax": 4.668,
+        "stretchP999": 1.513,
+        "compressP001": 0.823,
+        "stretchMax": 2.68,
         "worstFrame": 228,
         "framesMeasured": 121,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.133,
-        "worstFrameCompressP001": 0.674,
+        "worstFrameStretchP999": 1.518,
+        "worstFrameCompressP001": 0.817,
         "worstBones": [
-          {
-            "bone": "Tail1",
-            "region": "tail",
-            "share": 0.356
-          },
           {
             "bone": "Spine1",
             "region": "body",
-            "share": 0.329
+            "share": 0.486
           },
           {
             "bone": "Spine4",
             "region": "body",
-            "share": 0.306
+            "share": 0.26
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.203
           },
           {
             "bone": "Head",
             "region": "head",
-            "share": 0.01
+            "share": 0.051
           }
         ]
       },
       "seamGapRel": 0.0,
       "reach_m": {
-        "front": 0.482,
-        "back": 0.387,
-        "side": 1.017,
-        "radius": 1.056
+        "front": 0.443,
+        "back": 0.366,
+        "side": 1.001,
+        "radius": 1.05
       },
       "bounds": {
         "min": [
-          -1.0174,
-          -0.4823,
-          0.0003
+          -1.0015,
+          -0.4428,
+          0.004
         ],
         "max": [
           0.9958,
-          0.387,
-          1.7586
+          0.3814,
+          1.7539
         ],
-        "diagGrowth": 1.024
+        "diagGrowth": 1.013
       },
       "facing": {
         "headBehindChestFrames": 0
@@ -447,56 +447,56 @@
       "loop": false,
       "groundSpeed": 0.0,
       "deformation": {
-        "stretchP999": 1.511,
-        "compressP001": 0.775,
-        "stretchMax": 4.604,
+        "stretchP999": 1.271,
+        "compressP001": 0.9,
+        "stretchMax": 2.646,
         "worstFrame": 520,
         "framesMeasured": 61,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.087,
-        "worstFrameCompressP001": 0.68,
+        "worstFrameStretchP999": 1.513,
+        "worstFrameCompressP001": 0.825,
         "worstBones": [
           {
             "bone": "Spine1",
             "region": "body",
-            "share": 0.318
+            "share": 0.384
           },
           {
             "bone": "Tail1",
             "region": "tail",
-            "share": 0.316
+            "share": 0.233
           },
           {
             "bone": "Spine4",
             "region": "body",
-            "share": 0.277
+            "share": 0.222
           },
           {
             "bone": "Head",
             "region": "head",
-            "share": 0.085
+            "share": 0.158
           }
         ]
       },
       "seamGapRel": 0.0,
       "reach_m": {
-        "front": 0.481,
-        "back": 0.385,
-        "side": 1.017,
-        "radius": 1.054
+        "front": 0.442,
+        "back": 0.381,
+        "side": 1.001,
+        "radius": 1.05
       },
       "bounds": {
         "min": [
-          -1.0173,
-          -0.4812,
+          -1.0015,
+          -0.4424,
           0.0056
         ],
         "max": [
           0.9958,
-          0.3848,
-          1.7572
+          0.3814,
+          1.7534
         ],
-        "diagGrowth": 1.022
+        "diagGrowth": 1.012
       },
       "facing": {
         "headBehindChestFrames": 0
@@ -898,7 +898,7 @@
     {
       "from": "Sleep.start",
       "to": "Wake.start",
-      "poseErrorDeg": 0.125,
+      "poseErrorDeg": 0.128,
       "poseErrorRel": 0.0
     },
     {
@@ -910,7 +910,7 @@
   ],
   "motionEnvelope": {
     "groundHeight_m": 1.7632,
-    "groundLength_m": 0.8693,
+    "groundLength_m": 0.8316,
     "groundWidth_m": 2.0276,
     "swimVerticalExtent_m": 1.7488,
     "swimWidth_m": 2.019,
@@ -920,7 +920,7 @@
   },
   "images": null,
   "reach_m": {
-    "front": 0.482,
+    "front": 0.445,
     "back": 0.426,
     "side": 1.032,
     "radius": 1.061
@@ -940,24 +940,10 @@
       }
     },
     {
-      "clip": "Sleep",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 2.125,
-      "limit": 1.6
-    },
-    {
       "clip": "Happy",
       "check": "deformation",
       "message": "edge stretch over limit",
       "value": 2.424,
-      "limit": 1.6
-    },
-    {
-      "clip": "Wake",
-      "check": "deformation",
-      "message": "edge stretch over limit at the worst single frame",
-      "value": 2.087,
       "limit": 1.6
     }
   ],
