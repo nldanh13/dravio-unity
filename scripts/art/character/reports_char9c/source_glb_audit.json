@@ -1,0 +1,1927 @@
+{
+ "tool": "audit_source_glbs.py",
+ "measured": "Blender 5.3.0",
+ "files": [
+  {
+   "file": "01_emberling.glb",
+   "species": "emberling",
+   "bytes": 3942888,
+   "sha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 25201,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.2053,
+    "inwardFacingShare": 0.2394,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.3924,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.2699,
+     -0.9899,
+     -0.6084
+    ],
+    "bboxMax": [
+     0.2624,
+     0.9964,
+     0.5995
+    ],
+    "size_m": [
+     0.5323,
+     1.9863,
+     1.2079
+    ],
+    "groundOffsetZ": -0.6084,
+    "pivotOffsetXY": [
+     -0.0038,
+     0.0033
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 39% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6084); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "02_droplet.glb",
+   "species": "droplet",
+   "bytes": 3953936,
+   "sha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 24776,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.172782,
+    "inwardFacingShare": 0.215,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.3777,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.4421,
+     -0.9906,
+     -0.5183
+    ],
+    "bboxMax": [
+     0.4352,
+     0.998,
+     0.5098
+    ],
+    "size_m": [
+     0.8774,
+     1.9886,
+     1.0281
+    ],
+    "groundOffsetZ": -0.5183,
+    "pivotOffsetXY": [
+     -0.0034,
+     0.0037
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 38% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.5183); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "03_sprout.glb",
+   "species": "sprout",
+   "bytes": 4184268,
+   "sha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 24954,
+    "verticesWelded": 19988,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.301991,
+    "inwardFacingShare": 0.2525,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.341,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.9966,
+     -0.3612,
+     -0.7468
+    ],
+    "bboxMax": [
+     0.991,
+     0.369,
+     0.7408
+    ],
+    "size_m": [
+     1.9876,
+     0.7302,
+     1.4875
+    ],
+    "groundOffsetZ": -0.7468,
+    "pivotOffsetXY": [
+     -0.0028,
+     0.0039
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 34% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.7468); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "04_zephyr.glb",
+   "species": "zephyr",
+   "bytes": 4524668,
+   "sha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 27817,
+    "verticesWelded": 19994,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.17024,
+    "inwardFacingShare": 0.3429,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4033,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.8935,
+     -0.9903,
+     -0.6576
+    ],
+    "bboxMax": [
+     0.8868,
+     0.9971,
+     0.6518
+    ],
+    "size_m": [
+     1.7803,
+     1.9874,
+     1.3095
+    ],
+    "groundOffsetZ": -0.6576,
+    "pivotOffsetXY": [
+     -0.0034,
+     0.0034
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 40% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6576); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "05_steamdrake.glb",
+   "species": "steamdrake",
+   "bytes": 4142736,
+   "sha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 24230,
+    "verticesWelded": 19998,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.179785,
+    "inwardFacingShare": 0.2397,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.3332,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.2913,
+     -0.9898,
+     -0.568
+    ],
+    "bboxMax": [
+     0.2826,
+     0.9983,
+     0.561
+    ],
+    "size_m": [
+     0.5739,
+     1.988,
+     1.129
+    ],
+    "groundOffsetZ": -0.568,
+    "pivotOffsetXY": [
+     -0.0043,
+     0.0042
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 33% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.568); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "06_magma.glb",
+   "species": "magma",
+   "bytes": 3648020,
+   "sha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 26013,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.289245,
+    "inwardFacingShare": 0.1916,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4319,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.3079,
+     -0.9892,
+     -0.6081
+    ],
+    "bboxMax": [
+     0.2998,
+     0.9972,
+     0.591
+    ],
+    "size_m": [
+     0.6077,
+     1.9864,
+     1.1991
+    ],
+    "groundOffsetZ": -0.6081,
+    "pivotOffsetXY": [
+     -0.004,
+     0.004
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 43% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6081); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "07_sparkwing.glb",
+   "species": "sparkwing",
+   "bytes": 3627404,
+   "sha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 25572,
+    "verticesWelded": 20000,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.198507,
+    "inwardFacingShare": 0.3231,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.5799,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.4466,
+     -0.9904,
+     -0.5785
+    ],
+    "bboxMax": [
+     0.4385,
+     0.9979,
+     0.5702
+    ],
+    "size_m": [
+     0.8851,
+     1.9883,
+     1.1486
+    ],
+    "groundOffsetZ": -0.5785,
+    "pivotOffsetXY": [
+     -0.004,
+     0.0038
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 58% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.5785); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "08_frostfin.glb",
+   "species": "frostfin",
+   "bytes": 3501148,
+   "sha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 25201,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.171903,
+    "inwardFacingShare": 0.2691,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.5855,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.9982,
+     -0.3608,
+     -0.8717
+    ],
+    "bboxMax": [
+     0.9903,
+     0.3923,
+     0.8653
+    ],
+    "size_m": [
+     1.9885,
+     0.7531,
+     1.737
+    ],
+    "groundOffsetZ": -0.8717,
+    "pivotOffsetXY": [
+     -0.0039,
+     0.0157
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 59% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.8717); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "09_mossback.glb",
+   "species": "mossback",
+   "bytes": 3560776,
+   "sha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 24145,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.291439,
+    "inwardFacingShare": 0.1598,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4376,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.3344,
+     -0.9893,
+     -0.565
+    ],
+    "bboxMax": [
+     0.3267,
+     0.9984,
+     0.5559
+    ],
+    "size_m": [
+     0.6611,
+     1.9877,
+     1.1209
+    ],
+    "groundOffsetZ": -0.565,
+    "pivotOffsetXY": [
+     -0.0039,
+     0.0045
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 44% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.565); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "10_blossom.glb",
+   "species": "blossom",
+   "bytes": 3900628,
+   "sha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 25876,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.23725,
+    "inwardFacingShare": 0.2935,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4627,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.7403,
+     -0.9896,
+     -0.5712
+    ],
+    "bboxMax": [
+     0.7322,
+     0.9974,
+     0.5588
+    ],
+    "size_m": [
+     1.4724,
+     1.987,
+     1.1301
+    ],
+    "groundOffsetZ": -0.5712,
+    "pivotOffsetXY": [
+     -0.0041,
+     0.0039
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 46% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.5712); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "11_solaris.glb",
+   "species": "solaris",
+   "bytes": 3502444,
+   "sha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 27721,
+    "verticesWelded": 19996,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.170974,
+    "inwardFacingShare": 0.3362,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.3951,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.884,
+     -0.9894,
+     -0.6604
+    ],
+    "bboxMax": [
+     0.876,
+     0.998,
+     0.6528
+    ],
+    "size_m": [
+     1.76,
+     1.9873,
+     1.3132
+    ],
+    "groundOffsetZ": -0.6604,
+    "pivotOffsetXY": [
+     -0.004,
+     0.0043
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 40% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6604); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "12_leviathan.glb",
+   "species": "leviathan",
+   "bytes": 3833836,
+   "sha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 26671,
+    "verticesWelded": 19996,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.297228,
+    "inwardFacingShare": 0.339,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4246,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.8907,
+     -0.5264,
+     -0.9975
+    ],
+    "bboxMax": [
+     0.8841,
+     0.5339,
+     0.9902
+    ],
+    "size_m": [
+     1.7749,
+     1.0602,
+     1.9877
+    ],
+    "groundOffsetZ": -0.9975,
+    "pivotOffsetXY": [
+     -0.0033,
+     0.0038
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 42% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.9975); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "13_amberhorn.glb",
+   "species": "amberhorn",
+   "bytes": 4277448,
+   "sha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 24926,
+    "verticesWelded": 20002,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.244685,
+    "inwardFacingShare": 0.1779,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4476,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.2831,
+     -0.9886,
+     -0.6043
+    ],
+    "bboxMax": [
+     0.2754,
+     0.9973,
+     0.5928
+    ],
+    "size_m": [
+     0.5586,
+     1.9859,
+     1.1971
+    ],
+    "groundOffsetZ": -0.6043,
+    "pivotOffsetXY": [
+     -0.0039,
+     0.0043
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 45% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6043); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "14_aurorawing.glb",
+   "species": "aurorawing",
+   "bytes": 3376524,
+   "sha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 27842,
+    "verticesWelded": 19972,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 5,
+    "smallIslands(<50v)": 2,
+    "signedVolume_m3": 0.215022,
+    "inwardFacingShare": 0.3654,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.4879,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.9058,
+     -0.9888,
+     -0.7375
+    ],
+    "bboxMax": [
+     0.8977,
+     0.9971,
+     0.7272
+    ],
+    "size_m": [
+     1.8035,
+     1.9858,
+     1.4646
+    ],
+    "groundOffsetZ": -0.7375,
+    "pivotOffsetXY": [
+     -0.0041,
+     0.0041
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "5 disconnected islands",
+    "info: 49% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.7375); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "15_celestia.glb",
+   "species": "celestia",
+   "bytes": 3508848,
+   "sha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 25572,
+    "verticesWelded": 19998,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.206393,
+    "inwardFacingShare": 0.3157,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.3797,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.4849,
+     -0.9899,
+     -0.6046
+    ],
+    "bboxMax": [
+     0.4766,
+     0.9976,
+     0.5945
+    ],
+    "size_m": [
+     0.9615,
+     1.9876,
+     1.199
+    ],
+    "groundOffsetZ": -0.6046,
+    "pivotOffsetXY": [
+     -0.0041,
+     0.0039
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 38% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.6046); pipeline re-grounds",
+    "no normal map"
+   ]
+  },
+  {
+   "file": "16_gaia.glb",
+   "species": "gaia",
+   "bytes": 4717212,
+   "sha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+   "container": {
+    "generator": "https://github.com/mikedh/trimesh",
+    "nodes": 2,
+    "meshes": 1,
+    "primitives": 1,
+    "attributes": [
+     "NORMAL",
+     "POSITION",
+     "TEXCOORD_0"
+    ],
+    "skins": 0,
+    "animations": 0,
+    "materials": [
+     {
+      "name": "PBR_Material",
+      "baseColorTexture": true,
+      "baseColorFactor": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "metallic": 1.0,
+      "roughness": 1.0,
+      "metallicRoughnessTexture": true,
+      "normalTexture": false,
+      "doubleSided": false,
+      "alphaMode": "OPAQUE"
+     }
+    ],
+    "textures": 2,
+    "images": [
+     {
+      "mime": "image/jpeg",
+      "size": [
+       2048,
+       2048
+      ]
+     },
+     {
+      "mime": "image/png",
+      "size": [
+       2048,
+       2048
+      ]
+     }
+    ],
+    "extensionsUsed": []
+   },
+   "blender": {
+    "meshObjects": 1,
+    "armatures": 0,
+    "triangles": 40000,
+    "verticesImported": 26233,
+    "verticesWelded": 19998,
+    "faces": 40000,
+    "degenerateFaces": 0,
+    "boundaryEdgesWelded": 0,
+    "nonManifoldEdgesWelded": 0,
+    "islands": 1,
+    "smallIslands(<50v)": 0,
+    "signedVolume_m3": 0.179866,
+    "inwardFacingShare": 0.2437,
+    "uvLayers": 1,
+    "uvFlippedShare": 0.342,
+    "uvLoopsOutside01": 0,
+    "bboxMin": [
+     -0.3731,
+     -0.9894,
+     -0.5644
+    ],
+    "bboxMax": [
+     0.3437,
+     0.9983,
+     0.5541
+    ],
+    "size_m": [
+     0.7168,
+     1.9878,
+     1.1185
+    ],
+    "groundOffsetZ": -0.5644,
+    "pivotOffsetXY": [
+     -0.0147,
+     0.0045
+    ],
+    "objectTransforms": [
+     {
+      "name": "textured_mesh.obj",
+      "loc": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "rotEuler": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "issues": [
+    "no skin/skeleton in source (rig must be built)",
+    "no animation in source",
+    "info: 34% UV faces mirrored (atlas charts; matters only for tangent-space normal maps)",
+    "info: origin at bbox centre, not feet (min Z -0.5644); pipeline re-grounds",
+    "no normal map"
+   ]
+  }
+ ]
+}

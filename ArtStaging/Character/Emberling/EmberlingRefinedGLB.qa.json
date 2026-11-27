@@ -1,0 +1,70 @@
+{
+ "model": "EmberlingRefinedGLB.fbx",
+ "source": "ArtSource/Dragons/images/01_emberling.glb via batch_import.py rig v7",
+ "rigVersion": 7,
+ "bones": [
+  "Chest",
+  "Eye_L",
+  "Eye_R",
+  "Flame",
+  "ForeFoot_L",
+  "ForeFoot_R",
+  "ForeLower_L",
+  "ForeLower_R",
+  "Fore_L",
+  "Fore_R",
+  "Head",
+  "HindFoot_L",
+  "HindFoot_R",
+  "HindLower_L",
+  "HindLower_R",
+  "Hind_L",
+  "Hind_R",
+  "Neck",
+  "Pelvis",
+  "Root",
+  "Spine",
+  "Tail1",
+  "Tail2",
+  "TailRoot",
+  "TailVFX_Anchor",
+  "VFX_Back",
+  "VFX_Ground",
+  "VFX_Mouth",
+  "Wing_L",
+  "Wing_R"
+ ],
+ "triangles": 24000,
+ "vertices": 16253,
+ "fps": 30,
+ "clip_frames": {
+  "Idle": [
+   1,
+   181
+  ],
+  "Walk": [
+   182,
+   217
+  ],
+  "Eat": [
+   218,
+   278
+  ],
+  "Doze": [
+   279,
+   399
+  ],
+  "Happy": [
+   400,
+   445
+  ]
+ },
+ "clip_sources": {
+  "Idle": "Idle",
+  "Walk": "Walk",
+  "Eat": "Eat",
+  "Doze": "Sleep",
+  "Happy": "Happy"
+ },
+ "walkStretch": 1.4
+}

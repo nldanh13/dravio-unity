@@ -2,7 +2,7 @@
 
 | Cần cho Alpha | Trạng thái | Ở đâu |
 |---|---|---|
-| `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` (blocker Origin scene) | **UNITY_READY** (real GLB, Blender verified; Unity NOT RUN; animation NEEDS_FIX) | commit trên nhánh này |
+| `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` (blocker Origin scene) | **ANIMATION_QA_PASS + UNITY_READY** từ CHAR.9b (real GLB, Blender verified với skinning tuyến tính, 5/5 clip PASS cả sau import lại FBX; Unity NOT RUN; Android NOT RUN) | `Docs/char9b/CHAR9B_EMBERLING_REPORT.md` §4 (hash, phụ thuộc generator) |
 | `Assets/Dravio/Art/Models/EmberlingRefined.fbx` | không cần (generator chấp nhận GLB variant) | — |
 | Kit môi trường Origin / Ocean / Sky | có trên `main` (procedural U1-ENV) | `Assets/Dravio/Environment/**` |
 | Scene `OriginLongTermGameplay`, `Ocean_Environment`, `Sky_Environment` | phải **sinh trong Unity** bởi AI 1 (không tạo scene giả) | xem UNITY_INTEGRATION_GUIDE.md |

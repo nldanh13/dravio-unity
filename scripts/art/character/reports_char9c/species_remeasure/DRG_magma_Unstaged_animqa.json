@@ -1,0 +1,1567 @@
+{
+  "qaVersion": 3,
+  "name": "DRG_magma_Unstaged",
+  "species": "magma",
+  "archetype": "quadruped",
+  "rigVersion": 7,
+  "skinning": "linear",
+  "limits": {
+    "_note": "Thresholds for anim_qa.py (U1-CHAR.4). Edge limits are the U1-CHAR.3 deformation limits, unchanged. The other numbers are pipeline defaults (no GDD value exists); change them here only with art-director sign-off, never to turn a WARNING into a PASS.",
+    "maxStretchP999": 1.6,
+    "minCompressP001": 0.45,
+    "maxFootSlideRel": 0.02,
+    "maxGroundPenetrationRel": 0.01,
+    "maxContactGapRel": 0.03,
+    "maxLoopPoseErrorDeg": 0.5,
+    "maxLoopPoseErrorRel": 0.002,
+    "maxBoundsGrowth": 1.6,
+    "maxWingBodyPenetrationFrac": 0.002,
+    "maxHeadBehindChestFrames": 0,
+    "heightToleranceRel": 0.02,
+    "maxNormalisationError": 0.001,
+    "maxInfluences": 4
+  },
+  "weights": {
+    "maxInfluences": 4,
+    "unweightedVertices": 0,
+    "maxNormalisationError": 1e-05,
+    "nonDeformGroups": []
+  },
+  "bones": {
+    "zeroLength": [],
+    "mirrorErrorRel": 0.01623,
+    "chainDirection": []
+  },
+  "height": {
+    "restHeight_m": 1.199,
+    "rigHeight_m": 1.199,
+    "source": "source size kept"
+  },
+  "lods": null,
+  "wingProbeVertices": null,
+  "clips": {
+    "Idle": {
+      "frames": [
+        1,
+        121
+      ],
+      "loop": {
+        "poseErrorDeg": 0.074,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 0.039
+      },
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.159,
+        "compressP001": 0.874,
+        "stretchMax": 2.454,
+        "worstFrame": 76,
+        "framesMeasured": 121,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.211,
+        "worstFrameCompressP001": 0.828,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.353
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.264
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.098
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.09
+          }
+        ]
+      },
+      "seamGapRel": 0.02171,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -0.9986,
+          -0.0021
+        ],
+        "max": [
+          0.2989,
+          0.9922,
+          1.1995
+        ],
+        "diagGrowth": 1.005
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0017,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Eat": {
+      "frames": [
+        122,
+        182
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.396,
+        "compressP001": 0.504,
+        "stretchMax": 4.662,
+        "worstFrame": 137,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.817,
+        "worstFrameCompressP001": 0.452,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.202
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.199
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.133
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.12
+          }
+        ]
+      },
+      "seamGapRel": 0.05195,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -0.9979,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9929,
+          1.2385
+        ],
+        "diagGrowth": 1.012
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Sleep": {
+      "frames": [
+        183,
+        303
+      ],
+      "loop": {
+        "poseErrorDeg": 0.056,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 0.009
+      },
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.992,
+        "compressP001": 0.427,
+        "stretchMax": 11.215,
+        "worstFrame": 198,
+        "framesMeasured": 121,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 3.057,
+        "worstFrameCompressP001": 0.425,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.217
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.138
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.126
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.113
+          }
+        ]
+      },
+      "seamGapRel": 0.05895,
+      "bounds": {
+        "min": [
+          -0.47,
+          -0.9933,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.986,
+          1.2363
+        ],
+        "diagGrowth": 1.027
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Happy": {
+      "frames": [
+        304,
+        349
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.476,
+        "compressP001": 0.66,
+        "stretchMax": 7.873,
+        "worstFrame": 308,
+        "framesMeasured": 46,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.861,
+        "worstFrameCompressP001": 0.466,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.364
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.243
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.097
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.089
+          }
+        ]
+      },
+      "seamGapRel": 0.07223,
+      "bounds": {
+        "min": [
+          -0.4979,
+          -0.9995,
+          0.0
+        ],
+        "max": [
+          0.4972,
+          0.9863,
+          1.2622
+        ],
+        "diagGrowth": 1.068
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Walk": {
+      "frames": [
+        350,
+        378
+      ],
+      "loop": {
+        "poseErrorDeg": 0.074,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 4.303
+      },
+      "groundSpeed": 0.2505,
+      "deformation": {
+        "stretchP999": 2.167,
+        "compressP001": 0.559,
+        "stretchMax": 7.823,
+        "worstFrame": 355,
+        "framesMeasured": 29,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.516,
+        "worstFrameCompressP001": 0.447,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.31
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.183
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.103
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.091
+          }
+        ]
+      },
+      "seamGapRel": 0.07782,
+      "bounds": {
+        "min": [
+          -0.3135,
+          -0.9944,
+          0.0
+        ],
+        "max": [
+          0.305,
+          0.9915,
+          1.2087
+        ],
+        "diagGrowth": 1.006
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0005,
+      "contactGapRel": 0.002,
+      "stanceTravel_m": 0.0999
+    },
+    "Run": {
+      "frames": [
+        379,
+        395
+      ],
+      "loop": {
+        "poseErrorDeg": 0.069,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 7.902
+      },
+      "groundSpeed": 1.0584,
+      "deformation": {
+        "stretchP999": 3.374,
+        "compressP001": 0.456,
+        "stretchMax": 11.185,
+        "worstFrame": 379,
+        "framesMeasured": 17,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 4.179,
+        "worstFrameCompressP001": 0.402,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.315
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.153
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.086
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.069
+          }
+        ]
+      },
+      "seamGapRel": 0.11227,
+      "bounds": {
+        "min": [
+          -0.3465,
+          -0.9945,
+          0.0
+        ],
+        "max": [
+          0.3444,
+          0.9895,
+          1.2226
+        ],
+        "diagGrowth": 1.016
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0,
+      "stanceTravel_m": 0.2117
+    },
+    "Burrow": {
+      "frames": [
+        396,
+        456
+      ],
+      "loop": {
+        "poseErrorDeg": 0.079,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 2.192
+      },
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.988,
+        "compressP001": 0.436,
+        "stretchMax": 7.051,
+        "worstFrame": 410,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 3.183,
+        "worstFrameCompressP001": 0.433,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.324
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.185
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.116
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.104
+          }
+        ]
+      },
+      "seamGapRel": 0.08282,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.004,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9926,
+          1.2209
+        ],
+        "diagGrowth": 1.011
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Rest": {
+      "frames": [
+        457,
+        577
+      ],
+      "loop": {
+        "poseErrorDeg": 0.069,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 0.061
+      },
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.992,
+        "compressP001": 0.436,
+        "stretchMax": 9.545,
+        "worstFrame": 473,
+        "framesMeasured": 121,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 3.098,
+        "worstFrameCompressP001": 0.43,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.235
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.126
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.106
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.105
+          }
+        ]
+      },
+      "seamGapRel": 0.06655,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -0.9936,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9906,
+          1.199
+        ],
+        "diagGrowth": 1.002
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Wake": {
+      "frames": [
+        578,
+        638
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.262,
+        "compressP001": 0.458,
+        "stretchMax": 11.215,
+        "worstFrame": 578,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.976,
+        "worstFrameCompressP001": 0.398,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.289
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.171
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.102
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.093
+          }
+        ]
+      },
+      "seamGapRel": 0.05895,
+      "bounds": {
+        "min": [
+          -0.47,
+          -0.9933,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9933,
+          1.2339
+        ],
+        "diagGrowth": 1.029
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "LookAround": {
+      "frames": [
+        639,
+        729
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.265,
+        "compressP001": 0.795,
+        "stretchMax": 2.384,
+        "worstFrame": 666,
+        "framesMeasured": 91,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.443,
+        "worstFrameCompressP001": 0.729,
+        "worstBones": [
+          {
+            "bone": "Neck",
+            "region": "neck",
+            "share": 0.444
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.142
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.122
+          },
+          {
+            "bone": "Head",
+            "region": "head",
+            "share": 0.115
+          }
+        ]
+      },
+      "seamGapRel": 0.01935,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -0.9934,
+          -0.0013
+        ],
+        "max": [
+          0.2989,
+          0.9929,
+          1.199
+        ],
+        "diagGrowth": 1.003
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0011,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Curious": {
+      "frames": [
+        730,
+        805
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.479,
+        "compressP001": 0.675,
+        "stretchMax": 4.744,
+        "worstFrame": 767,
+        "framesMeasured": 76,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.889,
+        "worstFrameCompressP001": 0.561,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.279
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.22
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.121
+          },
+          {
+            "bone": "ForeUpper_L",
+            "region": "foreLeg",
+            "share": 0.093
+          }
+        ]
+      },
+      "seamGapRel": 0.04059,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -0.995,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9933,
+          1.2083
+        ],
+        "diagGrowth": 1.005
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Drink": {
+      "frames": [
+        806,
+        881
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.61,
+        "compressP001": 0.483,
+        "stretchMax": 4.762,
+        "worstFrame": 824,
+        "framesMeasured": 76,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.971,
+        "worstFrameCompressP001": 0.451,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.205
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.202
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.128
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.121
+          }
+        ]
+      },
+      "seamGapRel": 0.05083,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0026,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9931,
+          1.2385
+        ],
+        "diagGrowth": 1.014
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Stretch": {
+      "frames": [
+        882,
+        972
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.435,
+        "compressP001": 0.592,
+        "stretchMax": 4.628,
+        "worstFrame": 909,
+        "framesMeasured": 91,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.822,
+        "worstFrameCompressP001": 0.534,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.216
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.201
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.153
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.137
+          }
+        ]
+      },
+      "seamGapRel": 0.0354,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0229,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9966,
+          1.2296
+        ],
+        "diagGrowth": 1.02
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Bask": {
+      "frames": [
+        973,
+        1093
+      ],
+      "loop": {
+        "poseErrorDeg": 0.069,
+        "poseErrorRel": 0.0,
+        "seamSpeedMismatchDegPerFrame": 0.007
+      },
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.991,
+        "compressP001": 0.442,
+        "stretchMax": 8.504,
+        "worstFrame": 988,
+        "framesMeasured": 121,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 3.045,
+        "worstFrameCompressP001": 0.437,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.246
+          },
+          {
+            "bone": "HindUpper_R",
+            "region": "hindLeg",
+            "share": 0.125
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.1
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.1
+          }
+        ]
+      },
+      "seamGapRel": 0.06524,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0033,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9933,
+          1.202
+        ],
+        "diagGrowth": 1.007
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Greet": {
+      "frames": [
+        1094,
+        1154
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.14,
+        "compressP001": 0.899,
+        "stretchMax": 2.609,
+        "worstFrame": 1120,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.28,
+        "worstFrameCompressP001": 0.821,
+        "worstBones": [
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.312
+          },
+          {
+            "bone": "Tail1",
+            "region": "tail",
+            "share": 0.288
+          },
+          {
+            "bone": "Neck",
+            "region": "neck",
+            "share": 0.275
+          },
+          {
+            "bone": "Head",
+            "region": "head",
+            "share": 0.038
+          }
+        ]
+      },
+      "seamGapRel": 0.02161,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0001,
+          0.0
+        ],
+        "max": [
+          0.2989,
+          0.9933,
+          1.2169
+        ],
+        "diagGrowth": 1.009
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "DigPrep": {
+      "frames": [
+        1155,
+        1200
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.469,
+        "compressP001": 0.763,
+        "stretchMax": 2.892,
+        "worstFrame": 1193,
+        "framesMeasured": 46,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.689,
+        "worstFrameCompressP001": 0.703,
+        "worstBones": [
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.387
+          },
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.212
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.149
+          },
+          {
+            "bone": "ForeUpper_L",
+            "region": "foreLeg",
+            "share": 0.117
+          }
+        ]
+      },
+      "seamGapRel": 0.03198,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0009,
+          -0.0058
+        ],
+        "max": [
+          0.2989,
+          0.9964,
+          1.215
+        ],
+        "diagGrowth": 1.011
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0049,
+      "footSlideRel": 0.0017,
+      "contactGapRel": 0.0014
+    },
+    "BurrowEnter": {
+      "frames": [
+        1201,
+        1261
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 2.17,
+        "compressP001": 0.643,
+        "stretchMax": 4.731,
+        "worstFrame": 1245,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.532,
+        "worstFrameCompressP001": 0.601,
+        "worstBones": [
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.303
+          },
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.197
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.175
+          },
+          {
+            "bone": "ForeUpper_L",
+            "region": "foreLeg",
+            "share": 0.121
+          }
+        ]
+      },
+      "seamGapRel": 0.0543,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0015,
+          -0.0109
+        ],
+        "max": [
+          0.2989,
+          0.9966,
+          1.2163
+        ],
+        "diagGrowth": 1.012
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0091,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "BurrowEmerge": {
+      "frames": [
+        1262,
+        1322
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.679,
+        "compressP001": 0.713,
+        "stretchMax": 4.133,
+        "worstFrame": 1262,
+        "framesMeasured": 61,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 2.258,
+        "worstFrameCompressP001": 0.623,
+        "worstBones": [
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.27
+          },
+          {
+            "bone": "Pelvis",
+            "region": "body",
+            "share": 0.182
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.138
+          },
+          {
+            "bone": "HindUpper_L",
+            "region": "hindLeg",
+            "share": 0.117
+          }
+        ]
+      },
+      "seamGapRel": 0.03204,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.001,
+          -0.0095
+        ],
+        "max": [
+          0.2989,
+          0.996,
+          1.2193
+        ],
+        "diagGrowth": 1.012
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0079,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    },
+    "Nuzzle": {
+      "frames": [
+        1323,
+        1398
+      ],
+      "loop": false,
+      "groundSpeed": 0.0,
+      "deformation": {
+        "stretchP999": 1.171,
+        "compressP001": 0.9,
+        "stretchMax": 1.942,
+        "worstFrame": 1362,
+        "framesMeasured": 76,
+        "aggregation": "pooled",
+        "worstFrameStretchP999": 1.296,
+        "worstFrameCompressP001": 0.844,
+        "worstBones": [
+          {
+            "bone": "Neck",
+            "region": "neck",
+            "share": 0.35
+          },
+          {
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.164
+          },
+          {
+            "bone": "ForeUpper_R",
+            "region": "foreLeg",
+            "share": 0.102
+          },
+          {
+            "bone": "ForeUpper_L",
+            "region": "foreLeg",
+            "share": 0.093
+          }
+        ]
+      },
+      "seamGapRel": 0.015,
+      "bounds": {
+        "min": [
+          -0.3082,
+          -1.0055,
+          -0.001
+        ],
+        "max": [
+          0.2989,
+          0.9933,
+          1.2188
+        ],
+        "diagGrowth": 1.011
+      },
+      "facing": {
+        "headBehindChestFrames": 0
+      },
+      "groundPenetrationRel": 0.0008,
+      "footSlideRel": 0.0,
+      "contactGapRel": 0.0
+    }
+  },
+  "transitions": [
+    {
+      "from": "Sleep.start",
+      "to": "Wake.start",
+      "poseErrorDeg": 0.056,
+      "poseErrorRel": 0.0
+    },
+    {
+      "from": "Wake.end",
+      "to": "Idle.start",
+      "poseErrorDeg": 0.074,
+      "poseErrorRel": 0.0
+    },
+    {
+      "from": "Idle.start",
+      "to": "DigPrep.start",
+      "poseErrorDeg": 0.074,
+      "poseErrorRel": 0.0
+    },
+    {
+      "from": "DigPrep.end",
+      "to": "BurrowEnter.start",
+      "poseErrorDeg": 0.069,
+      "poseErrorRel": 0.0
+    },
+    {
+      "from": "BurrowEnter.end",
+      "to": "BurrowEmerge.start",
+      "poseErrorDeg": 0.074,
+      "poseErrorRel": 0.0
+    },
+    {
+      "from": "BurrowEmerge.end",
+      "to": "Idle.start",
+      "poseErrorDeg": 0.074,
+      "poseErrorRel": 0.0
+    }
+  ],
+  "motionEnvelope": {
+    "groundHeight_m": 1.2622,
+    "groundLength_m": 2.0195,
+    "groundWidth_m": 0.9951,
+    "swimVerticalExtent_m": null,
+    "swimWidth_m": null,
+    "flightSpan_m": null,
+    "flightVerticalExtent_m": null,
+    "note": "Largest animated extent over the clips of each medium. Submerged swimming needs water deeper than swimVerticalExtent_m; flight needs a clear width of flightSpan_m. Margins are the Sanctuary's choice."
+  },
+  "images": null,
+  "warnings": [
+    {
+      "clip": null,
+      "check": "bones",
+      "message": "bone orientation / mirror issue",
+      "value": {
+        "zeroLength": [],
+        "mirrorErrorRel": 0.01623,
+        "chainDirection": []
+      },
+      "limit": {
+        "mirrorErrorRel": 0.01
+      }
+    },
+    {
+      "clip": "Idle",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.02171,
+      "limit": 0.001
+    },
+    {
+      "clip": "Eat",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.396,
+      "limit": 1.6
+    },
+    {
+      "clip": "Eat",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.05195,
+      "limit": 0.001
+    },
+    {
+      "clip": "Sleep",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.992,
+      "limit": 1.6
+    },
+    {
+      "clip": "Sleep",
+      "check": "deformation",
+      "message": "edge compression over limit",
+      "value": 0.427,
+      "limit": 0.45
+    },
+    {
+      "clip": "Sleep",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.05895,
+      "limit": 0.001
+    },
+    {
+      "clip": "Happy",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.07223,
+      "limit": 0.001
+    },
+    {
+      "clip": "Happy",
+      "check": "deformation",
+      "message": "edge stretch over limit at the worst single frame",
+      "value": 1.861,
+      "limit": 1.6
+    },
+    {
+      "clip": "Walk",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.167,
+      "limit": 1.6
+    },
+    {
+      "clip": "Walk",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.07782,
+      "limit": 0.001
+    },
+    {
+      "clip": "Walk",
+      "check": "deformation",
+      "message": "edge compression over limit at the worst single frame",
+      "value": 0.447,
+      "limit": 0.45
+    },
+    {
+      "clip": "Run",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 3.374,
+      "limit": 1.6
+    },
+    {
+      "clip": "Run",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.11227,
+      "limit": 0.001
+    },
+    {
+      "clip": "Run",
+      "check": "deformation",
+      "message": "edge compression over limit at the worst single frame",
+      "value": 0.402,
+      "limit": 0.45
+    },
+    {
+      "clip": "Burrow",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.988,
+      "limit": 1.6
+    },
+    {
+      "clip": "Burrow",
+      "check": "deformation",
+      "message": "edge compression over limit",
+      "value": 0.436,
+      "limit": 0.45
+    },
+    {
+      "clip": "Burrow",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.08282,
+      "limit": 0.001
+    },
+    {
+      "clip": "Rest",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.992,
+      "limit": 1.6
+    },
+    {
+      "clip": "Rest",
+      "check": "deformation",
+      "message": "edge compression over limit",
+      "value": 0.436,
+      "limit": 0.45
+    },
+    {
+      "clip": "Rest",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.06655,
+      "limit": 0.001
+    },
+    {
+      "clip": "Wake",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.262,
+      "limit": 1.6
+    },
+    {
+      "clip": "Wake",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.05895,
+      "limit": 0.001
+    },
+    {
+      "clip": "Wake",
+      "check": "deformation",
+      "message": "edge compression over limit at the worst single frame",
+      "value": 0.398,
+      "limit": 0.45
+    },
+    {
+      "clip": "LookAround",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.01935,
+      "limit": 0.001
+    },
+    {
+      "clip": "Curious",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.04059,
+      "limit": 0.001
+    },
+    {
+      "clip": "Curious",
+      "check": "deformation",
+      "message": "edge stretch over limit at the worst single frame",
+      "value": 1.889,
+      "limit": 1.6
+    },
+    {
+      "clip": "Drink",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.61,
+      "limit": 1.6
+    },
+    {
+      "clip": "Drink",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.05083,
+      "limit": 0.001
+    },
+    {
+      "clip": "Stretch",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.435,
+      "limit": 1.6
+    },
+    {
+      "clip": "Stretch",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.0354,
+      "limit": 0.001
+    },
+    {
+      "clip": "Bask",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.991,
+      "limit": 1.6
+    },
+    {
+      "clip": "Bask",
+      "check": "deformation",
+      "message": "edge compression over limit",
+      "value": 0.442,
+      "limit": 0.45
+    },
+    {
+      "clip": "Bask",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.06524,
+      "limit": 0.001
+    },
+    {
+      "clip": "Greet",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.02161,
+      "limit": 0.001
+    },
+    {
+      "clip": "DigPrep",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.03198,
+      "limit": 0.001
+    },
+    {
+      "clip": "DigPrep",
+      "check": "deformation",
+      "message": "edge stretch over limit at the worst single frame",
+      "value": 1.689,
+      "limit": 1.6
+    },
+    {
+      "clip": "BurrowEnter",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 2.17,
+      "limit": 1.6
+    },
+    {
+      "clip": "BurrowEnter",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.0543,
+      "limit": 0.001
+    },
+    {
+      "clip": "BurrowEmerge",
+      "check": "deformation",
+      "message": "edge stretch over limit",
+      "value": 1.679,
+      "limit": 1.6
+    },
+    {
+      "clip": "BurrowEmerge",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.03204,
+      "limit": 0.001
+    },
+    {
+      "clip": "Nuzzle",
+      "check": "seams",
+      "message": "skinned surface opens at split (UV/normal seam) vertices",
+      "value": 0.015,
+      "limit": 0.001
+    }
+  ],
+  "status": "PASS_WITH_WARNINGS",
+  "note": "Automated geometric checks. They do not replace an animator review of the motion."
+}
