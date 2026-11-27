@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "status": "source-only LOD candidates",
+  "assets": [
+    {
+      "name": "Ocean_Seagrass_Ribbon_Cluster_LOD1",
+      "triangles": 252,
+      "vertices": 504,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.33183175325393677,
+          0,
+          -0.1907687932252884
+        ],
+        "max": [
+          0.32418230175971985,
+          0.6258295774459839,
+          0.21078097820281982
+        ]
+      },
+      "bytes": 27064,
+      "anchors": 126,
+      "maxAlpha": 1,
+      "uniquePositions": 140,
+      "samplePoses": 216,
+      "windStrength": 0.01,
+      "maxSampleDisplacementM": 0.0425295287333284,
+      "minFaceNormalDot": 0.9949044568934584,
+      "minAreaRatio": 0.9500069646973754,
+      "maxAreaRatio": 1.0467447750765309,
+      "unindexedVertices": 756,
+      "baselineTriangles": 364,
+      "reduction": 0.3076923076923077,
+      "maxExtentDelta": 0,
+      "maxCenterDelta": 0,
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Seagrass_Ribbon_Cluster_LOD1.glb",
+      "blob": "ab42f3e783cb48073c5f8fbb31a47bfd1f76dc02"
+    },
+    {
+      "name": "Ocean_Coral_Tube_Sponge_LOD1",
+      "triangles": 384,
+      "vertices": 246,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.28387099504470825,
+          0,
+          -0.21207936108112335
+        ],
+        "max": [
+          0.39048394560813904,
+          0.6800000071525574,
+          0.22920571267604828
+        ]
+      },
+      "bytes": 15460,
+      "anchors": 1152,
+      "maxAlpha": 0,
+      "uniquePositions": 198,
+      "samplePoses": 216,
+      "windStrength": 0,
+      "maxSampleDisplacementM": 0,
+      "minFaceNormalDot": 0.9999999999999996,
+      "minAreaRatio": 1,
+      "maxAreaRatio": 1,
+      "unindexedVertices": 1152,
+      "baselineTriangles": 576,
+      "reduction": 0.33333333333333337,
+      "maxExtentDelta": 0,
+      "maxCenterDelta": 0,
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Coral_Tube_Sponge_LOD1.glb",
+      "blob": "b98820e3ee5389a6e0c66a6fa29fc554b0bc8286"
+    },
+    {
+      "name": "Ocean_Cool_Pearl_Anemone_LOD1",
+      "triangles": 272,
+      "vertices": 176,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.22254160046577454,
+          0,
+          -0.22521859407424927
+        ],
+        "max": [
+          0.23399999737739563,
+          0.36399999260902405,
+          0.22521859407424927
+        ]
+      },
+      "bytes": 11428,
+      "anchors": 816,
+      "maxAlpha": 0,
+      "uniquePositions": 176,
+      "samplePoses": 216,
+      "windStrength": 0,
+      "maxSampleDisplacementM": 0,
+      "minFaceNormalDot": 0.9999999999999996,
+      "minAreaRatio": 1,
+      "maxAreaRatio": 1,
+      "unindexedVertices": 816,
+      "baselineTriangles": 552,
+      "reduction": 0.5072463768115942,
+      "maxExtentDelta": 0.023193141688101493,
+      "maxCenterDelta": 0.0016766414046287537,
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Cool_Pearl_Anemone_LOD1.glb",
+      "blob": "dab9b1c9a13a1610b4320f1f917c893470d7dfdd"
+    }
+  ],
+  "baselineTriangles": 1492,
+  "totalTriangles": 908,
+  "reduction": 0.3914209115281502,
+  "checks": "216 local poses per mesh, exact attribute tuple reconstruction, finite normals/geometry, bounds gate, deterministic bytes",
+  "limitations": "No external validator, visual comparison, Blender/FBX/Unity/device. No runtime LODGroup, no placement, no hidden surface removal."
+}
