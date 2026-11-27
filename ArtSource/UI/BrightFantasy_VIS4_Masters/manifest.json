@@ -1656,9 +1656,241 @@
       "coverage": 0.80859375,
       "bytes": 67428,
       "blob": "be79eaa302fa95b7a65fa48c6ef6c3e7a7ff381f"
+    },
+    {
+      "id": "icon:feed",
+      "role": "feed",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_feed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_feed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 168892,
+        "partial": 1405,
+        "opaque": 91847
+      },
+      "bounds": [
+        49,
+        105,
+        460,
+        402
+      ],
+      "coverage": 0.8046875,
+      "bytes": 56536,
+      "blob": "d146bea33fd73f3c9350adf179ef563c440de993"
+    },
+    {
+      "id": "icon:pet",
+      "role": "pet",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_pet.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_pet.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 148177,
+        "partial": 2168,
+        "opaque": 111799
+      },
+      "bounds": [
+        49,
+        58,
+        462,
+        453
+      ],
+      "coverage": 0.80859375,
+      "bytes": 82905,
+      "blob": "51df9bb14e0887bf3f37b31f5a0cf428556778fc"
+    },
+    {
+      "id": "icon:rest",
+      "role": "rest",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_rest.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_rest.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 166116,
+        "partial": 1868,
+        "opaque": 94160
+      },
+      "bounds": [
+        49,
+        56,
+        460,
+        455
+      ],
+      "coverage": 0.8046875,
+      "bytes": 49262,
+      "blob": "e845bbf8196155198914bf97d258eb29b448397e"
+    },
+    {
+      "id": "icon:inspect",
+      "role": "inspect",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_inspect.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_inspect.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 170570,
+        "partial": 1329,
+        "opaque": 90245
+      },
+      "bounds": [
+        51,
+        49,
+        457,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 63525,
+      "blob": "53c38d6fdfd185dc66a6d1ac7ed8b6f8556babdd"
+    },
+    {
+      "id": "icon:build",
+      "role": "build",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_build.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_build.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 202390,
+        "partial": 1340,
+        "opaque": 58414
+      },
+      "bounds": [
+        100,
+        49,
+        408,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 43949,
+      "blob": "adc744e910fa6ef99c0669b2844b23ca781046e3"
+    },
+    {
+      "id": "icon:research",
+      "role": "research",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_research.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_research.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141424,
+        "partial": 1448,
+        "opaque": 119272
+      },
+      "bounds": [
+        54,
+        86,
+        462,
+        423
+      ],
+      "coverage": 0.798828125,
+      "bytes": 70107,
+      "blob": "0069e24c706bd54f988241812103b20623e0dafe"
+    },
+    {
+      "id": "icon:health",
+      "role": "health",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_health.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_health.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 167066,
+        "partial": 1274,
+        "opaque": 93804
+      },
+      "bounds": [
+        50,
+        73,
+        461,
+        441
+      ],
+      "coverage": 0.8046875,
+      "bytes": 46104,
+      "blob": "5a1c30586277f46ba91468739d594e4ad8772acf"
+    },
+    {
+      "id": "icon:settings",
+      "role": "settings",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_settings.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_settings.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 145244,
+        "partial": 1680,
+        "opaque": 115220
+      },
+      "bounds": [
+        50,
+        50,
+        461,
+        461
+      ],
+      "coverage": 0.8046875,
+      "bytes": 73279,
+      "blob": "c706e10ab4b26901851fbe65864189d19772b8e4"
     }
   ],
-  "pending": "21 remaining function icons; optional ornament overlays; Unity and art QA",
+  "pending": "13 remaining function icons; optional ornament overlays; Unity and art QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
@@ -1704,6 +1936,21 @@
         "icon:quests",
         "icon:expedition",
         "icon:inventory"
+      ]
+    },
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_2.png",
+      "blob": "822ff3a0c3b2d37c89e017ff0d1063f2a407c6e3",
+      "bytes": 82584,
+      "order": [
+        "icon:feed",
+        "icon:pet",
+        "icon:rest",
+        "icon:inspect",
+        "icon:build",
+        "icon:research",
+        "icon:health",
+        "icon:settings"
       ]
     }
   ]
