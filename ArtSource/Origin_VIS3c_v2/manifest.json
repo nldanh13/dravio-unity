@@ -1,0 +1,79 @@
+{
+  "version": 2,
+  "status": "QA repair candidate; original v1 retained; no runtime placement",
+  "baseline": "8714386b6abc4c0744320bed0c658c5c8dcce6f4",
+  "coordinateSystem": "glTF Y up, front -Z for architecture; base Y=0, centered bounds XZ, meters",
+  "assets": [
+    {
+      "name": "Origin_Fairytale_Cottage",
+      "triangles": 3560,
+      "vertices": 10680,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -1.8160940408706665,
+          0,
+          -1.4550000429153442
+        ],
+        "max": [
+          1.8160940408706665,
+          3.5399999618530273,
+          1.4550000429153442
+        ]
+      },
+      "bytes": 385544,
+      "path": "ArtSource/Origin_VIS3c_v2/Origin_Fairytale_Cottage.glb",
+      "blob": "3cc23213d4cea71a74f246a6426f4c8f003974af"
+    },
+    {
+      "name": "Origin_Fairytale_Lookout",
+      "triangles": 1732,
+      "vertices": 5196,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.9900000095367432,
+          0,
+          -0.9900000095367432
+        ],
+        "max": [
+          0.9900000095367432,
+          3.619868278503418,
+          0.9900000095367432
+        ]
+      },
+      "bytes": 188112,
+      "path": "ArtSource/Origin_VIS3c_v2/Origin_Fairytale_Lookout.glb",
+      "blob": "589c8127f3c0e86673838a63453ab188e700c777"
+    },
+    {
+      "name": "Origin_Soft_Hills",
+      "triangles": 1920,
+      "vertices": 5760,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -8.75,
+          0,
+          -3.75
+        ],
+        "max": [
+          8.75,
+          3.493000030517578,
+          3.75
+        ]
+      },
+      "bytes": 208348,
+      "path": "ArtSource/Origin_VIS3c_v2/Origin_Soft_Hills.glb",
+      "blob": "6a24b97b993db098b5d995460d46ee740636379b"
+    }
+  ],
+  "checks": [
+    "convex rounded and arch outward-face assertions",
+    "nondegenerate generated triangles",
+    "finite positions and unit normals",
+    "deterministic byte-for-byte regeneration",
+    "GLB length and pivot checks"
+  ],
+  "handoff": "Source vertex colors RGB only. For shared Painterly Lit FBX remap, explicitly set vertex alpha=0 and UV to agreed neutral atlas region, or use reviewed static vertex-color material. Do not rotate another 180 degrees. Unity/Blender/external glTF validator and placement NOT RUN."
+}

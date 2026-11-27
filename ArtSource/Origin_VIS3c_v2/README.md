@@ -1,0 +1,5 @@
+# VIS.3c v2 — architecture repair (#91)
+
+Addresses PR #94 static QA: clamp both rounded cross-section radii, add explicit extruded convex arched doors/windows, orient the facade toward -Z, ground and center all pivots. Original VIS3c files remain unchanged. Generate in a new directory with `node scripts/art/environment/build_origin_vis3c_v2.mjs <new-output-dir>`.
+
+Verified in JavaScript: convex face orientation checks, finite positions, unit normals, nondegenerate triangles, centered pivots, repeat byte-identical GLB output. Source uses one opaque vertex-color material, RGB only; no UV yet. For FBX integration assign alpha 0 and UV neutral atlas cell or review a separate material. Do not apply the previous yaw 180 workaround to v2. No placement or runtime changes. Blender, external glTF validation, Unity, visual composition, and actual runtime budget NOT RUN. Roof/open intersections and hidden triangles remain candidates for later refinement; do not infer production acceptance. Keep original camera and scene unchanged until composition is reviewed.

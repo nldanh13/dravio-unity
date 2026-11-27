@@ -35,6 +35,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BrightFantasy: 1
+    - _SoftSheen: 0.07
     - _AlphaClip: 1
     - _AmbientStrength: 1
     - _Cull: 0
