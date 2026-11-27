@@ -2,7 +2,7 @@
 
 Staging only (refuses any path inside Assets). Nothing is placed or imported into Unity.
 
-  python scripts/qa/vis4b/stage_vis3c_v2_fbx.py -- --out <empty staging dir>
+  python scripts/qa/vis4b/stage_vis3c_v2_fbx.py -- --out <empty staging dir> [--src ArtSource/<dir> ...]
 
 Per AI3 handoff (#94, 27/11): no extra 180 deg yaw for v2 (front is glTF -Z = Blender +Y = Unity -Z,
 the kit's camera-facing side); vertex alpha forced to 0 (Painterly Lit reads vertex A as wind
@@ -33,7 +33,13 @@ if ROOT / "Assets" in OUT.parents or OUT == ROOT / "Assets":
 if OUT.exists() and any(OUT.iterdir()):
     raise SystemExit("Choose an empty staging directory.")
 OUT.mkdir(parents=True, exist_ok=True)
-SRC = ROOT / "ArtSource" / "Origin_VIS3c_v2"
+# Source folders: --src <ArtSource dir> (repeatable). Default VIS3c v2. A later folder's GLB of the
+# same name replaces an earlier one (e.g. Hills v3 over v2).
+SRCS = [ROOT / argv[i + 1] for i, a in enumerate(argv) if a == "--src"] or [ROOT / "ArtSource" / "Origin_VIS3c_v2"]
+GLBS = {}
+for d in SRCS:
+    for g in sorted(d.glob("*.glb")):
+        GLBS[g.name] = g
 
 
 def bounds(objs):
@@ -42,7 +48,7 @@ def bounds(objs):
 
 
 report = {}
-for glb in sorted(SRC.glob("*.glb")):
+for glb in GLBS.values():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(glb))
     meshes = [o for o in bpy.data.objects if o.type == 'MESH']

@@ -217,3 +217,20 @@ Bố cục vẫn chờ composition review (mục 5.4); không đặt asset nào 
 - Bộ nhớ ước tính nếu theme dùng hết 83 sprite ở kích thước import đề xuất: **RGBA32 khoảng 20.8 MiB** (standalone, không nén), **ASTC 4×4 khoảng 5.2 MiB** (Android/iOS). Cần đo trong Unity Profiler; nên cân nhắc Sprite Atlas.
 - Alternatives (2 bộ button 3 state) và ornaments của `BrightFantasy_VIS5_Polish` **chưa tích hợp**: giữ riêng theo yêu cầu AI3, không trộn với master.
 - **NOT RUN:** Unity import, `Dravio > UI > Validate`, Game View 16:9/20:9/4:3/notch, độ tương phản chữ Việt/Anh trên nút, input/chuyển tab. Mở Unity xong cần commit các `.meta` được sinh ra.
+
+## 12. Hills v3 (#89 `9c15e2e`) và thực vật VIS.8 (#92 `e9d7099`)
+
+Đã merge cả hai head vào nhánh QA. Hai head này không sửa file nào trong `Assets/`. Đã chạy Blender 5.3 bpy + Khronos glTF-Validator.
+
+| GLB | Validator | Tái sinh | Tris (manifest) | Winding ngược / lật | Non-manifold / biên | Pivot đáy / tâm XZ | Kích thước (m) |
+|---|---|---|---|---|---|---|---|
+| Hills v3 `Origin_Soft_Hills` | 0 lỗi | giống byte | 1920 ✓ | 0 / 0 | 0 / 0 | 0 / (0, 0) | 17.5 × 7.5 × 3.49 |
+| VIS8 `Origin_Bloom_Cluster` | 0 lỗi | giống byte | 1164 ✓ | 0 / 0 | 0 / 0 | 0 / (0.02, 0.05) | 0.65 × 0.44 × 0.56 |
+| VIS8 `Origin_Fern_Rosette` | 0 lỗi | giống byte | 1512 ✓ | 0 / 0 | 0 / 0 | 0 / (0.00, 0.02) | 0.67 × 0.65 × 0.22 |
+| VIS8 `Origin_Coral_Mushroom_Cluster` | 0 lỗi | giống byte | 672 ✓ | 0 / 0 | 0 / 0 | 0 / (0.01, 0.03) | 0.73 × 0.51 × 0.53 |
+
+- **Hills v3: lỗi lớp xa-gần đã sửa.** Hai đồi xanh lá thấp (1.8–1.95 m) nằm phía camera (Blender +Y 1.65–1.85, tức Unity −Z), ba đồi xanh lam cao (2.6–3.5 m) nằm phía sau (−0.35…−1.25). Render từ phía camera xác nhận (`vis4b/v3_vis8/hills_v3_flora_check.png`). Không cần xoay thêm.
+- **Thực vật VIS.8:** không có mặt sau lộ ra, đáy đặt đúng mặt đất (lệch tâm XZ ≤ 5 cm, chấp nhận được với vật trang trí). Ở camera Origin (khoảng 60 px/m ở 720p) mỗi cụm cao khoảng 13–34 px trên màn hình, trong khi tốn 672–1512 tris. Mật độ tam giác cao so với kích thước hiển thị, nên chỉ dùng thưa như AI3 đề xuất.
+- **FBX thử (staging, không vào Assets):** `vis4b/v3_vis8/staged_fbx/` gồm Cottage/Lookout v2, Hills v3, Bloom, Fern, Mushroom. Alpha màu đỉnh = 0, 1 kênh UV, slot `ENV_Architecture`. Import lại: tris khớp, bounds lệch 0 mm, đáy Z = 0.
+- **Ngân sách tris (giới hạn < 60 000):** scene hiện tại 34 472. Thêm Cottage + Lookout + Hills: 41 684. Thêm 1 bộ thực vật (mỗi loại 1 cụm): 45 032. Tối đa khoảng 5 bộ thực vật trước khi chạm giới hạn. Material: +1 (`M_ENV_Architecture`) nếu được duyệt, tổng 5/10. Texture: không đổi.
+- **Vẫn chờ:** quyết định của chủ dự án về `M_ENV_Architecture` (AI3 cũng đề xuất cách này) và buổi review bố cục. Chưa đặt asset nào vào scene thật. Unity/thiết bị: NOT RUN.
