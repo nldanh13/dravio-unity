@@ -173,3 +173,44 @@ Animation hầu như không làm rồng vươn xa hơn dáng nghỉ: dài 1,48 m
 **Đề xuất cho AI kỹ thuật Unity (#91)**: không sửa ở đây vì thuộc điều hướng và runtime. Đưa tầm với đo được của từng loài vào catalog (dữ liệu sinh từ pipeline, ví dụ `reach.front/back/side`), để điều hướng và khoảng cách giữa các rồng dùng số của chính con rồng đó thay vì các hằng số 0,45 / 0,55 m. Rồng mới hay rồng đổi kích thước khi đó vẫn đúng mà không phải sửa code.
 
 Hướng dẫn thêm/sửa rồng và các công thức khoảng chừa: [ADD_OR_EDIT_DRAGON.md](ADD_OR_EDIT_DRAGON.md). `anim_qa.py` nay ghi `reach_m` (trước/sau/ngang/bán kính, từ gốc) cho từng clip; `batch_import.py --qa-strict` bật đo mọi frame cho mọi loài.
+
+
+## 9. 15 loài còn lại (sau khi Emberling được duyệt, 27/11)
+
+Đầu vào: output rig v7 của 15 GLB gốc (không đổi), skinning tuyến tính, `anim_qa --samples all --strict-frame` (mọi frame, frame tệ nhất, ngưỡng không đổi 1,6 / 0,45 / 0,01). Số liệu: `scripts/art/character/reports_char9c/species_tune/summary.json` và `DRG_<loài>_Unstaged_animqa.json`.
+
+Ba bước, đều qua `asset-overrides` → `species.<loài>.repair`, không đổi GLB, bộ xương, tên clip, khoảng frame:
+1. **Hàn đường nối** (`seamWeld`) + `blendWidth_m` 0,24 + tuyến tính: khe nứt về **0 ở cả 15 loài** (trước: 6–27 % chiều cao).
+2. **Giữ tư thế chuyển tiếp** (`pinTransitions`, mới trong `repair_chibi_rig.py`): clip loop giữ một hệ số; đầu/cuối của clip một lần (Wake, TakeOff, Land, WaterEnter/Exit, Burrow…) lấy hệ số của clip loop nối với nó, hoặc 1 (tư thế gốc), rồi chuyển mượt trong 25 % độ dài clip. Mọi chuyển tiếp Sleep→Wake→Idle, bay, nước, đào hang vẫn khớp (0 cảnh báo `transition`).
+3. **Dò biên độ theo loài** (`tune_repair.py`, mới): mỗi vòng đo lại mọi frame; clip nào còn vượt ngưỡng thì giảm biên độ quay của hai nhóm xương gây lỗi nhiều nhất (theo `worstBones`: chân, đầu/cổ, thân, đuôi, cánh, vây; Pelvis/Root không bao giờ bị giảm) đi 15 %, sàn 0,5. Clip nào chạm sàn mà vẫn hỏng thì **trả lại biên độ gốc** và ghi NEEDS_ART: công cụ không làm phẳng chuyển động khi không đạt.
+
+| Loài | Kiểu | Hỏng trước | Khe nứt trước | Sau bước 1–2 | **Sau bước 3** | Biên độ nhỏ nhất | Tầm với (m) | Kết luận | Clip tệ nhất còn lại (giãn/nén) |
+|---|---|---|---|---|---|---|---|---|---|
+| amberhorn | quadruped | 14/19 | 13.4 % | 6 | **0** | 0.614 | 1.03 | Đạt biến dạng | – |
+| aurorawing | winged | 14/19 | 14.4 % | 14 | **9** | 0.522 | 1.17 | Cần art | LookAround 4.40/0.55 Drink 4.20/0.50 Eat 3.95/0.50 |
+| blossom | winged | 17/20 | 16.7 % | 9 | **2** | 0.5 | 1.09 | Cần art | Drink 1.57/0.41 Eat 1.52/0.42 |
+| celestia | winged | 15/19 | 21.6 % | 13 | **4** | 0.522 | 1.06 | Cần art | Run 2.92/0.37 Stretch 2.30/0.49 Drink 2.24/0.35 |
+| droplet | quadruped | 16/21 | 11.5 % | 12 | **1** | 0.5 | 1.01 | Cần art | Run 2.78/0.30 |
+| frostfin | aquatic | 11/13 | 9.5 % | 11 | **4** | 0.5 | 1.06 | Cần art | Happy 3.72/0.54 Sleep 2.13/0.67 Wake 2.09/0.68 |
+| gaia | quadruped | 17/21 | 27.4 % | 15 | **11** | 0.5 | 1.01 | Cần art | Swim 7.30/0.35 WaterEnter 7.30/0.37 WaterExit 7.30/0.37 |
+| leviathan | serpentine | 11/13 | 9.6 % | 10 | **4** | 0.522 | 1.00 | Cần art | Happy 4.07/0.36 Sleep 3.58/0.33 Wake 3.58/0.33 |
+| magma | quadruped | 15/19 | 11.2 % | 9 | **0** | 0.5 | 1.02 | Đạt biến dạng | – |
+| mossback | quadruped | 19/21 | 10.2 % | 14 | **8** | 0.5 | 1.02 | Cần art | Swim 4.62/0.46 WaterEnter 4.62/0.45 WaterExit 4.62/0.45 |
+| solaris | winged | 12/19 | 8.9 % | 10 | **8** | 0.614 | 1.13 | Cần art | TakeOff 2.87/0.37 Fly 2.82/0.49 Land 2.82/0.34 |
+| sparkwing | winged | 15/19 | 15.7 % | 13 | **4** | 0.522 | 1.09 | Cần art | Run 3.30/0.39 Stretch 2.31/0.52 Drink 1.99/0.38 |
+| sprout | quadruped | 18/19 | 15.9 % | 13 | **8** | 0.614 | 1.03 | Cần art | Run 2.77/0.34 Drink 2.48/0.20 Eat 2.37/0.20 |
+| steamdrake | serpentine | 17/21 | 6.1 % | 11 | **4** | 0.5 | 1.02 | Cần art | Sleep 2.04/0.21 Wake 2.04/0.20 Rest 1.73/0.28 |
+| zephyr | winged | 12/20 | 16.6 % | 8 | **3** | 0.5 | 1.07 | Cần art | Land 2.35/0.35 Sleep 1.68/0.53 Wake 1.68/0.52 |
+
+Đọc bảng:
+- **amberhorn, magma** đạt cả 19 clip ở frame tệ nhất. Run của magma và một số clip nằm nghỉ dùng hệ số 0,5–0,72 cho chân: chuyển động nhỏ hơn rõ, **cần animator xem** trước khi coi là bản cuối (mọi hệ số < 0,7 đều nên xem).
+- 13 loài còn lại giảm từ 8–15 clip hỏng xuống 1–11. Phần còn lại không sửa được bằng biên độ: ngay cả 0,5 vẫn giãn 2–7 lần (gaia Swim 7,3; aurorawing LookAround 4,4; leviathan Happy 4,1). Đó là lỗi **trọng số/vị trí xương** của rig v7 trên các model này (ví dụ đầu hay cánh ăn trọng số Chest/Pelvis), hoặc tư thế tác giả quá gắt (Sleep/Rest nằm sấp). Cần làm theo từng loài: sửa trọng số vùng `worstBones` hoặc chỉnh keyframe, không nới ngưỡng.
+- Cảnh báo khác (không phải biến dạng) **chưa xử lý**, có từ rig v7: `ground`/`groundContact`/`footSliding` ở clip nằm và Eat/Drink, `wings` (celestia, sparkwing: cánh xuyên thân), `bones` (gương trái/phải lệch > 1 %: gaia, magma, frostfin…). Danh sách từng loài trong `summary.json` → `otherWarnings`.
+- **Tầm với 1,0–1,17 m** từ gốc ở mọi loài, lớn hơn nhiều so với `walkClearance` 0,45 m (xem §8): kiến nghị cho #91 càng quan trọng hơn với các loài lớn.
+- Unity: **NOT RUN**. Gói 16 rồng (`DragonVisualCatalog`) chưa tái tạo; không tạo biến thể giai đoạn.
+
+Chạy lại cho một loài:
+```bash
+python scripts/art/character/tune_repair.py <work>/assets/DRG_<loài>_Unstaged <out> --bpy-python <python có bpy>
+```
+(`<work>` là một lần `batch_import.py` **không** có `repair` cho loài đó.) Kết quả `tune_<tên>.json` có mọi vòng, cấu hình tốt nhất và các clip NEEDS_ART.

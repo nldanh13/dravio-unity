@@ -14,10 +14,15 @@ config (asset-overrides.json species.<id>.repair / files.<stem>.repair):
                 them split) are joined in the blend graph and get IDENTICAL weights. Without it the two sides of a
                 seam can follow different bones and the skinned mesh opens cracks (rig v7 Emberling: up to 45 mm,
                 5 % of the height, at Eat) that the edge-stretch QA cannot see, because no edge spans a seam
-  amplitude     {clip: {"head": k, "legs": k, "knees": k}}: scale Neck+Head / leg-chain (Upper, Lower, Foot) /
+  amplitude     {clip: {"head": k, "legs": k, "knees": k, "body": k, "tail": k, "wings": k, "fins": k}}: scale
+                Neck+Head / leg-chain (Upper, Lower, Foot; not Wing*) / Spine*+Chest / Tail* / Wing* / Fin_* /
                 lower-leg-only rotation of that clip by k (slerp to rest; "knees" multiplies "legs" on Lower_*);
                 Wake ramps from the Sleep factors to 1 so Sleep -> Wake -> Idle stays closed; groundSpeed of a clip
                 with scaled legs is scaled by the same k (runtime PlaybackRate = speed / groundSpeed stays foot-locked)
+  pinTransitions (CHAR.9c) true: authored transitions (Sleep->Wake->Idle, TakeOff/Fly/Land, WaterEnter/Swim/
+                WaterExit, DigPrep/Burrow*) stay closed. Loop clips keep one constant factor; each end of a one-shot
+                clip that meets another clip takes that clip's factor if it is a loop, else 1 (authored pose), easing
+                to its own factor over pinEase (default 0.25) of its length. Replaces the Wake ramp. Off = CHAR.9b.
 Steps:
   0. Skinning mode (above).
   1. Neck/Head share by distance to the two bone segments (generated heads were partly weighted to Neck).
@@ -141,19 +146,56 @@ print('hard edges', int(hard.sum()), 'region verts', int(region.sum()), 'iters',
 # Wake starts in the authored Sleep pose, so it ramps from the Sleep factors to 1 at its end (keeps the
 # Sleep -> Wake -> Idle chain closed).
 AMP = CFG.get('amplitude', {})
+# authored transitions, same table as anim_qa.TRANSITIONS (from clip, frame, to clip, frame)
+TRANSITION_ENDS = (('Sleep', 'start', 'Wake', 'start'), ('Wake', 'end', 'Idle', 'start'), ('Idle', 'start', 'TakeOff', 'start'),
+                   ('TakeOff', 'end', 'Fly', 'start'), ('Fly', 'start', 'Land', 'start'), ('Land', 'end', 'Idle', 'start'),
+                   ('Idle', 'start', 'WaterEnter', 'start'), ('WaterEnter', 'end', 'Swim', 'start'), ('Swim', 'start', 'WaterExit', 'start'),
+                   ('WaterExit', 'end', 'Idle', 'start'), ('Idle', 'start', 'DigPrep', 'start'), ('DigPrep', 'end', 'BurrowEnter', 'start'),
+                   ('BurrowEnter', 'end', 'BurrowEmerge', 'start'), ('BurrowEmerge', 'end', 'Idle', 'start'))
+EASE = float(CFG.get('pinEase', 0.25))
 if AMP:
     from mathutils import Quaternion
     sc = bpy.context.scene
+    def leg(n): return not n.startswith('Wing') and any(t in n for t in ('Upper_', 'Lower_', 'Foot_'))
     groups = {'head': [pb for pb in arm.pose.bones if pb.name in ('Neck', 'Head')],
-              'legs': [pb for pb in arm.pose.bones if any(t in pb.name for t in ('Upper_', 'Lower_', 'Foot_'))],
-              'knees': [pb for pb in arm.pose.bones if 'Lower_' in pb.name]}
+              'legs': [pb for pb in arm.pose.bones if leg(pb.name)],
+              'knees': [pb for pb in arm.pose.bones if leg(pb.name) and 'Lower_' in pb.name],
+              # CHAR.9c: other archetypes (winged / serpentine / aquatic). Pelvis and Root are never scaled
+              # (they carry the clip's whole-body pose and root motion)
+              'body': [pb for pb in arm.pose.bones if pb.name == 'Chest' or pb.name.startswith('Spine')],
+              'tail': [pb for pb in arm.pose.bones if pb.name.startswith('Tail') and not pb.name.startswith('TailVFX')],
+              'wings': [pb for pb in arm.pose.bones if pb.name.startswith('Wing')],
+              'fins': [pb for pb in arm.pose.bones if pb.name.startswith('Fin_')]}
+    groups = {g: pbs for g, pbs in groups.items() if any(g in c for c in AMP.values() if isinstance(c, dict))
+              or any(g in c.get('ramp_from', {}) for c in AMP.values() if isinstance(c, dict))}
+    for pbs in groups.values():
+        pbs[:] = [pb for pb in pbs if pb.name not in ('Root', 'Pelvis')]
     for pbs in groups.values():
         for pb in pbs: pb.rotation_mode = 'QUATERNION'
     plan = dict(AMP)
-    if 'Sleep' in AMP and 'Wake' in r['clips'] and 'Wake' not in AMP:
+    PIN = bool(CFG.get('pinTransitions', False))
+    clips = r['clips']
+
+    def const_k(cname, g):  # factor of a clip that is not eased (loops are the anchors of every transition)
+        return float(AMP.get(cname, {}).get(g, 1.0)) if isinstance(AMP.get(cname), dict) else 1.0
+    pins = {}  # (clip, 'start'|'end') -> partner clip whose factor that end must take (None = authored pose, 1)
+    if PIN:
+        # CHAR.9c: authored transitions (anim_qa TRANSITIONS) stay closed. A loop clip keeps one constant factor;
+        # the end of a one-shot clip that meets another clip takes that clip's factor if it is a loop, else 1
+        # (authored pose), easing to the clip's own factor over pinEase of its length. Replaces the Wake ramp.
+        for a_c, a_f, b_c, b_f in TRANSITION_ENDS:
+            if a_c in clips and b_c in clips:
+                if not clips[a_c].get('loop'): pins[(a_c, a_f)] = b_c if clips[b_c].get('loop') else None
+                if not clips[b_c].get('loop'): pins[(b_c, b_f)] = a_c if clips[a_c].get('loop') else None
+        for (cname, _e) in pins:
+            plan.setdefault(cname, {})
+    elif 'Sleep' in AMP and 'Wake' in clips and 'Wake' not in AMP:
         plan['Wake'] = {'ramp_from': AMP['Sleep']}
+
+    def smooth(x):
+        x = min(1.0, max(0.0, x)); return 3 * x * x - 2 * x * x * x
     for cname, cfg in plan.items():
-        c = r['clips'][cname]; n = max(1, c['end'] - c['start'])
+        c = clips[cname]; n = max(1, c['end'] - c['start'])
         for f in range(c['start'], c['end'] + 1):
             t = (f - c['start']) / n
             sc.frame_set(f)
@@ -162,6 +204,11 @@ if AMP:
                     k0 = cfg['ramp_from'].get(g, 1.0); k = k0 + (1.0 - k0) * (3 * t * t - 2 * t * t * t)
                 else:
                     k = cfg.get(g, 1.0)
+                    for e, u in (('start', t), ('end', 1.0 - t)):
+                        if (cname, e) in pins:
+                            partner = pins[(cname, e)]
+                            kt = const_k(partner, g) if partner else 1.0
+                            k = kt + (k - kt) * smooth(u / EASE)
                 if k == 1.0: continue
                 for pb in pbs:
                     pb.rotation_quaternion = Quaternion().slerp(pb.rotation_quaternion.copy(), k)

@@ -8,7 +8,7 @@ Một con rồng là **dữ liệu** đi qua **một dây chuyền chung**. Code
 2. **Dữ liệu loài**: thêm loài vào dữ liệu sinh học canonical. Chạy `python scripts/art/character/build_species_spec.py --check` và `build_archetypes.py --check`; archetype (quadruped, winged, serpentine, aquatic) và bộ clip được suy ra từ cách di chuyển của loài, không viết tay.
 3. **Cấu hình riêng** (chỉ những gì máy không đo được): `Assets/Dravio/Character/Data/asset-overrides.char8-production.json` → `species.<loài>`:
    - `limbCount` (số chân, hoặc `"auto"` rồi art director xác nhận), `yawOffset` nếu model quay ngang;
-   - `repair` (khi cần): `{"skinning": "linear", "seamWeld": true, "blendWidth_m": 0.24, "amplitude": {...}}`. `seamWeld` và `skinning: linear` nên bật cho mọi loài sau khi Emberling được duyệt.
+   - `repair`: `{"skinning": "linear", "seamWeld": true, "blendWidth_m": 0.24, "pinTransitions": true, "amplitude": {...}}`. Đã bật cho cả 16 loài. Phần `amplitude` không viết tay: chạy `tune_repair.py` (đo mọi frame, giảm biên độ nhóm xương gây lỗi, giữ tư thế chuyển tiếp, không bao giờ nới ngưỡng) rồi chép `best.config` vào đây. Clip nào nó báo NEEDS_ART thì phải sửa trọng số hoặc keyframe.
 4. **Chạy dây chuyền**:
    ```bash
    python scripts/art/character/batch_import.py ArtSource/Dragons/images <work> --bpy-module \
