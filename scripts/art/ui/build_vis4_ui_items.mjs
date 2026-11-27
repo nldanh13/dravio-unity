@@ -1,6 +1,6 @@
 function items(group="materials"){
  const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),rgb=h=>[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)),mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*cl(t));
- function layer(p,c,a){a=cl(a);let z=a+p[3]*(1-a);return z?[...c.map((v,i)=>(v*a+p[i]*p[3]*(1-a))/z),z]:[0,0,0,0]}
+ function layer(p,c,a){if(!Number.isFinite(a)||!c.every(Number.isFinite))throw Error("nonfinite layer");a=cl(a);let z=a+p[3]*(1-a);return z?[...c.map((v,i)=>(v*a+p[i]*p[3]*(1-a))/z),z]:[0,0,0,0]}
  function ell(x,y,cx,cy,rx,ry,ang=0){let dx=x-cx,dy=y-cy,u=dx*Math.cos(ang)+dy*Math.sin(ang),v=-dx*Math.sin(ang)+dy*Math.cos(ang);return (Math.hypot(u/rx,v/ry)-1)*Math.min(rx,ry)}
  function poly(x,y,pts){let d=1e9,inset=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){let [ax,ay]=pts[j],[bx,by]=pts[i],dx=bx-ax,dy=by-ay,t=cl(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy));d=Math.min(d,Math.hypot(x-ax-t*dx,y-ay-t*dy));if((ay>y)!=(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inset=!inset}return inset?-d:d}
  function seg(x,y,ax,ay,bx,by){let dx=bx-ax,dy=by-ay,t=cl(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy));return [Math.hypot(x-ax-t*dx,y-ay-t*dy),t]}
@@ -53,7 +53,7 @@ function items(group="materials"){
  }else if(id==="aether"){
  oval(257,259,145,162,"668EC9","CFF5F4","577EA6");oval(257,259,114,131,"8D8BDB","E1E9FA","8791C8");
  // bright airy spiral and star, not a gameplay assertion about physical form.
- for(let k=0;k<30;k++){let t=k/29,a=t*4.4,r=95*(1-t*.78),b=(k+1)/30*4.4,r2=95*(1-(k+1)/30*.78);stroke(256+r*Math.cos(a),259+r*Math.sin(a),256+r2*Math.cos(b),259+r2*Math.sin(b),8,"B7E9EF","F6FFEA","B7E9EF")}
+ for(let k=0;k<29;k++){let t=k/29,a=t*4.4,r=95*(1-t*.78),b=(k+1)/29*4.4,r2=95*(1-(k+1)/29*.78);stroke(256+r*Math.cos(a),259+r*Math.sin(a),256+r2*Math.cos(b),259+r2*Math.sin(b),8,"B7E9EF","F6FFEA","B7E9EF")}
  star(256,249,51,"FFF5C6","C4B471");star(376,116,35,"E7FFF9","A6C9DA");
  }else if(id==="blueprint"){
  shape([[114,128],[351,95],[402,142],[385,393],[144,419],[98,364]],"4D91BF","9AD8E8","3B7197");
@@ -73,7 +73,7 @@ function items(group="materials"){
  }
  return p}
  let b=[512,512,0,0];for(let y=0;y<512;y+=4)for(let x=0;x<512;x+=4)if(sample(x+2,y+2,1)[3]>.5){b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x+4);b[3]=Math.max(b[3],y+4)}
- let sc=(id==="aether"?390:409.6)/Math.max(b[2]-b[0],b[3]-b[1]),cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;
+ let sc=409.6/Math.max(b[2]-b[0],b[3]-b[1]),cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;
  let w=512,h=512,pixels=new Uint8Array(w*h*4),bounds=[512,512,0,0],alpha=[0,0,0];
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){let p=sample(cx+(x+.5-256)/sc,cy+(y+.5-256)/sc,sc),i=(y*w+x)*4,a=Math.round(cl(p[3])*255);for(let k=0;k<3;k++)pixels[i+k]=Math.round(cl(a?p[k]:[153,130,94][k],0,255));pixels[i+3]=a;alpha[a===0?0:a===255?2:1]++;if(a>127){bounds[0]=Math.min(bounds[0],x);bounds[1]=Math.min(bounds[1],y);bounds[2]=Math.max(bounds[2],x);bounds[3]=Math.max(bounds[3],y)}}
  let coverage=Math.max(bounds[2]-bounds[0]+1,bounds[3]-bounds[1]+1)/512;if(coverage<.75||coverage>.85||!alpha[0]||!alpha[2])throw Error("coverage "+id+" "+coverage);

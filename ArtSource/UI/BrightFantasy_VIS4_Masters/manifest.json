@@ -1236,19 +1236,19 @@
         0
       ],
       "alpha": {
-        "transparent": 250917,
-        "partial": 1084,
-        "opaque": 10143
+        "transparent": 147620,
+        "partial": 1542,
+        "opaque": 112982
       },
       "bounds": [
-        64,
-        49,
-        456,
-        465
+        76,
+        43,
+        443,
+        461
       ],
-      "coverage": 0.814453125,
-      "bytes": 20174,
-      "blob": "a3606b22405ca48a880343b85ca5aabe5b865bd0"
+      "coverage": 0.818359375,
+      "bytes": 130471,
+      "blob": "961fe673fc31fcb1cee3546fd787784ae8724066"
     },
     {
       "id": "item:pack_starter",
@@ -1454,8 +1454,8 @@
   },
   "itemsPreview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_items.png",
-    "blob": "9df6d25fce3c5432f60d49fdf85e8e9629efbce9",
-    "bytes": 143442,
+    "blob": "5d15eea71f3ed13f6b2f541e790ab4f6a91251b2",
+    "bytes": 154964,
     "notes": "13 new item shapes, 110/32/24 px; excludes previously committed gold/egg/fruit and item leaf shared with function leaf. Source composite, not Unity."
   }
 }
