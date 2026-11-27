@@ -234,3 +234,25 @@ Bố cục vẫn chờ composition review (mục 5.4); không đặt asset nào 
 - **FBX thử (staging, không vào Assets):** `vis4b/v3_vis8/staged_fbx/` gồm Cottage/Lookout v2, Hills v3, Bloom, Fern, Mushroom. Alpha màu đỉnh = 0, 1 kênh UV, slot `ENV_Architecture`. Import lại: tris khớp, bounds lệch 0 mm, đáy Z = 0.
 - **Ngân sách tris (giới hạn < 60 000):** scene hiện tại 34 472. Thêm Cottage + Lookout + Hills: 41 684. Thêm 1 bộ thực vật (mỗi loại 1 cụm): 45 032. Tối đa khoảng 5 bộ thực vật trước khi chạm giới hạn. Material: +1 (`M_ENV_Architecture`) nếu được duyệt, tổng 5/10. Texture: không đổi.
 - **Vẫn chờ:** quyết định của chủ dự án về `M_ENV_Architecture` (AI3 cũng đề xuất cách này) và buổi review bố cục. Chưa đặt asset nào vào scene thật. Unity/thiết bị: NOT RUN.
+
+## 13. Nước VIS.9 (#92 `7502a66`) và mesh nước VIS.3d
+
+Đã merge `7502a66` vào nhánh QA. Head này không sửa file nào trong `Assets/`.
+
+### 13.1 Texture `ArtSource/Origin_VIS9_Water` (decode bằng Pillow/numpy)
+| Texture | Định dạng | Alpha | Nối mép U (mép / kề nhau) | Nối mép V |
+|---|---|---|---|---|
+| T_VIS9_Waterfall_Silk 256² | RGBA8 | 173–232 | 4.48 / 2.87 | 0.40 / 0.40 |
+| T_VIS9_Stream_Curved_Ripples 256² | RGBA8 | 168–214 | 1.51 / 0.72 | 3.18 / 2.08 |
+| T_VIS9_Foam_Loop_16 512² (4×4) | RGBA8 | 0–252 | 0.00 | 0.00 |
+
+- Lát 2×2 không thấy đường nối (`vis4b/vis9_water/vis9_water_tile_2x2.png`). Chênh lệch ở mép chỉ cỡ 1.5–2 lần chênh lệch giữa hai pixel kề nhau, tức vài mức trên 255.
+- Foam: khoảng trống trong suốt nhỏ nhất 18 px ở mọi ô. Thay đổi alpha giữa các khung trung bình 3.36, lớn nhất 4.02; khung 15 → 0 là 3.76, nên vòng lặp liền mạch (khớp số AI3 báo).
+- **Chưa tích hợp:** `Painterly Water` chỉ đọc RGB, còn alpha đỉnh điều khiển bờ. Dùng các texture này cần material/shader nước chảy mới hoặc particle foam, tức là phải sửa shader/scene, nằm ngoài phạm vi khi chưa có duyệt.
+- **Ngân sách texture:** giới hạn 6 MiB trong code (`ZoneEnvironmentBuilder.TextureBudgetBytes`) chỉ áp cho scene Ocean/Sky. Origin không có cổng kiểm tra texture; ước tính RGBA32 + mips cho 5 texture Origin hiện tại là **khoảng 11.0 MiB**. Thêm cả 3 texture VIS.9 là khoảng +2.0 MiB. Cần chủ dự án quyết định ngân sách texture cho Origin trước khi thêm.
+
+### 13.2 Mesh `ArtSource/Origin_VIS3d/Models` (Blender 5.3 bpy + glTF-Validator)
+- Validator 0 lỗi. Hai mesh đá có info `UNUSED_OBJECT TEXCOORD_0` (UV thừa, vô hại). Winding ngược 0, island lật 0, non-manifold 0, mặt suy biến 0.
+- Tris: Waterfall Rock Frame 1764, Waterfall Surface 432, Stream Surface 384, Bank Stone Cluster 980; tổng 3560. Nếu thêm vào sau mục 12: 45 032 → **48 592** (< 60 000).
+- **[Medium, AI3] Waterfall Surface là tấm một mặt, mặt trước quay glTF +Z.** Theo quy ước v2 (camera ở phía −Z), camera Origin sẽ nhìn vào mặt sau; render tô đỏ toàn bộ tấm nước (`vis3d_glb_backface_check.png`). Cần xoay 180°, đảo mặt, hoặc dùng material `Cull Off`. Rock Frame đối xứng nên không bị ảnh hưởng.
+- [Low] Pivot: Stream Surface có tâm Z lệch 2.25 m (pivot ở một đầu dòng suối), Bank Stones lệch 0.91 m, Waterfall Surface đáy Y = 0.09 (cố ý để khớp pivot chung với Rock Frame theo README). Ghi lại để khi đặt không bị nhầm.
