@@ -1,0 +1,5 @@
+# VIS.12 — Flora LOD1 candidates
+
+Lower tessellation of all three VIS8/VIS10 flora clusters. Retains flowers, leaf count and mushroom count, palette and placement convention. Indexed vertices deduplicated by complete attribute tuples (not position alone), preserving normals, RGB, wind alpha and UV. Wind for flowers and fern, mushroom alpha zero. Combined one-of-each 1648 tris vs 3348. No texture required. Original assets intact.
+
+Use one LOD per instance, never draw both at once. Origin's orthographic camera does not benefit from distance-only LOD switching: choose by projected pixel height, Focus mode and quality tier. Proposed: normal view LOD1 for small accents, original wind mesh only if clearly visible in Focus; use existing cards for distant coverage. Avoid transition crossfade if it doubles draw cost. Actual silhouette/pop, screen coverage, FBX import/vertex colors, Unity and Android NOT RUN. Do not add colliders, gameplay, materials or runtime code. Reproduce `node scripts/art/environment/build_origin_vis12_flora_lod.mjs <new-dir>`. All variants pass internal numeric gates only.

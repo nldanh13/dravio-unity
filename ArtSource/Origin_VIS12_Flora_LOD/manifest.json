@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "status": "source LOD1 candidates; not Unity LODGroup or approved runtime",
+  "assets": [
+    {
+      "name": "Origin_Bloom_Cluster_LOD1",
+      "triangles": 552,
+      "vertices": 354,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.31968924403190613,
+          -2.4091761571809478e-11,
+          -0.1587883085012436
+        ],
+        "max": [
+          0.34268879890441895,
+          0.5560916662216187,
+          0.2791866958141327
+        ]
+      },
+      "bytes": 21668,
+      "anchors": 72,
+      "maxAlpha": 1,
+      "uniquePositions": 330,
+      "samplePoses": 216,
+      "windStrength": 0.012,
+      "maxSampleDisplacementM": 0.05019698832464615,
+      "minFaceNormalDot": 0.9903532619829623,
+      "minAreaRatio": 0.9363083267915452,
+      "maxAreaRatio": 1.0585254357435114,
+      "unindexedVertices": 1656,
+      "baselineTriangles": 1164,
+      "reduction": 0.5257731958762887,
+      "maxExtentDelta": 0.01381327024594366,
+      "maxCenterDelta": 0.007230318656444537,
+      "path": "ArtSource/Origin_VIS12_Flora_LOD/Origin_Bloom_Cluster_LOD1.glb",
+      "blob": "fc2226bbfd491aec65ed11958ee49fd75489bd46"
+    },
+    {
+      "name": "Origin_Fern_Rosette_LOD1",
+      "triangles": 616,
+      "vertices": 462,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.33362969756126404,
+          -4.1119141425127737e-10,
+          -0.30047816038131714
+        ],
+        "max": [
+          0.3375949561595917,
+          0.22351767122745514,
+          0.3515533208847046
+        ]
+      },
+      "bytes": 27236,
+      "anchors": 35,
+      "maxAlpha": 1,
+      "uniquePositions": 400,
+      "samplePoses": 216,
+      "windStrength": 0.012,
+      "maxSampleDisplacementM": 0.05058622092979541,
+      "minFaceNormalDot": 0.9634260495753759,
+      "minAreaRatio": 0.8398999997417448,
+      "maxAreaRatio": 1.187189731198217,
+      "unindexedVertices": 1848,
+      "baselineTriangles": 1512,
+      "reduction": 0.5925925925925926,
+      "maxExtentDelta": 0.011223977580229437,
+      "maxCenterDelta": 0.0025246502516937386,
+      "path": "ArtSource/Origin_VIS12_Flora_LOD/Origin_Fern_Rosette_LOD1.glb",
+      "blob": "aa0d33b38ef9211a41147bde8a9c96fa51c6387c"
+    },
+    {
+      "name": "Origin_Coral_Mushroom_Cluster_LOD1",
+      "triangles": 480,
+      "vertices": 348,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3499999940395355,
+          0,
+          -0.22499999403953552
+        ],
+        "max": [
+          0.375,
+          0.5335999727249146,
+          0.2800000011920929
+        ]
+      },
+      "bytes": 20932,
+      "anchors": 1440,
+      "maxAlpha": 0,
+      "uniquePositions": 252,
+      "samplePoses": 216,
+      "windStrength": 0,
+      "maxSampleDisplacementM": 0,
+      "minFaceNormalDot": 0.9999999999999996,
+      "minAreaRatio": 1,
+      "maxAreaRatio": 1,
+      "unindexedVertices": 1440,
+      "baselineTriangles": 672,
+      "reduction": 0.2857142857142857,
+      "maxExtentDelta": 5.111522753457302e-8,
+      "maxCenterDelta": 1.3637542706224082e-8,
+      "path": "ArtSource/Origin_VIS12_Flora_LOD/Origin_Coral_Mushroom_Cluster_LOD1.glb",
+      "blob": "de56da4352be385cfebbf42ec7b4e377c19b6f4a"
+    }
+  ],
+  "baselineTriangles": 3348,
+  "totalTriangles": 1648,
+  "reduction": 0.5077658303464755,
+  "checks": "finite positions, normalized normals, nondegenerate triangles, 216 local shader wind samples per mesh, fixed anchors, bounds max extent delta <=12%, max center delta <=4cm, exact float32 attribute tuple indexing and reconstruction, deterministic bytes",
+  "scope": "replacement LOD candidates only; no new texture or collider",
+  "limitations": "Simplified procedural shapes, not silhouette-equivalent by render; no visibility or occluded geometry optimization, no external validator/Blender/Unity/device run. FBX conversion must preserve RGBA and normals."
+}

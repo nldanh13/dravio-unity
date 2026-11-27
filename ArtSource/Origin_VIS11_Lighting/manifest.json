@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "status": "cosmetic art candidates; not runtime config",
+  "assets": [
+    {
+      "name": "T_VIS11_Canopy_Soft_Shaft",
+      "width": 128,
+      "height": 128,
+      "format": "RGBA8, white RGB/straight alpha",
+      "maxAlpha": 173,
+      "nonzeroAlpha": 3932,
+      "minTransparentGutterPx": 13,
+      "rgba32Level0Bytes": 65536,
+      "bytes": 65750,
+      "path": "ArtSource/Origin_VIS11_Lighting/T_VIS11_Canopy_Soft_Shaft.png",
+      "blob": "c1fefb519afc8371c87fcf70566228d080748577"
+    },
+    {
+      "name": "T_VIS11_Canopy_Dapple",
+      "width": 128,
+      "height": 128,
+      "format": "RGBA8, white RGB/straight alpha",
+      "maxAlpha": 217,
+      "nonzeroAlpha": 2716,
+      "minTransparentGutterPx": 21,
+      "rgba32Level0Bytes": 65536,
+      "bytes": 65750,
+      "path": "ArtSource/Origin_VIS11_Lighting/T_VIS11_Canopy_Dapple.png",
+      "blob": "c8e148d1eb7c92bad1f975db7d719206f058b2e5"
+    }
+  ],
+  "rgba32Level0Bytes": 131072,
+  "profileBaseline": "PR #89 9c15e2e / OriginSanctuaryLiving.json",
+  "frames": [
+    {
+      "hour": 0,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 3,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 4.8,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 5,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 5.05,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 6,
+      "shaft": 0.1414,
+      "dapple": 0.0129
+    },
+    {
+      "hour": 8,
+      "shaft": 0.2967,
+      "dapple": 0.1855
+    },
+    {
+      "hour": 13,
+      "shaft": 0.1961,
+      "dapple": 0.2
+    },
+    {
+      "hour": 16.5,
+      "shaft": 0.2967,
+      "dapple": 0.1855
+    },
+    {
+      "hour": 18.3,
+      "shaft": 0.1135,
+      "dapple": 0.0044
+    },
+    {
+      "hour": 19.2,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 19.4,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 19.45,
+      "shaft": 0,
+      "dapple": 0
+    },
+    {
+      "hour": 21,
+      "shaft": 0,
+      "dapple": 0
+    }
+  ],
+  "maxOpacitySlopePerGameHour": 0.14884210526315786,
+  "checks": "finite mask alpha, transparent gutters, visible mask range, stored PNG roundtrip, repeat deterministic, ordered lighting keys, zero night and zero at sun/moon switches",
+  "limitations": "Not a true volumetric light or projected shadow. No occlusion, HDR, shader, light, scene placement, or runtime implementation. Blender/Unity/device NOT RUN."
+}
