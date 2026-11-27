@@ -35,12 +35,13 @@ Material:
     - _Patches: 0.5
     - _RotateB: 0.52
     - _ScaleB: 1.31
-    - _Warp: 0.05
+    - _TexScale: 0.5
+    - _Warp: 0.04
     - _WarpSpeed: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _NoiseRange: {r: 0.02, g: 0.38, b: 0, a: 0}
-    - _ScrollB: {r: -0.015, g: 0.011, b: 0, a: 0}
+    - _NoiseRange: {r: 0.05, g: 0.3, b: 0, a: 0}
+    - _ScrollB: {r: -0.008, g: 0.006, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &8012648000378981638

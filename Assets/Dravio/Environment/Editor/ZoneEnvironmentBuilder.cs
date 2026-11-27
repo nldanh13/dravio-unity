@@ -497,12 +497,13 @@ namespace Dravio.EnvironmentArt.EditorTools
             m.SetColor("_BaseColor", Color.white);
             m.SetFloat("_ScaleB", 1.31f);
             m.SetFloat("_RotateB", 0.52f);
-            m.SetVector("_ScrollB", new Vector4(-0.015f, 0.011f, 0f, 0f));
+            m.SetVector("_ScrollB", new Vector4(-0.008f, 0.006f, 0f, 0f));
             m.SetFloat("_Mix", 0.35f);
-            m.SetFloat("_Warp", 0.05f);
+            m.SetFloat("_Warp", 0.04f);
+            m.SetFloat("_TexScale", 0.5f);
             m.SetFloat("_WarpSpeed", 1f);
             m.SetFloat("_Patches", 0.5f);
-            m.SetVector("_NoiseRange", new Vector4(0.02f, 0.38f, 0f, 0f));
+            m.SetVector("_NoiseRange", new Vector4(0.05f, 0.30f, 0f, 0f));
             m.SetFloat("_Intensity", 3f);
             m.renderQueue = (int)RenderQueue.Transparent;
             EditorUtility.SetDirty(m);

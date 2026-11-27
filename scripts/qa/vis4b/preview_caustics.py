@@ -34,15 +34,15 @@ tint, strength = np.array([0.8, 1, 1]), 0.11
 
 
 
-def new(t, warp=0.05, mix=0.35, patches=0.5, rng=(0.02, 0.38), intensity=3.0):
+def new(t, warp=0.04, mix=0.35, patches=0.5, rng=(0.05, 0.30), intensity=3.0, ts=0.5):
     noise = lambda uu, vv: np.clip((bil(MIP5, uu, vv) - rng[0]) / (rng[1] - rng[0]), 0, 1)
     n1 = noise(u * 0.37 + 0.031 * t, v * 0.37 - 0.019 * t)
     n2 = noise(u * 0.29 + 0.41 - 0.023 * t, v * 0.29 + 0.17 + 0.027 * t)
-    ua = u + (n1 - n2) * warp; va = v + (n1 + n2 - 1) * warp
+    ua = u * ts + (n1 - n2) * warp; va = v * ts + (n1 + n2 - 1) * warp
     c, s = np.cos(0.52), np.sin(0.52)
     bu = ua * 1.31 + 0.37; bv = va * 1.31 + 0.21
-    a = bil(NEW, ua + scrollA[0] * t, va + scrollA[1] * t)
-    b = bil(NEW, bu * c - bv * s - 0.015 * t, bu * s + bv * c + 0.011 * t)
+    a = bil(NEW, ua + scrollA[0] * t * ts, va + scrollA[1] * t * ts)
+    b = bil(NEW, bu * c - bv * s - 0.008 * t, bu * s + bv * c + 0.006 * t)
     k = np.clip(a * (1 - mix) + np.minimum(a, b) * mix * 2, 0, 1)
     m = np.clip((n1 * n2 - 0.10) / 0.40, 0, 1); m = 1 + (m * m * (3 - 2 * m) - 1) * patches
     return np.clip(k * m * intensity, 0, 1 / strength)

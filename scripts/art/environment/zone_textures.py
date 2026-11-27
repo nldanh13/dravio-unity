@@ -550,13 +550,15 @@ def fx_rgba(alpha, rgb=(255, 255, 255)):
     return out
 
 
-def fx_caustics(seed=31, size=256, supersample=4, depth=0.16, waves=24, kmin=2, kmax=4, amp=0.012):
+def fx_caustics(seed=31, size=256, supersample=4, depth=0.08, waves=40, kmin=4, kmax=8, amp=0.012):
     """Seamless caustic web, photon traced (VIS.4b follow-up).
 
     A periodic wave height field (integer wave vectors, so it tiles) refracts a uniform grid of
     light rays onto a flat floor `depth` below; rays are binned with wrap-around. Bright lines
     are where the surface focuses light, like real pool / shallow-sea caustics.
-    Wave numbers 2..4 per tile give about 20-25 cells per tile (owner asked for a sparser web).
+    Wave numbers 4..8 with 40 waves: an irregular web. The caustics shader samples it at
+    _TexScale 0.5, so on screen the cell size matches the sparser look the owner chose while the
+    pattern repeats only every 2 material tiles.
     """
     rng = np.random.default_rng(seed)
     n = size * supersample
