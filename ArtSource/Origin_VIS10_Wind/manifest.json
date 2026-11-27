@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "status": "source candidate, wind metadata only; glTF standard material preview is static and vertex alpha may affect other renderers",
+  "baseline": "7502a66e6760dd9d68ab57e0f00396772d5ff517",
+  "assets": [
+    {
+      "name": "Origin_Bloom_Cluster_Wind",
+      "triangles": 1164,
+      "vertices": 3492,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3114235997200012,
+          -5.35998675998961e-12,
+          -0.16816715896129608
+        ],
+        "max": [
+          0.34192952513694763,
+          0.5560949444770813,
+          0.2741049528121948
+        ]
+      },
+      "bytes": 168820,
+      "anchors": 108,
+      "maxAlpha": 1,
+      "uniquePositions": 636,
+      "samplePoses": 216,
+      "windStrength": 0.012,
+      "maxSampleDisplacementM": 0.05028714164250151,
+      "minFaceNormalDot": 0.9906684810616833,
+      "minAreaRatio": 0.9311395096922307,
+      "maxAreaRatio": 1.0737981203493336,
+      "path": "ArtSource/Origin_VIS10_Wind/Origin_Bloom_Cluster_Wind.glb",
+      "blob": "21696effc657888bc0e89969c9ffd20abac2ebf3"
+    },
+    {
+      "name": "Origin_Fern_Rosette_Wind",
+      "triangles": 1512,
+      "vertices": 4536,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3342534899711609,
+          4.315711676916578e-11,
+          -0.29997381567955017
+        ],
+        "max": [
+          0.33786740899086,
+          0.22103676199913025,
+          0.34599965810775757
+        ]
+      },
+      "bytes": 218932,
+      "anchors": 182,
+      "maxAlpha": 1,
+      "uniquePositions": 848,
+      "samplePoses": 216,
+      "windStrength": 0.012,
+      "maxSampleDisplacementM": 0.0505959975695124,
+      "minFaceNormalDot": 0.9415927482369679,
+      "minAreaRatio": 0.8647240252613355,
+      "maxAreaRatio": 1.143190427074802,
+      "path": "ArtSource/Origin_VIS10_Wind/Origin_Fern_Rosette_Wind.glb",
+      "blob": "4325458274c6c2bc228321b264edf81fd41caa0b"
+    }
+  ],
+  "materialRecommendation": {
+    "shader": "Dravio/Environment/Painterly Lit",
+    "baseMap": "white",
+    "vertexAO": 1,
+    "pathBlend": 0,
+    "windStrength": 0.012,
+    "windSpeed": 1.6,
+    "alphaClip": 0,
+    "cull": 2
+  },
+  "scope": "replace VIS8 bloom/fern if approved; mushroom static; no new triangles, texture or runtime changes",
+  "checks": "216 local-space samples per mesh of baseline shader wind equation; grounded weights zero, coincident positions identical, finite normals and nondegenerate source faces, face normal dot/area ratio, deterministic bytes",
+  "limitations": "Not Blender or Unity, not exact shader floating point; local unit scale and sampled phases, conservative strength proposed. Normals not bent by shader; actual bounds/culling, FBX alpha/color import and visual approval pending."
+}
