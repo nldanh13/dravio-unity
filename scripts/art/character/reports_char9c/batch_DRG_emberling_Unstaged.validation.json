@@ -1,0 +1,116 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "model": "/tmp/claude-0/-home-claude/01bd743f-a97b-554b-879f-0798b1e57209/scratchpad/work_c9c/assets/DRG_emberling_Unstaged/DRG_emberling_Unstaged_LODs.fbx",
+  "errors": 0,
+  "warnings": 8,
+  "items": [
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD0 24000 tris within 15000-25000",
+      "lod": 0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD1 9999 tris within 8000-12000",
+      "lod": 1
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD2 4000 tris within 3000-5000",
+      "lod": 2
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_emberling_Unstaged_LOD2: 1597 UV faces (39.92%) flipped_faces > 1.0%",
+      "mesh": "DRG_emberling_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_emberling_Unstaged_LOD2: 487 loose vertices",
+      "mesh": "DRG_emberling_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_emberling_Unstaged_LOD2: 3460 non-manifold/boundary edges after weld",
+      "mesh": "DRG_emberling_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_emberling_Unstaged_LOD0: 9823 UV faces (40.93%) flipped_faces > 1.0%",
+      "mesh": "DRG_emberling_Unstaged_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_emberling_Unstaged_LOD1: 4099 UV faces (40.99%) flipped_faces > 1.0%",
+      "mesh": "DRG_emberling_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_emberling_Unstaged_LOD1: 3381 non-manifold/boundary edges after weld",
+      "mesh": "DRG_emberling_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "TEXTURE_SIZE",
+      "message": "Image_0: 2048x2048 > recommended 1024"
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD0 rest p95 deviation 0.000% (limit 0.40%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD0 worst deformed p95 deviation 0.000% (limit 0.60%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD1 rest p95 deviation 0.048% (limit 1.00%)",
+      "lod": 1,
+      "value": 0.00048053997137148134
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD1 worst deformed p95 deviation 0.055% (limit 1.40%)",
+      "lod": 1,
+      "value": 0.0005455044500864352
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD2 rest p95 deviation 0.202% (limit 2.50%)",
+      "lod": 2,
+      "value": 0.0020164624106959687
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD2 worst deformed p95 deviation 0.225% (limit 3.00%)",
+      "lod": 2,
+      "value": 0.0022464821120187282
+    },
+    {
+      "level": "warning",
+      "code": "LOD_TEXTURE_DRIFT",
+      "message": "LOD2 Base Color drift p95 10.1/255",
+      "lod": 2
+    }
+  ],
+  "note": "Structural/numeric gate only; visual, Unity import and device checks are separate."
+}

@@ -14,8 +14,11 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `run_selftest.py`, `selftest_checks.py` | Blender | End-to-end run + cross-checks on the TEST models |
 | `build_archetypes.py` | Python only | Rig/animation archetype + clip set per species from canonical locomotion/silhouette (`--check`) |
 | `rig_archetype.py` | Blender | Rig v2: archetype skeleton placed on measured landmarks (`rig_geometry.py`), chain weights + bounded blend bands, ≤4 influences, species clips with ground clearance and wing limits, deformation check |
+| `repair_chibi_rig.py` | Blender | CHAR.9b, opt-in per species (`repair` in the overrides; batch step after `rig_archetype`): linear skinning as Unity (`skinning`), Neck/Head share, geodesic weight blend around sharp leg–body transitions, anatomy-aware clip amplitude (`head`, `legs`, `knees`) |
+| `export_emberling_legacy_contract.py` | Blender | CHAR.9: rig v7 Emberling → `Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx` (22-bone / 5-clip contract of `EmberlingAssetAudit`) + `_contract_rig.json` so `anim_qa.py` can measure the export and the re-imported FBX |
+| `measure_skin_deformation.py` | Blender | Worst-frame stretch/compression (stricter diagnostic than `anim_qa.py`'s pooled percentiles) |
 | `rig_geometry.py` | Python + numpy | Geometric body plan: slices, feet from ground contacts, head/tail, manual landmarks, weight helpers, gait tracks |
-| `anim_qa.py` | Blender | Animation QA per model: stretch/compression, foot sliding, ground penetration, contact gap, moonwalk, loops, bounds, facing, wing-body penetration, weights, bone orientation, height, LODs → `<Name>_animqa.json` (+ `.png` with `--images`) |
+| `anim_qa.py` | Blender | Animation QA per model (`--samples all --strict-frame`: every frame, limits also on the worst single frame, seam-crack check; default stays 8 pooled frames): stretch/compression, foot sliding, ground penetration, contact gap, moonwalk, loops, bounds, facing, wing-body penetration, weights, bone orientation, height, LODs → `<Name>_animqa.json` (+ `.png` with `--images`) |
 | `compare_animqa.py` | Python only | Before/after table of two folders of `*_animqa.json` (Vietnamese markdown) |
 | `run_u4_local.ps1` | Windows, Blender, Python | Local U1-CHAR.4 run on your own GLBs: QA of the old rig, v2 batch, before/after report, source hash check |
 | `run_u5_local.ps1` | Windows, Blender, Python (+ Unity optional) | Local U1-CHAR.5 run on your own GLBs: QA of the U4 rig, v3 batch, before/after, `build_character_reports.py`, optional Unity batch import + EditMode tests, source hash check |
@@ -25,7 +28,10 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `build_prop.py` | Blender | Static environment prop: pivot, LODs (prop profiles), simple collider, size metadata; never rigged |
 | `batch_import.py` | Blender | Batch: source folder check, filename (+ aliases) -> species/stage or prop category, per-species/per-file overrides, cache on source + pipeline + config hashes, full chain incl. animation QA, Unity staging + `import-manifest.json` (approved assets never re-delivered), report |
 | `make_sample_library.py` | Blender | Procedural "generator-like" SAMPLE GLBs for the batch test (never shipped) |
+| `audit_source_glbs.py` | Blender | CHAR.9c: read-only audit of the original dragon GLBs (glTF container + welded geometry: topology, islands, winding, UV mirroring, textures, scale, skins/animations), SHA-256 checked |
+| `verify_contract_fbx.py` | Blender | CHAR.9c: check the Unity contract FBX as Unity sees it (empty scene, linear skinning, every frame): 22-bone contract, weights, worst-frame stretch/compression, ground, seam cracks; optional Cycles renders |
+| `measure_contact_clearance.py` | Blender (+ PyYAML, Pillow for the map) | CHAR.9c: swept root-relative reach of the contract FBX (every frame) against a zone's real navigation data (walkClearance, obstacle footprints) and the dragon-to-dragon spacing; clipping depth per walkable point and yaw |
 | `tests/` | Python only | `python -m unittest discover -s scripts/art/character/tests` |
 
 All Blender scripts accept arguments after `--` and also run with the `bpy` module
-(`pip install bpy==5.3.*`, then `python script.py <args>`). No tool writes to its input file.
+(`pip install bpy==5.3.*`, then `python script.py <args>`). No tool writes to its input file, except `repair_chibi_rig.py`, which edits the batch's own `_Rigged.blend` / `_rig.json` in the work folder (never a source GLB). `anim_qa.py` reports `skinning`: Unity plays `linear`; rig v7 alone leaves Blender on dual quaternion.

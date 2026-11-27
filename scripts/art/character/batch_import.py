@@ -40,11 +40,11 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 BUDGETS = REPO / 'Assets/Dravio/Character/Data/character-budgets.json'
 ARCHETYPES = REPO / 'Assets/Dravio/Character/Data/dragon-archetypes.json'
-PIPELINE_VERSION = 'u1-char8-v2'  # CHAR.8: rig_geometry splits close paws, ignores tail-tip contacts, symmetric about the feet midline
+PIPELINE_VERSION = 'u1-char9b-v1'  # CHAR.8: rig_geometry splits close paws, ignores tail-tip contacts, symmetric about the feet midline
 PROFILES = REPO / 'Assets/Dravio/Character/Data/rig-profiles.json'
 # Every script and data file whose change must re-process an asset (cache fingerprint).
 PIPELINE_FILES = ['batch_import.py', 'char_common.py', 'inspect_character.py', 'prepare_character.py',
-                  'rig_archetype.py', 'rig_geometry.py', 'anim_qa.py', 'build_lods.py', 'build_prop.py',
+                  'rig_archetype.py', 'rig_geometry.py', 'repair_chibi_rig.py', 'anim_qa.py', 'build_lods.py', 'build_prop.py',
                   'validate_character.py']
 STAGES = ['Baby', 'Juvenile', 'Adult']
 SHIM = "import runpy, sys\nscript = sys.argv[1]\nsys.argv = ['blender', '--'] + sys.argv[2:]\nrunpy.run_path(script, run_name='__main__')\n"
@@ -149,7 +149,7 @@ def load(p):
     return json.loads(Path(p).read_text(encoding='utf-8'))
 
 
-def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False):
+def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False, qa_strict=False):
     name = f"DRG_{info['species']}_{info['stage']}"
     d = out / 'assets' / name
     d.mkdir(parents=True, exist_ok=True)
@@ -182,6 +182,13 @@ def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False):
                      f"an unambiguous measurement of the mesh. Static LODs produced instead.")
     elif step('rig_archetype', r.blender(HERE / 'rig_archetype.py', prepared, d, *rig_args, ow)):
         rigged = load(d / f'{name}_rig.json')
+        if ov.get('repair'):  # CHAR.9b: chibi skin/motion repair (repair_chibi_rig.py), configured per species/file
+            if step('repair_chibi_rig', r.blender(HERE / 'repair_chibi_rig.py', d / f'{name}_Rigged.blend',
+                                                  d / f'{name}_rig.json', '--config', json.dumps(ov['repair']))):
+                rigged = load(d / f'{name}_rig.json')
+                notes.append('CHAR.9b chibi rig repair applied: ' + json.dumps(ov['repair']))
+            else:
+                notes.append('CHAR.9b chibi rig repair FAILED; unrepaired rig kept: ' + steps[-1].get('error', ''))
         if rigged.get('limbCountSource', '').startswith('mesh measurement'):
             notes.append(f"limbCount {rigged['limbCount']} taken from the mesh measurement (--limb-count auto): "
                          f"{rigged.get('limbMeasurement')}. Confirm with the art director.")
@@ -201,6 +208,8 @@ def process_dragon(r, src, info, out, ov, budgets, arch, qa_images=False):
         qa_args = [d / f'{name}_Rigged.blend', d / f'{name}_rig.json', d, '--lods-json', d / f'{name}_lods.json', ow]
         if qa_images:
             qa_args.append('--images')
+        if qa_strict:  # CHAR.9c: every frame, limits also on the worst single frame, seam cracks
+            qa_args += ['--samples', 'all', '--strict-frame']
         if step('anim_qa', r.blender(HERE / 'anim_qa.py', *qa_args)):
             qa = load(d / f'{name}_animqa.json')
             if qa['warnings']:
@@ -327,6 +336,8 @@ def main(argv=None):
     ap.add_argument('--unity-out', type=Path, help='e.g. Assets/Dravio/Character/Imported')
     ap.add_argument('--overrides', type=Path, help='asset-overrides.json (art director/GDD inputs)')
     ap.add_argument('--force', action='store_true', help='Reprocess even if hashes are unchanged')
+    ap.add_argument('--qa-strict', action='store_true',
+                    help='CHAR.9c: anim_qa on every frame, worst-frame limits and seam-crack check (recommended)')
     ap.add_argument('--qa-images', action='store_true', help='Render the animation QA contact sheet per dragon')
     a = ap.parse_args(argv)
     src_dir = a.source_dir.resolve()
@@ -360,7 +371,7 @@ def main(argv=None):
         ov_key = json.dumps(ov, sort_keys=True)
         lm_hash = sha256(ov['landmarks']) if ov.get('landmarks') and Path(ov['landmarks']).exists() else ''
         # source, pipeline scripts + data (rig, animation, QA, config), overrides and landmark file
-        fingerprint = hashlib.sha256(f'{h}|{pipe}|{ov_key}|{lm_hash}'.encode()).hexdigest()
+        fingerprint = hashlib.sha256(f'{h}|{pipe}|{ov_key}|{lm_hash}{"|strict" if a.qa_strict else ""}'.encode()).hexdigest()
         res = {'file': rel, 'sha256': h, **info}
         if info['kind'] == 'unrecognized':
             res['status'] = 'unrecognized'
@@ -377,7 +388,7 @@ def main(argv=None):
         print(f'> {rel}: {info["kind"]} {info.get("species") or info.get("category")}')
         out = work
         if info['kind'] == 'dragon':
-            steps, notes, done = process_dragon(r, src, info, out, ov, budgets, arch, a.qa_images)
+            steps, notes, done = process_dragon(r, src, info, out, ov, budgets, arch, a.qa_images, a.qa_strict)
         else:
             steps, notes, done = process_prop(r, src, info, out, ov)
         if sha256(src) != h:

@@ -1,5 +1,5 @@
 {
-  "_comment": "CHAR.8 production run on ArtSource/Dragons/images (16 real GLBs, commit 0561a42). limbCount \"auto\" = rig only when the mesh measurement is unambiguous (2 or 4 feet, high confidence), otherwise refused with the measurement in the report. These are NOT GDD values: replace with the art director's number once confirmed. emberling, sprout, amberhorn state \"bốn chân\" in canonical data; frostfin and leviathan have no walking limbs. files.03_sprout.yawOffset 90: the source GLB faces -X (measured in the CHAR.8 front render); +90° about +Z turns it to the pipeline's -Y front. Not a biology change.",
+  "_comment": "CHAR.8 production run on ArtSource/Dragons/images (16 real GLBs, commit 0561a42). limbCount \"auto\" = rig only when the mesh measurement is unambiguous (2 or 4 feet, high confidence), otherwise refused with the measurement in the report. These are NOT GDD values: replace with the art director's number once confirmed. emberling, sprout, amberhorn state \"bốn chân\" in canonical data; frostfin and leviathan have no walking limbs. files.03_sprout.yawOffset 90: the source GLB faces -X (measured in the CHAR.8 front render); +90° about +Z turns it to the pipeline's -Y front. Not a biology change. species.emberling.repair (CHAR.9b): chibi skin/motion repair measured on the real Emberling GLB (anim_qa PASS, 0 warnings); other species get it only after their own QA run.",
   "species": {
     "droplet": {
       "limbCount": "auto",
@@ -44,6 +44,42 @@
     "gaia": {
       "limbCount": "auto",
       "yawOffset": null
+    },
+    "emberling": {
+      "repair": {
+        "blendWidth_m": 0.24,
+        "seamWeld": true,
+        "amplitude": {
+          "Eat": {
+            "head": 0.6
+          },
+          "Sleep": {
+            "head": 0.6,
+            "legs": 0.72,
+            "knees": 0.7
+          },
+          "Rest": {
+            "head": 0.6,
+            "legs": 0.72,
+            "knees": 0.7
+          },
+          "Bask": {
+            "head": 0.6,
+            "legs": 0.72,
+            "knees": 0.7
+          },
+          "Drink": {
+            "head": 0.6
+          },
+          "Walk": {
+            "legs": 0.9
+          },
+          "Run": {
+            "legs": 0.6
+          }
+        },
+        "skinning": "linear"
+      }
     }
   },
   "files": {

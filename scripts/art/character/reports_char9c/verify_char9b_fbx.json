@@ -1,0 +1,376 @@
+{
+ "tool": "verify_contract_fbx.py",
+ "blender": "5.3.0",
+ "fbx": "Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx",
+ "sha256": "0e27862d4ceb017d5f884c5a240ee043f514a37b071cb3925466982b920710ab",
+ "skinning": "linear",
+ "limits": {
+  "maxStretchP999": 1.6,
+  "minCompressP001": 0.45,
+  "maxGroundPenetrationRel": 0.01
+ },
+ "structure": {
+  "bones": 30,
+  "contractBonesMissing": [],
+  "mesh": "Emberling_Baby_Body_GLB",
+  "vertices": 16253,
+  "triangles": 24000,
+  "uvLayers": [
+   "UVMap"
+  ],
+  "textures": [
+   [
+    "EmberlingRefinedGLB_BaseColor",
+    [
+     2048,
+     2048
+    ]
+   ],
+   [
+    "EmberlingRefinedGLB_BaseColor.001",
+    [
+     2048,
+     2048
+    ]
+   ]
+  ],
+  "maxInfluences": 4,
+  "unweightedVertices": 0,
+  "maxNormalisationError": 0.0001,
+  "seamSplitPairs": 4250,
+  "seamPairMaxWeightL1Diff": 2.0,
+  "takeBlenderFrames": [
+   2,
+   446
+  ],
+  "importerFrameOffset": 1,
+  "restHeight_m": 0.9,
+  "restMinZ_m": 0.0,
+  "restFootprintCentre_m": [
+   0.0,
+   0.0
+  ]
+ },
+ "clips": {
+  "Idle": {
+   "unityFrames": [
+    1,
+    181
+   ],
+   "framesMeasured": 181,
+   "loop": true,
+   "stretchP999": 1.13,
+   "compressP001": 0.892,
+   "groundPenetrationRel": 0.0008,
+   "stretchMaxSingleEdge": 1.391,
+   "worstFrame": 114,
+   "seamGapRel": 0.00926,
+   "seamGap_mm": 8.34,
+   "seamGapFrame": 51,
+   "pooledAllFrames": {
+    "stretchP999": 1.089,
+    "compressP001": 0.924
+   },
+   "pooledAnimQa8Frames": {
+    "frames": [
+     1,
+     27,
+     52,
+     78,
+     104,
+     130,
+     155,
+     181
+    ],
+    "stretchP999": 1.086,
+    "compressP001": 0.927
+   },
+   "edgesOverStretchLimitByBone": [],
+   "edgesUnderCompressLimitByBone": [],
+   "rootDriftXY_m": 0.0,
+   "loopMeshErrorRel": 0.0,
+   "status": "FAIL"
+  },
+  "Walk": {
+   "unityFrames": [
+    182,
+    217
+   ],
+   "framesMeasured": 36,
+   "loop": true,
+   "stretchP999": 1.553,
+   "compressP001": 0.526,
+   "groundPenetrationRel": 0.0,
+   "stretchMaxSingleEdge": 2.559,
+   "worstFrame": 188,
+   "seamGapRel": 0.03186,
+   "seamGap_mm": 28.67,
+   "seamGapFrame": 200,
+   "pooledAllFrames": {
+    "stretchP999": 1.338,
+    "compressP001": 0.611
+   },
+   "pooledAnimQa8Frames": {
+    "frames": [
+     182,
+     187,
+     192,
+     197,
+     202,
+     207,
+     212,
+     217
+    ],
+    "stretchP999": 1.33,
+    "compressP001": 0.607
+   },
+   "edgesOverStretchLimitByBone": [
+    [
+     "Hind_R",
+     0.325
+    ],
+    [
+     "Pelvis",
+     0.175
+    ],
+    [
+     "Hind_L",
+     0.145
+    ],
+    [
+     "ForeLower_L",
+     0.092
+    ]
+   ],
+   "edgesUnderCompressLimitByBone": [
+    [
+     "Hind_R",
+     0.278
+    ],
+    [
+     "Pelvis",
+     0.262
+    ],
+    [
+     "Hind_L",
+     0.258
+    ],
+    [
+     "HindLower_L",
+     0.083
+    ]
+   ],
+   "rootDriftXY_m": 0.0,
+   "loopMeshErrorRel": 0.0,
+   "status": "FAIL"
+  },
+  "Eat": {
+   "unityFrames": [
+    218,
+    278
+   ],
+   "framesMeasured": 61,
+   "loop": false,
+   "stretchP999": 1.519,
+   "compressP001": 0.428,
+   "groundPenetrationRel": 0.0,
+   "stretchMaxSingleEdge": 2.577,
+   "worstFrame": 233,
+   "seamGapRel": 0.05051,
+   "seamGap_mm": 45.46,
+   "seamGapFrame": 233,
+   "pooledAllFrames": {
+    "stretchP999": 1.423,
+    "compressP001": 0.486
+   },
+   "pooledAnimQa8Frames": {
+    "frames": [
+     218,
+     227,
+     235,
+     244,
+     252,
+     261,
+     269,
+     278
+    ],
+    "stretchP999": 1.409,
+    "compressP001": 0.494
+   },
+   "edgesOverStretchLimitByBone": [
+    [
+     "Fore_R",
+     0.393
+    ],
+    [
+     "Spine",
+     0.336
+    ],
+    [
+     "Fore_L",
+     0.078
+    ],
+    [
+     "Pelvis",
+     0.047
+    ]
+   ],
+   "edgesUnderCompressLimitByBone": [
+    [
+     "Hind_L",
+     0.333
+    ],
+    [
+     "Pelvis",
+     0.243
+    ],
+    [
+     "Head",
+     0.168
+    ],
+    [
+     "Hind_R",
+     0.12
+    ]
+   ],
+   "rootDriftXY_m": 0.0,
+   "loopMeshErrorRel": null,
+   "status": "FAIL"
+  },
+  "Doze": {
+   "unityFrames": [
+    279,
+    399
+   ],
+   "framesMeasured": 121,
+   "loop": true,
+   "stretchP999": 1.323,
+   "compressP001": 0.542,
+   "groundPenetrationRel": 0.0083,
+   "stretchMaxSingleEdge": 1.593,
+   "worstFrame": 294,
+   "seamGapRel": 0.03216,
+   "seamGap_mm": 28.94,
+   "seamGapFrame": 279,
+   "pooledAllFrames": {
+    "stretchP999": 1.317,
+    "compressP001": 0.543
+   },
+   "pooledAnimQa8Frames": {
+    "frames": [
+     279,
+     296,
+     313,
+     330,
+     348,
+     365,
+     382,
+     399
+    ],
+    "stretchP999": 1.317,
+    "compressP001": 0.543
+   },
+   "edgesOverStretchLimitByBone": [],
+   "edgesUnderCompressLimitByBone": [
+    [
+     "Hind_L",
+     0.333
+    ],
+    [
+     "Pelvis",
+     0.2
+    ],
+    [
+     "HindLower_R",
+     0.133
+    ],
+    [
+     "Head",
+     0.133
+    ]
+   ],
+   "rootDriftXY_m": 0.0,
+   "loopMeshErrorRel": 0.0,
+   "status": "FAIL"
+  },
+  "Happy": {
+   "unityFrames": [
+    400,
+    445
+   ],
+   "framesMeasured": 46,
+   "loop": false,
+   "stretchP999": 1.225,
+   "compressP001": 0.513,
+   "groundPenetrationRel": 0.0,
+   "stretchMaxSingleEdge": 1.569,
+   "worstFrame": 404,
+   "seamGapRel": 0.02778,
+   "seamGap_mm": 25.0,
+   "seamGapFrame": 404,
+   "pooledAllFrames": {
+    "stretchP999": 1.167,
+    "compressP001": 0.734
+   },
+   "pooledAnimQa8Frames": {
+    "frames": [
+     400,
+     406,
+     413,
+     419,
+     426,
+     432,
+     439,
+     445
+    ],
+    "stretchP999": 1.161,
+    "compressP001": 0.726
+   },
+   "edgesOverStretchLimitByBone": [],
+   "edgesUnderCompressLimitByBone": [
+    [
+     "Hind_L",
+     0.476
+    ],
+    [
+     "Hind_R",
+     0.286
+    ],
+    [
+     "Pelvis",
+     0.206
+    ],
+    [
+     "HindLower_R",
+     0.032
+    ]
+   ],
+   "rootDriftXY_m": 0.0,
+   "loopMeshErrorRel": null,
+   "status": "FAIL"
+  }
+ },
+ "errors": [],
+ "status": "FAIL",
+ "renders": [
+  "rest_yaw000.png",
+  "rest_yaw090.png",
+  "rest_yaw180.png",
+  "rest_yaw270.png",
+  "Idle_f114_tex.png",
+  "Idle_f114_heat.png",
+  "Idle_f114_side_tex.png",
+  "Walk_f188_tex.png",
+  "Walk_f188_heat.png",
+  "Walk_f188_side_tex.png",
+  "Eat_f233_tex.png",
+  "Eat_f233_heat.png",
+  "Eat_f233_side_tex.png",
+  "Doze_f294_tex.png",
+  "Doze_f294_heat.png",
+  "Doze_f294_side_tex.png",
+  "Happy_f404_tex.png",
+  "Happy_f404_heat.png",
+  "Happy_f404_side_tex.png"
+ ]
+}

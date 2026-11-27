@@ -1,0 +1,298 @@
+{
+ "tool": "measure_contact_clearance.py",
+ "fbx": "ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx",
+ "locations": "Assets/Dravio/Environment/Data/OriginSanctuaryLocations.asset",
+ "runtime": {
+  "walkClearance_m": 0.45,
+  "dragonSpacing_m": 0.55,
+  "sources": [
+   "SanctuaryLocationData.IsWalkable (walkClearance)",
+   "LivingSanctuaryPresentation.Separated (0.55 m)"
+  ]
+ },
+ "reach": {
+  "Idle": {
+   "extent_m": {
+    "front": 0.744,
+    "back": 0.739,
+    "side": 0.203,
+    "height": 0.9
+   },
+   "maxRadius_m": 0.744,
+   "maxRadiusFrame": 23,
+   "reachEvery30deg_m": [
+    0.744,
+    0.406,
+    0.203,
+    0.164,
+    0.126,
+    0.156,
+    0.739,
+    0.155,
+    0.131,
+    0.169,
+    0.209,
+    0.411
+   ]
+  },
+  "Walk": {
+   "extent_m": {
+    "front": 0.742,
+    "back": 0.739,
+    "side": 0.204,
+    "height": 0.906
+   },
+   "maxRadius_m": 0.742,
+   "maxRadiusFrame": 195,
+   "reachEvery30deg_m": [
+    0.742,
+    0.402,
+    0.212,
+    0.175,
+    0.164,
+    0.156,
+    0.739,
+    0.152,
+    0.164,
+    0.175,
+    0.212,
+    0.414
+   ]
+  },
+  "Eat": {
+   "extent_m": {
+    "front": 0.74,
+    "back": 0.74,
+    "side": 0.198,
+    "height": 0.92
+   },
+   "maxRadius_m": 0.74,
+   "maxRadiusFrame": 260,
+   "reachEvery30deg_m": [
+    0.74,
+    0.395,
+    0.203,
+    0.16,
+    0.117,
+    0.155,
+    0.74,
+    0.15,
+    0.123,
+    0.169,
+    0.209,
+    0.408
+   ]
+  },
+  "Doze": {
+   "extent_m": {
+    "front": 0.713,
+    "back": 0.61,
+    "side": 0.368,
+    "height": 0.912
+   },
+   "maxRadius_m": 0.713,
+   "maxRadiusFrame": 314,
+   "reachEvery30deg_m": [
+    0.712,
+    0.26,
+    0.203,
+    0.167,
+    0.117,
+    0.152,
+    0.338,
+    0.691,
+    0.119,
+    0.174,
+    0.209,
+    0.421
+   ]
+  },
+  "Happy": {
+   "extent_m": {
+    "front": 0.753,
+    "back": 0.735,
+    "side": 0.374,
+    "height": 0.948
+   },
+   "maxRadius_m": 0.753,
+   "maxRadiusFrame": 411,
+   "reachEvery30deg_m": [
+    0.753,
+    0.393,
+    0.203,
+    0.16,
+    0.117,
+    0.73,
+    0.734,
+    0.725,
+    0.123,
+    0.169,
+    0.209,
+    0.401
+   ]
+  }
+ },
+ "requiredObstacleClearanceAnyYaw_m": 0.753,
+ "requiredDragonSpacingAnyYaw_m": 1.506,
+ "scene": {
+  "Idle": {
+   "walkablePoints": 10264,
+   "pointsWithPenetration>1cm_share": 0.1681,
+   "pointsWithPenetration>10cm_share": 0.1154,
+   "maxDepth_m": 0.294,
+   "worstPoint": [
+    6.6,
+    -3.9
+   ],
+   "worstYawDeg": 140
+  },
+  "Walk": {
+   "walkablePoints": 10264,
+   "pointsWithPenetration>1cm_share": 0.1674,
+   "pointsWithPenetration>10cm_share": 0.1148,
+   "maxDepth_m": 0.292,
+   "worstPoint": [
+    6.6,
+    -3.9
+   ],
+   "worstYawDeg": 141
+  },
+  "Eat": {
+   "walkablePoints": 10264,
+   "pointsWithPenetration>1cm_share": 0.1653,
+   "pointsWithPenetration>10cm_share": 0.1141,
+   "maxDepth_m": 0.29,
+   "worstPoint": [
+    6.6,
+    -3.9
+   ],
+   "worstYawDeg": 324
+  },
+  "Doze": {
+   "walkablePoints": 10264,
+   "pointsWithPenetration>1cm_share": 0.1511,
+   "pointsWithPenetration>10cm_share": 0.0985,
+   "maxDepth_m": 0.263,
+   "worstPoint": [
+    6.6,
+    -3.9
+   ],
+   "worstYawDeg": 138
+  },
+  "Happy": {
+   "walkablePoints": 10264,
+   "pointsWithPenetration>1cm_share": 0.1733,
+   "pointsWithPenetration>10cm_share": 0.1204,
+   "maxDepth_m": 0.303,
+   "worstPoint": [
+    6.6,
+    -3.9
+   ],
+   "worstYawDeg": 140
+  }
+ },
+ "dragonPairs": {
+  "Idle+Idle": {
+   "maxOverlap_m": 0.938,
+   "shareOfYawPairsOverlapping": 0.442
+  },
+  "Idle+Walk": {
+   "maxOverlap_m": 0.936,
+   "shareOfYawPairsOverlapping": 0.4499
+  },
+  "Idle+Eat": {
+   "maxOverlap_m": 0.934,
+   "shareOfYawPairsOverlapping": 0.4283
+  },
+  "Idle+Doze": {
+   "maxOverlap_m": 0.907,
+   "shareOfYawPairsOverlapping": 0.4356
+  },
+  "Idle+Happy": {
+   "maxOverlap_m": 0.947,
+   "shareOfYawPairsOverlapping": 0.5116
+  },
+  "Walk+Idle": {
+   "maxOverlap_m": 0.936,
+   "shareOfYawPairsOverlapping": 0.4499
+  },
+  "Walk+Walk": {
+   "maxOverlap_m": 0.934,
+   "shareOfYawPairsOverlapping": 0.4569
+  },
+  "Walk+Eat": {
+   "maxOverlap_m": 0.932,
+   "shareOfYawPairsOverlapping": 0.4367
+  },
+  "Walk+Doze": {
+   "maxOverlap_m": 0.906,
+   "shareOfYawPairsOverlapping": 0.4444
+  },
+  "Walk+Happy": {
+   "maxOverlap_m": 0.945,
+   "shareOfYawPairsOverlapping": 0.519
+  },
+  "Eat+Idle": {
+   "maxOverlap_m": 0.934,
+   "shareOfYawPairsOverlapping": 0.4283
+  },
+  "Eat+Walk": {
+   "maxOverlap_m": 0.932,
+   "shareOfYawPairsOverlapping": 0.4367
+  },
+  "Eat+Eat": {
+   "maxOverlap_m": 0.93,
+   "shareOfYawPairsOverlapping": 0.4142
+  },
+  "Eat+Doze": {
+   "maxOverlap_m": 0.903,
+   "shareOfYawPairsOverlapping": 0.4216
+  },
+  "Eat+Happy": {
+   "maxOverlap_m": 0.943,
+   "shareOfYawPairsOverlapping": 0.4994
+  },
+  "Doze+Idle": {
+   "maxOverlap_m": 0.907,
+   "shareOfYawPairsOverlapping": 0.4356
+  },
+  "Doze+Walk": {
+   "maxOverlap_m": 0.906,
+   "shareOfYawPairsOverlapping": 0.4444
+  },
+  "Doze+Eat": {
+   "maxOverlap_m": 0.903,
+   "shareOfYawPairsOverlapping": 0.4216
+  },
+  "Doze+Doze": {
+   "maxOverlap_m": 0.877,
+   "shareOfYawPairsOverlapping": 0.4286
+  },
+  "Doze+Happy": {
+   "maxOverlap_m": 0.916,
+   "shareOfYawPairsOverlapping": 0.5059
+  },
+  "Happy+Idle": {
+   "maxOverlap_m": 0.947,
+   "shareOfYawPairsOverlapping": 0.5116
+  },
+  "Happy+Walk": {
+   "maxOverlap_m": 0.945,
+   "shareOfYawPairsOverlapping": 0.519
+  },
+  "Happy+Eat": {
+   "maxOverlap_m": 0.943,
+   "shareOfYawPairsOverlapping": 0.4994
+  },
+  "Happy+Doze": {
+   "maxOverlap_m": 0.916,
+   "shareOfYawPairsOverlapping": 0.5059
+  },
+  "Happy+Happy": {
+   "maxOverlap_m": 0.956,
+   "shareOfYawPairsOverlapping": 0.5728
+  }
+ },
+ "obstacles": 34,
+ "grid_m": 0.1
+}
