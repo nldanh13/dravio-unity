@@ -446,14 +446,164 @@
       ],
       "bytes": 28940,
       "blob": "d2bcc0b58465351b68cbc09c63f27814dbcf7159"
+    },
+    {
+      "id": "progress_frame",
+      "role": "ProgressFrame",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_frame.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_frame.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "alpha": {
+        "transparent": 19568,
+        "partial": 276,
+        "opaque": 111228
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 10236,
+      "blob": "760bd4f4b4b505396189b24b9c11ca0b051bb1c7"
+    },
+    {
+      "id": "progress_fill",
+      "role": "ProgressFill",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_fill.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_fill.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "alpha": {
+        "transparent": 14368,
+        "partial": 188,
+        "opaque": 116516
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 6202,
+      "blob": "5f552b082b6ddef11d5c71cb82005a90886e1eb4"
+    },
+    {
+      "id": "progress_highlight",
+      "role": "ProgressHighlight",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Progress/ui_progress_highlight.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Progress/ui_progress_highlight.png",
+      "width": 1024,
+      "height": 128,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 93128,
+        "partial": 37944,
+        "opaque": 0
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 4271,
+      "blob": "00962cec8d71d3516ed2399573b209f92735766e"
+    },
+    {
+      "id": "portrait",
+      "role": "Portrait",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Portraits/ui_portrait_frame.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Portraits/ui_portrait_frame.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 192696,
+        "partial": 2356,
+        "opaque": 67092
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 58045,
+      "blob": "2101702abdb47c9b40416eba1db3f999ec0120a7"
+    },
+    {
+      "id": "tab_indicator",
+      "role": "TabIndicator",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab_indicator.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_indicator.png",
+      "width": 256,
+      "height": 64,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 6296,
+        "partial": 120,
+        "opaque": 9968
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 2078,
+      "blob": "44d437309e16eccd3479231272f7a20f1968bf9d"
+    },
+    {
+      "id": "divider",
+      "role": "Divider",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Decor/ui_divider.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Decor/ui_divider.png",
+      "width": 512,
+      "height": 128,
+      "borderLTRB": [
+        160,
+        0,
+        160,
+        0
+      ],
+      "alpha": {
+        "transparent": 55238,
+        "partial": 1152,
+        "opaque": 9146
+      },
+      "sliceHorizontalEndpointDelta": 0,
+      "coreNonzero": 0,
+      "bytes": 12775,
+      "blob": "5ac7f51dc30ba24c0b62552f730f92b689403f8c"
     }
   ],
-  "pending": "ornaments, icons, portrait, progress, other roles and actual visual QA",
+  "pending": "icons, rarity/card slots, close/back, ornament overlays, visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
     "blob": "c5d3bbb7d04efe093677b702f8ee7b986559fbb2",
     "bytes": 34136,
     "layout": "button rows primary/secondary/reward/danger; columns normal/pressed/disabled; bottom panel, page, header, tab, active tab"
+  },
+  "detailsPreview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_details.png",
+    "blob": "69ca3be111900f8f3c66b7a6bee17c7a69b22012",
+    "bytes": 45947,
+    "notes": "Actual generated pixels; progress composite clipped at 24/57/89%, not Unity."
   }
 }
