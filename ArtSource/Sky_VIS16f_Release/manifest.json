@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "baseline": "c67bbb2213bf378bef09e16d031ca196a707bd08",
+  "status": "source selection, not import approval",
+  "assets": [
+    {
+      "pack": "Sky_VIS16_Accents",
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Floating_Garden_Islet.glb",
+      "blob": "7bcabed693dcf71e53c221fcb5033775a7159a2d",
+      "bytes": 16576,
+      "triangles": 144,
+      "status": "candidate-dressing"
+    },
+    {
+      "pack": "Sky_VIS16_Accents",
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Aurora_Crystal_Cluster.glb",
+      "blob": "8c6f867e697bba3d997f17782edd53eca9085cd4",
+      "bytes": 17012,
+      "triangles": 148,
+      "status": "candidate-dressing"
+    },
+    {
+      "pack": "Sky_VIS16_Accents",
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Star_Blossom_Cluster.glb",
+      "blob": "2d5760b59038bce73ba396db8af72cb5805321ea",
+      "bytes": 86584,
+      "triangles": 792,
+      "status": "detail-alternative"
+    },
+    {
+      "pack": "Sky_VIS16b_Textures",
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_Sky_Meadow.png",
+      "blob": "a867b6b1d93734a06674d30f8c4c91188ffc8495",
+      "bytes": 1049249,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Sky_VIS16b_Textures",
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_Sky_CloudSea.png",
+      "blob": "476c1da424fe95d4e84e6cec7ad1395e1c09fbfc",
+      "bytes": 262501,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Sky_VIS16b_Textures",
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_FX_CloudWisp.png",
+      "blob": "297c2589ee9c139ab598bd925ec0c397865ca641",
+      "bytes": 65750,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Sky_VIS16c_Blossom",
+      "path": "ArtSource/Sky_VIS16c_Blossom/Sky_Star_Blossom_Cluster_Wind.glb",
+      "blob": "5f2a9c2de4502f4351dc4a2204a3af49c019a66b",
+      "bytes": 115268,
+      "triangles": 792,
+      "status": "detail-alternative"
+    },
+    {
+      "pack": "Sky_VIS16c_Blossom",
+      "path": "ArtSource/Sky_VIS16c_Blossom/T_VIS16C_FX_Petal.png",
+      "blob": "8e8a7e569cbec20c254e31f983036c74ad3a3f75",
+      "bytes": 16529,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Sky_VIS16d_Architecture",
+      "path": "ArtSource/Sky_VIS16d_Architecture/Sky_Astral_Crystal_Lantern.glb",
+      "blob": "f2bbb6905ce91e8dbfacb6da4baf30f7fb0bddf0",
+      "bytes": 74584,
+      "triangles": 792,
+      "status": "detail-alternative"
+    },
+    {
+      "pack": "Sky_VIS16d_Architecture",
+      "path": "ArtSource/Sky_VIS16d_Architecture/Sky_Celestial_Halo_Monument.glb",
+      "blob": "8d394ddb5ddf069bd28a9cd4bcf7b6aaf261074f",
+      "bytes": 56296,
+      "triangles": 840,
+      "status": "detail-alternative"
+    },
+    {
+      "pack": "Sky_VIS16e_Airflow",
+      "path": "ArtSource/Sky_VIS16e_Airflow/Sky_Updraft_Air_Ribbons.glb",
+      "blob": "5cb4c5057f7d4483b674318602643d2af39f0d17",
+      "bytes": 16380,
+      "triangles": 128,
+      "status": "hold-transparent-material-and-flight"
+    },
+    {
+      "pack": "Sky_VIS16f_LOD",
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Star_Blossom_Cluster_LOD1.glb",
+      "blob": "f6ae2c512b23f8f8317320e439df631aca5d471f",
+      "bytes": 15840,
+      "triangles": 396,
+      "status": "preferred-LOD-trial"
+    },
+    {
+      "pack": "Sky_VIS16f_LOD",
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Astral_Crystal_Lantern_LOD1.glb",
+      "blob": "604c0905261019a72ecb424aeae30612b0826ff4",
+      "bytes": 56020,
+      "triangles": 576,
+      "status": "preferred-LOD-trial"
+    },
+    {
+      "pack": "Sky_VIS16f_LOD",
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Celestial_Halo_Monument_LOD1.glb",
+      "blob": "744f148e2b7463694ccca0e2858a64bd2ed04cbe",
+      "bytes": 39456,
+      "triangles": 528,
+      "status": "preferred-LOD-trial"
+    }
+  ],
+  "composition": {
+    "cases": 18,
+    "anchorCount": 31,
+    "protectedPoints": 40,
+    "walkAreas": 3,
+    "flyVolumes": 1,
+    "obstacleBoxes": 16,
+    "results": [
+      {
+        "asset": "Sky_Aurora_Crystal_Cluster",
+        "status": "hold-ground-support",
+        "reason": "No verified decoration surface outside buffered walk polygons; source mesh raycast and render required."
+      },
+      {
+        "asset": "Sky_Star_Blossom_Cluster_LOD1",
+        "status": "hold-ground-support",
+        "reason": "No verified decoration surface outside buffered walk polygons; source mesh raycast and render required."
+      },
+      {
+        "asset": "Sky_Astral_Crystal_Lantern_LOD1",
+        "status": "hold-ground-support",
+        "reason": "No verified decoration surface outside buffered walk polygons; source mesh raycast and render required."
+      },
+      {
+        "asset": "Sky_Celestial_Halo_Monument_LOD1",
+        "status": "hold-ground-support",
+        "reason": "No verified decoration surface outside buffered walk polygons; source mesh raycast and render required."
+      },
+      {
+        "asset": "Sky_Floating_Garden_Islet",
+        "status": "hold",
+        "examined": 18126,
+        "clearancePassed": 11568,
+        "framingPassed": 0,
+        "best": null
+      }
+    ],
+    "airRibbon": "hold: transparent material and actual flight/occlusion review; existing interactions unchanged",
+    "limitations": "Conservative XZ clearance; camera and screen AABBs, not depth-aware occlusion. Prop sizes approximate; float island pivot assumed top. Clouds, main island, cover, actual terrain/support, full motion, Focus and Unity rendering not verified. No scene edits."
+  },
+  "estimates": {
+    "baselineManifestTriangles": 15010,
+    "allLodAndStaticOnce": 16802,
+    "withOneOptionalRibbon": 16930,
+    "textureDeltaIfSameSizeReplacements": 0,
+    "limits": {
+      "triangles": 60000,
+      "materials": 10,
+      "estimatedTextureBytes": 6291456
+    }
+  },
+  "requirements": [
+    "preserve playable meshes, perches, bridge, gate and flight volume",
+    "one model version per instance",
+    "same-size texture replacement only; preserve .meta",
+    "no new material until actual material count measured",
+    "no automatic placement",
+    "transparent ribbon optional High only after compatible material, sorting, overdraw and bounds review",
+    "external validator, FBX import, Unity Game View and Android profiling"
+  ]
+}
