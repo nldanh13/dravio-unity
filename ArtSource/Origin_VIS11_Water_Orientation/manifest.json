@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "status": "source derivative; camera orientation correction for #94 section 13.2",
+  "baseline": "VIS3d original; no geometry additions",
+  "assets": [
+    {
+      "name": "Origin_Waterfall_Rock_Frame",
+      "triangles": 1764,
+      "vertices": 5292,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.6830711364746094,
+          -0.0010000000474974513,
+          -0.8328077793121338
+        ],
+        "max": [
+          1.7573744058609009,
+          2.7192442417144775,
+          1.3786402940750122
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 234056,
+      "embeddedTexture": null,
+      "projectedFrontAreaRatio": null,
+      "path": "ArtSource/Origin_VIS11_Water_Orientation/Origin_Waterfall_Rock_Frame.glb",
+      "blob": "c87999a479574be115d6578bbe973da934dfe596"
+    },
+    {
+      "name": "Origin_Waterfall_Surface",
+      "triangles": 432,
+      "vertices": 1296,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -0.5199999809265137,
+          0.09000000357627869,
+          -0.5577197670936584
+        ],
+        "max": [
+          0.5199999809265137,
+          2.5399999618530273,
+          0.8479999899864197
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 321016,
+      "embeddedTexture": "T_VIS3D_Waterfall_Flow",
+      "projectedFrontAreaRatio": 0.7448006995048965,
+      "path": "ArtSource/Origin_VIS11_Water_Orientation/Origin_Waterfall_Surface.glb",
+      "blob": "bfbb8b20bfae59225a093cfa1f8d5e90c2177652"
+    },
+    {
+      "name": "Origin_Stream_Surface",
+      "triangles": 384,
+      "vertices": 1152,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.4189444780349731,
+          0.03500000014901161,
+          -4.5
+        ],
+        "max": [
+          1.3088444471359253,
+          0.03500000014901161,
+          0
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 314640,
+      "embeddedTexture": "T_VIS3D_Stream_Ripples",
+      "projectedFrontAreaRatio": 1,
+      "path": "ArtSource/Origin_VIS11_Water_Orientation/Origin_Stream_Surface.glb",
+      "blob": "4e92f82c30ee2734ef8878011c4e4560e1ce7500"
+    },
+    {
+      "name": "Origin_Stream_Bank_Stone_Cluster",
+      "triangles": 980,
+      "vertices": 2940,
+      "materials": 1,
+      "bounds": {
+        "min": [
+          -1.1706445217132568,
+          -0.017000000923871994,
+          -1.7717804908752441
+        ],
+        "max": [
+          1.0511374473571777,
+          0.40955013036727905,
+          -0.0410764254629612
+        ]
+      },
+      "opposedCornerNormals": 0,
+      "bytes": 130580,
+      "embeddedTexture": null,
+      "projectedFrontAreaRatio": null,
+      "path": "ArtSource/Origin_VIS11_Water_Orientation/Origin_Stream_Bank_Stone_Cluster.glb",
+      "blob": "e40d1d31baab9e69777a2fa3f6bd99db81e90610"
+    }
+  ],
+  "totalTriangles": 3560,
+  "coordinateSystem": "glTF Y up; front -Z; stream downstream -Z; original local pivot retained (stream starts at origin, rock/curtain share pivot, bank independently placed)",
+  "checks": "deterministic bytes, finite positions, normals, nondegenerate triangles, zero opposed corner normals, projected front-facing area and UV downstream order",
+  "limitations": "Original embedded VIS3d water preview textures retained; VIS9 external candidate should replace, not duplicate embedded runtime maps. No Unity/Blender/validator/placement run."
+}
