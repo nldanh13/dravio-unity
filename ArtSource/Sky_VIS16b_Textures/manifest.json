@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "status": "same-dimension replacement candidates; not runtime import",
+  "assets": [
+    {
+      "name": "T_VIS16B_Sky_Meadow",
+      "width": 512,
+      "height": 512,
+      "minRGB": [
+        138,
+        180,
+        122
+      ],
+      "maxRGB": [
+        181,
+        209,
+        148
+      ],
+      "alphaMax": 255,
+      "meanAlpha": 255,
+      "nonzeroAlpha": 262144,
+      "minTransparentGutterPx": 0,
+      "periodicMaxError": 1.1084466677857563e-12,
+      "edgeToInteriorMeanDifferenceRatio": [
+        0.797284759119107,
+        1.6027295924105236
+      ],
+      "bytes": 1049249,
+      "rgba32Level0Bytes": 1048576,
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_Sky_Meadow.png",
+      "blob": "a867b6b1d93734a06674d30f8c4c91188ffc8495",
+      "replacementCandidate": "Assets/Dravio/Environment/Zones/Sky/Textures/T_ENV_Sky_Ground.png"
+    },
+    {
+      "name": "T_VIS16B_Sky_CloudSea",
+      "width": 256,
+      "height": 256,
+      "minRGB": [
+        183,
+        196,
+        219
+      ],
+      "maxRGB": [
+        244,
+        248,
+        254
+      ],
+      "alphaMax": 255,
+      "meanAlpha": 255,
+      "nonzeroAlpha": 65536,
+      "minTransparentGutterPx": 0,
+      "periodicMaxError": 1.7053025658242404e-13,
+      "edgeToInteriorMeanDifferenceRatio": [
+        1.2695463151251667,
+        0.8183210560863541
+      ],
+      "bytes": 262501,
+      "rgba32Level0Bytes": 262144,
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_Sky_CloudSea.png",
+      "blob": "476c1da424fe95d4e84e6cec7ad1395e1c09fbfc",
+      "replacementCandidate": "Assets/Dravio/Environment/Zones/Sky/Textures/T_ENV_Sky_Water.png"
+    },
+    {
+      "name": "T_VIS16B_FX_CloudWisp",
+      "width": 128,
+      "height": 128,
+      "minRGB": [
+        255,
+        255,
+        255
+      ],
+      "maxRGB": [
+        255,
+        255,
+        255
+      ],
+      "alphaMax": 195,
+      "meanAlpha": 25.1474609375,
+      "nonzeroAlpha": 4237,
+      "minTransparentGutterPx": 13,
+      "periodicMaxError": null,
+      "edgeToInteriorMeanDifferenceRatio": null,
+      "bytes": 65750,
+      "rgba32Level0Bytes": 65536,
+      "path": "ArtSource/Sky_VIS16b_Textures/T_VIS16B_FX_CloudWisp.png",
+      "blob": "297c2589ee9c139ab598bd925ec0c397865ca641",
+      "replacementCandidate": "Assets/Dravio/Environment/Zones/Sky/Textures/T_ENV_FX_CloudWisp.png"
+    }
+  ],
+  "shaderSample": {
+    "samples": 4096,
+    "minMultiplier": 1.1073160027529831,
+    "maxMultiplier": 1.5912907466443083,
+    "meanMultiplier": 1.303594764527519,
+    "scope": "linear RGB texture product only; excludes light, fog, foam, wind, glint and render"
+  },
+  "rgba32Level0Bytes": 1376256,
+  "estimatedRGBA32MipsBytes": 1834547,
+  "incrementalEstimatedBytesIfReplaceOneToOne": 0,
+  "checks": "finite channels, 128 periodic samples per tiled texture, sampled edge/interior differences, transparent wisp gutter, PNG scanline roundtrip and deterministic bytes, CPU RGB product simulation",
+  "limitations": "Original dimensions from authored generator and .meta, not decoded original PNGs. No external decoder, actual render, Unity or device. Existing cloud sea remains one mesh with two scrolling UV samples, not volumetric/multiple geometry layers."
+}
