@@ -1424,9 +1424,241 @@
       "bytes": 106491,
       "blob": "6bd9465ddeb5a43859ce4a5f3abf5159a596eb66",
       "reuses": "icon:leaf"
+    },
+    {
+      "id": "icon:care",
+      "role": "care",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_care.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_care.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 157292,
+        "partial": 1813,
+        "opaque": 103039
+      },
+      "bounds": [
+        49,
+        64,
+        459,
+        447
+      ],
+      "coverage": 0.802734375,
+      "bytes": 59533,
+      "blob": "9dafb8b620a953b1302554562c7862ea728599d9"
+    },
+    {
+      "id": "icon:biology",
+      "role": "biology",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_biology.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_biology.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 194080,
+        "partial": 3136,
+        "opaque": 64928
+      },
+      "bounds": [
+        127,
+        49,
+        384,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 91453,
+      "blob": "9f039bb6ffe27275a31caabacc50ec38eb6f602a"
+    },
+    {
+      "id": "icon:dragons",
+      "role": "dragons",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_dragons.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_dragons.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 160786,
+        "partial": 1515,
+        "opaque": 99843
+      },
+      "bounds": [
+        49,
+        57,
+        460,
+        447
+      ],
+      "coverage": 0.8046875,
+      "bytes": 73891,
+      "blob": "4680c3d3e7932b154c4be4b16ea63e4409874b5e"
+    },
+    {
+      "id": "icon:eggs",
+      "role": "eggs",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_eggs.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_eggs.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 140144,
+        "partial": 1621,
+        "opaque": 120379
+      },
+      "bounds": [
+        51,
+        67,
+        461,
+        443
+      ],
+      "coverage": 0.802734375,
+      "bytes": 67190,
+      "blob": "6fb86d4f0a6e50bb76cfe5ec30b5a3cec1483052"
+    },
+    {
+      "id": "icon:world",
+      "role": "world",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_world.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_world.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 126812,
+        "partial": 2480,
+        "opaque": 132852
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        462
+      ],
+      "coverage": 0.80859375,
+      "bytes": 97653,
+      "blob": "d43824fb008884dc69bc926744fb4387a483bf3a"
+    },
+    {
+      "id": "icon:quests",
+      "role": "quests",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_quests.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_quests.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 141164,
+        "partial": 1354,
+        "opaque": 119626
+      },
+      "bounds": [
+        103,
+        49,
+        408,
+        461
+      ],
+      "coverage": 0.806640625,
+      "bytes": 57559,
+      "blob": "7c9fa450b8667e0ad4e75408c0b871f849ad8322"
+    },
+    {
+      "id": "icon:expedition",
+      "role": "expedition",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_expedition.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_expedition.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 128276,
+        "partial": 1270,
+        "opaque": 132598
+      },
+      "bounds": [
+        49,
+        49,
+        460,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 86252,
+      "blob": "5196312d6059c1173f363ecd371a8ac756d5a7b2"
+    },
+    {
+      "id": "icon:inventory",
+      "role": "inventory",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Icons/ui_icon_inventory.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Icons/ui_icon_inventory.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 104632,
+        "partial": 1510,
+        "opaque": 156002
+      },
+      "bounds": [
+        49,
+        49,
+        462,
+        458
+      ],
+      "coverage": 0.80859375,
+      "bytes": 67428,
+      "blob": "be79eaa302fa95b7a65fa48c6ef6c3e7a7ff381f"
     }
   ],
-  "pending": "29 remaining function icon roles; optional ornament overlays and visual QA",
+  "pending": "21 remaining function icons; optional ornament overlays; Unity and art QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
@@ -1457,5 +1689,22 @@
     "blob": "5d15eea71f3ed13f6b2f541e790ab4f6a91251b2",
     "bytes": 154964,
     "notes": "13 new item shapes, 110/32/24 px; excludes previously committed gold/egg/fruit and item leaf shared with function leaf. Source composite, not Unity."
-  }
+  },
+  "functionPreviews": [
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview_functions_1.png",
+      "blob": "70aade6c6e30e8b7bf6432e9b8c96562f9f1bb50",
+      "bytes": 98486,
+      "order": [
+        "icon:care",
+        "icon:biology",
+        "icon:dragons",
+        "icon:eggs",
+        "icon:world",
+        "icon:quests",
+        "icon:expedition",
+        "icon:inventory"
+      ]
+    }
+  ]
 }
