@@ -9,209 +9,209 @@
       "width": 512,
       "height": 512,
       "blend": "Alpha",
-      "description": "4x4 whole-sheet flame flicker, warm opaque core and soft edge",
+      "description": "Three-tongue flame with stable base and periodic tip motion",
       "grid": 4,
       "alpha": [
-        213660,
-        5412,
-        43072
+        202220,
+        4957,
+        54967
       ],
       "frames": [
         {
           "index": 0,
           "bounds": [
-            41,
-            17,
+            32,
+            19,
             94,
-            105
+            108
           ],
-          "padding": 17,
-          "alphaMass": 810879,
-          "opaque": 2989
+          "padding": 19,
+          "alphaMass": 923225,
+          "opaque": 3444
         },
         {
           "index": 1,
           "bounds": [
-            43,
-            16,
-            97,
-            105
+            32,
+            17,
+            94,
+            108
           ],
-          "padding": 16,
-          "alphaMass": 817284,
-          "opaque": 3017
+          "padding": 17,
+          "alphaMass": 935334,
+          "opaque": 3499
         },
         {
           "index": 2,
           "bounds": [
-            44,
-            15,
-            99,
-            105
+            32,
+            16,
+            97,
+            108
           ],
-          "padding": 15,
-          "alphaMass": 810028,
-          "opaque": 2991
+          "padding": 16,
+          "alphaMass": 941936,
+          "opaque": 3523
         },
         {
           "index": 3,
           "bounds": [
-            45,
-            15,
-            98,
-            105
+            32,
+            16,
+            99,
+            108
           ],
-          "padding": 15,
-          "alphaMass": 789788,
-          "opaque": 2910
+          "padding": 16,
+          "alphaMass": 943274,
+          "opaque": 3525
         },
         {
           "index": 4,
           "bounds": [
-            45,
-            16,
-            96,
-            105
+            32,
+            15,
+            100,
+            108
           ],
-          "padding": 16,
-          "alphaMass": 760600,
-          "opaque": 2799
+          "padding": 15,
+          "alphaMass": 940914,
+          "opaque": 3522
         },
         {
           "index": 5,
           "bounds": [
-            45,
-            17,
-            93,
-            105
+            32,
+            16,
+            100,
+            108
           ],
-          "padding": 17,
-          "alphaMass": 727348,
-          "opaque": 2687
+          "padding": 16,
+          "alphaMass": 935131,
+          "opaque": 3494
         },
         {
           "index": 6,
           "bounds": [
-            45,
-            18,
-            92,
-            105
+            32,
+            16,
+            98,
+            108
           ],
-          "padding": 18,
-          "alphaMass": 694806,
-          "opaque": 2561
+          "padding": 16,
+          "alphaMass": 928201,
+          "opaque": 3465
         },
         {
           "index": 7,
           "bounds": [
-            45,
-            20,
-            91,
-            105
+            32,
+            17,
+            97,
+            108
           ],
-          "padding": 20,
-          "alphaMass": 668742,
-          "opaque": 2472
+          "padding": 17,
+          "alphaMass": 920730,
+          "opaque": 3436
         },
         {
           "index": 8,
           "bounds": [
-            45,
-            22,
-            90,
-            105
+            32,
+            19,
+            96,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 651981,
-          "opaque": 2403
+          "padding": 19,
+          "alphaMass": 913368,
+          "opaque": 3413
         },
         {
           "index": 9,
           "bounds": [
-            44,
-            23,
-            89,
-            105
+            33,
+            20,
+            95,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 646512,
-          "opaque": 2385
+          "padding": 19,
+          "alphaMass": 906801,
+          "opaque": 3410
         },
         {
           "index": 10,
           "bounds": [
-            42,
-            24,
-            88,
-            105
+            33,
+            21,
+            94,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 653726,
-          "opaque": 2404
+          "padding": 19,
+          "alphaMass": 900299,
+          "opaque": 3380
         },
         {
           "index": 11,
           "bounds": [
-            39,
-            24,
-            86,
-            105
+            32,
+            22,
+            94,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 671894,
-          "opaque": 2467
+          "padding": 19,
+          "alphaMass": 895630,
+          "opaque": 3367
         },
         {
           "index": 12,
           "bounds": [
-            36,
-            23,
-            86,
-            105
+            31,
+            22,
+            94,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 698695,
-          "opaque": 2572
+          "padding": 19,
+          "alphaMass": 892781,
+          "opaque": 3348
         },
         {
           "index": 13,
           "bounds": [
-            35,
+            31,
             22,
-            86,
-            105
+            94,
+            108
           ],
-          "padding": 22,
-          "alphaMass": 731056,
-          "opaque": 2687
+          "padding": 19,
+          "alphaMass": 894014,
+          "opaque": 3354
         },
         {
           "index": 14,
           "bounds": [
-            36,
-            20,
-            88,
-            105
+            31,
+            21,
+            94,
+            108
           ],
-          "padding": 20,
-          "alphaMass": 763574,
-          "opaque": 2810
+          "padding": 19,
+          "alphaMass": 899789,
+          "opaque": 3375
         },
         {
           "index": 15,
           "bounds": [
-            38,
-            18,
-            91,
-            105
+            32,
+            20,
+            94,
+            108
           ],
-          "padding": 18,
-          "alphaMass": 791963,
-          "opaque": 2918
+          "padding": 19,
+          "alphaMass": 910076,
+          "opaque": 3412
         }
       ],
-      "bytes": 213274,
-      "blob": "f5f6173d146d0d3fb60f7868fd1c3588a083ef74"
+      "bytes": 215684,
+      "blob": "cd9823a68c64336c32f3388ec1c8a79ba004bf8a"
     },
     {
       "id": "Firefly_Soft",
@@ -396,10 +396,10 @@
   ],
   "preview": {
     "path": "ArtSource/VFX/BrightFantasy_VIS5/preview.png",
-    "bytes": 141898,
-    "blob": "47dd9b9d329b702ed90ff5f6090551ba472c88e1",
+    "bytes": 121849,
+    "blob": "977dea1c5f5786b75d8613cb1fa67b313129eaaa",
     "notes": "actual frames in row-major order, source pixels on flat backgrounds; illustrative alpha/additive compositing in sRGB, not Unity color pipeline"
   },
-  "checks": "finite pixels, PNG decode roundtrip, per-cell nonzero alpha bounds and >=4px transparent gutter",
+  "checks": "finite pixels, PNG decode roundtrip, per-cell nonzero alpha bounds and >=4px transparent gutter; 16 flame frames revised after swatch inspection; minimum transparent flame gutter 15 pixels",
   "runtime": "no changes to emitters, materials, scene or gameplay"
 }

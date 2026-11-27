@@ -3,18 +3,22 @@ function makeVfx(){
  const ell=(x,y,cx,cy,rx,ry,ang=0)=>{let a=x-cx,b=y-cy,c=Math.cos(ang),s=Math.sin(ang);return Math.hypot((a*c+b*s)/rx,(-a*s+b*c)/ry)};
  function over(p,c,a){a=cl(a);let A=a+p[3]*(1-a);return A?[...c.map((v,i)=>(v*a+p[i]*p[3]*(1-a))/A),A]:[...c,0]}
  function flame(u,v,phase){
- // Each frame has fixed base anchor at (0.5,0.80); periodic lean, tip and width.
- let y=1-v, h=.68+.035*Math.sin(phase+.6),base=.17,t=(y-base)/h;
- if(t<0||t>1)return [255,165,66,0];
- let bend=(.12*Math.sin(phase)+.045*Math.sin(phase*2+.6))*Math.pow(t,1.5)+.055*t;
- let width=(.225+.018*Math.cos(phase))*Math.pow(Math.sin(Math.PI*t),.68)*(1-.32*t);
- let x=u-.5-bend, d=Math.abs(x)/Math.max(.0001,width);
- let a=(1-ss(.91,1.015,d))*ss(0,.035,t)*(1-ss(.96,1,t));
- let c=mix(rgb("F08A35"),rgb("FFC757"),cl(.18+.60*t+.27*(1-d)));
- let inner=Math.abs(x+.018*Math.sin(phase+t*3)) / Math.max(.0001,width*.54);
- let hot=(1-ss(.67,1.04,inner))*ss(.05,.19,t)*(1-ss(.60,.84,t));
- c=mix(c,rgb("FFF0B4"),hot*.92);
- let lip=ss(.69,.99,d)*.32;c=mix(c,rgb("E66030"),lip);
+ // Main tongue and two short side tongues meet near a stable lower anchor.
+ let y=1-v;
+ function tongue(cx,base,h,w,lean,sway){
+  let t=(y-base)/h;if(t<0||t>1)return {a:0,d:2,t:0};
+  let bend=(lean+sway*Math.sin(phase))*Math.pow(t,1.75)+.035*Math.sin(tau*t+phase)*t;
+  let shape=Math.pow(Math.sin(Math.PI*t),.66)*(1.25-.82*t);
+  let d=Math.abs(u-cx-bend)/Math.max(.0001,w*shape);
+  return {a:(1-ss(.89,1.01,d))*ss(0,.045,t)*(1-ss(.97,1,t)),d,t};
+ }
+ let main=tongue(.51,.145,.71+.026*Math.sin(phase),.225,.035,.085);
+ let left=tongue(.398,.17,.43+.035*Math.sin(phase+1.8),.135,-.08,.035);
+ let right=tongue(.60,.18,.49+.04*Math.sin(phase-1.4),.125,.11,.042);
+ let a=Math.max(main.a,left.a,right.a),c=mix(rgb("E76530"),rgb("FFC95D"),cl(.35+.49*main.t+.24*(1-main.d)));
+ let hot=tongue(.50,.17,.47+.015*Math.sin(phase),.137,.015,.043);
+ c=mix(c,rgb("FFF1B9"),hot.a*.97);
+ c=mix(c,rgb("FFB54F"),Math.max(left.a,right.a)*(1-main.a)*.55);
  return [...c,a];
  }
  function raster(id,w,h,fn,blend,desc,grid=null){
@@ -39,7 +43,7 @@ function makeVfx(){
 function preview(art){
  let w=800,h=420,pixels=new Uint8Array(w*h*4);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let c=y<260?[49,65,54]:[29,42,53];pixels.set([...c,255],(y*w+x)*4)}
  function place(a,x,y,ww,hh,sx=0,sy=0,sw=a.w,sh=a.h,tint=[1,1,1]){for(let j=0;j<hh;j++)for(let i=0;i<ww;i++){let q=((sy+Math.floor(j*sh/hh))*a.w+sx+Math.floor(i*sw/ww))*4,k=((y+j)*w+x+i)*4,A=a.pixels[q+3]/255;for(let c=0;c<3;c++){let v=a.pixels[q+c]*tint[c];pixels[k+c]=Math.round(a.blend==="Additive"?Math.min(255,pixels[k+c]+v*A):pixels[k+c]*(1-A)+v*A)}}}
- for(let f=0;f<16;f++)place(art[0],f%8*100+2,Math.floor(f/8)*125+3,96,120,f%4*128,Math.floor(f/4)*128,128,128);
+ for(let f=0;f<16;f++)place(art[0],f%8*100+2,Math.floor(f/8)*125+13,96,96,f%4*128,Math.floor(f/4)*128,128,128);
  for(let i=1;i<art.length;i++)place(art[i],12+(i-1)*130,276,120,120,0,0,art[i].w,art[i].h,i===1?[.8,1,.45]:i===2?[.55,.95,1]:i===3?[1,.92,.72]:[1,1,1]);
  return {w,h,pixels};
 }
