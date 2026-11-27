@@ -10,6 +10,10 @@ config (asset-overrides.json species.<id>.repair / files.<stem>.repair):
   skinning      "linear" (Unity SkinnedMeshRenderer, FBX) or "dualQuaternion" (rig v7 default, Blender only). With
                 "linear" the Armature modifier's Preserve Volume is switched off so every Blender QA number is the
                 skinning Unity actually plays (rig v7 measured dual quaternion: Sleep 0.455 there, 0.424 linear)
+  seamWeld      (CHAR.9c) true: vertices split at UV/normal seams (same rest position, different index; FBX/Unity keep
+                them split) are joined in the blend graph and get IDENTICAL weights. Without it the two sides of a
+                seam can follow different bones and the skinned mesh opens cracks (rig v7 Emberling: up to 45 mm,
+                5 % of the height, at Eat) that the edge-stretch QA cannot see, because no edge spans a seam
   amplitude     {clip: {"head": k, "legs": k, "knees": k}}: scale Neck+Head / leg-chain (Upper, Lower, Foot) /
                 lower-leg-only rotation of that clip by k (slerp to rest; "knees" multiplies "legs" on Lower_*);
                 Wake ramps from the Sleep factors to 1 so Sleep -> Wake -> Idle stays closed; groundSpeed of a clip
@@ -37,6 +41,7 @@ CFG = json.loads(A.config)
 blend, rigj = A.blend, A.rig_json
 out = A.out or A.blend
 W_BLEND = float(CFG.get('blendWidth_m', 0.12))
+SEAM_WELD = bool(CFG.get('seamWeld', False))
 SKINNING = CFG.get('skinning', 'dualQuaternion')
 if SKINNING not in ('linear', 'dualQuaternion'):
     raise SystemExit('skinning must be "linear" or "dualQuaternion"')
@@ -79,8 +84,21 @@ jump = np.abs(Wt[E[:,0]] - Wt[E[:,1]]).max(1)
 # millimetre edges, e.g. Neck/Head behind the chibi head) seeds the geodesic blend region
 hard = (jump / np.maximum(L, 1e-6)) > (2.0 / W_BLEND)
 seeds = np.unique(E[hard].ravel())
+SEAM = np.zeros((0, 2), dtype=E.dtype)
+if SEAM_WELD:
+    # coincident vertices (UV / normal seam splits): one group id per rest position (0.01 mm grid)
+    _, grp = np.unique(np.round(co / 1e-5).astype(np.int64), axis=0, return_inverse=True)
+    grp = grp.ravel()
+    order = np.argsort(grp, kind='stable')
+    same = grp[order][1:] == grp[order][:-1]
+    SEAM = np.stack([order[:-1][same], order[1:][same]], 1)
+    print('seam pairs', len(SEAM))
+    # seams as extra graph edges: a weight jump across a seam is a hard step too (it is one point on the surface)
+    jump_s = np.abs(Wt[SEAM[:, 0]] - Wt[SEAM[:, 1]]).max(1) if len(SEAM) else np.zeros(0)
+    seeds = np.unique(np.concatenate([seeds, SEAM[jump_s > 0.05].ravel()]))
 adj = [[] for _ in range(n)]
 for (a,b),l in zip(E, L): adj[a].append((b,l)); adj[b].append((a,l))
+for a, b in SEAM: adj[a].append((b, 0.0)); adj[b].append((a, 0.0))
 dist = np.full(n, np.inf); pq = []
 for s in seeds: dist[s] = 0.0; pq.append((0.0, s))
 heapq.heapify(pq)
@@ -94,6 +112,8 @@ region = dist <= W_BLEND
 # diffusion restricted to the region; allowed bones per vertex = bones present in its neighbourhood (no far bones)
 le = np.median(L); iters = int(max(10, (W_BLEND/le)**2 * 0.5))
 wE = 1.0/np.maximum(L, 1e-6)
+if len(SEAM):  # seam pairs diffuse like the shortest real edge
+    E = np.concatenate([E, SEAM]); wE = np.concatenate([wE, np.full(len(SEAM), wE.max())])
 allowed = Wt > 1e-6
 for _ in range(2):  # neighbourhood of allowed bones
     allowed[E[:,0]] |= allowed[E[:,1]] & region[E[:,0], None]; allowed[E[:,1]] |= allowed[E[:,0]] & region[E[:,1], None]
@@ -106,6 +126,9 @@ for _ in range(iters):
     Y *= allowed
     Y /= np.maximum(Y.sum(1, keepdims=True), 1e-9)
     X = np.where(region[:,None], Y, Wt)
+if SEAM_WELD:  # every member of a coincident group gets the group's mean weights (inside and outside the region)
+    acc = np.zeros((grp.max() + 1, G)); np.add.at(acc, grp, X)
+    X = acc[grp] / np.bincount(grp)[grp][:, None]
 # keep max 4, normalise
 idx = np.argsort(-X, 1)[:, :4]
 Z = np.zeros_like(X); np.put_along_axis(Z, idx, np.take_along_axis(X, idx, 1), 1); Z /= np.maximum(Z.sum(1, keepdims=True), 1e-9)

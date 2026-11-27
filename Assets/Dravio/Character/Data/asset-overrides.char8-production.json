@@ -47,7 +47,8 @@
     },
     "emberling": {
       "repair": {
-        "blendWidth_m": 0.12,
+        "blendWidth_m": 0.24,
+        "seamWeld": true,
         "amplitude": {
           "Eat": {
             "head": 0.6
@@ -74,7 +75,7 @@
             "legs": 0.9
           },
           "Run": {
-            "legs": 0.8
+            "legs": 0.6
           }
         },
         "skinning": "linear"

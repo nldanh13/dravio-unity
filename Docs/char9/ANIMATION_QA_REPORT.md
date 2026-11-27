@@ -1,5 +1,7 @@
 # CHAR.9 — Animation QA (16 rồng thật)
 
+> **CHAR.9c (#95):** `anim_qa.py` mặc định đo 8 frame/clip gộp lại (không phải mọi frame), và không thấy được vết nứt ở đường nối UV (rig v7: 6–27 % chiều cao ở cả 16 loài). Số đo lại mọi frame, skinning tuyến tính: [Docs/char9c/CHAR9C_EMBERLING_RIG_QA.md](../char9c/CHAR9C_EMBERLING_RIG_QA.md).
+
 > **Cập nhật CHAR.9b:** Emberling đã sửa và đạt ANIMATION_QA_PASS (Blender, skinning tuyến tính) — xem [`Docs/char9b/CHAR9B_EMBERLING_REPORT.md`](../char9b/CHAR9B_EMBERLING_REPORT.md). Số bên dưới là CHAR.9, đo với **dual quaternion** (Preserve Volume của rig v7), không phải skinning tuyến tính của Unity; 15 loài còn lại phải đo lại khi áp dụng pipeline CHAR.9b.
 
 Nguồn số liệu: Blender 5.3, `anim_qa.py` v3, mọi frame mỗi clip, ngưỡng không đổi (`character-budgets.json`: giãn p99,9 ≤ 1,6; nén p0,1 ≥ 0,45; xuyên đất ≤ 0,01). Chi tiết từng model: `scripts/art/character/reports_char8_production/qa/`, bảng tổng: `scripts/art/character/TEST_REPORT_CHAR8_PRODUCTION.md` §4.

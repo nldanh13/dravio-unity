@@ -57,6 +57,10 @@ TRANSITIONS = (
 WATER_CLIPS = ('Swim', 'SwimIdle', 'SwimRest', 'SwimSurface')
 AIR_CLIPS = ('Fly', 'Glide', 'TakeOff', 'Land')
 SAMPLES = 8
+# CHAR.9c, --strict-frame only: largest allowed distance between coincident (seam-split) vertices, relative to
+# the height (0.1 %: 0.9 mm on the 0.9 m Emberling). Proposed check, NOT in character-budgets.json yet: a welded
+# skin gives exactly 0; rig v7 Emberling measured 5 % (45 mm) at Eat.
+SEAM_GAP_REL = 0.001
 
 
 def region_of(bone):
@@ -82,6 +86,13 @@ class Mesh:
         self.L0 = np.linalg.norm(self.rest[self.E[:, 0]] - self.rest[self.E[:, 1]], axis=1)
         keep = self.L0 > 1e-9
         self.E, self.L0 = self.E[keep], self.L0[keep]
+        # CHAR.9c: vertices split at UV/normal seams share a rest position but no edge, so edge stretch cannot see
+        # the skinned surface tearing open between them; measure their distance directly
+        _, grp = np.unique(np.round(self.rest / 1e-5).astype(np.int64), axis=0, return_inverse=True)
+        grp = grp.ravel()
+        order = np.argsort(grp, kind='stable')
+        same = grp[order][1:] == grp[order][:-1]
+        self.seam = np.stack([order[:-1][same], order[1:][same]], 1)
         gname = {g.index: g.name for g in obj.vertex_groups}
         self.dominant = []
         self.wsum, self.ninf = np.zeros(n), np.zeros(n, int)
@@ -245,6 +256,12 @@ def main():
     ap.add_argument('--lods-json', type=Path)
     ap.add_argument('--images', action='store_true')
     ap.add_argument('--overwrite-outputs', action='store_true')
+    # CHAR.9c: default stays 8 evenly spaced frames pooled (U1-CHAR.4 definition, keeps every earlier report
+    # comparable). '--samples all' measures every frame; '--strict-frame' additionally applies the SAME limits to
+    # the worst single frame (a pooled p0.1 over 8 frames can hide one bad frame: Emberling Eat 0.494 pooled vs
+    # 0.428 at its worst frame).
+    ap.add_argument('--samples', default=str(SAMPLES), help="frames per clip: integer or 'all'")
+    ap.add_argument('--strict-frame', action='store_true')
     a = ap.parse_args(cc.script_args())
     rig = json.loads(a.rig_json.read_text(encoding='utf-8'))
     lim = json.loads(BUDGETS.read_text(encoding='utf-8'))['animationQa']
@@ -354,8 +371,11 @@ def main():
     worst_frames = {}
     for clip, c in rig['clips'].items():
         rep = {'frames': [c['start'], c['end']], 'loop': c.get('loop', False), 'groundSpeed': c.get('groundSpeed', 0)}
-        frames = clip_frames(c)
+        frames = (list(range(c['start'], c['end'] + 1)) if a.samples == 'all'
+                  else clip_frames(c, max(2, int(a.samples))))
         allr = []
+        fr_st, fr_cp = [], []
+        seam_gap = 0.0
         worst = (None, -1, None)
         lo, hi = rest_co.min(axis=0), rest_co.max(axis=0)
         min_z = np.inf
@@ -366,7 +386,11 @@ def main():
             co = mesh.evaluated()
             r = mesh.ratios(co)
             allr.append(r)
-            score = max(float(np.percentile(r, 99.9)) - 1, 1 - float(np.percentile(r, 0.1)))
+            if len(mesh.seam):
+                seam_gap = max(seam_gap, float(np.linalg.norm(co[mesh.seam[:, 0]] - co[mesh.seam[:, 1]], axis=1).max()))
+            fr_st.append(float(np.percentile(r, 99.9)))
+            fr_cp.append(float(np.percentile(r, 0.1)))
+            score = max(fr_st[-1] - 1, 1 - fr_cp[-1])
             if score > worst[1]:
                 worst = (f, score, r)
             lo, hi = np.minimum(lo, co.min(axis=0)), np.maximum(hi, co.max(axis=0))
@@ -384,6 +408,9 @@ def main():
         top = sorted(zip(vals, counts), key=lambda x: -x[1])[:4]
         rep['deformation'] = {'stretchP999': round(p999, 3), 'compressP001': round(p001, 3),
                               'stretchMax': round(float(R.max()), 3), 'worstFrame': worst[0],
+                              'framesMeasured': len(frames), 'aggregation': 'pooled',
+                              'worstFrameStretchP999': round(max(fr_st), 3),
+                              'worstFrameCompressP001': round(min(fr_cp), 3),
                               'worstBones': [{'bone': b, 'region': region_of(b), 'share': round(int(n) / int(bad.sum()), 3)}
                                              for b, n in top]}
         worst_frames[clip] = (worst[0], worst[2])
@@ -391,6 +418,13 @@ def main():
             warn(clip, 'deformation', 'edge stretch over limit', round(p999, 3), lim['maxStretchP999'])
         if p001 < lim['minCompressP001']:
             warn(clip, 'deformation', 'edge compression over limit', round(p001, 3), lim['minCompressP001'])
+        rep['seamGapRel'] = round(seam_gap / h, 5)
+        if a.strict_frame and seam_gap / h > SEAM_GAP_REL:
+            warn(clip, 'seams', 'skinned surface opens at split (UV/normal seam) vertices', round(seam_gap / h, 5), SEAM_GAP_REL)
+        if a.strict_frame and max(fr_st) > lim['maxStretchP999'] and p999 <= lim['maxStretchP999']:
+            warn(clip, 'deformation', 'edge stretch over limit at the worst single frame', round(max(fr_st), 3), lim['maxStretchP999'])
+        if a.strict_frame and min(fr_cp) < lim['minCompressP001'] and p001 >= lim['minCompressP001']:
+            warn(clip, 'deformation', 'edge compression over limit at the worst single frame', round(min(fr_cp), 3), lim['minCompressP001'])
         # bounds
         growth = float(np.linalg.norm(hi - lo)) / rest_diag
         rep['bounds'] = {'min': [round(float(x), 4) for x in lo], 'max': [round(float(x), 4) for x in hi],
