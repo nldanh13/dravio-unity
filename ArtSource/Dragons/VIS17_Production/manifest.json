@@ -1,0 +1,1170 @@
+{
+  "version": 1,
+  "status": "art direction and read-only QA inventory; no runtime promotion",
+  "baseline": "a1871411645524926ea9707399c49b7d548e5c3d",
+  "sources": [
+    {
+      "path": "Assets/Dravio/Character/Data/species-character-spec.json",
+      "blob": "e239e5565a9abc03916f1b95dc18fc47fa565120"
+    },
+    {
+      "path": "Assets/Dravio/Data/species-biology.json",
+      "blob": "c0079cc0ead48aad79700047d332b8524bdc14a2"
+    },
+    {
+      "path": "scripts/art/character/reports_char9c/source_glb_audit.json",
+      "blob": "23a8131d7fa86ff750c1a5a9d291cad4b5a34781"
+    },
+    {
+      "path": "scripts/art/character/reports_char9c/species_remeasure_linear_allframes.json",
+      "blob": "9a96d510665d562c865357e45dd5e4098cc458d5"
+    }
+  ],
+  "species": [
+    {
+      "id": "emberling",
+      "path": "ArtSource/Dragons/images/01_emberling.glb",
+      "sourceBlob": "826ebe5f6e321a045eecd50b5b0dc8fe61dee54b",
+      "bytes": 3942888,
+      "sourceSha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+      "canonical": {
+        "silhouetteVi": "Bốn chân, đuôi lửa tròn, không cánh.",
+        "palette": {
+          "primary": "#D86B47",
+          "secondary": "#A83D36",
+          "belly": "#F9D59A",
+          "accent": "#FFD66C"
+        },
+        "locomotion": [
+          "walk"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Round",
+        "realms": [
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.3924,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "CHAR9c owner-approved FBX merged; Unity reimport pending verification",
+        "priority": "reference-only",
+        "reportedContractClipsPassed": 5
+      },
+      "limbCount": 4,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "droplet",
+      "path": "ArtSource/Dragons/images/02_droplet.glb",
+      "sourceBlob": "89b2919c5fb075ddc8c1261c3468c6b5ebadb33e",
+      "bytes": 3953936,
+      "sourceSha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+      "canonical": {
+        "silhouetteVi": "Thân tròn, vây tai, đuôi dẹt, màng chân.",
+        "palette": {
+          "primary": "#61BBD0",
+          "secondary": "#337FA4",
+          "belly": "#C7F2EE",
+          "accent": "#86E5DE"
+        },
+        "locomotion": [
+          "walk",
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Round",
+        "realms": [
+          "ocean",
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.3777,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 16,
+        "seamGapMaxRel": 0.11477,
+        "worstClip": "Run",
+        "worstStretch": 5.18,
+        "otherWarnings": []
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "sprout",
+      "path": "ArtSource/Dragons/images/03_sprout.glb",
+      "sourceBlob": "06ad8ae898f4fe3e7aeb313a174e7331e6702cfd",
+      "bytes": 4184268,
+      "sourceSha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+      "canonical": {
+        "silhouetteVi": "Mầm lá, bốn chân, đuôi lá.",
+        "palette": {
+          "primary": "#75B57D",
+          "secondary": "#397C58",
+          "belly": "#E3EAC0",
+          "accent": "#E7B864"
+        },
+        "locomotion": [
+          "walk",
+          "burrow"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Round",
+        "realms": [
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19988,
+        "islands": 1,
+        "uvFlippedShare": 0.341,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 18,
+        "seamGapMaxRel": 0.15898,
+        "worstClip": "Run",
+        "worstStretch": 5.245,
+        "otherWarnings": []
+      },
+      "limbCount": 4,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "zephyr",
+      "path": "ArtSource/Dragons/images/04_zephyr.glb",
+      "sourceBlob": "8ae859df9811d976457baa26b613f020f84e38f4",
+      "bytes": 4524668,
+      "sourceSha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+      "canonical": {
+        "silhouetteVi": "Cánh lông rộng, đuôi mây, chân đậu.",
+        "palette": {
+          "primary": "#A6C8E6",
+          "secondary": "#6388BA",
+          "belly": "#EDF4FC",
+          "accent": "#F5D999"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19994,
+        "islands": 1,
+        "uvFlippedShare": 0.4033,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 20,
+        "strictFail": 12,
+        "seamGapMaxRel": 0.16575,
+        "worstClip": "Land",
+        "worstStretch": 2.936,
+        "otherWarnings": [
+          "bones",
+          "facing",
+          "footSliding",
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "steamdrake",
+      "path": "ArtSource/Dragons/images/05_steamdrake.glb",
+      "sourceBlob": "566ab6581d2599b97db8ed498a487607dcc00986",
+      "bytes": 4142736,
+      "sourceSha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+      "canonical": {
+        "silhouetteVi": "Thân dài, vây sống lưng, chi ngắn.",
+        "palette": {
+          "primary": "#92BFC0",
+          "secondary": "#527E83",
+          "belly": "#E5E5CB",
+          "accent": "#ECAD78"
+        },
+        "locomotion": [
+          "walk",
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Serpent",
+        "realms": [
+          "ocean",
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19998,
+        "islands": 1,
+        "uvFlippedShare": 0.3332,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "serpentine",
+        "clips": 21,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.06054,
+        "worstClip": "Swim",
+        "worstStretch": 4.442,
+        "otherWarnings": []
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "magma",
+      "path": "ArtSource/Dragons/images/06_magma.glb",
+      "sourceBlob": "13de6e50ee77b9086abc5c5eac3fe425b3ed1ce8",
+      "bytes": 3648020,
+      "sourceSha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+      "canonical": {
+        "silhouetteVi": "Giáp đá, sừng ngắn, chân chắc.",
+        "palette": {
+          "primary": "#9F5544",
+          "secondary": "#523B48",
+          "belly": "#F1A55C",
+          "accent": "#FFD261"
+        },
+        "locomotion": [
+          "walk",
+          "burrow"
+        ],
+        "protection": "armor",
+        "bodyStyle": "Horned",
+        "realms": [
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.4319,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.11227,
+        "worstClip": "Run",
+        "worstStretch": 4.179,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "sparkwing",
+      "path": "ArtSource/Dragons/images/07_sparkwing.glb",
+      "sourceBlob": "16d5a755bad4958301ec3f187ce947d9506fe32d",
+      "bytes": 3627404,
+      "sourceSha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+      "canonical": {
+        "silhouetteVi": "Cánh góc cạnh, đuôi tia điện.",
+        "palette": {
+          "primary": "#DBB65A",
+          "secondary": "#96703B",
+          "belly": "#F8EAC6",
+          "accent": "#F7F08A"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20000,
+        "islands": 1,
+        "uvFlippedShare": 0.5799,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.15708,
+        "worstClip": "Run",
+        "worstStretch": 7.636,
+        "otherWarnings": [
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "frostfin",
+      "path": "ArtSource/Dragons/images/08_frostfin.glb",
+      "sourceBlob": "f7b9633c9f45f7c43d6a5cc841f3d117dc56f745",
+      "bytes": 3501148,
+      "sourceSha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+      "canonical": {
+        "silhouetteVi": "Vây ngực lớn như cánh; không chân đi, không bay.",
+        "palette": {
+          "primary": "#8ABADD",
+          "secondary": "#4B75AB",
+          "belly": "#E0F5FF",
+          "accent": "#BDEDF4"
+        },
+        "locomotion": [
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "ocean"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.5855,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "aquatic",
+        "clips": 13,
+        "strictFail": 11,
+        "seamGapMaxRel": 0.09468,
+        "worstClip": "Happy",
+        "worstStretch": 5.33,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "mossback",
+      "path": "ArtSource/Dragons/images/09_mossback.glb",
+      "sourceBlob": "d5479a5df1e4f4e5ba54fa33b8b2386bbb81bf4d",
+      "bytes": 3560776,
+      "sourceSha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+      "canonical": {
+        "silhouetteVi": "Mai rêu, chi bè, vây đuôi.",
+        "palette": {
+          "primary": "#829D66",
+          "secondary": "#506C4C",
+          "belly": "#D6D7A2",
+          "accent": "#A7CD84"
+        },
+        "locomotion": [
+          "walk",
+          "swim"
+        ],
+        "protection": "armor",
+        "bodyStyle": "Round",
+        "realms": [
+          "ocean",
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.4376,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 19,
+        "seamGapMaxRel": 0.10167,
+        "worstClip": "Swim",
+        "worstStretch": 11.001,
+        "otherWarnings": []
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "blossom",
+      "path": "ArtSource/Dragons/images/10_blossom.glb",
+      "sourceBlob": "2a8114a41c53e1b1df23eebd6dec10aa6f94ac09",
+      "bytes": 3900628,
+      "sourceSha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+      "canonical": {
+        "silhouetteVi": "Cánh cánh hoa, đuôi dài, chân đậu.",
+        "palette": {
+          "primary": "#DC9FB8",
+          "secondary": "#A86B94",
+          "belly": "#F9E1D5",
+          "accent": "#B7D99A"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.4627,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 20,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.16734,
+        "worstClip": "Run",
+        "worstStretch": 3.767,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "solaris",
+      "path": "ArtSource/Dragons/images/11_solaris.glb",
+      "sourceBlob": "82d60a1305d70a1f7daa044e9a88858ce89d5c0e",
+      "bytes": 3502444,
+      "sourceSha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+      "canonical": {
+        "silhouetteVi": "Mào lửa, cánh lông lớn, đuôi quạt.",
+        "palette": {
+          "primary": "#ED874B",
+          "secondary": "#AC4B3D",
+          "belly": "#FBE1A0",
+          "accent": "#FFE47F"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19996,
+        "islands": 1,
+        "uvFlippedShare": 0.3951,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 12,
+        "seamGapMaxRel": 0.0892,
+        "worstClip": "Run",
+        "worstStretch": 2.791,
+        "otherWarnings": [
+          "facing",
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "leviathan",
+      "path": "ArtSource/Dragons/images/12_leviathan.glb",
+      "sourceBlob": "9840e9f2d351f25a43ea6cb6c98529157a02bd78",
+      "bytes": 3833836,
+      "sourceSha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+      "canonical": {
+        "silhouetteVi": "Thân biển dài, vây san hô, không chi đất.",
+        "palette": {
+          "primary": "#427C9A",
+          "secondary": "#27526E",
+          "belly": "#C7E4D7",
+          "accent": "#E38F86"
+        },
+        "locomotion": [
+          "swim"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Serpent",
+        "realms": [
+          "ocean"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19996,
+        "islands": 1,
+        "uvFlippedShare": 0.4246,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "serpentine",
+        "clips": 13,
+        "strictFail": 11,
+        "seamGapMaxRel": 0.09649,
+        "worstClip": "Sleep",
+        "worstStretch": 7.999,
+        "otherWarnings": []
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "amberhorn",
+      "path": "ArtSource/Dragons/images/13_amberhorn.glb",
+      "sourceBlob": "58fcc6c9a5a530db156a95a4180e8ac561abbb6e",
+      "bytes": 4277448,
+      "sourceSha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+      "canonical": {
+        "silhouetteVi": "Sừng hổ phách, giáp lưng, bốn chân.",
+        "palette": {
+          "primary": "#C58C45",
+          "secondary": "#855B39",
+          "belly": "#F3DCA4",
+          "accent": "#FFE08A"
+        },
+        "locomotion": [
+          "walk",
+          "burrow"
+        ],
+        "protection": "armor",
+        "bodyStyle": "Horned",
+        "realms": [
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.4476,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 19,
+        "strictFail": 14,
+        "seamGapMaxRel": 0.1344,
+        "worstClip": "Burrow",
+        "worstStretch": 3.808,
+        "otherWarnings": [
+          "ground"
+        ]
+      },
+      "limbCount": 4,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "aurorawing",
+      "path": "ArtSource/Dragons/images/14_aurorawing.glb",
+      "sourceBlob": "bad499a6b42b07d149e32a46a85aba1d45f887e2",
+      "bytes": 3376524,
+      "sourceSha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+      "canonical": {
+        "silhouetteVi": "Cánh dải sáng, lông cổ, đuôi cực quang.",
+        "palette": {
+          "primary": "#879BD5",
+          "secondary": "#5F5B9E",
+          "belly": "#DDE6FA",
+          "accent": "#8DE6CF"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19972,
+        "islands": 5,
+        "uvFlippedShare": 0.4879,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 14,
+        "seamGapMaxRel": 0.14417,
+        "worstClip": "Sleep",
+        "worstStretch": 2.81,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "celestia",
+      "path": "ArtSource/Dragons/images/15_celestia.glb",
+      "sourceBlob": "2c044d39603bb108508932be45c2d793cfac5184",
+      "bytes": 3508848,
+      "sourceSha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+      "canonical": {
+        "silhouetteVi": "Cánh sao, sừng tinh thể, đuôi sao.",
+        "palette": {
+          "primary": "#7776B5",
+          "secondary": "#45446F",
+          "belly": "#D4D2EC",
+          "accent": "#E9D48C"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19998,
+        "islands": 1,
+        "uvFlippedShare": 0.3797,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.21637,
+        "worstClip": "Run",
+        "worstStretch": 6.494,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    },
+    {
+      "id": "gaia",
+      "path": "ArtSource/Dragons/images/16_gaia.glb",
+      "sourceBlob": "8d713433cddb5900f659b9fa7ab54839c78bf66e",
+      "bytes": 4717212,
+      "sourceSha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+      "canonical": {
+        "silhouetteVi": "Sừng cây, giáp đá-rêu, chân màng và vây.",
+        "palette": {
+          "primary": "#629B7D",
+          "secondary": "#385D57",
+          "belly": "#DDE5B6",
+          "accent": "#E8C97F"
+        },
+        "locomotion": [
+          "walk",
+          "swim"
+        ],
+        "protection": "armor",
+        "bodyStyle": "Horned",
+        "realms": [
+          "ocean",
+          "land"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19998,
+        "islands": 1,
+        "uvFlippedShare": 0.342,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "quadruped",
+        "clips": 21,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.2742,
+        "worstClip": "Swim",
+        "worstStretch": 13.334,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "limbCount": null,
+      "stageMorphology": "unspecified; no invented stage meshes",
+      "materialPlan": {
+        "baseColor": "canonical palette anchors only; preserve source baked shading and markings",
+        "secondary": "manual UV masks; never infer semantic areas from color alone",
+        "normalMap": "hold until mirrored tangent and seam QA",
+        "metallicRoughness": "inspect actual map channels and material factors; do not overwrite globally"
+      }
+    }
+  ],
+  "rigRepairOrderProposal": [
+    {
+      "archetype": "quadruped",
+      "species": [
+        "mossback",
+        "magma",
+        "droplet",
+        "amberhorn",
+        "sprout",
+        "gaia"
+      ]
+    },
+    {
+      "archetype": "winged",
+      "species": [
+        "solaris",
+        "aurorawing",
+        "sparkwing",
+        "zephyr",
+        "blossom",
+        "celestia"
+      ]
+    },
+    {
+      "archetype": "serpentine",
+      "species": [
+        "steamdrake",
+        "leviathan"
+      ]
+    },
+    {
+      "archetype": "aquatic",
+      "species": [
+        "frostfin"
+      ]
+    }
+  ],
+  "qaSummary": {
+    "remainingSpecies": 15,
+    "reportedClips": 283,
+    "reportedStrictFail": 223
+  },
+  "checks": "16/16 canonical palette, silhouette, locomotion, protection; source path and byte length against Git tree; SHA256 copied from CHAR9c report (not independently recomputed); 9 synthetic UV parser checks",
+  "limitations": "No GLB byte decode, actual UV export, new dragon model, rig repair, texture grade, Unity or device test in this step. Current QA is pinned report, not latest actual animation measurement. Do not infer limb count or stage morphology. Coordinate with character AI."
+}
