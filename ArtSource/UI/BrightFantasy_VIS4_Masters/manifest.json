@@ -342,8 +342,118 @@
       ],
       "bytes": 19915,
       "blob": "07bc0d6109b48f6fee198a85f38a6350fed87bab"
+    },
+    {
+      "id": "btn_primary",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary_disabled.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28068,
+      "blob": "84f489c71d2a870e181784e77af41412f40929ab"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary_disabled.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 26701,
+      "blob": "fac047f7508ebe85e1c4555239cdbee74898bd61"
+    },
+    {
+      "id": "btn_reward",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward_disabled.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28149,
+      "blob": "1860d9bf75b9f6da8611704a6f5d0c36fb57a3f3"
+    },
+    {
+      "id": "btn_danger",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger_disabled.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28940,
+      "blob": "d2bcc0b58465351b68cbc09c63f27814dbcf7159"
     }
   ],
-  "pending": "disabled button states, ornaments, icons, portrait and progress; visual QA",
-  "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity"
+  "pending": "ornaments, icons, portrait, progress, other roles and actual visual QA",
+  "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
+  "preview": {
+    "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
+    "blob": "c5d3bbb7d04efe093677b702f8ee7b986559fbb2",
+    "bytes": 34136,
+    "layout": "button rows primary/secondary/reward/danger; columns normal/pressed/disabled; bottom panel, page, header, tab, active tab"
+  }
 }
