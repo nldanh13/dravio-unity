@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "status": "original procedural close-view flora source candidates; not visually approved",
+  "coordinateSystem": "glTF Y up; base Y approximately zero; meters; view from any yaw",
+  "assets": [
+    {
+      "name": "Origin_Bloom_Cluster",
+      "triangles": 1164,
+      "vertices": 3492,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3114235997200012,
+          -5.35998675998961e-12,
+          -0.16816715896129608
+        ],
+        "max": [
+          0.34192952513694763,
+          0.5560949444770813,
+          0.2741049528121948
+        ]
+      },
+      "bytes": 126756,
+      "path": "ArtSource/Origin_VIS8_Flora/Origin_Bloom_Cluster.glb",
+      "blob": "c3a408c064196dd02e4d17e17ef5507731ad5e82"
+    },
+    {
+      "name": "Origin_Fern_Rosette",
+      "triangles": 1512,
+      "vertices": 4536,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3342534899711609,
+          4.315711676916578e-11,
+          -0.29997381567955017
+        ],
+        "max": [
+          0.33786740899086,
+          0.22103676199913025,
+          0.34599965810775757
+        ]
+      },
+      "bytes": 164340,
+      "path": "ArtSource/Origin_VIS8_Flora/Origin_Fern_Rosette.glb",
+      "blob": "a3f0b12bb1ba86adf82d5c2d7106f3040fce9e0d"
+    },
+    {
+      "name": "Origin_Coral_Mushroom_Cluster",
+      "triangles": 672,
+      "vertices": 2016,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3499999940395355,
+          0,
+          -0.22499999403953552
+        ],
+        "max": [
+          0.375,
+          0.5335999727249146,
+          0.2800000011920929
+        ]
+      },
+      "bytes": 73604,
+      "path": "ArtSource/Origin_VIS8_Flora/Origin_Coral_Mushroom_Cluster.glb",
+      "blob": "2218d8022d3494662bd2272b6ddea8a3785be0bb"
+    }
+  ],
+  "totalTriangles": 3348,
+  "scope": "three optional near-view accents only, not replacement for existing coverage cards, not interactable, no collider",
+  "checks": [
+    "deterministic regenerated GLB bytes",
+    "finite positions, unit normals, nondegenerate faces, no opposed corner normals",
+    "base ground and plant height check",
+    "bundle <=4000 triangles"
+  ],
+  "material": "one opaque vertex-color source material per model; proposed shared white-base static material, no texture, no wind; not yet runtime imported",
+  "limitations": "No Blender, glTF-Validator, Unity, visual or device tests. Multiple intersecting closed primitives; hidden geometry not optimized. No UV; FBX converter needs static material and alpha 0."
+}
