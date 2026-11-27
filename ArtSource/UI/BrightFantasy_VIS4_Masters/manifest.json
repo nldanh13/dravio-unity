@@ -212,8 +212,138 @@
       ],
       "bytes": 29006,
       "blob": "6280ecd07a65b3b2227d385f5f2c82683d4b171a"
+    },
+    {
+      "id": "tab",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab.png",
+      "role": "Tab",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab.png",
+      "width": 512,
+      "height": 256,
+      "borderLTRB": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "alpha": {
+        "transparent": 10540,
+        "opaque": 114856,
+        "partial": 5676
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19773,
+      "blob": "90a930a03446009004b94686ded6818b025691cc"
+    },
+    {
+      "id": "tab_active",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Tabs/ui_tab_active.png",
+      "role": "TabActive",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_active.png",
+      "width": 512,
+      "height": 256,
+      "borderLTRB": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "alpha": {
+        "transparent": 10540,
+        "opaque": 114856,
+        "partial": 5676
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19869,
+      "blob": "3b46279fb11207c43accc342d4ed6b852f74e46c"
+    },
+    {
+      "id": "panel",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_panel.png",
+      "role": "Panel",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_panel.png",
+      "width": 1024,
+      "height": 1024,
+      "borderLTRB": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "alpha": {
+        "transparent": 28692,
+        "opaque": 1004128,
+        "partial": 15756
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 64704,
+      "blob": "9ceddca3f3db455a4048c63593f1071acda5dc44"
+    },
+    {
+      "id": "header",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_header.png",
+      "role": "HeaderBar",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_header.png",
+      "width": 1024,
+      "height": 256,
+      "borderLTRB": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "alpha": {
+        "transparent": 16380,
+        "opaque": 236024,
+        "partial": 9740
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 26951,
+      "blob": "7e88e16fdc0a322988ad3373d1b6e199e42e164d"
+    },
+    {
+      "id": "page_bg",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Panels/ui_page_bg.png",
+      "role": "PageBackground",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Panels/ui_page_bg.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        64,
+        64,
+        64,
+        64
+      ],
+      "alpha": {
+        "transparent": 10824,
+        "opaque": 243516,
+        "partial": 7804
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 19915,
+      "blob": "07bc0d6109b48f6fee198a85f38a6350fed87bab"
     }
   ],
-  "pending": "disabled, panels, tabs, ornaments, icons, portrait and progress",
+  "pending": "disabled button states, ornaments, icons, portrait and progress; visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity"
 }
