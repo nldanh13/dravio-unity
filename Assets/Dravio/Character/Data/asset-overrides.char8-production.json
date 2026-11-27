@@ -298,7 +298,18 @@
         "seamWeld": true,
         "blendWidth_m": 0.24,
         "pinTransitions": true,
+        "trunkAxis": true,
+        "neckSpill": false,
         "amplitude": {
+          "Eat": {
+            "head": 0.5,
+            "body": 0.522,
+            "legs": 0.522
+          },
+          "Glide": {
+            "body": 0.85,
+            "legs": 0.85
+          },
           "Rest": {
             "body": 0.614,
             "legs": 0.614
@@ -306,6 +317,14 @@
           "Run": {
             "body": 0.722,
             "legs": 0.722
+          },
+          "Walk": {
+            "body": 0.85,
+            "legs": 0.85
+          },
+          "LookAround": {
+            "head": 0.85,
+            "body": 0.85
           }
         }
       }

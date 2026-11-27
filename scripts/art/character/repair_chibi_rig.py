@@ -19,6 +19,11 @@ config (asset-overrides.json species.<id>.repair / files.<stem>.repair):
                 lower-leg-only rotation of that clip by k (slerp to rest; "knees" multiplies "legs" on Lower_*);
                 Wake ramps from the Sleep factors to 1 so Sleep -> Wake -> Idle stays closed; groundSpeed of a clip
                 with scaled legs is scaled by the same k (runtime PlaybackRate = speed / groundSpeed stays foot-locked)
+  trunkAxis     (CHAR.9c) true: the trunk share (Pelvis + Spine* + Chest) of every vertex is redistributed by its
+                position along the spine chain seen from above, so the lower torso and the fore-leg tops follow
+                Spine/Chest instead of Pelvis on rigs whose spine runs diagonally (rig v7 gaia, mossback...);
+                Neck/Head weight behind the Chest joint (spilled onto the back / wing roots) returns to the trunk
+                (neckSpill, default true with trunkAxis)
   pinTransitions (CHAR.9c) true: authored transitions (Sleep->Wake->Idle, TakeOff/Fly/Land, WaterEnter/Swim/
                 WaterExit, DigPrep/Burrow*) stay closed. Loop clips keep one constant factor; each end of a one-shot
                 clip that meets another clip takes that clip's factor if it is a loop, else 1 (authored pose), easing
@@ -82,6 +87,51 @@ if 'Neck' in names and 'Head' in names:
     tH = 1.0 / (1.0 + np.exp(-(dN - dH) / 0.015))     # soft: closer to Head segment -> Head
     Wt[sel, iH] = nh[sel] * tH; Wt[sel, iN] = nh[sel] * (1 - tH)
     print('neck/head reassigned', int(sel.sum()))
+# CHAR.9c trunkAxis: rig v7 places the spine chain on a diagonal (hips low, chest high), so 3D distance gives the
+# lower torso and the top of the FORE legs to Pelvis (gaia: Pelvis+ForeUpper on 650 vertices, Swim stretch 7.3).
+# With trunkAxis the trunk share of every vertex (Pelvis + Spine* + Chest, whatever it was) is redistributed by the
+# vertex position ALONG the chain seen from above (XY, Z ignored): 1 at each bone's midpoint, linear to the next.
+# Limb, tail, neck, head, wing and fin weights are not touched.
+if CFG.get('trunkAxis', False) and 'Pelvis' in names:
+    chain = ['Pelvis']
+    while True:
+        kids = [b.name for b in arm.data.bones[chain[-1]].children if b.name in names and (b.name == 'Chest' or b.name.startswith('Spine'))]
+        if not kids: break
+        chain.append(kids[0])
+    if len(chain) > 1:
+        ti = [names.index(b) for b in chain]
+        pts = [seg(chain[0])[0][:2]] + [seg(b)[1][:2] for b in chain]
+        seglen = [float(np.linalg.norm(pts[i + 1] - pts[i])) for i in range(len(chain))]
+        cum = np.concatenate([[0.0], np.cumsum(seglen)])
+        # arclength of each vertex's closest point on the XY polyline
+        best = np.full(n, np.inf); sv = np.zeros(n)
+        for i in range(len(chain)):
+            a2, b2 = pts[i], pts[i + 1]; ab = b2 - a2; den = max(ab @ ab, 1e-12)
+            t = np.clip(((co[:, :2] - a2) @ ab) / den, 0, 1)
+            d = np.linalg.norm(co[:, :2] - (a2 + t[:, None] * ab), axis=1)
+            upd = d < best; best[upd] = d[upd]; sv[upd] = cum[i] + t[upd] * seglen[i]
+        mids = (cum[:-1] + cum[1:]) / 2
+        Wn = np.zeros((n, len(chain)))
+        for i in range(len(chain)):
+            lo = mids[i - 1] if i else -np.inf; hi = mids[i + 1] if i + 1 < len(chain) else np.inf
+            up = np.where(sv <= mids[i], (sv - lo) / max(mids[i] - lo, 1e-9) if i else 1.0, 0)
+            dn = np.where(sv > mids[i], (hi - sv) / max(hi - mids[i], 1e-9) if i + 1 < len(chain) else 1.0, 0)
+            Wn[:, i] = np.clip(up + dn, 0, 1)
+        Wn /= np.maximum(Wn.sum(1, keepdims=True), 1e-9)
+        # Neck/Head weight that rig v7 spilled onto the back or the wing roots (aurorawing: 300+ vertices half-way
+        # down the body follow the Neck in LookAround, stretch 4.4) goes back to the trunk: only vertices ahead of
+        # the Chest joint (minus half the blend width) may follow the neck
+        hn = [names.index(b) for b in ('Neck', 'Head') if b in names]
+        if hn and CFG.get('neckSpill', True):
+            back = sv < cum[-2] - W_BLEND / 2
+            spill = Wt[back][:, hn].sum(1)
+            print('neck/head spill to trunk', int((spill > 0.01).sum()), 'vertices, weight', round(float(spill.sum()), 1))
+            Wt[np.ix_(back, [ti[0]])] += spill[:, None]
+            Wt[np.ix_(back, hn)] = 0.0
+        share = Wt[:, ti].sum(1)
+        moved = float(np.abs(Wt[:, ti] - share[:, None] * Wn).sum() / 2)
+        Wt[:, ti] = share[:, None] * Wn
+        print('trunk axis', chain, 'weight moved', round(moved, 1))
 dom = Wt.argmax(1)
 # hard steps: an edge whose two ends are dominated by different bones with a large weight jump
 jump = np.abs(Wt[E[:,0]] - Wt[E[:,1]]).max(1)
