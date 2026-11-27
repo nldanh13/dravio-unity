@@ -10,6 +10,7 @@ Báo cáo này chỉ ghi kết quả đã chạy thật. Mục nào không chạ
 | HEAD tích hợp `feat/u5-6-player-journey` | `4b3d598b7ea05b6b244f7a6ea43c36a5c294715a` (merge PR #88) |
 | PR #89 head (VIS.3a–c) | `8714386b6abc4c0744320bed0c658c5c8dcce6f4` (khớp issue) |
 | PR #87 head (UI kit v1) | `7c32847d5899e8ba733847818a6d016d51cfb5ae` (khớp issue) |
+| QA lại sau bàn giao AI3 (27/11) | #87 `12d7249`, #89 `2b702e1` (mục 10) |
 
 Commit trên nhánh QA (theo thứ tự): merge #89 → merge #87 → khôi phục `ArtSource/UI` v1 → import 6 FBX VIS.3b → công cụ QA → báo cáo này.
 Không merge #83/#84. Không sửa nhánh AI3. Không đổi Domain/Persistence/Data/collider/location/spawn/animation (đã kiểm bằng script, mục 2).
@@ -25,8 +26,8 @@ Môi trường: Linux container, **không có Unity Editor, không có thiết b
 | Review shader/material/ánh sáng | PASS (source review) | Không có lỗi chặn; 3 ghi chú (mục 3) |
 | Compile shader/C# trong Unity | **NOT RUN** | Không có Unity |
 | `build_origin_vis3_models.py` | PASS (Blender 5.3 bpy) | 6 FBX đạt mọi kiểm tra, đã import, giữ `.meta` |
-| 3 GLB `Origin_VIS3c` | **FAIL – báo AI3** | Validator 0 lỗi, nhưng mặt bên cửa/cửa sổ bị lật, mặt trước quay ngược camera |
-| Chuyển GLB → FBX thử | **HOÃN** | Chờ AI3 sửa lỗi hình học; xem yêu cầu kỹ thuật mục 5.3 |
+| 3 GLB `Origin_VIS3c` (v1) | **FAIL – báo AI3** → v2 xem mục 10 | Validator 0 lỗi, nhưng mặt bên cửa/cửa sổ bị lật, mặt trước quay ngược camera |
+| Chuyển GLB → FBX thử | DONE cho v2 (staging, ngoài Assets) | Mục 10; chưa import, chưa đặt |
 | Thử bố cục | DONE (Blender, không phải scene Unity) | Không có vị trí đọc tốt mà không đổi camera |
 | UI kit #87 theo hợp đồng #88 | **0/83 đạt** | Không tích hợp sprite nào; theme giữ fallback màu |
 | Landscape 16:9/20:9/4:3, notch, Focus, chữ Việt/Anh, input | **NOT RUN** | Cần Unity/thiết bị; chỉ có test logic `UiFoundationTests` pass |
@@ -164,3 +165,37 @@ Quan sát (trên render Blender): quả đỏ VIS.3b đọc được là chấm 
 3. Chụp Game View cùng camera/resolution ở 8h, 13h, 16h30, đêm (16:9, 20:9, 4:3); so với ảnh Blender trong `vis4b/`.
 4. Profiler/Frame Debugger: draw calls, tris, materials, texture memory; FPS trên thiết bị.
 5. UI: safe area/notch, Focus, chữ Việt/Anh, chuyển tab/panel (chưa có sprite mới nên chỉ là regression của #88).
+
+## 10. QA lại bàn giao AI3 (27/11): #87 `12d7249`, #89 `2b702e1`
+
+Đã merge hai head mới vào nhánh QA. Test lại: `check_vis4b_integration.py` 0 failure; `scripts/qa` unittest OK; `check_script_meta` PASS; env tests OK.
+
+### 10.1 #87: khôi phục ArtSource/UI v1
+`git diff 4b3d598 12d7249 -- ArtSource/UI` ngoài `CuteFantasy_v1/` là **rỗng** → 18 file gốc đúng byte. Commit khôi phục riêng trên nhánh QA nay trùng nội dung, merge sạch. **PASS.**
+
+### 10.2 #89: `ArtSource/Origin_VIS3c_v2` (Blender 5.3 bpy + Khronos glTF-Validator đã chạy)
+
+| | Cottage | Lookout | Soft Hills |
+|---|---|---|---|
+| glTF-Validator | 0/0/0/0 | 0/0/0/0 | 0/0/0/0 |
+| `build_origin_vis3c_v2.mjs` tái sinh | giống hệt byte | giống hệt byte | giống hệt byte |
+| Tris (manifest) | 3560 ✓ | 1732 ✓ | 1920 ✓ |
+| Cạnh winding ngược / island kín bị lật | 0 / 0 | 0 / 0 | 0 / 0 |
+| Non-manifold / cạnh biên | 0 / 52 (mái tấm hở, như v1) | 0 / 0 | 0 / 0 |
+| Mặt sau nhìn thấy (render Cycles tô đỏ) | không còn | không còn | không |
+| Pivot đáy Y / tâm XZ | 0 / (0, 0) | 0 / (0, 0) | 0 / (0, 0) |
+| Tam giác chôn khuất | 26.9 % | 23.3 % | 21.7 % |
+| UV / alpha màu đỉnh | không / 1.0 | không / 1.0 | không / 1.0 |
+
+- Lỗi mặt lật cửa/cửa sổ: **đã hết**; cửa và cửa sổ vòm đọc rõ. Hướng mặt tiền Cottage/Lookout: glTF −Z = Blender +Y = **Unity −Z (hướng camera)**, đúng quy ước kit, không cần xoay 180°. (`vis4b/v2/vis3c_v2_glb_check.png`, `vis3c_v2_door_closeup.png`.)
+- **[Medium, AI3] Soft Hills v2 chỉ được căn tâm, không đổi hướng.** Ba đồi xanh lam cao (2.6–3.5 m) nằm phía camera (Blender +Y 0.35–1.25), hai đồi xanh lá thấp (1.8–1.95 m) nằm phía sau (−1.65…−1.85). Nhìn từ camera Origin, đồi cao che đồi thấp, ngược với lớp xa-gần (thấp và ấm ở trước, cao và lạnh ở sau). Cần đảo thứ tự trong generator, hoặc ghi rõ Hills phải đặt yaw 180°.
+- [Low] Cửa Lookout là tấm phẳng đặt lên tường cong, nên hai góc dưới hở nhẹ khỏi tường khi nhìn chéo.
+
+### 10.3 FBX thử nghiệm v2 (staging, không vào Assets)
+`scripts/qa/vis4b/stage_vis3c_v2_fbx.py` → `vis4b/v2/staged_fbx/SM_ENV_Fairytale_Cottage.fbx`, `SM_ENV_Fairytale_Lookout.fbx`, `SM_ENV_Soft_Hills.fbx`. Không xoay thêm; alpha màu đỉnh = 0; giữ RGB; 1 slot `ENV_Architecture`; 1 kênh UV; xuất bằng đúng `export_fbx` của kit. Import lại: tris khớp (3560/1732/1920), bounds lệch 0 mm, đáy Z = 0, alpha = 0, mặt tiền Cottage nhiều diện tích hướng +Y (Unity −Z).
+
+**Chưa import vào Unity, chưa đặt.** Lý do: atlas props hiện **không có ô trung tính**. Ô sáng nhất `mushroom_stem` có màu trung bình (218, 199, 163) và độ lệch luma 27, nên remap vào `ENV_Props` sẽ làm mọi màu tối và ngả vàng khoảng 15–35 %, kèm vân. Hai cách, đều cần duyệt:
+1. Material tĩnh mới `M_ENV_Architecture`: cùng shader `Painterly Lit`, base map trắng mặc định, `_VertexAO 1`, `_WindStrength 0`, `_BrightFantasy 1`. Thêm 1 material (Origin 4 → 5, dưới giới hạn 10), không thêm texture, không thêm shader.
+2. AI3 thêm ô trắng/trung tính vào atlas props (đổi texture, ảnh hưởng ngân sách texture).
+
+Bố cục vẫn chờ composition review (mục 5.4); không đặt asset nào vào scene thật.

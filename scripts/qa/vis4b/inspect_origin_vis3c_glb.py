@@ -24,11 +24,14 @@ ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "ArtSource" / "Origin_VIS3c"
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = Path(argv[argv.index("--out") + 1]).resolve()
-FILES = [Path(a) for a in argv if a.endswith(".glb")] or sorted(SRC.glob("*.glb"))
+FILES = [Path(a).resolve() for a in argv if a.endswith(".glb")] or sorted(SRC.glob("*.glb"))
 if ROOT / "Assets" in OUT.parents or OUT == ROOT / "Assets":
     raise SystemExit("Write QA output outside Unity Assets.")
 OUT.mkdir(parents=True, exist_ok=True)
-manifest = {a["name"]: a for a in json.loads((SRC / "manifest.json").read_text())["assets"]}
+manifest = {}
+for d in {f.resolve().parent for f in FILES}:
+    if (d / "manifest.json").exists():
+        manifest.update({a["name"]: a for a in json.loads((d / "manifest.json").read_text())["assets"]})
 
 
 def import_glb(path):
