@@ -292,3 +292,11 @@ Chủ dự án chọn "Material tĩnh mới" cho nhà/tháp/đồi và duyệt l
 - `test_environment_kit` 23 test OK; `test_vis1` OK. Kiểm cú pháp Roslyn (C# 9) cho 2 file Editor đã sửa: 0 lỗi.
 - Tris nếu đặt mỗi asset mới một lần: 34 472 + 7 212 (nhà, tháp, đồi) + 3 560 (thác, suối) = **45 244 / 60 000**.
 - **NOT RUN:** compile Unity và shader, import FBX/texture, Game View, ảnh chụp, FPS/draw call, thiết bị Android, phát animation bướm.
+
+### 14.6 Cập nhật AI3 VIS.11–14 (#92 `85878e2`, đã merge vào nhánh QA)
+- **VIS.11 nước đã xoay 180°:** 4 FBX thác/suối trong `Models/Origin_VIS3c/` được sinh lại từ `ArtSource/Origin_VIS11_Water_Orientation` (giữ nguyên `.meta`/GUID). Validator 0 lỗi; tris 980/384/1764/432 khớp; bounds lệch 0 mm. Mặt thác giờ quay về phía camera (Blender +Y). Suối chảy về phía camera, trùng chiều −v của `Painterly Flow` (tương quan y với v = −1.0), nên không phải sửa shader. Vẫn giữ `Cull Off`.
+- **VIS.11 canopy mask (2 × 128²):** chưa đưa vào; cần duyệt hiệu ứng ánh sáng và ngân sách (Origin còn khoảng 1 MiB dự phòng).
+- **VIS.12 LOD1 thực vật:** validator 0 lỗi. Kiểm gió độc lập: bloom 552 tris, fern 616 tris; rễ alpha 0, seam không rách, dịch chuyển tối đa 5.1 cm, dot ≥ 0.964. Chưa đưa vào Assets (cùng lý do mục 14.4).
+- **VIS.13 bố cục:** chỉ là sàng lọc AABB của AI3; Bloom/Fern ở xa phía bắc, Mushroom bị chặn. Không đặt gì.
+- **VIS.14 release manifest:** chạy `node scripts/art/environment/audit_origin_vis14_release.mjs` trên nhánh QA: 116 asset, 0 lỗi (khớp SHA/kích thước, kể cả 83 sprite UI trên #94).
+- Lưu ý khác biệt: README VIS.14 ghi "<=10 materials" cho Origin, còn `ReportBudget` của Origin trong code là 6 (10 là của Ocean/Sky). Với 6 material hiện tại, thêm material thực vật có gió sẽ vượt.
