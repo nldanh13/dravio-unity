@@ -471,8 +471,8 @@ namespace Dravio.EnvironmentArt.EditorTools
             comp.fullLightIntensity = FullLightIntensity(living);
         }
 
-        // Seabed caustics: two-layer "Dravio/Environment/Caustics" (min/max of the same mask, second
-        // layer scrolled in the shader). Falls back to the URP particle material if the shader is missing.
+        // Seabed caustics: "Dravio/Environment/Caustics" (photon-traced web, wobble from mip-5 noise,
+        // second layer scrolled in the shader). Falls back to the URP particle material if the shader is missing.
         static Material CausticsMaterial(string name, string texturePath, string materialsDir)
         {
             var shader = Shader.Find("Dravio/Environment/Caustics");
@@ -497,9 +497,13 @@ namespace Dravio.EnvironmentArt.EditorTools
             m.SetColor("_BaseColor", Color.white);
             m.SetFloat("_ScaleB", 1.31f);
             m.SetFloat("_RotateB", 0.52f);
-            m.SetVector("_ScrollB", new Vector4(-0.021f, 0.015f, 0f, 0f));
-            m.SetFloat("_MinBoost", 1.6f);
-            m.SetFloat("_MaxKeep", 0.35f);
+            m.SetVector("_ScrollB", new Vector4(-0.015f, 0.011f, 0f, 0f));
+            m.SetFloat("_Mix", 0.35f);
+            m.SetFloat("_Warp", 0.05f);
+            m.SetFloat("_WarpSpeed", 1f);
+            m.SetFloat("_Patches", 0.5f);
+            m.SetVector("_NoiseRange", new Vector4(0.07f, 0.40f, 0f, 0f));
+            m.SetFloat("_Intensity", 3f);
             m.renderQueue = (int)RenderQueue.Transparent;
             EditorUtility.SetDirty(m);
             return m;

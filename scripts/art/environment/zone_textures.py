@@ -550,15 +550,33 @@ def fx_rgba(alpha, rgb=(255, 255, 255)):
     return out
 
 
-def fx_caustics(seed=31, size=256):
-    """Seamless caustic web: ridges of two warped periodic noises."""
+def fx_caustics(seed=31, size=256, supersample=4, depth=0.13, waves=24, kmax=8, amp=0.012):
+    """Seamless caustic web, photon traced (VIS.4b follow-up).
+
+    A periodic wave height field (integer wave vectors, so it tiles) refracts a uniform grid of
+    light rays onto a flat floor `depth` below; rays are binned with wrap-around. Bright lines
+    are where the surface focuses light, like real pool / shallow-sea caustics.
+    """
     rng = np.random.default_rng(seed)
-    a = pt.fbm(size, rng, base=6, octaves=3)
-    b = pt.fbm(size, rng, base=6, octaves=3)
-    ridge = 1 - np.abs(a - b) * 9
-    web = np.clip(ridge, 0, 1) ** 3
-    web = np.maximum(web, np.clip(1 - np.abs(a - 0.5) * 10, 0, 1) ** 3 * 0.6)
-    return fx_rgba(np.clip(web * 1.1, 0, 1))
+    n = size * supersample
+    y, x = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
+    gx = np.zeros_like(x)
+    gy = np.zeros_like(x)
+    for _ in range(waves):
+        kx, ky = 0, 0
+        while np.hypot(kx, ky) < 3:
+            kx, ky = rng.integers(-kmax, kmax + 1, 2)
+        k = np.hypot(kx, ky)
+        a = amp / k * rng.uniform(0.5, 1.0)
+        arg = 2 * np.pi * (kx * x + ky * y) + rng.uniform(0, 2 * np.pi)
+        gx += a * 2 * np.pi * kx * np.cos(arg)
+        gy += a * 2 * np.pi * ky * np.cos(arg)
+    px = ((x - depth * gx) % 1.0 * size).astype(int) % size
+    py = ((y - depth * gy) % 1.0 * size).astype(int) % size
+    light = np.bincount((py * size + px).ravel(), minlength=size * size).reshape(size, size)
+    light = light / float(supersample * supersample)
+    light = (light + np.roll(light, 1, 0) + np.roll(light, -1, 0) + np.roll(light, 1, 1) + np.roll(light, -1, 1)) / 5
+    return fx_rgba(np.clip((light - 0.7) / 1.6, 0, 1) ** 0.9)
 
 
 def fx_light_shaft(h=256, w=64):
