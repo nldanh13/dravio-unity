@@ -121,6 +121,16 @@ class Char9cEmberling(unittest.TestCase):
         others = [k for k, v in ov['species'].items() if k != 'emberling' and 'repair' in v]
         self.assertEqual(others, [])
 
+    def test_contact_clearance_measured_on_candidate(self):
+        d = load(R9C, 'contact_clearance_origin.json')
+        self.assertTrue(d['fbx'].endswith('ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx'))
+        self.assertEqual(d['runtime']['walkClearance_m'], 0.45)
+        # reported finding: the navigator's clearance is smaller than the dragon's reach -> clipping is possible
+        self.assertGreater(d['requiredObstacleClearanceAnyYaw_m'], d['runtime']['walkClearance_m'])
+        self.assertGreater(d['requiredDragonSpacingAnyYaw_m'], d['runtime']['dragonSpacing_m'])
+        for name in CONTRACT:
+            self.assertGreater(d['scene'][name]['walkablePoints'], 1000)
+
     def test_anim_qa_default_sampling_unchanged(self):
         src = (REPO / 'scripts/art/character/anim_qa.py').read_text(encoding='utf-8')
         for node in ast.parse(src).body:

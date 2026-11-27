@@ -145,3 +145,29 @@ python -m unittest discover -s scripts/art/character/tests
 ```
 
 FBX không tái tạo từng byte (timestamp), số QA thì có: lần chạy thử (rig_archetype + repair riêng) và lần chạy batch cho cùng số.
+
+## 8. Va chạm với vật thể và rồng khác (đo theo yêu cầu chủ dự án, 27/11)
+
+Công cụ `measure_contact_clearance.py`. Input: FBX ứng viên (import lại, tuyến tính, mọi frame) + dữ liệu điều hướng thật `Assets/Dravio/Environment/Data/OriginSanctuaryLocations.asset` (34 vùng chặn, `walkClearance` 0,45 m). Kết quả: `reports_char9c/contact_clearance_origin.json`, bản đồ `contact_origin_map.png`, ảnh Cycles `contact_origin_worst_point.jpg`.
+
+**Tầm với của Emberling** (tính từ gốc rồng, là điểm hệ thống điều hướng dùng):
+
+| Clip | Trước | Sau | Ngang | Cao | Bán kính tối đa |
+|---|---|---|---|---|---|
+| Idle | 0,744 | 0,739 | 0,203 | 0,900 | 0,744 |
+| Walk | 0,742 | 0,739 | 0,204 | 0,906 | 0,742 |
+| Eat | 0,740 | 0,740 | 0,198 | 0,920 | 0,740 |
+| Doze | 0,713 | 0,610 | 0,368 | 0,912 | 0,713 |
+| Happy | 0,753 | 0,735 | 0,374 | 0,948 | 0,753 |
+
+Animation hầu như không làm rồng vươn xa hơn dáng nghỉ: dài 1,48 m, cao 0,9 m, gốc nằm giữa thân.
+
+**Trong scene Origin** (lưới 0,1 m; 10 264 điểm mà hệ thống đi bộ chấp nhận; xét mọi hướng quay và mọi frame):
+- 15–17 % số điểm (tùy clip) khiến Emberling lấn vào vùng chặn hơn 1 cm, 10–12 % lấn hơn 10 cm. Sâu nhất **0,30 m** (Happy, điểm (6,6; −3,9), hướng 140°), tức đầu chui hẳn vào tảng đá hoặc tường (xem ảnh).
+- Nguyên nhân là **khoảng chừa của hệ thống điều hướng chứ không phải rig**: `SanctuaryLocationData.IsWalkable` chỉ giữ gốc rồng cách vùng chặn 0,45 m, trong khi Emberling vươn tới 0,75 m. Muốn không lấn ở mọi hướng cần chừa ≥ 0,76 m, hoặc dùng hình viên nang theo hướng mặt (dài 0,75 m trước/sau, 0,2–0,37 m hai bên).
+
+**Hai rồng với nhau**: runtime cho hai rồng đứng cách nhau 0,55 m tính từ gốc (`LivingSanctuaryPresentation.Separated`). Hai Emberling đối mặt sẽ chồng lên nhau tới 0,94 m; 41–51 % số cặp hướng quay có chồng lấn. Muốn an toàn ở mọi hướng cần ≥ 1,51 m, hoặc tính theo hướng mặt.
+
+**Chưa đo**: lưới thật của từng vật thể (hệ thống điều hướng chỉ biết đa giác chân đế, nên tảng đá tròn có thể lấn ít hơn hộp), rồng đi qua bậc thang hay dốc (`DragonFootGrounding` chưa chạy trong Unity), camera xén, vật lý Unity.
+
+**Đề xuất cho AI kỹ thuật Unity (#91)**: không sửa ở đây vì thuộc điều hướng và runtime. Đưa tầm với đo được của từng loài vào catalog (dữ liệu sinh từ pipeline, ví dụ `reach.front/back/side`), để điều hướng và khoảng cách giữa các rồng dùng số của chính con rồng đó thay vì các hằng số 0,45 / 0,55 m. Rồng mới hay rồng đổi kích thước khi đó vẫn đúng mà không phải sửa code.

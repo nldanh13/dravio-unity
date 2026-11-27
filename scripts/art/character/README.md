@@ -30,6 +30,7 @@ Test reports: `TEST_REPORT_U3.md`, `TEST_REPORT_U4.md` (rig v2 / animation QA), 
 | `make_sample_library.py` | Blender | Procedural "generator-like" SAMPLE GLBs for the batch test (never shipped) |
 | `audit_source_glbs.py` | Blender | CHAR.9c: read-only audit of the original dragon GLBs (glTF container + welded geometry: topology, islands, winding, UV mirroring, textures, scale, skins/animations), SHA-256 checked |
 | `verify_contract_fbx.py` | Blender | CHAR.9c: check the Unity contract FBX as Unity sees it (empty scene, linear skinning, every frame): 22-bone contract, weights, worst-frame stretch/compression, ground, seam cracks; optional Cycles renders |
+| `measure_contact_clearance.py` | Blender (+ PyYAML, Pillow for the map) | CHAR.9c: swept root-relative reach of the contract FBX (every frame) against a zone's real navigation data (walkClearance, obstacle footprints) and the dragon-to-dragon spacing; clipping depth per walkable point and yaw |
 | `tests/` | Python only | `python -m unittest discover -s scripts/art/character/tests` |
 
 All Blender scripts accept arguments after `--` and also run with the `bpy` module
