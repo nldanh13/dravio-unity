@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "status": "source VFX art candidates; not integrated",
+  "format": "RGBA8 straight alpha, sRGB",
+  "assets": [
+    {
+      "id": "Emberling_Flame_16",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Emberling_Flame_16.png",
+      "width": 512,
+      "height": 512,
+      "blend": "Alpha",
+      "description": "4x4 whole-sheet flame flicker, warm opaque core and soft edge",
+      "grid": 4,
+      "alpha": [
+        213660,
+        5412,
+        43072
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            41,
+            17,
+            94,
+            105
+          ],
+          "padding": 17,
+          "alphaMass": 810879,
+          "opaque": 2989
+        },
+        {
+          "index": 1,
+          "bounds": [
+            43,
+            16,
+            97,
+            105
+          ],
+          "padding": 16,
+          "alphaMass": 817284,
+          "opaque": 3017
+        },
+        {
+          "index": 2,
+          "bounds": [
+            44,
+            15,
+            99,
+            105
+          ],
+          "padding": 15,
+          "alphaMass": 810028,
+          "opaque": 2991
+        },
+        {
+          "index": 3,
+          "bounds": [
+            45,
+            15,
+            98,
+            105
+          ],
+          "padding": 15,
+          "alphaMass": 789788,
+          "opaque": 2910
+        },
+        {
+          "index": 4,
+          "bounds": [
+            45,
+            16,
+            96,
+            105
+          ],
+          "padding": 16,
+          "alphaMass": 760600,
+          "opaque": 2799
+        },
+        {
+          "index": 5,
+          "bounds": [
+            45,
+            17,
+            93,
+            105
+          ],
+          "padding": 17,
+          "alphaMass": 727348,
+          "opaque": 2687
+        },
+        {
+          "index": 6,
+          "bounds": [
+            45,
+            18,
+            92,
+            105
+          ],
+          "padding": 18,
+          "alphaMass": 694806,
+          "opaque": 2561
+        },
+        {
+          "index": 7,
+          "bounds": [
+            45,
+            20,
+            91,
+            105
+          ],
+          "padding": 20,
+          "alphaMass": 668742,
+          "opaque": 2472
+        },
+        {
+          "index": 8,
+          "bounds": [
+            45,
+            22,
+            90,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 651981,
+          "opaque": 2403
+        },
+        {
+          "index": 9,
+          "bounds": [
+            44,
+            23,
+            89,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 646512,
+          "opaque": 2385
+        },
+        {
+          "index": 10,
+          "bounds": [
+            42,
+            24,
+            88,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 653726,
+          "opaque": 2404
+        },
+        {
+          "index": 11,
+          "bounds": [
+            39,
+            24,
+            86,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 671894,
+          "opaque": 2467
+        },
+        {
+          "index": 12,
+          "bounds": [
+            36,
+            23,
+            86,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 698695,
+          "opaque": 2572
+        },
+        {
+          "index": 13,
+          "bounds": [
+            35,
+            22,
+            86,
+            105
+          ],
+          "padding": 22,
+          "alphaMass": 731056,
+          "opaque": 2687
+        },
+        {
+          "index": 14,
+          "bounds": [
+            36,
+            20,
+            88,
+            105
+          ],
+          "padding": 20,
+          "alphaMass": 763574,
+          "opaque": 2810
+        },
+        {
+          "index": 15,
+          "bounds": [
+            38,
+            18,
+            91,
+            105
+          ],
+          "padding": 18,
+          "alphaMass": 791963,
+          "opaque": 2918
+        }
+      ],
+      "bytes": 213274,
+      "blob": "f5f6173d146d0d3fb60f7868fd1c3588a083ef74"
+    },
+    {
+      "id": "Firefly_Soft",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Firefly_Soft.png",
+      "width": 128,
+      "height": 128,
+      "blend": "Additive",
+      "description": "Neutral white radial glow, tint by existing particle colors",
+      "grid": null,
+      "alpha": [
+        7924,
+        8456,
+        4
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            12,
+            12,
+            115,
+            115
+          ],
+          "padding": 12,
+          "alphaMass": 339004,
+          "opaque": 4
+        }
+      ],
+      "bytes": 8082,
+      "blob": "16d8d6d345ab5dad5605b817b384dc3d31eb53f1"
+    },
+    {
+      "id": "Magic_Spark",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Magic_Spark.png",
+      "width": 128,
+      "height": 128,
+      "blend": "Additive",
+      "description": "Neutral four-point twinkle, soft halo",
+      "grid": null,
+      "alpha": [
+        10560,
+        5824,
+        0
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            21,
+            21,
+            106,
+            106
+          ],
+          "padding": 21,
+          "alphaMass": 326276,
+          "opaque": 0
+        }
+      ],
+      "bytes": 4002,
+      "blob": "213441a4e66d17966ac29bec30508473890b9321"
+    },
+    {
+      "id": "Dust_Mote",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Dust_Mote.png",
+      "width": 128,
+      "height": 128,
+      "blend": "Additive",
+      "description": "Neutral subdued dust mote",
+      "grid": null,
+      "alpha": [
+        8906,
+        7478,
+        0
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            16,
+            12,
+            115,
+            112
+          ],
+          "padding": 12,
+          "alphaMass": 354814,
+          "opaque": 0
+        }
+      ],
+      "bytes": 7097,
+      "blob": "9f2415bd46df36587dc45ce9b15837cf923c961d"
+    },
+    {
+      "id": "Water_Drop",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Water_Drop.png",
+      "width": 128,
+      "height": 128,
+      "blend": "Alpha",
+      "description": "A translucent cyan droplet for dedicated splash emitter",
+      "grid": null,
+      "alpha": [
+        12646,
+        3738,
+        0
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            34,
+            17,
+            93,
+            109
+          ],
+          "padding": 17,
+          "alphaMass": 797953,
+          "opaque": 0
+        }
+      ],
+      "bytes": 7877,
+      "blob": "9307360bf0b28c3bf6300f3f0c64218fd8d17e78"
+    },
+    {
+      "id": "Pond_Ring",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Pond_Ring.png",
+      "width": 256,
+      "height": 256,
+      "blend": "Alpha",
+      "description": "Neutral concentric ripple, existing horizontal billboard and color",
+      "grid": null,
+      "alpha": [
+        51012,
+        14524,
+        0
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            35,
+            35,
+            220,
+            220
+          ],
+          "padding": 35,
+          "alphaMass": 900248,
+          "opaque": 0
+        }
+      ],
+      "bytes": 28390,
+      "blob": "0865f4eb160213ff24e830d527fe745cdc6ce468"
+    },
+    {
+      "id": "Foam_Cluster",
+      "path": "ArtSource/VFX/BrightFantasy_VIS5/Textures/T_VIS5_FX_Foam_Cluster.png",
+      "width": 256,
+      "height": 256,
+      "blend": "Alpha",
+      "description": "Foam patch for optional waterfall/shore review, not a new gameplay emitter",
+      "grid": null,
+      "alpha": [
+        55225,
+        10174,
+        137
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "bounds": [
+            41,
+            73,
+            211,
+            179
+          ],
+          "padding": 41,
+          "alphaMass": 2064492,
+          "opaque": 137
+        }
+      ],
+      "bytes": 17503,
+      "blob": "721e501c65da8c7b2d98da072d9e401b6c8e66f7"
+    }
+  ],
+  "preview": {
+    "path": "ArtSource/VFX/BrightFantasy_VIS5/preview.png",
+    "bytes": 141898,
+    "blob": "47dd9b9d329b702ed90ff5f6090551ba472c88e1",
+    "notes": "actual frames in row-major order, source pixels on flat backgrounds; illustrative alpha/additive compositing in sRGB, not Unity color pipeline"
+  },
+  "checks": "finite pixels, PNG decode roundtrip, per-cell nonzero alpha bounds and >=4px transparent gutter",
+  "runtime": "no changes to emitters, materials, scene or gameplay"
+}
