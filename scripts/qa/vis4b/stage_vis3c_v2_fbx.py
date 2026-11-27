@@ -11,6 +11,11 @@ One material slot `ENV_Architecture` and a single UV channel pinned to (0.5, 0.5
 Painterly Lit material with a white/neutral base map. The current props atlas has no neutral cell
 (see report), so remapping to ENV_Props would tint every colour. Export uses the kit's own
 `export_fbx` settings.
+
+VIS.4b follow-up (owner approved the static architecture material and the flowing-water material,
+27/11): VIS3d water surfaces keep their authored UV and go to slot `ENV_WaterFlow`; vertex alpha
+selects the flow texture in `Dravio/Environment/Painterly Flow` (1 = waterfall silk + foam band,
+0 = stream ripples). VIS3d rock frame / bank stones follow the architecture rule above.
 """
 import json
 import sys
@@ -47,6 +52,12 @@ def bounds(objs):
     return ([min(p[i] for p in pts) for i in range(3)], [max(p[i] for p in pts) for i in range(3)])
 
 
+# glTF stem -> (material slot, vertex alpha, keep authored UV)
+WATER_RULES = {
+    "Origin_Waterfall_Surface": ("ENV_WaterFlow", 1.0, True),
+    "Origin_Stream_Surface": ("ENV_WaterFlow", 0.0, True),
+}
+
 report = {}
 for glb in GLBS.values():
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -63,17 +74,23 @@ for glb in GLBS.values():
     me = obj.data
     col = me.color_attributes[0]
     col.name = "Color"
+    slot, alpha, keep_uv = WATER_RULES.get(glb.stem, ("ENV_Architecture", 0.0, False))
     for d in col.data:
         c = d.color
-        d.color = (c[0], c[1], c[2], 0.0)
+        d.color = (c[0], c[1], c[2], alpha)
     me.color_attributes.active_color = col
-    while me.uv_layers:
-        me.uv_layers.remove(me.uv_layers[0])
-    uv = me.uv_layers.new(name="UVMap")
-    for d in uv.data:
-        d.uv = (0.5, 0.5)
+    if keep_uv:
+        while len(me.uv_layers) > 1:
+            me.uv_layers.remove(me.uv_layers[1])
+        me.uv_layers[0].name = "UVMap"
+    else:
+        while me.uv_layers:
+            me.uv_layers.remove(me.uv_layers[0])
+        uv = me.uv_layers.new(name="UVMap")
+        for d in uv.data:
+            d.uv = (0.5, 0.5)
     me.materials.clear()
-    me.materials.append(bpy.data.materials.new("ENV_Architecture"))
+    me.materials.append(bpy.data.materials.new(slot))
     src_lo, src_hi = bounds([obj])
     tris = sum(len(p.vertices) - 2 for p in me.polygons)
     fbx = OUT / f"SM_ENV_{glb.stem.replace('Origin_', '')}.fbx"
@@ -90,12 +107,27 @@ for glb in GLBS.values():
     # not robust; use the AABB-weighted normal balance instead: facade detail adds area on +Y.
     plus_y = sum(p.area for p in bm.polygons if p.normal.y > 0.5)
     minus_y = sum(p.area for p in bm.polygons if p.normal.y < -0.5)
+    uv_v_vs_height = None
+    uv_v_vs_blender_y = None
+    if bm.uv_layers:
+        import statistics
+        zs, vs, ys = [], [], []
+        for poly in bm.polygons:
+            for li in poly.loop_indices:
+                zs.append(bm.vertices[bm.loops[li].vertex_index].co.z)
+                ys.append(bm.vertices[bm.loops[li].vertex_index].co.y)
+                vs.append(bm.uv_layers[0].data[li].uv[1])
+        if statistics.pstdev(vs) > 1e-6 and statistics.pstdev(zs) > 1e-6:
+            uv_v_vs_height = round(statistics.correlation(zs, vs), 3)
+        if statistics.pstdev(vs) > 1e-6 and statistics.pstdev(ys) > 1e-6:
+            uv_v_vs_blender_y = round(statistics.correlation(ys, vs), 3)
     report[fbx.name] = {
         "source": str(glb.relative_to(ROOT)), "triangles": tris,
         "roundtrip_triangles": sum(len(p.vertices) - 2 for p in bm.polygons),
         "materials": [s.material.name for s in back[0].material_slots if s.material],
         "uv_layers": [u.name for u in bm.uv_layers], "color_layers": [a.name for a in bm.color_attributes],
-        "vertex_alpha_values": sorted(alphas),
+        "vertex_alpha_values": sorted(alphas), "uv_v_vs_height_corr": uv_v_vs_height,
+        "uv_v_vs_blender_y_corr": uv_v_vs_blender_y,
         "bounds_blender_min": [round(v, 3) for v in lo], "bounds_blender_max": [round(v, 3) for v in hi],
         "source_bounds_delta_mm": round(1000 * max(abs(a - b) for a, b in zip(src_lo + src_hi, lo + hi)), 2),
         "pivot_base_z": round(lo[2], 4),

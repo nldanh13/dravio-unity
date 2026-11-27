@@ -256,3 +256,39 @@ Bố cục vẫn chờ composition review (mục 5.4); không đặt asset nào 
 - Tris: Waterfall Rock Frame 1764, Waterfall Surface 432, Stream Surface 384, Bank Stone Cluster 980; tổng 3560. Nếu thêm vào sau mục 12: 45 032 → **48 592** (< 60 000).
 - **[Medium, AI3] Waterfall Surface là tấm một mặt, mặt trước quay glTF +Z.** Theo quy ước v2 (camera ở phía −Z), camera Origin sẽ nhìn vào mặt sau; render tô đỏ toàn bộ tấm nước (`vis3d_glb_backface_check.png`). Cần xoay 180°, đảo mặt, hoặc dùng material `Cull Off`. Rock Frame đối xứng nên không bị ảnh hưởng.
 - [Low] Pivot: Stream Surface có tâm Z lệch 2.25 m (pivot ở một đầu dòng suối), Bank Stones lệch 0.91 m, Waterfall Surface đáy Y = 0.09 (cố ý để khớp pivot chung với Rock Frame theo README). Ghi lại để khi đặt không bị nhầm.
+
+## 14. Tích hợp sau duyệt (27/11): `M_ENV_Architecture`, nước chảy VIS.9, ngân sách texture; QA VIS.10
+
+Chủ dự án chọn "Material tĩnh mới" cho nhà/tháp/đồi và duyệt làm material nước chảy + foam ("làm đi"). Chưa có con số ngân sách texture, nên QA đề xuất một con số (mục 14.3); chủ dự án có thể đổi. **Chưa đặt asset nào vào scene** vì vẫn chờ review bố cục; không đổi collider, spawn, location, shader hồ hay hiệu ứng uống/té nước.
+
+### 14.1 Material kiến trúc tĩnh
+- `Materials/M_ENV_Architecture.mat` (Painterly Lit): `_BaseMap` để trống (shader dùng màu trắng mặc định), `_VertexAO` 1, `_WindStrength` 0, không emission, `_BrightFantasy` 1, `_SoftSheen` 0.11, cùng grade VIS.1 như props.
+- `OriginSanctuaryEnvironmentBuilder`: thêm slot `ENV_Architecture` và `ENV_WaterFlow`; menu "1. Setup Materials and Import Remaps" tự cấu hình và remap 2 material mới. Lỗi thiếu texture nước chỉ là cảnh báo, không chặn.
+- FBX vào `Models/Origin_VIS3c/` (thư mục con, nên test `CommittedOutputTests` của kit vẫn khớp danh sách builder): Cottage, Lookout (v2), Soft Hills (v3), Waterfall Rock Frame, Stream Bank Stone Cluster dùng `ENV_Architecture` (alpha đỉnh 0, UV ghim 0.5); Waterfall Surface, Stream Surface dùng `ENV_WaterFlow` (giữ UV gốc). Sinh bằng `scripts/qa/vis4b/stage_vis3c_v2_fbx.py` (đã thêm bảng quy tắc nước). Round-trip: tris khớp, bounds lệch 0 mm.
+- `.meta` của các file mới chỉ ghi `guid` (để GUID cố định giữa các máy). Unity sẽ điền phần importer khi mở; cần commit lại các `.meta` đó.
+
+### 14.2 Shader nước chảy `Dravio/Environment/Painterly Flow`
+- File mới `Shaders/DravioPainterlyFlow.shader`; **không sửa** `Painterly Water` (hồ, foam bờ theo alpha đỉnh, `_DravioRipples`).
+- Một material `M_ENV_WaterFlow` cho cả hai mặt nước, nên tổng material mesh nếu đặt đủ là 6/6 (giới hạn Origin). Alpha đỉnh chọn bề mặt: 1 = thác (silk + dải foam flipbook ở đáy), 0 = suối (ripples). 3 lần lấy mẫu texture, 1 pass, trong suốt, không cần depth/opaque texture, có fog và instancing; mọi thuộc tính số nằm trong `UnityPerMaterial` (SRP Batcher).
+- Hướng chảy: trong Unity, v của thác = 1 ở đỉnh, nên nước chảy về −v (đo trên FBX: tương quan v với độ cao −0.97 trong không gian cục bộ, xem `vis3c_v2_fbx_trial.json`). Suối chảy từ đầu gần thác ra xa theo cùng chiều −v.
+- `Cull Off` mặc định, nên lỗi "Waterfall Surface quay lưng camera" (mục 13.2) không còn chặn; mặt sau được đảo pháp tuyến khi tính sáng. AI3 vẫn có thể xoay mesh nếu muốn.
+- Foam: atlas 4×4, khung theo hàng từ góc trên trái, clamp; mỗi ô ngang chạy lệch pha 5 khung để không nhấp nháy đồng loạt. Kiểm bằng mô phỏng CPU trong không gian UV (`vis4b/vis10/flow_waterfall_uvspace_t0-0.75.png`, `flow_stream_uvspace_t0-1.png`): silk trôi xuống, foam nằm ở dải đáy, mép hai bên mờ dần. Đây là kiểm toán học, **không phải render Unity**.
+- Import texture: `T_ENV_WaterFlow_Silk/Ripples` (256, repeat) và `T_ENV_WaterFlow_Foam` (512, clamp) trong `Textures/`, giữ alpha, ASTC 6×6 trên Android/iOS (`EnvironmentImportSettings`, version 6 → 7).
+- Không làm particle foam riêng: dải foam trong shader rẻ hơn và không cần object mới trong scene.
+
+### 14.3 Ngân sách texture Origin (đề xuất: 14 MiB)
+- Cách đo giống Ocean/Sky: RGBA32 + mips (`w × h × 4 × 1.333`) cho texture mà material của scene dùng. Ocean/Sky là 6 MiB; Origin là khu chính nên đề xuất **14 MiB**.
+- Hiện tại: 5 texture kit 11.0 MiB + 3 texture VIS.9 2.0 MiB = **13.0 / 14 MiB**, còn khoảng 1 MiB dự phòng. Trên máy dùng ASTC 6×6, thực tế chỉ khoảng 1/9 số đó (khoảng 1.5 MiB).
+- Có cổng kiểm tra: `OriginTextureBudgetBytes` trong builder, in OK/OVER trong "Report Budget"; `check_vis4b_integration.py` mục 5 kiểm cùng con số mà không cần Unity.
+
+### 14.4 QA VIS.10 (#92 `e0f5b13`, `00c5bfe`): đã merge vào nhánh QA, **chưa đưa vào Assets**
+- glTF-Validator: 0 lỗi cả 3 GLB (bloom/fern có info `UNUSED_OBJECT TEXCOORD_0`, vô hại).
+- Gió (`check_vis10_wind.py`, viết lại hàm `DravioWind()` của shader bằng numpy; 3 456 tư thế/mesh: base 0.5/1/2.2, gust 0/1, 8 hướng, 24 thời điểm, 3 vị trí world): rễ alpha 0, đỉnh trùng vị trí cùng alpha (không rách seam), tương quan alpha với độ cao 0.99. Dịch chuyển lớn nhất 5.1 cm; dot pháp tuyến nhỏ nhất 0.990 (bloom) / 0.940 (fern); tỉ lệ diện tích 0.86–1.14. Khớp số AI3 báo.
+- Bướm: 384 tris, 0 mặt suy biến, clip `Flutter_Loop` 0.6 s, 9 key/cánh, quaternion đơn vị, key đầu = key cuối, 0 texture.
+- **Chưa tích hợp vì:** (1) cần thêm material thực vật có gió, sẽ thành 7/6 material của Origin; (2) importer của kit tắt animation (`importAnimation = false`), nên bướm cần thư mục/quy tắc import riêng và hành vi bay; (3) cần duyệt bố cục. Không dùng chung được `M_ENV_Foliage` vì material đó dùng texture alpha-clip; cần chủ dự án duyệt material thứ 7 hoặc nâng giới hạn.
+
+### 14.5 Kết quả chạy
+- `check_vis4b_integration.py`: 0 failure (thêm: shader Flow trong CBUFFER, thuộc tính 2 material mới tồn tại trong shader, GUID texture trỏ đúng file, ngân sách texture 13.0/14 MiB, slot FBX hợp lệ, có `.meta`).
+- `test_environment_kit` 23 test OK; `test_vis1` OK. Kiểm cú pháp Roslyn (C# 9) cho 2 file Editor đã sửa: 0 lỗi.
+- Tris nếu đặt mỗi asset mới một lần: 34 472 + 7 212 (nhà, tháp, đồi) + 3 560 (thác, suối) = **45 244 / 60 000**.
+- **NOT RUN:** compile Unity và shader, import FBX/texture, Game View, ảnh chụp, FPS/draw call, thiết bị Android, phát animation bướm.
