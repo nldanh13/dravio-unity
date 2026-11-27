@@ -1017,9 +1017,212 @@
       "sliceEndpointDelta": 0,
       "bytes": 76791,
       "blob": "f20c0ec0a3f1d9c8a8faad51375e512d9031a7ac"
+    },
+    {
+      "id": "item:wood",
+      "role": "wood",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_wood.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_wood.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 185794,
+        "partial": 1209,
+        "opaque": 75141
+      },
+      "bounds": [
+        53,
+        81,
+        459,
+        429
+      ],
+      "coverage": 0.794921875,
+      "bytes": 110345,
+      "blob": "6f18cf0d650d15a3b8ebe08501b99d983fd3174d"
+    },
+    {
+      "id": "item:seed",
+      "role": "seed",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_seed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_seed.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 164495,
+        "partial": 1720,
+        "opaque": 95929
+      },
+      "bounds": [
+        63,
+        52,
+        448,
+        459
+      ],
+      "coverage": 0.796875,
+      "bytes": 110082,
+      "blob": "7b2e91a2d23fc45e0bd1259577824a6f6ca223d0"
+    },
+    {
+      "id": "item:stone",
+      "role": "stone",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_stone.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_stone.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 175668,
+        "partial": 1076,
+        "opaque": 85400
+      },
+      "bounds": [
+        53,
+        113,
+        462,
+        399
+      ],
+      "coverage": 0.80078125,
+      "bytes": 70986,
+      "blob": "5ed410cbc28b53dd1c37406fe189cb3f27d36952"
+    },
+    {
+      "id": "item:crystal",
+      "role": "crystal",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_crystal.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_crystal.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 173722,
+        "partial": 1415,
+        "opaque": 87007
+      },
+      "bounds": [
+        76,
+        51,
+        436,
+        459
+      ],
+      "coverage": 0.798828125,
+      "bytes": 121594,
+      "blob": "04221f49ddd1d3c9655fd6bbb20d472ea0bc60e8"
+    },
+    {
+      "id": "item:coral",
+      "role": "coral",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_coral.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_coral.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 188441,
+        "partial": 2464,
+        "opaque": 71239
+      },
+      "bounds": [
+        58,
+        49,
+        454,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 100887,
+      "blob": "938677f81fff56cc20f8b9cb3548a47f60d06782"
+    },
+    {
+      "id": "item:stardust",
+      "role": "stardust",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_stardust.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_stardust.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 169775,
+        "partial": 1963,
+        "opaque": 90406
+      },
+      "bounds": [
+        83,
+        49,
+        432,
+        460
+      ],
+      "coverage": 0.8046875,
+      "bytes": 113113,
+      "blob": "c420d8293e41b59cb2e9e72c7eeeeb6719286eac"
+    },
+    {
+      "id": "item:aquatic",
+      "role": "aquatic",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Items/ui_item_aquatic.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Items/ui_item_aquatic.png",
+      "width": 512,
+      "height": 512,
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alpha": {
+        "transparent": 172456,
+        "partial": 2529,
+        "opaque": 87159
+      },
+      "bounds": [
+        52,
+        64,
+        461,
+        444
+      ],
+      "coverage": 0.80078125,
+      "bytes": 128405,
+      "blob": "1645815901d5c08e18d21eb8739ca67359716fa5"
     }
   ],
-  "pending": "43 remaining icon/item roles; optional ornament overlays; actual visual QA",
+  "pending": "remaining 29 function icons and 7 item roles; optional ornaments; visual QA",
   "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity",
   "preview": {
     "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/preview.png",
