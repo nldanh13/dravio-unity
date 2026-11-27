@@ -24,6 +24,9 @@ config (asset-overrides.json species.<id>.repair / files.<stem>.repair):
                 Spine/Chest instead of Pelvis on rigs whose spine runs diagonally (rig v7 gaia, mossback...);
                 Neck/Head weight behind the Chest joint (spilled onto the back / wing roots) returns to the trunk
                 (neckSpill, default true with trunkAxis)
+  local         (CHAR.9c) {clip: [[group, frame, k, halfWidthFrames], ...]}: pull that group's rotation toward rest by
+                k only around `frame` (Gaussian in time, circular on loops, product of entries); transition ends
+                keep factor 1. Written by tune_repair.py --local for the frames where the mesh breaks
   pinTransitions (CHAR.9c) true: authored transitions (Sleep->Wake->Idle, TakeOff/Fly/Land, WaterEnter/Swim/
                 WaterExit, DigPrep/Burrow*) stay closed. Loop clips keep one constant factor; each end of a one-shot
                 clip that meets another clip takes that clip's factor if it is a loop, else 1 (authored pose), easing
@@ -203,7 +206,11 @@ TRANSITION_ENDS = (('Sleep', 'start', 'Wake', 'start'), ('Wake', 'end', 'Idle', 
                    ('WaterExit', 'end', 'Idle', 'start'), ('Idle', 'start', 'DigPrep', 'start'), ('DigPrep', 'end', 'BurrowEnter', 'start'),
                    ('BurrowEnter', 'end', 'BurrowEmerge', 'start'), ('BurrowEmerge', 'end', 'Idle', 'start'))
 EASE = float(CFG.get('pinEase', 0.25))
-if AMP:
+# CHAR.9c local keyframe pull-back: {clip: [[group, frame, k, halfWidthFrames], ...]}. Around `frame` the group's
+# rotation is slerped toward rest by k (Gaussian in time, circular on loops); the rest of the clip keeps its
+# authored motion. Every clip end that takes part in an authored transition keeps factor 1 there (pinEase).
+LOCAL = CFG.get('local', {})
+if AMP or LOCAL:
     from mathutils import Quaternion
     sc = bpy.context.scene
     def leg(n): return not n.startswith('Wing') and any(t in n for t in ('Upper_', 'Lower_', 'Foot_'))
@@ -217,7 +224,8 @@ if AMP:
               'wings': [pb for pb in arm.pose.bones if pb.name.startswith('Wing')],
               'fins': [pb for pb in arm.pose.bones if pb.name.startswith('Fin_')]}
     groups = {g: pbs for g, pbs in groups.items() if any(g in c for c in AMP.values() if isinstance(c, dict))
-              or any(g in c.get('ramp_from', {}) for c in AMP.values() if isinstance(c, dict))}
+              or any(g in c.get('ramp_from', {}) for c in AMP.values() if isinstance(c, dict))
+              or any(e[0] == g for es in LOCAL.values() for e in es)}
     for pbs in groups.values():
         pbs[:] = [pb for pb in pbs if pb.name not in ('Root', 'Pelvis')]
     for pbs in groups.values():
@@ -241,6 +249,27 @@ if AMP:
             plan.setdefault(cname, {})
     elif 'Sleep' in AMP and 'Wake' in clips and 'Wake' not in AMP:
         plan['Wake'] = {'ramp_from': AMP['Sleep']}
+    in_transition = {}
+    for a_c, a_f, b_c, b_f in TRANSITION_ENDS:
+        if a_c in clips and b_c in clips:
+            for cn, e in ((a_c, a_f), (b_c, b_f)):
+                in_transition.setdefault(cn, set()).update({'start', 'end'} if clips[cn].get('loop') else {e})
+    for cname in LOCAL:
+        plan.setdefault(cname, {})
+
+    def local_k(cname, g, f, t):
+        es = [e for e in LOCAL.get(cname, ()) if e[0] == g]
+        if not es: return 1.0
+        c = clips[cname]; n = max(1, c['end'] - c['start'])
+        k = 1.0
+        for _g, fc, kk, hw in es:
+            d = abs(f - fc)
+            if c.get('loop'): d = min(d, n - d)
+            k *= 1.0 - (1.0 - kk) * float(np.exp(-0.5 * (d / max(hw, 1e-6)) ** 2))
+        for e, u in (('start', t), ('end', 1.0 - t)):
+            if e in in_transition.get(cname, ()):
+                k = 1.0 + (k - 1.0) * smooth(u / EASE)
+        return k
 
     def smooth(x):
         x = min(1.0, max(0.0, x)); return 3 * x * x - 2 * x * x * x
@@ -259,6 +288,7 @@ if AMP:
                             partner = pins[(cname, e)]
                             kt = const_k(partner, g) if partner else 1.0
                             k = kt + (k - kt) * smooth(u / EASE)
+                    k *= local_k(cname, g, f, t)
                 if k == 1.0: continue
                 for pb in pbs:
                     pb.rotation_quaternion = Quaternion().slerp(pb.rotation_quaternion.copy(), k)
@@ -269,9 +299,10 @@ if AMP:
     for cname, cfg in AMP.items():
         if 'legs' in cfg and r['clips'][cname].get('groundSpeed'):
             r['clips'][cname]['groundSpeed'] = round(r['clips'][cname]['groundSpeed'] * cfg['legs'], 4)
-    r.setdefault('notes', []).append('CHAR.9b repair: geodesic weight blend %.2f m, amplitude %s' % (W_BLEND, json.dumps(AMP)))
+    r.setdefault('notes', []).append('CHAR.9b repair: geodesic weight blend %.2f m, amplitude %s' % (W_BLEND, json.dumps(AMP))
+                                     + (', local %s' % json.dumps(LOCAL) if LOCAL else ''))
     json.dump(r, open(rig_out, 'w'), indent=1)
-if not AMP:
+if not AMP and not LOCAL:
     r.setdefault('notes', []).append('CHAR.9b repair: geodesic weight blend %.2f m' % W_BLEND)
     json.dump(r, open(rigj if out == A.blend else out.replace('.blend', '_rig.json'), 'w'), indent=1)
 r['repair'] = CFG

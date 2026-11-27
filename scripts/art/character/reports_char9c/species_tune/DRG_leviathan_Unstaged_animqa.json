@@ -511,40 +511,40 @@
       "loop": false,
       "groundSpeed": 0.0,
       "deformation": {
-        "stretchP999": 1.798,
-        "compressP001": 0.634,
-        "stretchMax": 5.646,
-        "worstFrame": 608,
+        "stretchP999": 1.417,
+        "compressP001": 0.682,
+        "stretchMax": 3.26,
+        "worstFrame": 654,
         "framesMeasured": 91,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 2.589,
-        "worstFrameCompressP001": 0.481,
+        "worstFrameStretchP999": 1.585,
+        "worstFrameCompressP001": 0.578,
         "worstBones": [
           {
             "bone": "Head",
             "region": "head",
-            "share": 0.59
-          },
-          {
-            "bone": "Spine4",
-            "region": "body",
-            "share": 0.204
-          },
-          {
-            "bone": "Spine1",
-            "region": "body",
-            "share": 0.097
+            "share": 0.433
           },
           {
             "bone": "Spine8",
             "region": "body",
-            "share": 0.094
+            "share": 0.273
+          },
+          {
+            "bone": "Spine4",
+            "region": "body",
+            "share": 0.176
+          },
+          {
+            "bone": "Spine1",
+            "region": "body",
+            "share": 0.062
           }
         ]
       },
       "seamGapRel": 0.0,
       "reach_m": {
-        "front": 0.692,
+        "front": 0.597,
         "back": 0.57,
         "side": 0.913,
         "radius": 0.914
@@ -552,7 +552,7 @@
       "bounds": {
         "min": [
           -0.9128,
-          -0.6924,
+          -0.5968,
           0.0
         ],
         "max": [
@@ -560,7 +560,7 @@
           0.5699,
           1.9932
         ],
-        "diagGrowth": 1.026
+        "diagGrowth": 1.012
       },
       "facing": {
         "headBehindChestFrames": 0
@@ -910,7 +910,7 @@
   ],
   "motionEnvelope": {
     "groundHeight_m": 2.0183,
-    "groundLength_m": 1.2623,
+    "groundLength_m": 1.2552,
     "groundWidth_m": 1.7936,
     "swimVerticalExtent_m": 1.9932,
     "swimWidth_m": 1.8012,
@@ -967,13 +967,6 @@
       "message": "edge compression over limit",
       "value": 0.443,
       "limit": 0.45
-    },
-    {
-      "clip": "LookAround",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 1.798,
-      "limit": 1.6
     }
   ],
   "status": "PASS_WITH_WARNINGS",

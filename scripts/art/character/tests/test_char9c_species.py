@@ -55,6 +55,7 @@ class TuneRepairTool(unittest.TestCase):
         self.assertIn("not n.startswith('Wing')", src)  # wing bones are not legs
         self.assertIn("pb.name not in ('Root', 'Pelvis')", src)
         self.assertIn("CFG.get('trunkAxis', False)", src)
+        self.assertIn("LOCAL = CFG.get('local', {})", src)
         # Emberling (approved) does not use them: its config is unchanged
         rep = json.loads(OVERRIDES.read_text(encoding='utf-8'))['species']['emberling']['repair']
         self.assertNotIn('pinTransitions', rep)
@@ -110,3 +111,18 @@ class SpeciesReport(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class LocalPullBack(unittest.TestCase):
+    def test_local_only_on_clips_that_pass_without_new_warnings(self):
+        sm = json.loads((REPORT / 'summary.json').read_text(encoding='utf-8'))['species']
+        users = sorted(sp for sp, r in sm.items() if r['config'].get('local'))
+        self.assertEqual(users, ['gaia', 'leviathan', 'mossback'])
+        for sp in users:
+            r = sm[sp]
+            for clip, entries in r['config']['local'].items():
+                self.assertNotIn(clip, r['failingClips'], (sp, clip))
+                self.assertIn(clip, r['beforeLocal']['failingClips'], (sp, clip))
+                for g, frame, k, hw in entries:
+                    self.assertGreaterEqual(k, 0.3)
+                self.assertFalse([w for w in r['otherWarnings'] if w.startswith(clip + ':')], (sp, clip))

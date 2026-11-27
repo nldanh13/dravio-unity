@@ -1203,40 +1203,40 @@
         1383
       ],
       "loop": {
-        "poseErrorDeg": 0.056,
+        "poseErrorDeg": 0.048,
         "poseErrorRel": 0.0,
-        "seamSpeedMismatchDegPerFrame": 0.08
+        "seamSpeedMismatchDegPerFrame": 0.088
       },
       "groundSpeed": 0.7454,
       "deformation": {
-        "stretchP999": 3.281,
-        "compressP001": 0.478,
-        "stretchMax": 6.958,
-        "worstFrame": 1353,
+        "stretchP999": 1.548,
+        "compressP001": 0.572,
+        "stretchMax": 2.837,
+        "worstFrame": 1369,
         "framesMeasured": 49,
         "aggregation": "pooled",
-        "worstFrameStretchP999": 3.282,
-        "worstFrameCompressP001": 0.479,
+        "worstFrameStretchP999": 1.599,
+        "worstFrameCompressP001": 0.539,
         "worstBones": [
           {
             "bone": "Pelvis",
             "region": "body",
-            "share": 0.648
+            "share": 0.487
           },
           {
             "bone": "ForeLower_L",
             "region": "foreLeg",
-            "share": 0.13
+            "share": 0.159
           },
           {
             "bone": "ForeLower_R",
             "region": "foreLeg",
-            "share": 0.091
+            "share": 0.095
           },
           {
-            "bone": "HindLower_L",
-            "region": "hindLeg",
-            "share": 0.065
+            "bone": "Spine",
+            "region": "body",
+            "share": 0.083
           }
         ]
       },
@@ -1251,14 +1251,14 @@
         "min": [
           -0.3305,
           -1.0252,
-          0.0028
+          -0.0046
         ],
         "max": [
           0.3305,
           0.9934,
           1.1239
         ],
-        "diagGrowth": 1.014
+        "diagGrowth": 1.015
       },
       "facing": {
         "headBehindChestFrames": 0
@@ -1602,13 +1602,6 @@
       "message": "mesh below the ground plane",
       "value": 0.0131,
       "limit": 0.01
-    },
-    {
-      "clip": "SwimSurface",
-      "check": "deformation",
-      "message": "edge stretch over limit",
-      "value": 3.281,
-      "limit": 1.6
     },
     {
       "clip": "WaterEnter",
