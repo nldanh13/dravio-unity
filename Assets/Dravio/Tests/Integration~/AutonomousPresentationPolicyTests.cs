@@ -7,6 +7,35 @@ namespace Dravio.Tests
 {
     public sealed class AutonomousPresentationPolicyTests
     {
+        [TestCase(320,180)]
+        [TestCase(844,390)]
+        [TestCase(1920,1080)]
+        public void LabelsStayInsideViewportAndSeparateAsDragonsCross(int width,int height)
+        {
+            foreach(float x in new float[]{0,width/2,width})
+            foreach(float y in new float[]{0,height/2,height})
+            foreach(float offset in new float[]{-60,0,60})
+            {
+                var first=AutonomousPresentationPolicy.PlaceLabel(x,y,86,24,width,height,null).Value;
+                var food=AutonomousPresentationPolicy.PlaceLabel(x+offset,y,55,24,width,height,(first.x,first.y,86,24)).Value;
+                Assert.That(first.x,Is.InRange(0f,width-86f));
+                Assert.That(first.y,Is.InRange(0f,height-24f));
+                Assert.That(food.x,Is.InRange(0f,width-55f));
+                Assert.That(food.y,Is.InRange(0f,height-24f));
+                Assert.That(food.x+55<=first.x || first.x+86<=food.x ||
+                    food.y+24<=first.y || first.y+24<=food.y,Is.True);
+            }
+        }
+
+        [Test]
+        public void ShortViewportUsesSideSpaceAndSuppressesOnlyALabelThatCannotFit()
+        {
+            Assert.That(AutonomousPresentationPolicy.PlaceLabel(20,20,30,20,100,20,(0,0,40,20)),
+                Is.EqualTo((44f,0f)));
+            Assert.That(AutonomousPresentationPolicy.PlaceLabel(20,20,30,20,70,20,(0,0,40,20)),Is.Null);
+            Assert.That(AutonomousPresentationPolicy.PlaceLabel(20,20,86,24,70,20,null),Is.Null);
+        }
+
         [TestCase(DragonBehavior.Swim)]
         [TestCase(DragonBehavior.Fly)]
         [TestCase(DragonBehavior.Burrow)]

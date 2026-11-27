@@ -509,18 +509,29 @@ namespace Dravio
         {
             if(Event.current.type!=EventType.Repaint || !Ready || cameraView==null)return;
             bool selectedGetsFood=foodId!=null && selected==foodUid;
-            DrawDragonLabel(selected,selectedGetsFood?(vi?"Đang chọn · Thức ăn":"Selected · Food"):(vi?"Đang chọn":"Selected"));
-            if(foodId!=null && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food");
+            var cameraRect=cameraView.pixelRect;
+            var safe=Screen.safeArea;
+            var view=Rect.MinMaxRect(Mathf.Max(cameraRect.xMin,safe.xMin),Mathf.Max(cameraRect.yMin,safe.yMin),
+                Mathf.Min(cameraRect.xMax,safe.xMax),Mathf.Min(cameraRect.yMax,safe.yMax));
+            var first=DrawDragonLabel(selected,selectedGetsFood?(vi?"Đang chọn · Thức ăn":"Selected · Food"):
+                (vi?"Đang chọn":"Selected"),view,null);
+            if(foodId!=null && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food",view,first);
         }
 
-        void DrawDragonLabel(string uid,string label)
+        (float x,float y,float width,float height)? DrawDragonLabel(string uid,string label,Rect view,
+            (float x,float y,float width,float height)? occupied)
         {
-            if(string.IsNullOrEmpty(uid) || !manager.TryGet(uid,out var instance))return;
+            if(string.IsNullOrEmpty(uid) || !manager.TryGet(uid,out var instance))return null;
             var bounds=instance.WorldBounds();
             var point=cameraView.WorldToScreenPoint(bounds.center+Vector3.up*bounds.extents.y);
-            if(point.z<=0 || !cameraView.pixelRect.Contains(new Vector2(point.x,point.y)))return;
+            if(point.z<=0 || !cameraView.pixelRect.Contains(new Vector2(point.x,point.y)))return null;
             var size=GUI.skin.box.CalcSize(new GUIContent(label));
-            GUI.Label(new Rect(point.x-size.x*.5f,Screen.height-point.y-size.y,size.x,size.y),label,GUI.skin.box);
+            var placement=AutonomousPresentationPolicy.PlaceLabel(point.x-view.xMin,view.yMax-point.y,
+                size.x,size.y,view.width,view.height,occupied);
+            if(!placement.HasValue)return null;
+            var pos=placement.Value;
+            GUI.Label(new Rect(view.xMin+pos.x,Screen.height-view.yMax+pos.y,size.x,size.y),label,GUI.skin.box);
+            return (pos.x,pos.y,size.x,size.y);
         }
 
         string FeedingNotice()
