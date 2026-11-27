@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "status": "procedural raster candidates, visual QA pending",
+  "contract": "Assets/Dravio/UI/Data/ui-sprite-slots.json @ 4b3d598",
+  "borderOrder": "Unity left,bottom,right,top; symmetric",
+  "format": "RGBA8 straight alpha sRGB",
+  "assets": [
+    {
+      "id": "btn_primary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29145,
+      "blob": "b0d2a144fbb7835609646a42f98a5beb2d8dd434"
+    },
+    {
+      "id": "btn_primary",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_primary_pressed.png",
+      "role": "PrimaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29037,
+      "blob": "46fced51cae07ceee0be61032515a638831479fa"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29078,
+      "blob": "6c45f55840106bcd28da90e6af7613ce93e4cbc6"
+    },
+    {
+      "id": "btn_secondary",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_secondary_pressed.png",
+      "role": "SecondaryButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28727,
+      "blob": "d6a00ad3a2bd63b6762de85c3d0673abc9288c0a"
+    },
+    {
+      "id": "btn_reward",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28977,
+      "blob": "97508cf4373dc002c7de9834d4e1597cd919def7"
+    },
+    {
+      "id": "btn_reward",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_reward_pressed.png",
+      "role": "RewardButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 28703,
+      "blob": "fd41afc762e588bfda46ec6937c82a462d3eef30"
+    },
+    {
+      "id": "btn_danger",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29028,
+      "blob": "64f818257b62cc3853a05c5a7d7230596725988e"
+    },
+    {
+      "id": "btn_danger",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS4_Masters/Buttons/ui_btn_danger_pressed.png",
+      "role": "DangerButton",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 16692,
+        "opaque": 365732,
+        "partial": 10792
+      },
+      "sliceEndpointDelta": [
+        0,
+        0
+      ],
+      "bytes": 29006,
+      "blob": "6280ecd07a65b3b2227d385f5f2c82683d4b171a"
+    }
+  ],
+  "pending": "disabled, panels, tabs, ornaments, icons, portrait and progress",
+  "validation": "PNG decoded scanline equality; alpha counts and slice endpoint deltas, not Unity"
+}
