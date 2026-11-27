@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "baseline": "8bd23a0d1c2a117dbfad11cb42bf540488fa1f8a",
+  "status": "source-only guarded workflow",
+  "species": [
+    {
+      "id": "zephyr",
+      "sourcePath": "ArtSource/Dragons/images/04_zephyr.glb",
+      "sourceSha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+      "studies": [
+        "Fur"
+      ],
+      "canonical": {
+        "silhouetteVi": "Cánh lông rộng, đuôi mây, chân đậu.",
+        "palette": {
+          "primary": "#A6C8E6",
+          "secondary": "#6388BA",
+          "belly": "#EDF4FC",
+          "accent": "#F5D999"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 20,
+        "strictFail": 12,
+        "seamGapMaxRel": 0.16575,
+        "worstClip": "Land",
+        "worstStretch": 2.936,
+        "otherWarnings": [
+          "bones",
+          "facing",
+          "footSliding",
+          "ground"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19994,
+        "islands": 1,
+        "uvFlippedShare": 0.4033,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Preserve broad feather wings and cloud tail; manually align tuft direction from root to tip.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "sparkwing",
+      "sourcePath": "ArtSource/Dragons/images/07_sparkwing.glb",
+      "sourceSha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+      "studies": [
+        "Scale"
+      ],
+      "canonical": {
+        "silhouetteVi": "Cánh góc cạnh, đuôi tia điện.",
+        "palette": {
+          "primary": "#DBB65A",
+          "secondary": "#96703B",
+          "belly": "#F8EAC6",
+          "accent": "#F7F08A"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.15708,
+        "worstClip": "Run",
+        "worstStretch": 7.636,
+        "otherWarnings": [
+          "ground"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20000,
+        "islands": 1,
+        "uvFlippedShare": 0.5799,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Protect angular wing outline and lightning tail; no automatic emission or membrane assumption.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "blossom",
+      "sourcePath": "ArtSource/Dragons/images/10_blossom.glb",
+      "sourceSha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+      "studies": [
+        "Scale"
+      ],
+      "canonical": {
+        "silhouetteVi": "Cánh cánh hoa, đuôi dài, chân đậu.",
+        "palette": {
+          "primary": "#DC9FB8",
+          "secondary": "#A86B94",
+          "belly": "#F9E1D5",
+          "accent": "#B7D99A"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 20,
+        "strictFail": 17,
+        "seamGapMaxRel": 0.16734,
+        "worstClip": "Run",
+        "worstStretch": 3.767,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 20002,
+        "islands": 1,
+        "uvFlippedShare": 0.4627,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Preserve petal-shaped wings and long tail; keep petal edges and motifs.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "solaris",
+      "sourcePath": "ArtSource/Dragons/images/11_solaris.glb",
+      "sourceSha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+      "studies": [
+        "Fur"
+      ],
+      "canonical": {
+        "silhouetteVi": "Mào lửa, cánh lông lớn, đuôi quạt.",
+        "palette": {
+          "primary": "#ED874B",
+          "secondary": "#AC4B3D",
+          "belly": "#FBE1A0",
+          "accent": "#FFE47F"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 12,
+        "seamGapMaxRel": 0.0892,
+        "worstClip": "Run",
+        "worstStretch": 2.791,
+        "otherWarnings": [
+          "facing",
+          "ground"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19996,
+        "islands": 1,
+        "uvFlippedShare": 0.3951,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Preserve flame crest, feather fan and warm palette; no global glow.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "aurorawing",
+      "sourcePath": "ArtSource/Dragons/images/14_aurorawing.glb",
+      "sourceSha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+      "studies": [
+        "Fur"
+      ],
+      "canonical": {
+        "silhouetteVi": "Cánh dải sáng, lông cổ, đuôi cực quang.",
+        "palette": {
+          "primary": "#879BD5",
+          "secondary": "#5F5B9E",
+          "belly": "#DDE6FA",
+          "accent": "#8DE6CF"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "fur",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 14,
+        "seamGapMaxRel": 0.14417,
+        "worstClip": "Sleep",
+        "worstStretch": 2.81,
+        "otherWarnings": [
+          "bones"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19972,
+        "islands": 5,
+        "uvFlippedShare": 0.4879,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Preserve five source connected components, luminous ribbon identity, neck fur and aurora tail; inspect each piece separately.",
+      "status": "hold actual bake and runtime promotion"
+    },
+    {
+      "id": "celestia",
+      "sourcePath": "ArtSource/Dragons/images/15_celestia.glb",
+      "sourceSha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+      "studies": [
+        "Scale",
+        "Crystal"
+      ],
+      "canonical": {
+        "silhouetteVi": "Cánh sao, sừng tinh thể, đuôi sao.",
+        "palette": {
+          "primary": "#7776B5",
+          "secondary": "#45446F",
+          "belly": "#D4D2EC",
+          "accent": "#E9D48C"
+        },
+        "locomotion": [
+          "walk",
+          "fly"
+        ],
+        "protection": "scale",
+        "bodyStyle": "Winged",
+        "realms": [
+          "land",
+          "sky"
+        ]
+      },
+      "rigReview": {
+        "status": "hold texture remap and runtime promotion; repair and all-frame linear QA",
+        "archetype": "winged",
+        "clips": 19,
+        "strictFail": 15,
+        "seamGapMaxRel": 0.21637,
+        "worstClip": "Run",
+        "worstStretch": 6.494,
+        "otherWarnings": [
+          "bones",
+          "ground"
+        ]
+      },
+      "sourceAudit": {
+        "triangles": 40000,
+        "verticesWelded": 19998,
+        "islands": 1,
+        "uvFlippedShare": 0.3797,
+        "images": [
+          {
+            "mime": "image/jpeg",
+            "size": [
+              2048,
+              2048
+            ]
+          },
+          {
+            "mime": "image/png",
+            "size": [
+              2048,
+              2048
+            ]
+          }
+        ],
+        "skins": 0,
+        "animations": 0
+      },
+      "artDirection": "Protect star motifs, crystal horns and star tail; no automatic normal or emissive texture.",
+      "status": "hold actual bake and runtime promotion"
+    }
+  ],
+  "priorRigQA": {
+    "clips": 116,
+    "strictFail": 85
+  },
+  "checks": {
+    "syntheticBake": 12,
+    "syntheticSeam": 6,
+    "proposedMaxAddedBilinearSeamDifferenceSrgb8": 2
+  },
+  "limitations": "Exact float32 position edge pairing in one primitive only; may reject near-coincident seams or disconnected coincident geometry. No automatic bilateral symmetry, no full mip/compression/tangent QA. Review declarations not independent approval. Actual GLBs/masks/FBX and full CLI not run. No texture or runtime edits."
+}
