@@ -502,7 +502,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             m.SetFloat("_Warp", 0.05f);
             m.SetFloat("_WarpSpeed", 1f);
             m.SetFloat("_Patches", 0.5f);
-            m.SetVector("_NoiseRange", new Vector4(0.07f, 0.40f, 0f, 0f));
+            m.SetVector("_NoiseRange", new Vector4(0.02f, 0.38f, 0f, 0f));
             m.SetFloat("_Intensity", 3f);
             m.renderQueue = (int)RenderQueue.Transparent;
             EditorUtility.SetDirty(m);

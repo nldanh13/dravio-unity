@@ -21,7 +21,7 @@ Shader "Dravio/Environment/Caustics"
         _Warp ("Wobble (uv)", Range(0,0.2)) = 0.05
         _WarpSpeed ("Wobble Speed", Float) = 1
         _Patches ("Bright Patches", Range(0,1)) = 0.5
-        _NoiseRange ("Mip 5 Range (min, max)", Vector) = (0.07, 0.40, 0, 0)
+        _NoiseRange ("Mip 5 Range (min, max)", Vector) = (0.02, 0.38, 0, 0)
         _Intensity ("Intensity", Range(0,6)) = 3
     }
 

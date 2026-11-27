@@ -34,7 +34,7 @@ tint, strength = np.array([0.8, 1, 1]), 0.11
 
 
 
-def new(t, warp=0.05, mix=0.35, patches=0.5, rng=(0.07, 0.40), intensity=3.0):
+def new(t, warp=0.05, mix=0.35, patches=0.5, rng=(0.02, 0.38), intensity=3.0):
     noise = lambda uu, vv: np.clip((bil(MIP5, uu, vv) - rng[0]) / (rng[1] - rng[0]), 0, 1)
     n1 = noise(u * 0.37 + 0.031 * t, v * 0.37 - 0.019 * t)
     n2 = noise(u * 0.29 + 0.41 - 0.023 * t, v * 0.29 + 0.17 + 0.027 * t)
