@@ -10,13 +10,14 @@
   "Assets/Dravio/Character/Data/asset-overrides.char8-production.json": "f95d8142a57b24e66947f36ebf86d6bda527217fefe880e1a57cf6c0ed212712",
   "Assets/Dravio/Character/Data/character-budgets.json": "cc80726e1534d77b36eafa27c5583d13151e1cdaf04347bc115bce8ce026011f",
   "scripts/art/character/repair_chibi_rig.py": "18563fd728906a80a0211764658e0c28483783b856a77afc2c4d2ea89af2c9f9",
-  "scripts/art/character/anim_qa.py": "0706883f49cd2ee0f7f0704d962ab72cccf723a79af815e9df0ee3cbeb072387",
-  "scripts/art/character/batch_import.py": "6acac4e052c4b3934ab913f2ab1e78459322ffd7f7480781bc93a6793a051f06",
+  "scripts/art/character/anim_qa.py": "58ed7eb1708384faf06ad537b669f84e5791725afea9f9bb4f9c215900c60101",
+  "scripts/art/character/batch_import.py": "82ac73704e82a5a14ef606c984a4f7dfc420510aab5743a43050e111df6abc7d",
   "scripts/art/character/rig_archetype.py": "bb0067c81605c192ad29e318f3f69045bcbb6f122ef2a6444b850598ea0c1252",
   "scripts/art/character/export_emberling_legacy_contract.py": "4f8449a5e5528d50d62bb908d41542763e8bc00728d5852023014344be8dd4a8",
   "scripts/art/character/verify_contract_fbx.py": "1a5b914c099945a48ff91fcec1f49a0e7fa561631a9a6fe3f09d13e14694956c",
   "scripts/art/character/audit_source_glbs.py": "a6f30791fea3c782a2319a84b3d4aa5f9125ea1dc59601fccad6b189add36e2e",
   "Assets/Dravio/Editor/EmberlingModelPipeline.cs": "f2769be65d2ec20c91de3a90e888c74e3c37fa4262d8f3d6f5e3f3b2ff652682",
-  "Assets/Dravio/Editor/EmberlingAssetAudit.cs": "f3a15248b115e0f2eb3e91601bf831ef5ddb3656c07c2ca3b3816f06e51b8cd4"
+  "Assets/Dravio/Editor/EmberlingAssetAudit.cs": "f3a15248b115e0f2eb3e91601bf831ef5ddb3656c07c2ca3b3816f06e51b8cd4",
+  "scripts/art/character/measure_contact_clearance.py": "293c2c4386973904857df1df98dbca214be6a902d08fbbc5edd860f88da4256a"
  }
 }

@@ -131,6 +131,16 @@ class Char9cEmberling(unittest.TestCase):
         for name in CONTRACT:
             self.assertGreater(d['scene'][name]['walkablePoints'], 1000)
 
+    def test_reach_recorded_for_navigation(self):
+        d = load(R9C, 'batch_DRG_emberling_Unstaged_animqa_allframes.json')
+        for name, c in d['clips'].items():
+            r = c['reach_m']
+            self.assertGreater(r['radius'], 0.5, name)
+            self.assertGreaterEqual(r['radius'], max(r['front'], r['back'], r['side']) - 1e-6, name)
+        self.assertAlmostEqual(d['reach_m']['radius'], max(c['reach_m']['radius'] for c in d['clips'].values()))
+        # same number the scene clearance tool measured on the FBX (within 1 cm)
+        self.assertAlmostEqual(d['reach_m']['front'], load(R9C, 'contact_clearance_origin.json')['requiredObstacleClearanceAnyYaw_m'], delta=0.01)
+
     def test_anim_qa_default_sampling_unchanged(self):
         src = (REPO / 'scripts/art/character/anim_qa.py').read_text(encoding='utf-8')
         for node in ast.parse(src).body:

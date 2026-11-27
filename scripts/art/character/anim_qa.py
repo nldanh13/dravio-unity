@@ -376,6 +376,7 @@ def main():
         allr = []
         fr_st, fr_cp = [], []
         seam_gap = 0.0
+        reach = [0.0, 0.0, 0.0, 0.0]  # front (-Y), back (+Y), side (|X|), radius, from the pivot (runtime root)
         worst = (None, -1, None)
         lo, hi = rest_co.min(axis=0), rest_co.max(axis=0)
         min_z = np.inf
@@ -386,6 +387,10 @@ def main():
             co = mesh.evaluated()
             r = mesh.ratios(co)
             allr.append(r)
+            reach[0] = max(reach[0], float(-co[:, 1].min()))
+            reach[1] = max(reach[1], float(co[:, 1].max()))
+            reach[2] = max(reach[2], float(np.abs(co[:, 0]).max()))
+            reach[3] = max(reach[3], float(np.hypot(co[:, 0], co[:, 1]).max()))
             if len(mesh.seam):
                 seam_gap = max(seam_gap, float(np.linalg.norm(co[mesh.seam[:, 0]] - co[mesh.seam[:, 1]], axis=1).max()))
             fr_st.append(float(np.percentile(r, 99.9)))
@@ -419,6 +424,10 @@ def main():
         if p001 < lim['minCompressP001']:
             warn(clip, 'deformation', 'edge compression over limit', round(p001, 3), lim['minCompressP001'])
         rep['seamGapRel'] = round(seam_gap / h, 5)
+        # CHAR.9c: swept horizontal reach of the skinned mesh from the pivot (the runtime root/navigation point).
+        # Navigation clearance and dragon spacing must be at least this, per species, instead of fixed constants.
+        rep['reach_m'] = {'front': round(reach[0], 3), 'back': round(reach[1], 3), 'side': round(reach[2], 3),
+                          'radius': round(reach[3], 3)}
         if a.strict_frame and seam_gap / h > SEAM_GAP_REL:
             warn(clip, 'seams', 'skinned surface opens at split (UV/normal seam) vertices', round(seam_gap / h, 5), SEAM_GAP_REL)
         if a.strict_frame and max(fr_st) > lim['maxStretchP999'] and p999 <= lim['maxStretchP999']:
@@ -541,10 +550,12 @@ def main():
             raise SystemExit(f'Output exists: {png}')
         images = {'file': png.name, 'rows': render_sheet(mesh, arm, worst_frames, png, h),
                   'views': ['side (+X)', 'three-quarter front-left']}
+    reach_all = {k: max((c.get('reach_m') or {}).get(k, 0.0) for c in clips.values()) for k in ('front', 'back', 'side', 'radius')}
     report = {
         'qaVersion': QA_VERSION, 'name': name, 'species': rig.get('species'), 'archetype': rig.get('archetype'),
         'rigVersion': rig.get('rigVersion'), 'skinning': skinning, 'limits': lim, 'weights': weights, 'bones': bones_rep,
         'height': height, 'lods': lods, 'wingProbeVertices': wing_probe_count if len(wing_v) else None, 'clips': clips, 'transitions': transitions, 'motionEnvelope': envelope, 'images': images,
+        'reach_m': reach_all,
         'warnings': warnings, 'status': 'PASS' if not warnings else 'PASS_WITH_WARNINGS',
         'note': 'Automated geometric checks. They do not replace an animator review of the motion.',
     }

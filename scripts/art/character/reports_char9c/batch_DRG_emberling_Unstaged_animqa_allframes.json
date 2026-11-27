@@ -84,6 +84,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.744,
+        "back": 0.739,
+        "side": 0.203,
+        "radius": 0.744
+      },
       "bounds": {
         "min": [
           -0.203,
@@ -144,6 +150,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.198,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -208,6 +220,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.713,
+        "back": 0.61,
+        "side": 0.368,
+        "radius": 0.713
+      },
       "bounds": {
         "min": [
           -0.3677,
@@ -268,6 +286,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.753,
+        "back": 0.735,
+        "side": 0.374,
+        "radius": 0.753
+      },
       "bounds": {
         "min": [
           -0.3743,
@@ -332,6 +356,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.742,
+        "back": 0.739,
+        "side": 0.204,
+        "radius": 0.742
+      },
       "bounds": {
         "min": [
           -0.2043,
@@ -397,6 +427,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.742,
+        "back": 0.737,
+        "side": 0.252,
+        "radius": 0.742
+      },
       "bounds": {
         "min": [
           -0.2516,
@@ -462,6 +498,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.739,
+        "back": 0.739,
+        "side": 0.203,
+        "radius": 0.739
+      },
       "bounds": {
         "min": [
           -0.2027,
@@ -522,6 +564,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.741,
+        "back": 0.74,
+        "side": 0.368,
+        "radius": 0.741
+      },
       "bounds": {
         "min": [
           -0.3677,
@@ -582,6 +630,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.744,
+        "back": 0.74,
+        "side": 0.218,
+        "radius": 0.744
+      },
       "bounds": {
         "min": [
           -0.2183,
@@ -642,6 +696,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.198,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -702,6 +762,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.198,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -762,6 +828,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.754,
+        "back": 0.744,
+        "side": 0.198,
+        "radius": 0.754
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -826,6 +898,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.198,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -886,6 +964,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.205,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.2053,
@@ -946,6 +1030,12 @@
         ]
       },
       "seamGapRel": 0.0,
+      "reach_m": {
+        "front": 0.74,
+        "back": 0.74,
+        "side": 0.198,
+        "radius": 0.74
+      },
       "bounds": {
         "min": [
           -0.1984,
@@ -991,29 +1081,12 @@
     "flightVerticalExtent_m": null,
     "note": "Largest animated extent over the clips of each medium. Submerged swimming needs water deeper than swimVerticalExtent_m; flight needs a clear width of flightSpan_m. Margins are the Sanctuary's choice."
   },
-  "images": {
-    "file": "DRG_emberling_Unstaged_animqa.png",
-    "rows": [
-      "Idle",
-      "Eat",
-      "Sleep",
-      "Happy",
-      "Walk",
-      "Run",
-      "Rest",
-      "Wake",
-      "LookAround",
-      "Curious",
-      "Drink",
-      "Stretch",
-      "Bask",
-      "Greet",
-      "Nuzzle"
-    ],
-    "views": [
-      "side (+X)",
-      "three-quarter front-left"
-    ]
+  "images": null,
+  "reach_m": {
+    "front": 0.754,
+    "back": 0.744,
+    "side": 0.374,
+    "radius": 0.754
   },
   "warnings": [],
   "status": "PASS",

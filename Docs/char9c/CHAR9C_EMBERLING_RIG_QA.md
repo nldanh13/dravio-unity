@@ -171,3 +171,5 @@ Animation hầu như không làm rồng vươn xa hơn dáng nghỉ: dài 1,48 m
 **Chưa đo**: lưới thật của từng vật thể (hệ thống điều hướng chỉ biết đa giác chân đế, nên tảng đá tròn có thể lấn ít hơn hộp), rồng đi qua bậc thang hay dốc (`DragonFootGrounding` chưa chạy trong Unity), camera xén, vật lý Unity.
 
 **Đề xuất cho AI kỹ thuật Unity (#91)**: không sửa ở đây vì thuộc điều hướng và runtime. Đưa tầm với đo được của từng loài vào catalog (dữ liệu sinh từ pipeline, ví dụ `reach.front/back/side`), để điều hướng và khoảng cách giữa các rồng dùng số của chính con rồng đó thay vì các hằng số 0,45 / 0,55 m. Rồng mới hay rồng đổi kích thước khi đó vẫn đúng mà không phải sửa code.
+
+Hướng dẫn thêm/sửa rồng và các công thức khoảng chừa: [ADD_OR_EDIT_DRAGON.md](ADD_OR_EDIT_DRAGON.md). `anim_qa.py` nay ghi `reach_m` (trước/sau/ngang/bán kính, từ gốc) cho từng clip; `batch_import.py --qa-strict` bật đo mọi frame cho mọi loài.
