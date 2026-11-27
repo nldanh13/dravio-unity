@@ -17,7 +17,7 @@ namespace Dravio.EnvironmentArt.EditorTools
         public const string AudioFolder = "Assets/Dravio/Environment/Audio/";
         public const string ZonesFolder = "Assets/Dravio/Environment/Zones/";
 
-        public override uint GetVersion() => 6;
+        public override uint GetVersion() => 7;
 
         /// <summary>Origin folder (e.g. Environment/Models/) or Environment/Zones/&lt;Zone&gt;/Models/.</summary>
         static bool InKitFolder(string path, string originFolder, string sub)
@@ -67,6 +67,11 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (file.StartsWith("T_ENV_FX_", System.StringComparison.Ordinal))
             {
                 ConfigureFx(ti, file);
+                return;
+            }
+            if (file.StartsWith("T_ENV_WaterFlow_", System.StringComparison.Ordinal))
+            {
+                ConfigureWaterFlow(ti, file);
                 return;
             }
             bool foliage = file.Contains("Foliage");
@@ -123,6 +128,36 @@ namespace Dravio.EnvironmentArt.EditorTools
                 ps.overridden = true;
                 ps.maxTextureSize = max;
                 ps.format = TextureImporterFormat.ASTC_4x4;
+                ti.SetPlatformTextureSettings(ps);
+            }
+        }
+
+        // VIS.4b (Issue #91): VIS9 flowing-water maps for "Painterly Flow". Colour + alpha, sRGB.
+        // Silk / ripples tile (repeat, 256); the 4x4 foam flipbook clamps (512, 18 px cell gutters
+        // keep the first mips clean). ASTC 6x6 like the rest of the kit's colour maps.
+        static void ConfigureWaterFlow(TextureImporter ti, string file)
+        {
+            bool foam = file.Contains("Foam");
+            int max = foam ? 512 : 256;
+            ti.textureType = TextureImporterType.Default;
+            ti.sRGBTexture = true;
+            ti.alphaSource = TextureImporterAlphaSource.FromInput;
+            ti.alphaIsTransparency = true;
+            ti.mipmapEnabled = true;
+            ti.streamingMipmaps = false;
+            ti.wrapMode = foam ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+            ti.filterMode = FilterMode.Bilinear;
+            ti.anisoLevel = 1;
+            ti.isReadable = false;
+            ti.maxTextureSize = max;
+            ti.textureCompression = TextureImporterCompression.Compressed;
+            foreach (string platform in new[] { "Android", "iPhone" })
+            {
+                var ps = ti.GetPlatformTextureSettings(platform);
+                ps.overridden = true;
+                ps.maxTextureSize = max;
+                ps.format = TextureImporterFormat.ASTC_6x6;
+                ps.compressionQuality = 50;
                 ti.SetPlatformTextureSettings(ps);
             }
         }

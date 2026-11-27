@@ -33,8 +33,18 @@ namespace Dravio.EnvironmentArt.EditorTools
 
         internal const string PainterlyShader = "Dravio/Environment/Painterly Lit";
         internal const string WaterShader = "Dravio/Environment/Painterly Water";
+        // VIS.4b (Issue #91): waterfall curtain / stream ribbon (VIS3d meshes + VIS9 maps).
+        internal const string FlowShader = "Dravio/Environment/Painterly Flow";
 
-        static readonly string[] SlotNames = { "ENV_Props", "ENV_Foliage", "ENV_Water", "ENV_Ground" };
+        // VIS.4b: Origin texture budget, same RGBA32 + mips estimate as the zone builders
+        // (Ocean / Sky: 6 MB). Origin kit ~11 MB + VIS9 water ~2 MB; ASTC 6x6 on device is ~1/9.
+        // Proposed by the integration QA, owner may change it.
+        internal const long OriginTextureBudgetBytes = 14L * 1024 * 1024;
+
+        // ENV_Architecture / ENV_WaterFlow (VIS.4b): Models/Origin_VIS3c cottage, lookout, hills,
+        // waterfall rock frame, bank stones (static white-base Painterly Lit, no wind) and the
+        // VIS3d water surfaces (Painterly Flow).
+        static readonly string[] SlotNames = { "ENV_Props", "ENV_Foliage", "ENV_Water", "ENV_Ground", "ENV_Architecture", "ENV_WaterFlow" };
 
         // Small things that never need to cast shadows (cheaper shadow pass on mobile).
         static readonly string[] NoShadowPrefixes =
@@ -42,6 +52,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             "SM_ENV_Grass", "SM_ENV_Flower", "SM_ENV_Fern", "SM_ENV_Mushroom",
             "SM_ENV_Rock_Mossy_C", "SM_ENV_Pond", "SM_ENV_Ground", "SM_ENV_Vine",
             "SM_ENV_Cover", "SM_ENV_Stepping",
+            "SM_ENV_Waterfall_Surface", "SM_ENV_Stream_Surface", "SM_ENV_Stream_Bank",
         };
 
         // ------------------------------------------------------------------ menu
@@ -103,7 +114,8 @@ namespace Dravio.EnvironmentArt.EditorTools
 
             Shader painterly = ResolveShader(PainterlyShader, "Universal Render Pipeline/Lit", out bool painterlyOk);
             Shader waterShader = ResolveShader(WaterShader, "Universal Render Pipeline/Lit", out bool waterOk);
-            if (painterly == null || waterShader == null)
+            Shader flowShader = ResolveShader(FlowShader, "Universal Render Pipeline/Lit", out bool flowOk);
+            if (painterly == null || waterShader == null || flowShader == null)
             {
                 Debug.LogError("Dravio Environment: neither the Dravio shaders nor URP/Lit could be found.");
                 return false;
@@ -115,6 +127,8 @@ namespace Dravio.EnvironmentArt.EditorTools
                 ["ENV_Foliage"] = GetOrCreateMaterial("M_ENV_Foliage", painterly),
                 ["ENV_Ground"] = GetOrCreateMaterial("M_ENV_Ground", painterly),
                 ["ENV_Water"] = GetOrCreateMaterial("M_ENV_Water", waterShader),
+                ["ENV_Architecture"] = GetOrCreateMaterial("M_ENV_Architecture", painterly),
+                ["ENV_WaterFlow"] = GetOrCreateMaterial("M_ENV_WaterFlow", flowShader),
             };
 
             if (painterlyOk)
@@ -131,12 +145,16 @@ namespace Dravio.EnvironmentArt.EditorTools
                 mats["ENV_Props"].SetFloat("_SoftSheen", 0.11f);
                 mats["ENV_Foliage"].SetFloat("_SoftSheen", 0.07f);
                 mats["ENV_Ground"].SetFloat("_SoftSheen", 0.015f);
+                // VIS.4b: static architecture - white base (null = shader default "white"),
+                // colour comes from the authored vertex RGB, vertex A is 0 in the FBX, no wind.
+                ConfigureArchitecture(mats["ENV_Architecture"]);
             }
             else
             {
                 ConfigureLitFallback(mats["ENV_Props"], atlas, emission, false, false);
                 ConfigureLitFallback(mats["ENV_Foliage"], foliage, null, true, false);
                 ConfigureLitFallback(mats["ENV_Ground"], ground, null, false, false);
+                ConfigureLitFallback(mats["ENV_Architecture"], null, null, false, false);
             }
             if (waterOk)
             {
@@ -149,6 +167,10 @@ namespace Dravio.EnvironmentArt.EditorTools
                 mats["ENV_Water"].renderQueue = (int)RenderQueue.Transparent;
             }
             else ConfigureLitFallback(mats["ENV_Water"], water, null, false, true);
+            var flowSilk = LoadTexture("T_ENV_WaterFlow_Silk");
+            if (flowOk) ConfigureWaterFlow(mats["ENV_WaterFlow"], flowSilk,
+                                           LoadTexture("T_ENV_WaterFlow_Ripples"), LoadTexture("T_ENV_WaterFlow_Foam"));
+            else ConfigureLitFallback(mats["ENV_WaterFlow"], flowSilk, null, false, true);
 
             foreach (var m in mats.Values) EditorUtility.SetDirty(m);
             AssetDatabase.SaveAssets();
@@ -200,6 +222,39 @@ namespace Dravio.EnvironmentArt.EditorTools
                 m.SetOverrideTag("RenderType", "Opaque");
                 m.renderQueue = (int)RenderQueue.Geometry;
             }
+            m.enableInstancing = true;
+        }
+
+        // VIS.4b (Issue #91): owner-approved static material for the VIS3c architecture / hills and
+        // the VIS3d waterfall rocks. Same Painterly Lit grade as the props, but no atlas, no
+        // emission and no wind (vertex A is also 0 in those FBX).
+        internal static void ConfigureArchitecture(Material m)
+        {
+            ConfigurePainterly(m, null, null, wind: 0f, path: 0f, clip: false);
+            m.SetColor("_BaseColor", Color.white);
+            m.SetFloat("_VertexAO", 1f);
+            m.SetFloat("_EmissionPulse", 0f);
+            ApplyOriginVis1Grade(m);
+            m.SetFloat("_BrightFantasy", 1f);
+            m.SetFloat("_SoftSheen", 0.11f);
+        }
+
+        // VIS.4b: flowing water (waterfall silk + foam band where vertex A = 1, stream ripples at 0).
+        internal static void ConfigureWaterFlow(Material m, Texture2D silk, Texture2D ripples, Texture2D foam)
+        {
+            if (silk == null || ripples == null || foam == null)
+                Debug.LogWarning("Dravio Environment: T_ENV_WaterFlow_* textures missing in " + Textures + "; flow water will look flat.");
+            m.SetTexture("_BaseMap", silk);
+            m.SetTexture("_StreamMap", ripples);
+            m.SetTexture("_FoamMap", foam != null ? foam : Texture2D.blackTexture);
+            m.SetFloat("_FallSpeed", 0.9f);
+            m.SetFloat("_StreamSpeed", 0.22f);
+            m.SetFloat("_FoamBand", 0.22f);
+            m.SetFloat("_FoamTiling", 3f);
+            m.SetFloat("_FoamFps", 16f);
+            m.SetFloat("_Cull", (float)CullMode.Off);
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.renderQueue = (int)RenderQueue.Transparent;
             m.enableInstancing = true;
         }
 
@@ -630,6 +685,9 @@ namespace Dravio.EnvironmentArt.EditorTools
             sb.AppendLine($"Triangles: {tris:N0} / budget {TriangleBudget:N0} {(tris <= TriangleBudget ? "OK" : "OVER")}");
             sb.AppendLine($"Unique materials: {materials.Count} / budget {MaterialBudget} {(materials.Count <= MaterialBudget ? "OK" : "OVER")}");
             sb.AppendLine($"Textures: {textures.Count}, editor memory ~{texBytes / 1024f / 1024f:F1} MB (mobile ASTC 6x6 is smaller)");
+            long texEstimate = textures.Sum(t => (long)(t.width * t.height * 4 * 1.333f));
+            sb.AppendLine($"Texture budget: ~{texEstimate / 1048576f:F1} / {OriginTextureBudgetBytes / 1048576f:F0} MB RGBA32 + mips estimate " +
+                          $"{(texEstimate <= OriginTextureBudgetBytes ? "OK" : "OVER")}");
             sb.AppendLine("Draw calls: static batching + SRP Batcher merge same-material renderers; check Frame Debugger in Play Mode.");
             Debug.Log("Dravio Environment budget\n" + sb);
             if (dialog) EditorUtility.DisplayDialog("Dravio Environment budget", sb.ToString(), "OK");
