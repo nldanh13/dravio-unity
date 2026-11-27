@@ -54,6 +54,7 @@ class TuneRepairTool(unittest.TestCase):
         self.assertIn("CFG.get('pinTransitions', False)", src)
         self.assertIn("not n.startswith('Wing')", src)  # wing bones are not legs
         self.assertIn("pb.name not in ('Root', 'Pelvis')", src)
+        self.assertIn("CFG.get('trunkAxis', False)", src)
         # Emberling (approved) does not use them: its config is unchanged
         rep = json.loads(OVERRIDES.read_text(encoding='utf-8'))['species']['emberling']['repair']
         self.assertNotIn('pinTransitions', rep)
@@ -98,6 +99,13 @@ class SpeciesReport(unittest.TestCase):
                 self.assertNotIn(n, row['config'].get('amplitude', {}), (sp, n))
             if not fails:
                 self.assertNotEqual(row['verdict'], 'NEEDS_ART', sp)
+
+    def test_trunk_axis_only_where_measured_better(self):
+        users = sorted(sp for sp, row in self.sum['species'].items() if row['config'].get('trunkAxis'))
+        self.assertEqual(users, ['solaris'])
+        row = self.sum['species']['solaris']
+        self.assertLess(len(row['failingClips']), len(row['beforeTrunkAxis']['failingClips']))
+        self.assertTrue(set(row['failingClips']) <= set(row['beforeTrunkAxis']['failingClips']))
 
 
 if __name__ == '__main__':

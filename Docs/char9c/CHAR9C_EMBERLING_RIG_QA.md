@@ -214,3 +214,28 @@ Chạy lại cho một loài:
 python scripts/art/character/tune_repair.py <work>/assets/DRG_<loài>_Unstaged <out> --bpy-python <python có bpy>
 ```
 (`<work>` là một lần `batch_import.py` **không** có `repair` cho loài đó.) Kết quả `tune_<tên>.json` có mọi vòng, cấu hình tốt nhất và các clip NEEDS_ART.
+
+
+## 10. Thử sửa trọng số thân (27/11, sau khi merge #100)
+
+Chẩn đoán trên hai loài nặng nhất (`diag`: các cạnh vượt ngưỡng ở frame tệ nhất, vị trí lúc nghỉ, xương chi phối):
+- **gaia Swim (giãn 7,3)**: 650 đỉnh ở vùng chân, trọng số Pelvis + ForeUpper/ForeLower. Clip gập cả 4 chân 52°, mà chân của model này ngắn (0,36 m). Giảm riêng biên độ chân còn 0,3 vẫn giãn 2,3, còn đổi `blendWidth` 0,12–0,40 gần như không đổi gì. Nguyên nhân chính là **keyframe**: tư thế bơi gập chân không hợp với tỉ lệ model.
+- **aurorawing LookAround (giãn 4,4)**: rig v7 cho trọng số Neck lan xuống tận giữa lưng và gốc cánh (230 đỉnh Spine+Neck nằm sau khớp Chest 0,3–0,8 m). Khi đẩy phần này về thân, clip này giảm còn 2,5.
+
+Thêm vào `repair_chibi_rig.py` (tự chọn bật, mặc định tắt, Emberling không đổi):
+- `trunkAxis`: phần trọng số thân (Pelvis + Spine* + Chest) chia lại theo vị trí dọc cột sống nhìn từ trên xuống.
+- `neckSpill` (mặc định bật khi có `trunkAxis`): trọng số Neck/Head nằm sau khớp Chest trả về thân.
+
+Đo lại 10 loài nặng nhất (dò biên độ, rồi trả lại biên độ gốc cho clip còn hỏng, giống §9). So sánh công bằng giữa hai lần dò:
+
+| Loài | Trước | `trunkAxis` | `trunkAxis`, không `neckSpill` | Chọn |
+|---|---|---|---|---|
+| frostfin, leviathan, steamdrake | 4 / 4 / 4 | giống hệt (không có Pelvis, bước này không áp dụng) | – | giữ |
+| mossback | 8 | 8, tổng vượt hơi cao hơn | – | giữ |
+| sprout | 8 | 8: Sleep đạt nhưng **Walk hỏng** | – | giữ (Walk quan trọng hơn) |
+| gaia | 11 | 12 | 11, tổng vượt gần như cũ | giữ |
+| aurorawing | 9 | 10 | – | giữ |
+| celestia, sparkwing | 4 / 4 | 6 (Fly/Land/TakeOff hỏng thêm) | 6 | giữ |
+| **solaris** | 8 | 11 | **7** (Eat đạt) | **dùng** |
+
+Kết luận thẳng: sửa trọng số tự động **chỉ cứu thêm 1 clip** (solaris Eat). Với phần lớn clip còn hỏng, giảm biên độ tới 0,5 vẫn không đủ, còn trọng số không phải chỗ nghẽn chính. Nghẽn nằm ở **keyframe của rig v7** quá gắt so với tỉ lệ từng model: Sleep/Rest/Bask nằm sấp, Swim gập chân, Drink/Eat cúi sâu, Fly/TakeOff/Land vỗ cánh. Bước tiếp theo cần animator: dựng lại các clip đó theo từng loài, có thể dùng `worstBones` và frame tệ nhất trong `*_animqa.json` để biết chỗ cần sửa. Không nới ngưỡng, không làm phẳng chuyển động để qua QA.

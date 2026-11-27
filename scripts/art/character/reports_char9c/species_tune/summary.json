@@ -1,5 +1,5 @@
 {
- "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass).",
+ "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result.",
  "species": {
   "amberhorn": {
    "archetype": "quadruped",
@@ -1053,7 +1053,6 @@
    "failingClips": [
     "Bask",
     "Drink",
-    "Eat",
     "Fly",
     "Land",
     "Sleep",
@@ -1061,13 +1060,24 @@
     "Wake"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.614,
+   "minAmplitude": 0.5,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
     "blendWidth_m": 0.24,
     "pinTransitions": true,
+    "trunkAxis": true,
+    "neckSpill": false,
     "amplitude": {
+     "Eat": {
+      "head": 0.5,
+      "body": 0.522,
+      "legs": 0.522
+     },
+     "Glide": {
+      "body": 0.85,
+      "legs": 0.85
+     },
      "Rest": {
       "body": 0.614,
       "legs": 0.614
@@ -1075,12 +1085,20 @@
      "Run": {
       "body": 0.722,
       "legs": 0.722
+     },
+     "Walk": {
+      "body": 0.85,
+      "legs": 0.85
+     },
+     "LookAround": {
+      "head": 0.85,
+      "body": 0.85
      }
     }
    },
    "worst": {
     "Bask": {
-     "stretch": 2.081,
+     "stretch": 2.102,
      "compress": 0.303,
      "worstBones": [
       "Pelvis",
@@ -1089,26 +1107,17 @@
      ]
     },
     "Drink": {
-     "stretch": 2.305,
-     "compress": 0.468,
+     "stretch": 2.459,
+     "compress": 0.459,
      "worstBones": [
       "Pelvis",
       "Head",
-      "Spine"
-     ]
-    },
-    "Eat": {
-     "stretch": 2.25,
-     "compress": 0.487,
-     "worstBones": [
-      "Pelvis",
-      "Head",
-      "Spine"
+      "Neck"
      ]
     },
     "Fly": {
      "stretch": 2.823,
-     "compress": 0.489,
+     "compress": 0.509,
      "worstBones": [
       "Spine",
       "WingUpper_R",
@@ -1117,25 +1126,25 @@
     },
     "Land": {
      "stretch": 2.823,
-     "compress": 0.341,
+     "compress": 0.343,
      "worstBones": [
-      "Spine",
       "Pelvis",
+      "Spine",
       "WingUpper_R"
      ]
     },
     "Sleep": {
-     "stretch": 2.033,
+     "stretch": 2.001,
      "compress": 0.303,
      "worstBones": [
       "Pelvis",
-      "Spine",
-      "Head"
+      "Head",
+      "Spine"
      ]
     },
     "TakeOff": {
      "stretch": 2.867,
-     "compress": 0.374,
+     "compress": 0.367,
      "worstBones": [
       "Spine",
       "Pelvis",
@@ -1143,7 +1152,7 @@
      ]
     },
     "Wake": {
-     "stretch": 1.963,
+     "stretch": 1.943,
      "compress": 0.303,
      "worstBones": [
       "Pelvis",
@@ -1160,10 +1169,40 @@
    "reach_m": {
     "front": 1.13,
     "back": 1.101,
-    "side": 0.897,
+    "side": 0.895,
     "radius": 1.13
    },
-   "verdict": "NEEDS_ART"
+   "verdict": "NEEDS_ART",
+   "beforeTrunkAxis": {
+    "failingClips": [
+     "Bask",
+     "Drink",
+     "Eat",
+     "Fly",
+     "Land",
+     "Sleep",
+     "TakeOff",
+     "Wake"
+    ],
+    "excess": 4.623,
+    "config": {
+     "skinning": "linear",
+     "seamWeld": true,
+     "blendWidth_m": 0.24,
+     "pinTransitions": true,
+     "amplitude": {
+      "Rest": {
+       "body": 0.614,
+       "legs": 0.614
+      },
+      "Run": {
+       "body": 0.722,
+       "legs": 0.722
+      }
+     }
+    }
+   },
+   "excess": 4.313
   },
   "sparkwing": {
    "archetype": "winged",
