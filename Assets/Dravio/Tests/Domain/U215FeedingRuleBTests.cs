@@ -279,6 +279,18 @@ namespace Dravio.Domain.Tests
         }
 
         [Test]
+        public void Longest_valid_feed_request_produces_edible_portions()
+        {
+            var state=FiveSprouts();
+            var feed=new FeedCommand(new string('r',64),DietOf(state,"d0"),Zone,Hab,"d0",new[]{"d1"});
+            var spawned=Ok(state,feed,new FixedClock(Day0));
+            state=spawned.State;
+            foreach(var f in spawned.Events.OfType<FoodSpawned>())
+                state=Ok(state,new ConsumeFoodCommand(Rid(),f.FoodId,f.TargetDragonUid),new FixedClock(Day0+1000)).State;
+            Assert.That(state.Food.Drops,Is.Empty);
+        }
+
+        [Test]
         public void Scattered_meal_is_one_click_and_feeds_multiple_distinct_dragons()
         {
             var state=FiveSprouts();

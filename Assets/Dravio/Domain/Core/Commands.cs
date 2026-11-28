@@ -85,7 +85,16 @@ namespace Dravio.Domain.Core
         public string FoodId { get; }
         public string DragonUid { get; }
         public override string Type => "consumeFood";
-        internal override bool IsWellFormed() => IsId(FoodId) && IsId(DragonUid);
+        internal override bool IsWellFormed()
+        {
+            if (!IsId(DragonUid) || FoodId == null) return false;
+            if (IsId(FoodId)) return true;
+            // Generated portion IDs prepend five characters to a valid request ID.
+            if (FoodId.Length > 69) return false;
+            return FoodId.StartsWith("food-", System.StringComparison.Ordinal)
+                || (FoodId.StartsWith("side", System.StringComparison.Ordinal)
+                    && FoodId[4] >= '1' && FoodId[4] <= '4');
+        }
     }
 
     public sealed class PetCommand : GameCommand

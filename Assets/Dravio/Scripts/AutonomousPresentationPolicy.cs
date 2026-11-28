@@ -44,6 +44,19 @@ namespace Dravio
             return false;
         }
 
+        public const float GroundWalkSpeed = .55f;
+        public const float MealReach = .55f;
+        public const float MealSlowdownDistance = 1.1f;
+
+        public static float MealApproachSpeed(float distance, bool clear)
+        {
+            if (!clear || distance >= MealSlowdownDistance) return GroundWalkSpeed;
+            if (distance <= MealReach) return 0;
+            // Keep moving at the boundary so the last step can enter eating range.
+            float fraction = (distance - MealReach) / (MealSlowdownDistance - MealReach);
+            return GroundWalkSpeed * (.3f + .7f * fraction);
+        }
+
         public static bool RequiresUnimplementedMedium(DragonBehavior behavior)=>
             behavior==DragonBehavior.Swim || behavior==DragonBehavior.Fly || behavior==DragonBehavior.Burrow;
         public static bool UsesPoint(DragonBehavior behavior)=>

@@ -7,6 +7,13 @@ namespace Dravio.Tests
 {
     public sealed class AutonomousPresentationPolicyTests
     {
+        [TestCase(.4f,false,.55f)]
+        [TestCase(.55f,true,0f)]
+        [TestCase(.825f,true,.3575f)]
+        [TestCase(2f,true,.55f)]
+        public void MealApproachOnlyStopsWithinUnobstructedReach(float distance,bool clear,float speed)
+            =>Assert.That(AutonomousPresentationPolicy.MealApproachSpeed(distance,clear),Is.EqualTo(speed).Within(.0001f));
+
         [TestCase(null,0,0)]
         [TestCase(1000L,1000L,8)]
         [TestCase(1000L,8999L,1)]

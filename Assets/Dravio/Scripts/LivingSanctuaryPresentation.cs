@@ -508,6 +508,13 @@ namespace Dravio
             }
             RefreshProfile();
         }
+        float MealSpeed(Resident r,Vector3 spot)
+        {
+            float distance=Vector3.Distance(r.position,spot);
+            bool clear=distance<AutonomousPresentationPolicy.MealSlowdownDistance && Segment(r.position,spot,r.habitat);
+            return AutonomousPresentationPolicy.MealApproachSpeed(distance,clear);
+        }
+
         bool IsFoodTarget(Resident r)=>r.decision?.TargetFoodId!=null && mealSpots.ContainsKey(r.decision.TargetFoodId);
 
         void OnGUI()
@@ -686,7 +693,8 @@ namespace Dravio
                 manager.TryGet(r.uid,out var live) && live.ShownLocomotion!=DragonLocomotion.Sleep && live.CurrentInteraction==DragonInteraction.None;
         }
         static float SignedTurn(Quaternion old,Quaternion next,float dt)=>dt>0f?Mathf.DeltaAngle(old.eulerAngles.y,next.eulerAngles.y)/dt:0f;
-        bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
+        bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate,
+            float walkSpeed=AutonomousPresentationPolicy.GroundWalkSpeed)
         {
 #if UNITY_EDITOR
             if(controllerTrace!=null && controllerTrace.Recording)traceAttempts++;
@@ -717,7 +725,7 @@ namespace Dravio
             var waypoint=SanctuaryNavigationSurface.Vector(points[r.routeIndex]);
             var delta=waypoint-r.position;delta.y=0f;
             if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
-            var next=Vector3.MoveTowards(r.position,waypoint,.55f*dt);
+            var next=Vector3.MoveTowards(r.position,waypoint,walkSpeed*dt);
             if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat) ||
                 ((spatialForView || (Social!=null && Social.Contains(r.uid))) && !SanctuaryRoutePlanner.SegmentClear(SanctuaryNavigationSurface.Point(r.position),
                     SanctuaryNavigationSurface.Point(next),p=>Separated(SanctuaryNavigationSurface.Vector(p),r.uid),.025f)))
@@ -787,7 +795,7 @@ namespace Dravio
             look=true;lookTarget=foodPoint;
             if(distance>FoodActionPresentationGate.Reach)
             {
-                MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                MoveToward(r,foodPoint,dt,out speed,out turnRate,AutonomousPresentationPolicy.MealApproachSpeed((float)distance,clear));
                 foodGate.Presentation(false,false,false);
                 return speed>0?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
             }
@@ -817,9 +825,10 @@ namespace Dravio
                 {
                     if(r.point!=null)ReleasePoint(r);
                     look=true;lookTarget=foodPoint;
-                    if((r.position-foodPoint).sqrMagnitude>.55f*.55f)
+                    float approachSpeed=MealSpeed(r,foodPoint);
+                    if(approachSpeed>0)
                     {
-                        MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                        MoveToward(r,foodPoint,dt,out speed,out turnRate,approachSpeed);
                         if(speed==0f)r.fallback="food-path: "+r.routeState;
                         return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
                     }
@@ -1113,7 +1122,7 @@ namespace Dravio
             if(drop==null){RemovePortion(foodId);return;}
             var foodPoint=mealSpots[foodId];
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
-                (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
+                MealSpeed(r,foodPoint)>0 || !BehaviorEngine.CanEat(d,drop,NowMs))return;
             if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase))return;
             var idToEat=foodId;var who=foodUid;
 #if UNITY_EDITOR
