@@ -136,7 +136,9 @@ namespace Dravio
         {
             if(layer==null)return;
             var s=subscribed?.State;
-            bool ready=s!=null && subscribed.Status==SessionStatus.Ready && !subscribed.Hidden;
+            // Not gated on Hidden: in the Editor, focusing another window hides the session and would blank the
+            // bubbles and chips while the island is still on screen. The sim is paused then; the overlay just stays.
+            bool ready=s!=null && subscribed.Status==SessionStatus.Ready;
             layer.gameObject.SetActive(ready);
             if(!ready)return;
             if(living!=null)living.ResidentAnchors(anchors);else anchors.Clear();
