@@ -1,0 +1,387 @@
+{
+  "version": 1,
+  "status": "source-only neutral grayscale tonal studies",
+  "assets": [
+    {
+      "name": "T_VIS17B_Scale_Tone",
+      "material": "Scale",
+      "width": 128,
+      "height": 128,
+      "minGray": 84,
+      "maxGray": 161,
+      "meanGray": 128.00079345703125,
+      "periodicMaxError": 5.773159728050814e-15,
+      "edgeToInteriorRatio": [
+        1.0520743040849692,
+        0.40962994437577255
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Rounded staggered scale cells, soft edge and upper highlight.",
+      "proposedMaxBlendStrength": 0.1,
+      "maxNominalLinearMultiplierDelta": 0.034375,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Scale_Tone.png",
+      "blob": "ce61898bfa69e4e86a79b225bffe91ba8d160261"
+    },
+    {
+      "name": "T_VIS17B_Fur_Tone",
+      "material": "Fur",
+      "width": 128,
+      "height": 128,
+      "minGray": 85,
+      "maxGray": 172,
+      "meanGray": 128.00372314453125,
+      "periodicMaxError": 6.661338147750939e-15,
+      "edgeToInteriorRatio": [
+        1.2210417622762735,
+        1.723895469073134
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Broad directional tuft rhythm.",
+      "proposedMaxBlendStrength": 0.08,
+      "maxNominalLinearMultiplierDelta": 0.0275,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Fur_Tone.png",
+      "blob": "2a563b0b379c68432534bbf6cf422c9b462e1942"
+    },
+    {
+      "name": "T_VIS17B_Membrane_Tone",
+      "material": "Membrane",
+      "width": 128,
+      "height": 128,
+      "minGray": 98,
+      "maxGray": 172,
+      "meanGray": 128.00006103515625,
+      "periodicMaxError": 2.1649348980190553e-15,
+      "edgeToInteriorRatio": [
+        1.2550747863247864,
+        1.5025881192999755
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Quiet directional folds; veins require hand placement.",
+      "proposedMaxBlendStrength": 0.06,
+      "maxNominalLinearMultiplierDelta": 0.020624999999999998,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Membrane_Tone.png",
+      "blob": "c52321f8f13b4be0f5157bfc22a711eb8dd9ebe2"
+    },
+    {
+      "name": "T_VIS17B_Horn_Tone",
+      "material": "Horn",
+      "width": 128,
+      "height": 128,
+      "minGray": 84,
+      "maxGray": 172,
+      "meanGray": 128.0030517578125,
+      "periodicMaxError": 2.831068712794149e-15,
+      "edgeToInteriorRatio": [
+        0.8392730705687987,
+        1.312531215982583
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Keratin growth bands and longitudinal tone.",
+      "proposedMaxBlendStrength": 0.1,
+      "maxNominalLinearMultiplierDelta": 0.034375,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Horn_Tone.png",
+      "blob": "8170ea7b406f641fc959a9ef7ae76cc62953f732"
+    },
+    {
+      "name": "T_VIS17B_Armor_Tone",
+      "material": "Armor",
+      "width": 128,
+      "height": 128,
+      "minGray": 84,
+      "maxGray": 153,
+      "meanGray": 128.00335693359375,
+      "periodicMaxError": 8.951173136040325e-15,
+      "edgeToInteriorRatio": [
+        0.4901648779496902,
+        1.0184113056924018
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Rounded stone panel boundaries.",
+      "proposedMaxBlendStrength": 0.12,
+      "maxNominalLinearMultiplierDelta": 0.041249999999999995,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Armor_Tone.png",
+      "blob": "3a60f4c6ea6dcc3fec39a1703608f395fc68a1d3"
+    },
+    {
+      "name": "T_VIS17B_Crystal_Tone",
+      "material": "Crystal",
+      "width": 128,
+      "height": 128,
+      "minGray": 86,
+      "maxGray": 172,
+      "meanGray": 128.00201416015625,
+      "periodicMaxError": 5.023759186428833e-15,
+      "edgeToInteriorRatio": [
+        1.0027360850531581,
+        0.07486315789473684
+      ],
+      "alpha": 255,
+      "bytes": 65750,
+      "description": "Soft geometric facet rhythm; no physical reflection or emission.",
+      "proposedMaxBlendStrength": 0.08,
+      "maxNominalLinearMultiplierDelta": 0.0275,
+      "path": "ArtSource/Dragons/VIS17b_Material_Studies/T_VIS17B_Crystal_Tone.png",
+      "blob": "9f6cb510e52c085f4d1fda8a6984108dcb593d7d"
+    }
+  ],
+  "materialPlan": [
+    {
+      "id": "emberling",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#D86B47",
+        "secondary": "#A83D36",
+        "belly": "#F9D59A",
+        "accent": "#FFD66C"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "droplet",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [
+        "Membrane"
+      ],
+      "canonicalPalette": {
+        "primary": "#61BBD0",
+        "secondary": "#337FA4",
+        "belly": "#C7F2EE",
+        "accent": "#86E5DE"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "sprout",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#75B57D",
+        "secondary": "#397C58",
+        "belly": "#E3EAC0",
+        "accent": "#E7B864"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "zephyr",
+      "canonicalProtection": "fur",
+      "primaryStudy": "Fur",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#A6C8E6",
+        "secondary": "#6388BA",
+        "belly": "#EDF4FC",
+        "accent": "#F5D999"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "steamdrake",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#92BFC0",
+        "secondary": "#527E83",
+        "belly": "#E5E5CB",
+        "accent": "#ECAD78"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "magma",
+      "canonicalProtection": "armor",
+      "primaryStudy": "Armor",
+      "optionalStudies": [
+        "Horn"
+      ],
+      "canonicalPalette": {
+        "primary": "#9F5544",
+        "secondary": "#523B48",
+        "belly": "#F1A55C",
+        "accent": "#FFD261"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "sparkwing",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#DBB65A",
+        "secondary": "#96703B",
+        "belly": "#F8EAC6",
+        "accent": "#F7F08A"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "frostfin",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#8ABADD",
+        "secondary": "#4B75AB",
+        "belly": "#E0F5FF",
+        "accent": "#BDEDF4"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "mossback",
+      "canonicalProtection": "armor",
+      "primaryStudy": "Armor",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#829D66",
+        "secondary": "#506C4C",
+        "belly": "#D6D7A2",
+        "accent": "#A7CD84"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "blossom",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#DC9FB8",
+        "secondary": "#A86B94",
+        "belly": "#F9E1D5",
+        "accent": "#B7D99A"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "solaris",
+      "canonicalProtection": "fur",
+      "primaryStudy": "Fur",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#ED874B",
+        "secondary": "#AC4B3D",
+        "belly": "#FBE1A0",
+        "accent": "#FFE47F"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "leviathan",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#427C9A",
+        "secondary": "#27526E",
+        "belly": "#C7E4D7",
+        "accent": "#E38F86"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "amberhorn",
+      "canonicalProtection": "armor",
+      "primaryStudy": "Armor",
+      "optionalStudies": [
+        "Horn"
+      ],
+      "canonicalPalette": {
+        "primary": "#C58C45",
+        "secondary": "#855B39",
+        "belly": "#F3DCA4",
+        "accent": "#FFE08A"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "aurorawing",
+      "canonicalProtection": "fur",
+      "primaryStudy": "Fur",
+      "optionalStudies": [],
+      "canonicalPalette": {
+        "primary": "#879BD5",
+        "secondary": "#5F5B9E",
+        "belly": "#DDE6FA",
+        "accent": "#8DE6CF"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "celestia",
+      "canonicalProtection": "scale",
+      "primaryStudy": "Scale",
+      "optionalStudies": [
+        "Crystal"
+      ],
+      "canonicalPalette": {
+        "primary": "#7776B5",
+        "secondary": "#45446F",
+        "belly": "#D4D2EC",
+        "accent": "#E9D48C"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    },
+    {
+      "id": "gaia",
+      "canonicalProtection": "armor",
+      "primaryStudy": "Armor",
+      "optionalStudies": [
+        "Membrane"
+      ],
+      "canonicalPalette": {
+        "primary": "#629B7D",
+        "secondary": "#385D57",
+        "belly": "#DDE5B6",
+        "accent": "#E8C97F"
+      },
+      "notes": "Optional only where actual anatomy and manually reviewed mask confirm. No inferred new morphology.",
+      "status": "hold actual grade pending rig and UV review"
+    }
+  ],
+  "shaderContract": {
+    "shader": "Dravio/Character/Stylized Lit",
+    "baseMapSamples": 1,
+    "normalMap": false,
+    "metallicRoughness": false,
+    "opaque": true,
+    "baseColor": "preserve runtime tint; no genetics changes",
+    "recommendedBake": "decode existing sRGB to linear; treat study gray as raw data, neutral 128; multiply by 1+strength*manualMask*(gray-128)/128, preserve alpha, check clipping and seam; not implemented here"
+  },
+  "limits": {
+    "sourceStudySize": 128,
+    "runtimeExtraTextureCount": 0,
+    "characterTextureRecommended": 1024,
+    "characterTextureMax": 2048,
+    "materialsWarning": 2,
+    "materialsError": 4
+  },
+  "checks": "256 periodic samples per study, wrap edge differences, neutral mean, range 84..172, PNG stored scanline roundtrip, deterministic bytes",
+  "limitations": "Not real UV mapped dragon textures; no actual model decode, bake, render, external PNG decoder, Blender, Unity or Android. Do not use as Normal or PBR map. Proposed strengths need visual approval."
+}

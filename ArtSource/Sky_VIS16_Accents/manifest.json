@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "status": "source candidates only",
+  "baseline": "f78998faf9a47652e21d48058fe85de5d38f5e8d",
+  "assets": [
+    {
+      "name": "Sky_Floating_Garden_Islet",
+      "triangles": 144,
+      "vertices": 432,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.9667398929595947,
+          -1.5499999523162842,
+          -0.810022234916687
+        ],
+        "max": [
+          1.1545047760009766,
+          0,
+          0.7099778056144714
+        ]
+      },
+      "bytes": 16576,
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Floating_Garden_Islet.glb",
+      "blob": "7bcabed693dcf71e53c221fcb5033775a7159a2d"
+    },
+    {
+      "name": "Sky_Aurora_Crystal_Cluster",
+      "triangles": 148,
+      "vertices": 444,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3400000035762787,
+          0,
+          -0.20590977370738983
+        ],
+        "max": [
+          0.3953999876976013,
+          0.7900000214576721,
+          0.20590977370738983
+        ]
+      },
+      "bytes": 17012,
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Aurora_Crystal_Cluster.glb",
+      "blob": "8c6f867e697bba3d997f17782edd53eca9085cd4"
+    },
+    {
+      "name": "Sky_Star_Blossom_Cluster",
+      "triangles": 792,
+      "vertices": 2376,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3304731845855713,
+          5.60283597295097e-10,
+          -0.18864977359771729
+        ],
+        "max": [
+          0.35047319531440735,
+          0.5996000170707703,
+          0.1586497724056244
+        ]
+      },
+      "bytes": 86584,
+      "path": "ArtSource/Sky_VIS16_Accents/Sky_Star_Blossom_Cluster.glb",
+      "blob": "2d5760b59038bce73ba396db8af72cb5805321ea"
+    }
+  ],
+  "totalTriangles": 1084,
+  "textureCount": 0,
+  "baselineManifestTriangles": 15010,
+  "checks": "finite coordinates, unit normals, nondegenerate triangles, no opposed corner normals, deterministic bytes; island surface pivot Y=0, other assets grounded",
+  "limitations": "No external validator, actual render, Blender, Unity/Android, placement, watertight verification or collider. Crystal and blossom intersecting primitives; no emissive map. Optional dressing only; existing play surfaces unchanged."
+}

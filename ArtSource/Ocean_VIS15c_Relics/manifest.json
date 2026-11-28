@@ -1,0 +1,25 @@
+{
+  "name": "Ocean_Tide_Relief_Fragment",
+  "triangles": 352,
+  "vertices": 1056,
+  "materialSlots": 1,
+  "bounds": {
+    "min": [
+      -0.3400000035762787,
+      0,
+      -0.16638268530368805
+    ],
+    "max": [
+      0.3400000035762787,
+      0.8199999928474426,
+      0.125
+    ]
+  },
+  "bytes": 39040,
+  "path": "ArtSource/Ocean_VIS15c_Relics/Ocean_Tide_Relief_Fragment.glb",
+  "blob": "5b8231f67920f4e1842763bea895faea16a2b387",
+  "status": "source-only decorative fragment",
+  "front": "-Z",
+  "checks": "finite positions, normal lengths, no degenerate/opposed triangles, deterministic regeneration",
+  "limitations": "No external validation, placement, render, Blender/Unity or device test. Intersecting decorative primitives, not a gameplay relic."
+}

@@ -1,0 +1,36 @@
+{
+  "name": "Sky_Updraft_Air_Ribbons",
+  "triangles": 128,
+  "vertices": 132,
+  "materialSlots": 1,
+  "textures": 0,
+  "durationSeconds": 3,
+  "keyframes": 25,
+  "morphTargets": 2,
+  "sampledPoses": 50,
+  "minFaceNormalDot": 0.9979954949447404,
+  "minAreaRatio": 0.9273141052983311,
+  "maxAreaRatio": 1.0750015564115487,
+  "maxDisplacementM": 0.041999999999999996,
+  "bounds": [
+    [
+      -0.48634806275367737,
+      0.48634806275367737
+    ],
+    [
+      -0.005950000137090683,
+      1.4059499502182007
+    ],
+    [
+      -0.49645447731018066,
+      0.49645447731018066
+    ]
+  ],
+  "maxVertexAlpha": 0.32,
+  "bytes": 16380,
+  "path": "ArtSource/Sky_VIS16e_Airflow/Sky_Updraft_Air_Ribbons.glb",
+  "blob": "5cb4c5057f7d4483b674318602643d2af39f0d17",
+  "status": "optional source-only visual; hold runtime until alpha and placement review",
+  "checks": "50 interpolated morph samples, area and face normal gates, loop endpoint match, finite attributes, deterministic bytes",
+  "limitations": "Open double-sided strips, not a volume. BLEND vertex alpha material is source preview only; Painterly Lit opaque wind alpha is not appropriate. No external glTF validator, actual playback, Blender/FBX, Unity/Android or overdraw profiling."
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "status": "source-only decorative architecture",
+  "assets": [
+    {
+      "name": "Sky_Astral_Crystal_Lantern",
+      "triangles": 792,
+      "vertices": 1427,
+      "unindexedVertices": 2376,
+      "closedComponents": 10,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3199999928474426,
+          0,
+          -0.3199999928474426
+        ],
+        "max": [
+          0.3199999928474426,
+          1.225000023841858,
+          0.3199999928474426
+        ]
+      },
+      "bytes": 74584,
+      "path": "ArtSource/Sky_VIS16d_Architecture/Sky_Astral_Crystal_Lantern.glb",
+      "blob": "f2bbb6905ce91e8dbfacb6da4baf30f7fb0bddf0"
+    },
+    {
+      "name": "Sky_Celestial_Halo_Monument",
+      "triangles": 840,
+      "vertices": 1040,
+      "unindexedVertices": 2520,
+      "closedComponents": 6,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.36500000953674316,
+          0,
+          -0.3199999928474426
+        ],
+        "max": [
+          0.36500000953674316,
+          1.274999976158142,
+          0.3199999928474426
+        ]
+      },
+      "bytes": 56296,
+      "path": "ArtSource/Sky_VIS16d_Architecture/Sky_Celestial_Halo_Monument.glb",
+      "blob": "8d394ddb5ddf069bd28a9cd4bcf7b6aaf261074f"
+    }
+  ],
+  "totalTriangles": 1632,
+  "textureCount": 0,
+  "front": "-Z",
+  "checks": "per component oriented position edges 2/opposite, positive signed volume; nondegenerate face and corner normal gates; exact float32 attribute tuple indexing; deterministic regeneration",
+  "limitations": "Components overlap/touch and are not boolean-unioned. No full-assembly watertight guarantee, hidden surface optimization, actual emission, light, metallic shader, external glTF validator, render, Blender, Unity or device. Not placeable until review."
+}

@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "status": "LOD source candidates",
+  "assets": [
+    {
+      "name": "Sky_Star_Blossom_Cluster_LOD1",
+      "triangles": 396,
+      "vertices": 252,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3304731845855713,
+          5.60283597295097e-10,
+          -0.19744157791137695
+        ],
+        "max": [
+          0.35047319531440735,
+          0.5996000170707703,
+          0.16744157671928406
+        ]
+      },
+      "bytes": 15840,
+      "anchors": 18,
+      "maxAlpha": 1,
+      "uniquePositions": 252,
+      "samplePoses": 360,
+      "windStrength": 0.008,
+      "maxSampleDisplacementM": 0.04219692494921134,
+      "minFaceNormalDot": 0.9942957158949376,
+      "minAreaRatio": 0.9499119760633682,
+      "maxAreaRatio": 1.0538527668146815,
+      "unindexedVertices": 1188,
+      "baselineTriangles": 792,
+      "reduction": 0.5,
+      "maxExtentDelta": 0.05062951803326032,
+      "maxCenterDelta": 0,
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Star_Blossom_Cluster_LOD1.glb",
+      "blob": "f6ae2c512b23f8f8317320e439df631aca5d471f"
+    },
+    {
+      "name": "Sky_Astral_Crystal_Lantern_LOD1",
+      "triangles": 576,
+      "vertices": 1067,
+      "unindexedVertices": 1728,
+      "closedComponents": 10,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.3199999928474426,
+          0,
+          -0.3199999928474426
+        ],
+        "max": [
+          0.3199999928474426,
+          1.225000023841858,
+          0.3199999928474426
+        ]
+      },
+      "bytes": 56020,
+      "baselineTriangles": 792,
+      "reduction": 0.2727272727272727,
+      "maxExtentDelta": 0,
+      "maxCenterDelta": 0,
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Astral_Crystal_Lantern_LOD1.glb",
+      "blob": "604c0905261019a72ecb424aeae30612b0826ff4"
+    },
+    {
+      "name": "Sky_Celestial_Halo_Monument_LOD1",
+      "triangles": 528,
+      "vertices": 728,
+      "unindexedVertices": 1584,
+      "closedComponents": 6,
+      "materialSlots": 1,
+      "bounds": {
+        "min": [
+          -0.36500000953674316,
+          0,
+          -0.3199999928474426
+        ],
+        "max": [
+          0.36500000953674316,
+          1.274999976158142,
+          0.3199999928474426
+        ]
+      },
+      "bytes": 39456,
+      "baselineTriangles": 840,
+      "reduction": 0.37142857142857144,
+      "maxExtentDelta": 0,
+      "maxCenterDelta": 0,
+      "path": "ArtSource/Sky_VIS16f_LOD/Sky_Celestial_Halo_Monument_LOD1.glb",
+      "blob": "744f148e2b7463694ccca0e2858a64bd2ed04cbe"
+    }
+  ],
+  "totalTriangles": 1500,
+  "baselineTriangles": 2424,
+  "reduction": 0.3811881188118812,
+  "checks": "360 local wind poses, closed component topology for architecture, exact float32 tuple indexing, bounds and deterministic generation",
+  "limitations": "No external validator, render, FBX, Unity, device or runtime LOD. Components not boolean unioned. Use only one version per instance."
+}

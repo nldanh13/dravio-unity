@@ -1,5 +1,5 @@
 {
- "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result. CHAR.9c step 4: tune_repair.py --local (pull-back around the worst frame, step 0.8, floor 0.3) on the 13 failing species; a fix is kept only if the clip then passes AND gets no new ground/foot/transition warning (pulling legs back without foot IK makes feet slide): gaia Rest+Bask, leviathan LookAround, mossback SwimSurface. beforeLocal keeps the previous failing list. CHAR.9c step 5 (owner chose a deeper reduction, 27/11): tune_repair.py --floor 0.3 from the committed configs; a clip fix is kept only if the clip passes and gets no new ground/foot/transition warning. beforeFloor03 keeps the previous failing list.",
+ "note": "CHAR.9c step 2. Rig v7 output of ArtSource/Dragons/images (unchanged GLBs), linear skinning, anim_qa --samples all --strict-frame (every frame, worst frame vs unchanged limits). failBefore = no repair; failWelded = linear + seamWeld + blendWidth 0.24 + pinTransitions, no amplitude; failingClips = after tune_repair.py (step 0.85, floor 0.5), amplitude then removed from every clip that still fails (no flattening without a pass). CHAR.9c step 3: trunkAxis tried on the 10 worst species (tuned, then pruned like step 2); adopted only where it measurably helps without adding a failing clip: solaris only (trunkAxis, neckSpill false: Eat passes, 8 -> 7). sprout kept step 2: trunkAxis fixed Sleep but broke Walk. beforeTrunkAxis keeps the step-2 result. CHAR.9c step 4: tune_repair.py --local (pull-back around the worst frame, step 0.8, floor 0.3) on the 13 failing species; a fix is kept only if the clip then passes AND gets no new ground/foot/transition warning (pulling legs back without foot IK makes feet slide): gaia Rest+Bask, leviathan LookAround, mossback SwimSurface. beforeLocal keeps the previous failing list. CHAR.9c step 5 (owner chose a deeper reduction, 27/11): tune_repair.py --floor 0.3 from the committed configs; a clip fix is kept only if the clip passes and gets no new ground/foot/transition warning. beforeFloor03 keeps the previous failing list. CHAR.9c step 6: tune_repair.py --guard --floor 0.3 (a reduction that gives its clip a new ground/foot/transition warning is undone and that group blocked on that clip). beforeGuard keeps the previous failing list.",
  "species": {
   "amberhorn": {
    "archetype": "quadruped",
@@ -68,9 +68,7 @@
     "Eat",
     "Land",
     "LookAround",
-    "Sleep",
-    "TakeOff",
-    "Wake"
+    "TakeOff"
    ],
    "seamGapRelMax": 0,
    "minAmplitude": 0.3,
@@ -110,6 +108,19 @@
      "Fly": {
       "wings": 0.377,
       "body": 0.377
+     },
+     "Sleep": {
+      "body": 0.3,
+      "head": 0.3,
+      "tail": 0.614,
+      "legs": 0.614,
+      "wings": 0.522
+     },
+     "Wake": {
+      "body": 0.3,
+      "head": 0.3,
+      "tail": 0.522,
+      "legs": 0.3
      }
     }
    },
@@ -150,15 +161,6 @@
       "WingUpper_R"
      ]
     },
-    "Sleep": {
-     "stretch": 3.318,
-     "compress": 0.354,
-     "worstBones": [
-      "Pelvis",
-      "Spine",
-      "Neck"
-     ]
-    },
     "TakeOff": {
      "stretch": 2.494,
      "compress": 0.321,
@@ -166,15 +168,6 @@
       "WingUpper_R",
       "Spine",
       "Pelvis"
-     ]
-    },
-    "Wake": {
-     "stretch": 3.293,
-     "compress": 0.354,
-     "worstBones": [
-      "Pelvis",
-      "Spine",
-      "Neck"
      ]
     }
    },
@@ -194,6 +187,17 @@
      "Drink",
      "Eat",
      "Fly",
+     "Land",
+     "LookAround",
+     "Sleep",
+     "TakeOff",
+     "Wake"
+    ]
+   },
+   "beforeGuard": {
+    "failingClips": [
+     "Drink",
+     "Eat",
      "Land",
      "LookAround",
      "Sleep",
@@ -502,9 +506,7 @@
    "seamGapRelBefore": 0.09468,
    "failWelded": 11,
    "failingClips": [
-    "Happy",
-    "Sleep",
-    "Wake"
+    "Happy"
    ],
    "seamGapRelMax": 0,
    "minAmplitude": 0.3,
@@ -547,6 +549,16 @@
       "body": 0.3,
       "tail": 0.444,
       "head": 0.614
+     },
+     "Sleep": {
+      "tail": 0.3,
+      "body": 0.3,
+      "head": 0.614
+     },
+     "Wake": {
+      "body": 0.3,
+      "tail": 0.3,
+      "head": 0.614
      }
     }
    },
@@ -559,31 +571,13 @@
       "Spine1",
       "Spine4"
      ]
-    },
-    "Sleep": {
-     "stretch": 2.133,
-     "compress": 0.674,
-     "worstBones": [
-      "Tail1",
-      "Spine1",
-      "Spine4"
-     ]
-    },
-    "Wake": {
-     "stretch": 2.087,
-     "compress": 0.68,
-     "worstBones": [
-      "Spine1",
-      "Tail1",
-      "Spine4"
-     ]
     }
    },
    "otherWarnings": [
     "-:bones"
    ],
    "reach_m": {
-    "front": 0.482,
+    "front": 0.445,
     "back": 0.426,
     "side": 1.032,
     "radius": 1.061
@@ -592,6 +586,13 @@
    "beforeFloor03": {
     "failingClips": [
      "Eat",
+     "Happy",
+     "Sleep",
+     "Wake"
+    ]
+   },
+   "beforeGuard": {
+    "failingClips": [
      "Happy",
      "Sleep",
      "Wake"
@@ -608,15 +609,13 @@
    "failingClips": [
     "Drink",
     "Eat",
-    "Sleep",
     "Swim",
     "SwimSurface",
-    "Wake",
     "WaterEnter",
     "WaterExit"
    ],
    "seamGapRelMax": 0,
-   "minAmplitude": 0.32,
+   "minAmplitude": 0.3,
    "config": {
     "skinning": "linear",
     "seamWeld": true,
@@ -640,6 +639,18 @@
      },
      "Run": {
       "legs": 0.32
+     },
+     "Sleep": {
+      "legs": 0.3,
+      "head": 0.377,
+      "body": 0.3,
+      "fins": 0.377
+     },
+     "Wake": {
+      "body": 0.3,
+      "legs": 0.444,
+      "fins": 0.3,
+      "head": 0.522
      }
     },
     "local": {
@@ -728,15 +739,6 @@
       "Neck"
      ]
     },
-    "Sleep": {
-     "stretch": 2.844,
-     "compress": 0.348,
-     "worstBones": [
-      "Pelvis",
-      "HindLower_L",
-      "Head"
-     ]
-    },
     "Swim": {
      "stretch": 7.302,
      "compress": 0.349,
@@ -753,15 +755,6 @@
       "Pelvis",
       "Chest",
       "ForeLower_R"
-     ]
-    },
-    "Wake": {
-     "stretch": 2.781,
-     "compress": 0.348,
-     "worstBones": [
-      "Pelvis",
-      "Chest",
-      "HindLower_L"
      ]
     },
     "WaterEnter": {
@@ -815,6 +808,18 @@
      "Drink",
      "Eat",
      "Run",
+     "Sleep",
+     "Swim",
+     "SwimSurface",
+     "Wake",
+     "WaterEnter",
+     "WaterExit"
+    ]
+   },
+   "beforeGuard": {
+    "failingClips": [
+     "Drink",
+     "Eat",
      "Sleep",
      "Swim",
      "SwimSurface",
@@ -1208,7 +1213,6 @@
    "failWelded": 10,
    "failingClips": [
     "Drink",
-    "Land",
     "TakeOff"
    ],
    "seamGapRelMax": 0,
@@ -1265,6 +1269,11 @@
       "body": 0.3,
       "head": 0.377,
       "legs": 0.522
+     },
+     "Land": {
+      "body": 0.3,
+      "wings": 0.3,
+      "legs": 0.614
      }
     }
    },
@@ -1276,15 +1285,6 @@
       "Pelvis",
       "Head",
       "Neck"
-     ]
-    },
-    "Land": {
-     "stretch": 2.448,
-     "compress": 0.343,
-     "worstBones": [
-      "Pelvis",
-      "Spine",
-      "WingUpper_R"
      ]
     },
     "TakeOff": {
@@ -1348,6 +1348,13 @@
      "Sleep",
      "TakeOff",
      "Wake"
+    ]
+   },
+   "beforeGuard": {
+    "failingClips": [
+     "Drink",
+     "Land",
+     "TakeOff"
     ]
    }
   },

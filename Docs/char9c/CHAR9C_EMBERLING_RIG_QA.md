@@ -295,3 +295,25 @@ Chạy `tune_repair.py --floor 0.3` cho 13 loài, bắt đầu từ cấu hình 
 Còn **51/283 clip** vượt ngưỡng (lúc đầu 223/283).
 
 **Cần duyệt bằng mắt**: nhiều hệ số đã xuống 0,3–0,45. Ví dụ cánh khi Fly của aurorawing và solaris chỉ còn 0,3–0,38, nghĩa là vỗ cánh nhỏ đi khoảng 3 lần. Ảnh trước/sau ở frame tệ nhất cũ: `reports_char9c/species_tune/floor03_before_after.jpg`. Hệ số từng clip nằm trong `asset-overrides` → `species.<loài>.repair.amplitude`. Ngưỡng QA không đổi; Unity NOT RUN.
+
+## 14. Chế độ guard (27/11, sau khi merge #106)
+
+`tune_repair.py --guard`: nếu một lần giảm biên độ làm chính clip đó có cảnh báo mới (chân trượt, xuyên đất, hở chạm đất, chuyển tiếp, cánh), công cụ hoàn tác lần giảm đó và cấm giảm tiếp nhóm xương này trên clip đó. Sau đó nó thử nhóm xương gây lỗi tiếp theo (tối đa 4 nhóm). Chạy với sàn 0,3 cho 13 loài còn hỏng.
+
+**Nhận thêm 7 clip**, không sinh cảnh báo mới:
+- aurorawing: Sleep, Wake
+- frostfin: Sleep, Wake
+- gaia: Sleep, Wake
+- solaris: Land
+
+Còn **44/283 clip** vượt ngưỡng. Ảnh trước/sau: `reports_char9c/species_tune/guard_before_after.jpg`.
+
+**Cần duyệt bằng mắt**: Sleep/Wake của ba loài này có thân và đầu ở 0,3, nên rồng hầu như **không còn nằm xuống** khi ngủ (gaia rõ nhất). Đây là thay đổi lớn về diễn xuất. Nếu không chấp nhận, trả các clip đó về cấu hình trước (`beforeGuard` trong `summary.json`).
+
+Phần còn lại guard đã chặn hết mọi nhóm xương, nghĩa là giảm nhóm nào cũng làm chân trượt hoặc xuyên đất. Đó là:
+- Eat/Drink của hầu hết các loài
+- Run của celestia, droplet, sparkwing, sprout
+- Rest/Sleep/Bask của mossback và steamdrake
+- Swim của gaia và mossback
+
+Các clip này chỉ sửa được bằng cách dựng lại keyframe hoặc vẽ trọng số bằng tay (gói ảnh §12).
