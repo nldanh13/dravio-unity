@@ -9,19 +9,32 @@ namespace Dravio
     internal static class ChronicleView
     {
         static readonly string[] ChaptersVi = {
-            "I · Tiếng cánh trong sương\nEmberling nghe tiếng gọi ngoài đồng cỏ nhưng đàn rồng còn nấp. Thả một phần thức ăn xuống đất để gọi đàn về.",
-            "II · Vết bùn ở bờ hồ\nEmberling trở về với bùn xanh dưới móng. Theo hướng dẫn khảo sát và mở sinh cảnh Bờ hồ ở Khởi Nguyên để tìm lối đàn rồng từng đi qua.",
-            "III · Ký ức trong vỏ trứng\nỞ mép nước có những vỏ trứng rỗng. Hãy nhận một rồng mới nở từ gói trứng hoặc tổ lai để đàn có thế hệ tiếp nối.",
-            "IV · Đường về xuyên rừng\nTiếng gọi giờ vọng lại từ bên kia rừng. Cử một rồng trưởng thành phù hợp đi tuyến Rừng Khởi Nguyên, rồi nhận kết quả khi nó trở về."
+            "I · Tiếng cánh trong sương\nEmberling nghe tiếng gọi ngoài đồng cỏ nhưng đàn rồng còn nấp. Mùi gì có thể kéo chúng ra khỏi bụi cỏ?",
+            "II · Vết bùn ở bờ hồ\nEmberling trở về với bùn xanh dưới móng. Dấu chân biến mất ở mép đồng. Đàn đã đi về phía nào?",
+            "III · Ký ức trong vỏ trứng\nỞ mép nước có những vỏ trứng rỗng. Giữa đám vỏ cũ có một tiếng gõ. Con rồng tiếp theo sẽ đến từ đâu?",
+            "IV · Đường về xuyên rừng\nTiếng gọi giờ vọng lại từ bên kia rừng. Làm sao biết lối ấy vẫn dẫn được cả đàn về nhà?"
         };
         static readonly string[] ChaptersEn = {
-            "I · Wings in the mist\nEmberling hears wings beyond the meadow. Drop a portion of food to call the flock out of hiding.",
-            "II · Tracks by the pond\nEmberling returns with blue mud on its claws. Follow the guide to survey and unlock Origin Pondbank and trace the old migration path.",
-            "III · Memory in an eggshell\nEmpty shells line the bank. Claim a hatchling from a pack or breeding nest to welcome the next generation.",
-            "IV · The forest crossing\nThe answering call comes from beyond the trees. Send an eligible adult on the Origin Forest expedition and claim its return."
+            "I · Wings in the mist\nEmberling hears wings beyond the meadow. What scent might draw the flock out of the grass?",
+            "II · Tracks by the pond\nEmberling returns with blue mud on its claws. The tracks end at the edge of the meadow. Where did the flock go?",
+            "III · Memory in an eggshell\nEmpty shells line the bank. Something taps among the old shells. Where will the next dragon come from?",
+            "IV · The forest crossing\nThe answering call comes from beyond the trees. How could you find out whether the flock can still get home that way?"
         };
 
-        public static string Story(GameState state, bool vi)
+        static readonly string[] HintsVi = {
+            "Thả một phần thức ăn xuống đất ở đồng cỏ.",
+            "Trong mục Hướng dẫn, khảo sát Bờ hồ rồi mở sinh cảnh này.",
+            "Nhận một rồng mới nở từ gói trứng hoặc tổ lai.",
+            "Trong mục Quản lý, cử một rồng trưởng thành phù hợp đi Rừng Khởi Nguyên. Khi rồng về, nhận kết quả chuyến đi."
+        };
+        static readonly string[] HintsEn = {
+            "Drop a portion of food in the meadow.",
+            "In the guide, survey the Pondbank, then unlock the habitat.",
+            "Claim a hatchling from an egg pack or the breeding nest.",
+            "In management, send an eligible adult on the Origin Forest route. Claim the expedition when it returns."
+        };
+
+        public static string Story(GameState state, bool vi, bool showHint = false)
         {
             int done = MigrationChronicle.ChaptersCleared(state);
             var chapters = vi ? ChaptersVi : ChaptersEn;
@@ -30,7 +43,11 @@ namespace Dravio
             if (done == chapters.Length)
                 text.Append(vi ? "Kết · Khi rồng trinh sát trở về, cả đàn cất cánh theo lối cũ. Mùa sau, rồng non sẽ tự tìm được đường về bờ hồ." :
                     "Epilogue · The scout returns and the flock takes the old crossing. Next season the hatchlings will find their own way home.");
-            else text.Append(chapters[done]);
+            else
+            {
+                text.Append(chapters[done]);
+                if (showHint) text.Append("\n").Append(vi ? HintsVi[done] : HintsEn[done]);
+            }
             if (done > 0)
             {
                 text.Append(vi ? "\n\nĐã chinh phục" : "\n\nCompleted");
