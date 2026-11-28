@@ -18,7 +18,7 @@ namespace Dravio
     public sealed class IslandCamera : MonoBehaviour
     {
         const float DragThresholdPx=12f;
-        readonly HashSet<int> seen=new HashSet<int>();
+        readonly HashSet<SanctuaryCameraFit> seen=new HashSet<SanctuaryCameraFit>();
         readonly List<RaycastResult> hits=new List<RaycastResult>();
         SanctuaryCameraFit fit;
         Camera view;
@@ -40,7 +40,7 @@ namespace Dravio
             if(fit.FittedSize<=0f)return; // not applied yet
             var free=fit.FreeViewport;
             float halfH=fit.FittedSize,halfW=fit.FittedSize*Mathf.Max(.1f,view.aspect);
-            if(seen.Add(fit.GetInstanceID()) && Mathf.Approximately(fit.ViewZoom,1f))
+            if(seen.Add(fit) && Mathf.Approximately(fit.ViewZoom,1f))
             {
                 zoom=IslandViewMath.DefaultZoom;
                 IslandViewMath.Centre(zoom,free.xMin,free.xMax,free.yMin,free.yMax,halfW,halfH,out float cx,out float cy);
