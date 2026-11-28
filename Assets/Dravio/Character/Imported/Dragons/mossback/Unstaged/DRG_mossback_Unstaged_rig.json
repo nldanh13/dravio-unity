@@ -1,0 +1,1328 @@
+{
+ "rigVersion": 7,
+ "name": "DRG_mossback_Unstaged",
+ "species": "mossback",
+ "stage": "Unstaged",
+ "archetype": "quadruped",
+ "archetypeSource": "walks; limb count not stated (quadruped template once limbCount=4 is supplied)",
+ "limbCount": 4,
+ "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+ "limbMeasurement": {
+  "limbCountDetected": 4,
+  "confidence": "high",
+  "groundContactsOffMidline": 4,
+  "groundContactsMidline": 0
+ },
+ "height_m": 1.121,
+ "size": {
+  "sourceHeight": 1.121,
+  "scale": 1.0,
+  "height": 1.121,
+  "midlineShift_m": 0.0
+ },
+ "heightSource": "source size kept",
+ "fps": 30,
+ "orientation": {
+  "blender": "Z up, front -Y",
+  "unity": "Y up, forward +Z (FBX axis_forward -Z, axis_up Y)",
+  "pivot": "ground, centred under the body"
+ },
+ "rootMotion": "none: clips are in place; Root bone carries vertical offsets only. Move the transform at clips.<name>.groundSpeed (m/s).",
+ "rootVertical": {},
+ "bones": [
+  "Root",
+  "Pelvis",
+  "Spine",
+  "Chest",
+  "Neck",
+  "Head",
+  "VFX_Mouth",
+  "ForeUpper_L",
+  "ForeLower_L",
+  "ForeFoot_L",
+  "ForeUpper_R",
+  "ForeLower_R",
+  "ForeFoot_R",
+  "VFX_Back",
+  "TailRoot",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "VFX_TailTip",
+  "HindUpper_L",
+  "HindLower_L",
+  "HindFoot_L",
+  "HindUpper_R",
+  "HindLower_R",
+  "HindFoot_R",
+  "VFX_Ground"
+ ],
+ "deformBones": [
+  "Root",
+  "Pelvis",
+  "Spine",
+  "Chest",
+  "Neck",
+  "Head",
+  "ForeUpper_L",
+  "ForeLower_L",
+  "ForeFoot_L",
+  "ForeUpper_R",
+  "ForeLower_R",
+  "ForeFoot_R",
+  "TailRoot",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "HindUpper_L",
+  "HindLower_L",
+  "HindFoot_L",
+  "HindUpper_R",
+  "HindLower_R",
+  "HindFoot_R"
+ ],
+ "anchors": [
+  "VFX_Mouth",
+  "VFX_TailTip",
+  "VFX_Back",
+  "VFX_Ground"
+ ],
+ "ikChains": [
+  {
+   "upper": "ForeUpper_L",
+   "lower": "ForeLower_L",
+   "foot": "ForeFoot_L"
+  },
+  {
+   "upper": "ForeUpper_R",
+   "lower": "ForeLower_R",
+   "foot": "ForeFoot_R"
+  },
+  {
+   "upper": "HindUpper_L",
+   "lower": "HindLower_L",
+   "foot": "HindFoot_L"
+  },
+  {
+   "upper": "HindUpper_R",
+   "lower": "HindLower_R",
+   "foot": "HindFoot_R"
+  }
+ ],
+ "clips": {
+  "Idle": {
+   "start": 1,
+   "end": 121,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Eat": {
+   "start": 122,
+   "end": 182,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Sleep": {
+   "start": 183,
+   "end": 303,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Happy": {
+   "start": 304,
+   "end": 349,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Walk": {
+   "start": 350,
+   "end": 377,
+   "loop": true,
+   "groundSpeed": 0.1872
+  },
+  "Run": {
+   "start": 378,
+   "end": 393,
+   "loop": true,
+   "groundSpeed": 0.5003
+  },
+  "Swim": {
+   "start": 394,
+   "end": 442,
+   "loop": true,
+   "groundSpeed": 0.7454
+  },
+  "Rest": {
+   "start": 443,
+   "end": 563,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Wake": {
+   "start": 564,
+   "end": 624,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "LookAround": {
+   "start": 625,
+   "end": 715,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Curious": {
+   "start": 716,
+   "end": 791,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Drink": {
+   "start": 792,
+   "end": 867,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Stretch": {
+   "start": 868,
+   "end": 958,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Bask": {
+   "start": 959,
+   "end": 1079,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Greet": {
+   "start": 1080,
+   "end": 1140,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "SwimIdle": {
+   "start": 1141,
+   "end": 1213,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "SwimRest": {
+   "start": 1214,
+   "end": 1334,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "SwimSurface": {
+   "start": 1335,
+   "end": 1383,
+   "loop": true,
+   "groundSpeed": 0.7454
+  },
+  "WaterEnter": {
+   "start": 1384,
+   "end": 1444,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "WaterExit": {
+   "start": 1445,
+   "end": 1505,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Nuzzle": {
+   "start": 1506,
+   "end": 1581,
+   "loop": false,
+   "groundSpeed": 0.0
+  }
+ },
+ "contacts": {
+  "Idle": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Eat": {
+   "Fore_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "Sleep": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Happy": {
+   "Fore_L": [
+    [
+     0,
+     9
+    ],
+    [
+     27,
+     45
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     9
+    ],
+    [
+     27,
+     45
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     9
+    ],
+    [
+     27,
+     45
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     9
+    ],
+    [
+     27,
+     45
+    ]
+   ]
+  },
+  "Walk": {
+   "Fore_L": [
+    [
+     7,
+     24
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     10
+    ],
+    [
+     21,
+     27
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     17
+    ],
+    [
+     27,
+     27
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     4
+    ],
+    [
+     14,
+     27
+    ]
+   ]
+  },
+  "Run": {
+   "Fore_L": [
+    [
+     0,
+     6
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "Fore_R": [
+    [
+     8,
+     13
+    ]
+   ],
+   "Hind_L": [
+    [
+     8,
+     13
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     6
+    ],
+    [
+     15,
+     15
+    ]
+   ]
+  },
+  "Swim": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "Rest": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Wake": {
+   "Fore_L": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ]
+  },
+  "LookAround": {
+   "Fore_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     90
+    ]
+   ]
+  },
+  "Curious": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  },
+  "Drink": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  },
+  "Stretch": {
+   "Fore_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     90
+    ]
+   ]
+  },
+  "Bask": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Greet": {
+   "Fore_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "SwimIdle": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "SwimRest": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "SwimSurface": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "WaterEnter": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "WaterExit": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "Nuzzle": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  }
+ },
+ "groundClearanceLift_m": {
+  "Idle": {
+   "lift_m": 0.00285,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0005,
+    "Fore_R": 0.0003,
+    "Hind_L": 0.0027,
+    "Hind_R": 0.0024,
+    "body": 0.0
+   }
+  },
+  "Eat": {
+   "lift_m": 0.02198,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0207,
+    "Fore_R": 0.0209,
+    "Hind_L": 0.001,
+    "Hind_R": 0.0011,
+    "body": 0.0
+   }
+  },
+  "Sleep": {
+   "lift_m": 0.07374,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0702,
+    "Fore_R": 0.0698,
+    "Hind_L": 0.0419,
+    "Hind_R": 0.0441,
+    "body": 0.0
+   }
+  },
+  "Happy": {
+   "lift_m": 0.01279,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0122,
+    "Fore_R": 0.012,
+    "Hind_L": 0.0007,
+    "Hind_R": 0.0006,
+    "body": 0.0
+   }
+  },
+  "Walk": {
+   "lift_m": 0.01173,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0101,
+    "Fore_R": 0.01,
+    "Hind_L": 0.0112,
+    "Hind_R": 0.0101,
+    "body": 0.0
+   }
+  },
+  "Run": {
+   "lift_m": 0.02718,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0259,
+    "Fore_R": 0.0249,
+    "Hind_L": 0.0213,
+    "Hind_R": 0.0171,
+    "body": 0.0
+   }
+  },
+  "Rest": {
+   "lift_m": 0.07475,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0712,
+    "Fore_R": 0.0708,
+    "Hind_L": 0.0419,
+    "Hind_R": 0.0441,
+    "body": 0.0
+   }
+  },
+  "Curious": {
+   "amplitudeScale": 0.85,
+   "lift_m": 0.01102,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0105,
+    "Fore_R": 0.0103,
+    "Hind_L": 0.0,
+    "Hind_R": 0.0,
+    "body": 0.0
+   }
+  },
+  "Drink": {
+   "lift_m": 0.0222,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0209,
+    "Fore_R": 0.0211,
+    "Hind_L": 0.001,
+    "Hind_R": 0.0011,
+    "body": 0.0
+   }
+  },
+  "Stretch": {
+   "lift_m": 0.03391,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0323,
+    "Fore_R": 0.0322,
+    "Hind_L": 0.0053,
+    "Hind_R": 0.0056,
+    "body": 0.0
+   }
+  },
+  "Bask": {
+   "lift_m": 0.07475,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0712,
+    "Fore_R": 0.0708,
+    "Hind_L": 0.0419,
+    "Hind_R": 0.0441,
+    "body": 0.0
+   }
+  }
+ },
+ "motion": {
+  "body": {
+   "length_m": 1.9877,
+   "width_m": 0.6611,
+   "height_m": 1.121
+  },
+  "rootOffsets_m": {},
+  "events": {
+   "WaterEnter.contact": 0.5,
+   "WaterExit.leave": 0.5
+  },
+  "water": {
+   "surfaceWaterline_m": 0.932,
+   "headAboveWater_m": 0.003,
+   "source": "rest landmarks: chest (spine line) at the waterline, head above"
+  },
+  "maxTurnRateDegPerSec": {
+   "ground": 180,
+   "water": 90,
+   "air": 60
+  },
+  "biomechanics": {
+   "walk": {
+    "hipHeight_m": 0.3221,
+    "stride_m": 0.2334,
+    "relativeStride": 0.724,
+    "froude": 0.0213,
+    "speed_mps": 0.2592,
+    "framesAuthoredDefault": 32,
+    "frames": 27,
+    "duty": 0.65,
+    "source": "Alexander 1976 stride/h = 2.3 Fr^0.3"
+   },
+   "run": {
+    "hipHeight_m": 0.3221,
+    "stride_m": 0.5633,
+    "relativeStride": 1.749,
+    "froude": 0.4011,
+    "speed_mps": 1.1259,
+    "framesAuthoredDefault": 20,
+    "frames": 15,
+    "duty": 0.42,
+    "source": "Alexander 1976 stride/h = 2.3 Fr^0.3"
+   },
+   "Swim": {
+    "tipBone": "Tail3",
+    "tipAmplitudePP_m": 0.067,
+    "strouhalTarget": 0.3,
+    "lengthsPerCycleDefault": 0.6,
+    "tipAmplitudeL": 0.034,
+    "source": "motionDefaults lengthsPerCycle (tail amplitude outside the fish band; art director to review)",
+    "amplitudeOutsideBand": [
+     0.1,
+     0.3
+    ],
+    "lengthsPerCycle": 0.6,
+    "speed_mps": 0.7454,
+    "strouhal": 0.056
+   },
+   "SwimSurface": {
+    "tipBone": "Tail3",
+    "tipAmplitudePP_m": 0.0469,
+    "strouhalTarget": 0.3,
+    "lengthsPerCycleDefault": 0.6,
+    "tipAmplitudeL": 0.024,
+    "source": "motionDefaults lengthsPerCycle (tail amplitude outside the fish band; art director to review)",
+    "amplitudeOutsideBand": [
+     0.1,
+     0.3
+    ],
+    "lengthsPerCycle": 0.6,
+    "speed_mps": 0.7454,
+    "strouhal": 0.039
+   }
+  },
+  "speedSource": "Walk/Run: planted-foot speed (period from the Froude relation where the profile opts in); Swim/SwimSurface/Fly: Strouhal 0.3 on the measured stroke tip (fallback: body lengths per cycle from rig-profiles); other clips in place (0). See motion.biomechanics"
+ },
+ "animationData": {
+  "frames": 1581,
+  "bones": 26,
+  "floatsPerFrame": 107,
+  "bakedMB": 0.677
+ },
+ "bind": {
+  "removedWeightFraction": 0.3773,
+  "distalLegWeightsRemovedFromBody": 6146,
+  "nearestAllowedFallback": {
+   "body": 2825,
+   "tail": 1
+  },
+  "maxInfluences": 4,
+  "lowBodyVerticesRelabelledLeg": 92,
+  "floatingPiecesBoundRigidly": 545,
+  "proxy_voxel_size": 0.01697,
+  "vertices": 15235,
+  "nearest_bone_fallback_vertices": 2826
+ },
+ "skin": {
+  "armature": "DragonRig",
+  "bones": 26,
+  "deform_bones": 26,
+  "max_influences": 4,
+  "unweighted_vertices": 0,
+  "not_normalized_vertices": 0
+ },
+ "deformation": {
+  "Idle": {
+   "edge_stretch_p999": 1.259,
+   "edge_compress_p001": 0.806,
+   "edge_stretch_max": 1.944,
+   "ok": true
+  },
+  "Eat": {
+   "edge_stretch_p999": 3.214,
+   "edge_compress_p001": 0.415,
+   "edge_stretch_max": 16.285,
+   "ok": false
+  },
+  "Sleep": {
+   "edge_stretch_p999": 4.446,
+   "edge_compress_p001": 0.478,
+   "edge_stretch_max": 9.928,
+   "ok": false
+  },
+  "Happy": {
+   "edge_stretch_p999": 1.487,
+   "edge_compress_p001": 0.603,
+   "edge_stretch_max": 4.839,
+   "ok": true
+  },
+  "Walk": {
+   "edge_stretch_p999": 2.639,
+   "edge_compress_p001": 0.573,
+   "edge_stretch_max": 8.935,
+   "ok": false
+  },
+  "Run": {
+   "edge_stretch_p999": 4.439,
+   "edge_compress_p001": 0.531,
+   "edge_stretch_max": 13.335,
+   "ok": false
+  },
+  "Swim": {
+   "edge_stretch_p999": 10.983,
+   "edge_compress_p001": 0.571,
+   "edge_stretch_max": 19.65,
+   "ok": false
+  },
+  "Rest": {
+   "edge_stretch_p999": 3.936,
+   "edge_compress_p001": 0.538,
+   "edge_stretch_max": 10.059,
+   "ok": false
+  },
+  "Wake": {
+   "edge_stretch_p999": 2.91,
+   "edge_compress_p001": 0.505,
+   "edge_stretch_max": 9.808,
+   "ok": false
+  },
+  "LookAround": {
+   "edge_stretch_p999": 1.469,
+   "edge_compress_p001": 0.662,
+   "edge_stretch_max": 6.353,
+   "ok": true
+  },
+  "Curious": {
+   "edge_stretch_p999": 1.493,
+   "edge_compress_p001": 0.606,
+   "edge_stretch_max": 5.239,
+   "ok": true
+  },
+  "Drink": {
+   "edge_stretch_p999": 4.217,
+   "edge_compress_p001": 0.38,
+   "edge_stretch_max": 19.495,
+   "ok": false
+  },
+  "Stretch": {
+   "edge_stretch_p999": 2.842,
+   "edge_compress_p001": 0.531,
+   "edge_stretch_max": 9.598,
+   "ok": false
+  },
+  "Bask": {
+   "edge_stretch_p999": 3.833,
+   "edge_compress_p001": 0.538,
+   "edge_stretch_max": 10.045,
+   "ok": false
+  },
+  "Greet": {
+   "edge_stretch_p999": 1.207,
+   "edge_compress_p001": 0.838,
+   "edge_stretch_max": 6.071,
+   "ok": true
+  },
+  "SwimIdle": {
+   "edge_stretch_p999": 3.789,
+   "edge_compress_p001": 0.668,
+   "edge_stretch_max": 6.497,
+   "ok": false
+  },
+  "SwimRest": {
+   "edge_stretch_p999": 1.895,
+   "edge_compress_p001": 0.684,
+   "edge_stretch_max": 2.893,
+   "ok": false
+  },
+  "SwimSurface": {
+   "edge_stretch_p999": 7.775,
+   "edge_compress_p001": 0.596,
+   "edge_stretch_max": 13.723,
+   "ok": false
+  },
+  "WaterEnter": {
+   "edge_stretch_p999": 7.862,
+   "edge_compress_p001": 0.651,
+   "edge_stretch_max": 18.586,
+   "ok": false
+  },
+  "WaterExit": {
+   "edge_stretch_p999": 8.138,
+   "edge_compress_p001": 0.65,
+   "edge_stretch_max": 18.798,
+   "ok": false
+  },
+  "Nuzzle": {
+   "edge_stretch_p999": 1.321,
+   "edge_compress_p001": 0.812,
+   "edge_stretch_max": 8.231,
+   "ok": true
+  }
+ },
+ "deformationLimits": {
+  "max_stretch_p999": 1.6,
+  "min_compress_p001": 0.45
+ },
+ "deformationOk": false,
+ "landmarks": {
+  "headTip": [
+   0.0,
+   -0.9939,
+   0.935
+  ],
+  "headCenter": [
+   0.0,
+   -0.8178,
+   0.935
+  ],
+  "neckBase": [
+   0.0,
+   -0.6737,
+   0.933
+  ],
+  "chest": [
+   0.0,
+   -0.5961,
+   0.932
+  ],
+  "pelvis": [
+   0.0,
+   -0.1248,
+   0.5802
+  ],
+  "tailBase": [
+   0.0,
+   0.1035,
+   0.428
+  ],
+  "tailTip": [
+   0.0,
+   0.9939,
+   0.4423
+  ],
+  "feet": {
+   "Fore_L": [
+    -0.1981,
+    -0.5967,
+    0.0
+   ],
+   "Fore_R": [
+    0.1951,
+    -0.5954,
+    0.0
+   ],
+   "Hind_L": [
+    -0.2154,
+    -0.1269,
+    0.0
+   ],
+   "Hind_R": [
+    0.2118,
+    -0.1227,
+    0.0
+   ]
+  },
+  "hips": {
+   "Fore_L": [
+    -0.1684,
+    -0.5967,
+    0.4629
+   ],
+   "Fore_R": [
+    0.1658,
+    -0.5954,
+    0.4629
+   ],
+   "Hind_L": [
+    -0.183,
+    -0.1269,
+    0.3221
+   ],
+   "Hind_R": [
+    0.18,
+    -0.1227,
+    0.3221
+   ]
+  },
+  "appendages": {},
+  "regionCounts": {
+   "body": 7254,
+   "head": 796,
+   "neck": 717,
+   "tail": 2205,
+   "leg": 2536,
+   "wing": 0,
+   "fin": 0,
+   "eye": 0,
+   "fragment": 1727
+  },
+  "notes": [
+   "1727 vertices in floating fragments ignored for landmark detection",
+   "no neck narrowing in the profile; neck base set between chest and head"
+  ]
+ },
+ "profile": {
+  "tailBones": 3,
+  "walk": {
+   "gait": "walk",
+   "cadence": "froude",
+   "frames": 27,
+   "duty": 0.65,
+   "strideLegs": 0.55,
+   "liftLegs": 0.16,
+   "bob": 0.012
+  },
+  "run": {
+   "gait": "trot",
+   "cadence": "froude",
+   "frames": 15,
+   "duty": 0.42,
+   "strideLegs": 0.95,
+   "liftLegs": 0.26,
+   "bob": 0.03
+  },
+  "sleep": {
+   "dropLegs": 0.3,
+   "foreReachLegs": 0.22,
+   "hindReachLegs": 0.3,
+   "footFollow": 0.8
+  },
+  "eat": {
+   "neckPitch": 0.4,
+   "headPitch": 0.3,
+   "chestPitch": 0.14,
+   "chestDropH": 0.03
+  },
+  "happy": {
+   "hopH": 0.05,
+   "tailWag": 0.28
+  },
+  "burrow": {
+   "digReachLegs": 0.35,
+   "digCycles": 2,
+   "footFollow": 0.5
+  },
+  "drink": {
+   "neckPitch": 0.4,
+   "headPitch": 0.3,
+   "chestPitch": 0.16,
+   "chestDropH": 0.03,
+   "laps": 5,
+   "lapPitch": 0.05
+  },
+  "dig": {
+   "dropH": 0.015,
+   "footFollow": 0.0,
+   "chestPitch": 0.14,
+   "neckPitch": 0.22,
+   "headPitch": 0.08,
+   "tailLift": 0.1,
+   "digReachLegs": 0.3
+  }
+ },
+ "ikResidualMax": 0.00467,
+ "notes": [
+  "Idle blink not authored: mesh has no eyelid shape key (blink/eye_close); generated meshes rarely separate eyelids",
+  "1727 vertices in floating fragments ignored for landmark detection",
+  "no neck narrowing in the profile; neck base set between chest and head",
+  "CHAR.9b repair: geodesic weight blend 0.24 m, amplitude {\"Bask\": {\"legs\": 0.5}, \"Drink\": {\"body\": 0.522, \"head\": 0.614, \"legs\": 0.85}, \"Eat\": {\"body\": 0.522, \"head\": 0.614, \"legs\": 0.85}, \"Stretch\": {\"legs\": 0.85, \"body\": 0.85}, \"SwimIdle\": {\"legs\": 0.722}, \"Walk\": {\"legs\": 0.722}, \"Run\": {\"legs\": 0.444}}, local {\"SwimSurface\": [[\"legs\", 1353, 0.41, 5.8], [\"legs\", 1375, 0.41, 5.8], [\"legs\", 1340, 0.512, 5.8], [\"legs\", 1364, 0.41, 5.8], [\"legs\", 1382, 0.64, 5.8], [\"legs\", 1347, 0.64, 5.8], [\"body\", 1370, 0.8, 5.8], [\"body\", 1358, 0.8, 5.8]]}"
+ ],
+ "triangles": 24000,
+ "fbx": "DRG_mossback_Unstaged_Rigged.fbx",
+ "blend": "DRG_mossback_Unstaged_Rigged.blend",
+ "source": "/tmp/claude-0/charwork/assets/DRG_mossback_Unstaged/DRG_mossback_Unstaged_Prepared.glb",
+ "source_sha256_before": "2834f6d431f5fa6b2321da016de1aff7dd6af969bd2f1e8122abb4ea1f7fd9b6",
+ "source_sha256_after": "2834f6d431f5fa6b2321da016de1aff7dd6af969bd2f1e8122abb4ea1f7fd9b6",
+ "source_unchanged": true,
+ "limits": "Procedural motion fitted to measured landmarks; needs animator review before shipping.",
+ "repair": {
+  "skinning": "linear",
+  "seamWeld": true,
+  "blendWidth_m": 0.24,
+  "pinTransitions": true,
+  "amplitude": {
+   "Bask": {
+    "legs": 0.5
+   },
+   "Drink": {
+    "body": 0.522,
+    "head": 0.614,
+    "legs": 0.85
+   },
+   "Eat": {
+    "body": 0.522,
+    "head": 0.614,
+    "legs": 0.85
+   },
+   "Stretch": {
+    "legs": 0.85,
+    "body": 0.85
+   },
+   "SwimIdle": {
+    "legs": 0.722
+   },
+   "Walk": {
+    "legs": 0.722
+   },
+   "Run": {
+    "legs": 0.444
+   }
+  },
+  "local": {
+   "SwimSurface": [
+    [
+     "legs",
+     1353,
+     0.41,
+     5.8
+    ],
+    [
+     "legs",
+     1375,
+     0.41,
+     5.8
+    ],
+    [
+     "legs",
+     1340,
+     0.512,
+     5.8
+    ],
+    [
+     "legs",
+     1364,
+     0.41,
+     5.8
+    ],
+    [
+     "legs",
+     1382,
+     0.64,
+     5.8
+    ],
+    [
+     "legs",
+     1347,
+     0.64,
+     5.8
+    ],
+    [
+     "body",
+     1370,
+     0.8,
+     5.8
+    ],
+    [
+     "body",
+     1358,
+     0.8,
+     5.8
+    ]
+   ]
+  }
+ }
+}

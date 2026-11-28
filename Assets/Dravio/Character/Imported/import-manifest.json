@@ -1,0 +1,5365 @@
+{
+  "pipelineVersion": "u1-char9b-v1",
+  "entries": [
+    {
+      "kind": "dragon",
+      "name": "DRG_emberling_Unstaged",
+      "species": "emberling",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 375,
+          "loop": true,
+          "groundSpeed": 0.1628
+        },
+        "Run": {
+          "start": 376,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.4678
+        },
+        "Rest": {
+          "start": 391,
+          "end": 511,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 512,
+          "end": 572,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 573,
+          "end": 663,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 664,
+          "end": 739,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 740,
+          "end": 815,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 816,
+          "end": 906,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 907,
+          "end": 1027,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1028,
+          "end": 1088,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1089,
+          "end": 1164,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 375,
+          "loop": true,
+          "groundSpeed": 0.1628
+        },
+        {
+          "name": "Run",
+          "start": 376,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.4678
+        },
+        {
+          "name": "Rest",
+          "start": 391,
+          "end": 511,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 512,
+          "end": 572,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 573,
+          "end": 663,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 664,
+          "end": 739,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 740,
+          "end": 815,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 816,
+          "end": 906,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 907,
+          "end": 1027,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1028,
+          "end": 1088,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1089,
+          "end": 1164,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS",
+        "warnings": []
+      },
+      "motion": {
+        "bodyLength": 1.4798,
+        "bodyWidth": 0.3968,
+        "bodyHeight": 0.9,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 0.9478,
+        "groundLength": 1.4978,
+        "groundWidth": 0.7484,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 2,
+        "transitionMaxDeg": 0.056,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_emberling_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/emberling/Unstaged",
+      "delivered": [
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_LODs.fbx",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_rig.json",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_BaseColor.png",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_MetallicSmoothness.png",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged.validation.json",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_animqa.json",
+        "Dragons/emberling/Unstaged/DRG_emberling_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_droplet_Unstaged",
+      "species": "droplet",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 375,
+          "loop": true,
+          "groundSpeed": 0.1645
+        },
+        "Run": {
+          "start": 376,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.982
+        },
+        "Swim": {
+          "start": 391,
+          "end": 439,
+          "loop": true,
+          "groundSpeed": 0.3729
+        },
+        "Rest": {
+          "start": 440,
+          "end": 560,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 561,
+          "end": 621,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 622,
+          "end": 712,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 713,
+          "end": 788,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 789,
+          "end": 864,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 865,
+          "end": 955,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 956,
+          "end": 1076,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1077,
+          "end": 1137,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 1138,
+          "end": 1210,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 1211,
+          "end": 1331,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimSurface": {
+          "start": 1332,
+          "end": 1380,
+          "loop": true,
+          "groundSpeed": 0.5385
+        },
+        "WaterEnter": {
+          "start": 1381,
+          "end": 1441,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "WaterExit": {
+          "start": 1442,
+          "end": 1502,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1503,
+          "end": 1578,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 375,
+          "loop": true,
+          "groundSpeed": 0.1645
+        },
+        {
+          "name": "Run",
+          "start": 376,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.982
+        },
+        {
+          "name": "Swim",
+          "start": 391,
+          "end": 439,
+          "loop": true,
+          "groundSpeed": 0.3729
+        },
+        {
+          "name": "Rest",
+          "start": 440,
+          "end": 560,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 561,
+          "end": 621,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 622,
+          "end": 712,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 713,
+          "end": 788,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 789,
+          "end": 864,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 865,
+          "end": 955,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 956,
+          "end": 1076,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1077,
+          "end": 1137,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 1138,
+          "end": 1210,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 1211,
+          "end": 1331,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimSurface",
+          "start": 1332,
+          "end": 1380,
+          "loop": true,
+          "groundSpeed": 0.5385
+        },
+        {
+          "name": "WaterEnter",
+          "start": 1381,
+          "end": 1441,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "WaterExit",
+          "start": 1442,
+          "end": 1502,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1503,
+          "end": 1578,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Sleep: ground mesh below the ground plane (0.018 vs 0.01)",
+          "Run: deformation edge stretch over limit (2.321 vs 1.6)",
+          "Run: deformation edge compression over limit (0.347 vs 0.45)",
+          "Rest: ground mesh below the ground plane (0.0212 vs 0.01)",
+          "Wake: ground mesh below the ground plane (0.0162 vs 0.01)",
+          "Bask: ground mesh below the ground plane (0.0212 vs 0.01)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9887,
+        "bodyWidth": 0.8774,
+        "bodyHeight": 1.0282,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.0837,
+        "groundLength": 2.0048,
+        "groundWidth": 1.0754,
+        "swimVerticalExtent": 1.1194,
+        "swimWidth": 1.1382,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.048,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.5,
+        "waterExitLeave": 0.5,
+        "surfaceWaterline": 0.6747,
+        "headAboveWater": 0.1466
+      },
+      "files": {
+        "fbx": "DRG_droplet_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/droplet/Unstaged",
+      "delivered": [
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_LODs.fbx",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_rig.json",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_BaseColor.png",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_MetallicSmoothness.png",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged.validation.json",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_animqa.json",
+        "Dragons/droplet/Unstaged/DRG_droplet_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_sprout_Unstaged",
+      "species": "sprout",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1768
+        },
+        "Run": {
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.2267
+        },
+        "Burrow": {
+          "start": 399,
+          "end": 459,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Rest": {
+          "start": 460,
+          "end": 580,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 581,
+          "end": 641,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 642,
+          "end": 732,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 733,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 809,
+          "end": 884,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 885,
+          "end": 975,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 976,
+          "end": 1096,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1097,
+          "end": 1157,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "DigPrep": {
+          "start": 1158,
+          "end": 1203,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEnter": {
+          "start": 1204,
+          "end": 1264,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEmerge": {
+          "start": 1265,
+          "end": 1325,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1326,
+          "end": 1401,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1768
+        },
+        {
+          "name": "Run",
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.2267
+        },
+        {
+          "name": "Burrow",
+          "start": 399,
+          "end": 459,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Rest",
+          "start": 460,
+          "end": 580,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 581,
+          "end": 641,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 642,
+          "end": 732,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 733,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 809,
+          "end": 884,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 885,
+          "end": 975,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 976,
+          "end": 1096,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1097,
+          "end": 1157,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "DigPrep",
+          "start": 1158,
+          "end": 1203,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEnter",
+          "start": 1204,
+          "end": 1264,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEmerge",
+          "start": 1265,
+          "end": 1325,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1326,
+          "end": 1401,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Eat: deformation edge stretch over limit (2.055 vs 1.6)",
+          "Eat: deformation edge compression over limit (0.248 vs 0.45)",
+          "Sleep: deformation edge stretch over limit (2.079 vs 1.6)",
+          "Sleep: deformation edge compression over limit (0.305 vs 0.45)",
+          "Run: deformation edge stretch over limit (2.307 vs 1.6)",
+          "Run: deformation edge compression over limit at the worst single frame (0.337 vs 0.45)",
+          "Wake: deformation edge stretch over limit (1.636 vs 1.6)",
+          "Wake: deformation edge compression over limit (0.417 vs 0.45)",
+          "Drink: deformation edge stretch over limit (2.231 vs 1.6)",
+          "Drink: deformation edge compression over limit (0.235 vs 0.45)",
+          "BurrowEnter: deformation edge compression over limit at the worst single frame (0.39 vs 0.45)",
+          "BurrowEmerge: deformation edge compression over limit at the worst single frame (0.389 vs 0.45)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9877,
+        "bodyWidth": 0.7301,
+        "bodyHeight": 1.4877,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.5766,
+        "groundLength": 2.0206,
+        "groundWidth": 0.8668,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.056,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_sprout_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/sprout/Unstaged",
+      "delivered": [
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_LODs.fbx",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_rig.json",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_BaseColor.png",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_MetallicSmoothness.png",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged.validation.json",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_animqa.json",
+        "Dragons/sprout/Unstaged/DRG_sprout_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_zephyr_Unstaged",
+      "species": "zephyr",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0897
+        },
+        "Run": {
+          "start": 391,
+          "end": 413,
+          "loop": true,
+          "groundSpeed": 0.3935
+        },
+        "Fly": {
+          "start": 414,
+          "end": 446,
+          "loop": true,
+          "groundSpeed": 0.2455
+        },
+        "Rest": {
+          "start": 447,
+          "end": 567,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 568,
+          "end": 628,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 629,
+          "end": 719,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 720,
+          "end": 795,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 796,
+          "end": 871,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 872,
+          "end": 962,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 963,
+          "end": 1083,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1084,
+          "end": 1144,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Perch": {
+          "start": 1145,
+          "end": 1265,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1266,
+          "end": 1341,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1342,
+          "end": 1382,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1383,
+          "end": 1443,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1444,
+          "end": 1484,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0897
+        },
+        {
+          "name": "Run",
+          "start": 391,
+          "end": 413,
+          "loop": true,
+          "groundSpeed": 0.3935
+        },
+        {
+          "name": "Fly",
+          "start": 414,
+          "end": 446,
+          "loop": true,
+          "groundSpeed": 0.2455
+        },
+        {
+          "name": "Rest",
+          "start": 447,
+          "end": 567,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 568,
+          "end": 628,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 629,
+          "end": 719,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 720,
+          "end": 795,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 796,
+          "end": 871,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 872,
+          "end": 962,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 963,
+          "end": 1083,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1084,
+          "end": 1144,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Perch",
+          "start": 1145,
+          "end": 1265,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1266,
+          "end": 1341,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1342,
+          "end": 1382,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1383,
+          "end": 1443,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1444,
+          "end": 1484,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.02374, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Run: footSliding planted foot slides (0.025 vs 0.02)",
+          "Curious: ground mesh below the ground plane (0.076 vs 0.01)",
+          "Stretch: ground mesh below the ground plane (0.0398 vs 0.01)",
+          "TakeOff: ground mesh below the ground plane (0.0367 vs 0.01)",
+          "TakeOff: groundContact planted foot lifts off the ground (0.0314 vs 0.03)",
+          "Land: deformation edge stretch over limit (2.048 vs 1.6)",
+          "Land: deformation edge compression over limit at the worst single frame (0.346 vs 0.45)",
+          "Land: facing head behind the chest (face turned backwards) (14 vs 0)",
+          "Land: ground mesh below the ground plane (0.0953 vs 0.01)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9877,
+        "bodyWidth": 1.7803,
+        "bodyHeight": 1.3094,
+        "takeOffRootOffset": 0.6153,
+        "landRootOffset": 0.4844,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.417,
+        "groundLength": 2.0287,
+        "groundWidth": 1.8172,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 1.7858,
+        "flightVerticalExtent": 1.4881,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.289,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_zephyr_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/zephyr/Unstaged",
+      "delivered": [
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_LODs.fbx",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_rig.json",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_BaseColor.png",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_MetallicSmoothness.png",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged.validation.json",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_animqa.json",
+        "Dragons/zephyr/Unstaged/DRG_zephyr_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_steamdrake_Unstaged",
+      "species": "steamdrake",
+      "stage": "Unstaged",
+      "archetype": "serpentine",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0931
+        },
+        "Run": {
+          "start": 391,
+          "end": 417,
+          "loop": true,
+          "groundSpeed": 0.2401
+        },
+        "Swim": {
+          "start": 418,
+          "end": 466,
+          "loop": true,
+          "groundSpeed": 0.3892
+        },
+        "Rest": {
+          "start": 467,
+          "end": 587,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 588,
+          "end": 648,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 649,
+          "end": 739,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 740,
+          "end": 815,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 816,
+          "end": 891,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 892,
+          "end": 982,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 983,
+          "end": 1103,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1104,
+          "end": 1164,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 1165,
+          "end": 1237,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 1238,
+          "end": 1358,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimSurface": {
+          "start": 1359,
+          "end": 1407,
+          "loop": true,
+          "groundSpeed": 0.5383
+        },
+        "WaterEnter": {
+          "start": 1408,
+          "end": 1468,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "WaterExit": {
+          "start": 1469,
+          "end": 1529,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1530,
+          "end": 1605,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0931
+        },
+        {
+          "name": "Run",
+          "start": 391,
+          "end": 417,
+          "loop": true,
+          "groundSpeed": 0.2401
+        },
+        {
+          "name": "Swim",
+          "start": 418,
+          "end": 466,
+          "loop": true,
+          "groundSpeed": 0.3892
+        },
+        {
+          "name": "Rest",
+          "start": 467,
+          "end": 587,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 588,
+          "end": 648,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 649,
+          "end": 739,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 740,
+          "end": 815,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 816,
+          "end": 891,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 892,
+          "end": 982,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 983,
+          "end": 1103,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1104,
+          "end": 1164,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 1165,
+          "end": 1237,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 1238,
+          "end": 1358,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimSurface",
+          "start": 1359,
+          "end": 1407,
+          "loop": true,
+          "groundSpeed": 0.5383
+        },
+        {
+          "name": "WaterEnter",
+          "start": 1408,
+          "end": 1468,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "WaterExit",
+          "start": 1469,
+          "end": 1529,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1530,
+          "end": 1605,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Sleep: deformation edge stretch over limit (2.044 vs 1.6)",
+          "Sleep: deformation edge compression over limit (0.208 vs 0.45)",
+          "Rest: deformation edge stretch over limit (1.74 vs 1.6)",
+          "Rest: deformation edge compression over limit (0.278 vs 0.45)",
+          "Wake: deformation edge stretch over limit (1.655 vs 1.6)",
+          "Wake: deformation edge compression over limit (0.277 vs 0.45)",
+          "Bask: deformation edge stretch over limit (1.701 vs 1.6)",
+          "Bask: deformation edge compression over limit (0.259 vs 0.45)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9881,
+        "bodyWidth": 0.5739,
+        "bodyHeight": 1.129,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.1475,
+        "groundLength": 2.0205,
+        "groundWidth": 0.8574,
+        "swimVerticalExtent": 1.1317,
+        "swimWidth": 0.5787,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.093,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.5,
+        "waterExitLeave": 0.5,
+        "surfaceWaterline": 0.7992,
+        "headAboveWater": 0.1004
+      },
+      "files": {
+        "fbx": "DRG_steamdrake_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/steamdrake/Unstaged",
+      "delivered": [
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_LODs.fbx",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_rig.json",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_BaseColor.png",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_MetallicSmoothness.png",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged.validation.json",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_animqa.json",
+        "Dragons/steamdrake/Unstaged/DRG_steamdrake_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_magma_Unstaged",
+      "species": "magma",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 378,
+          "loop": true,
+          "groundSpeed": 0.2129
+        },
+        "Run": {
+          "start": 379,
+          "end": 395,
+          "loop": true,
+          "groundSpeed": 0.5292
+        },
+        "Burrow": {
+          "start": 396,
+          "end": 456,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Rest": {
+          "start": 457,
+          "end": 577,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 578,
+          "end": 638,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 639,
+          "end": 729,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 730,
+          "end": 805,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 806,
+          "end": 881,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 882,
+          "end": 972,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 973,
+          "end": 1093,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1094,
+          "end": 1154,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "DigPrep": {
+          "start": 1155,
+          "end": 1200,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEnter": {
+          "start": 1201,
+          "end": 1261,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEmerge": {
+          "start": 1262,
+          "end": 1322,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1323,
+          "end": 1398,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 378,
+          "loop": true,
+          "groundSpeed": 0.2129
+        },
+        {
+          "name": "Run",
+          "start": 379,
+          "end": 395,
+          "loop": true,
+          "groundSpeed": 0.5292
+        },
+        {
+          "name": "Burrow",
+          "start": 396,
+          "end": 456,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Rest",
+          "start": 457,
+          "end": 577,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 578,
+          "end": 638,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 639,
+          "end": 729,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 730,
+          "end": 805,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 806,
+          "end": 881,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 882,
+          "end": 972,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 973,
+          "end": 1093,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1094,
+          "end": 1154,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "DigPrep",
+          "start": 1155,
+          "end": 1200,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEnter",
+          "start": 1201,
+          "end": 1261,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEmerge",
+          "start": 1262,
+          "end": 1322,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1323,
+          "end": 1398,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.01623, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9866,
+        "bodyWidth": 0.6071,
+        "bodyHeight": 1.199,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.2618,
+        "groundLength": 2.0195,
+        "groundWidth": 0.9947,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.079,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_magma_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/magma/Unstaged",
+      "delivered": [
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_LODs.fbx",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_rig.json",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_BaseColor.png",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_MetallicSmoothness.png",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged.validation.json",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_animqa.json",
+        "Dragons/magma/Unstaged/DRG_magma_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_sparkwing_Unstaged",
+      "species": "sparkwing",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1476
+        },
+        "Run": {
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.2042
+        },
+        "Fly": {
+          "start": 399,
+          "end": 431,
+          "loop": true,
+          "groundSpeed": 0.2221
+        },
+        "Rest": {
+          "start": 432,
+          "end": 552,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 553,
+          "end": 613,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 614,
+          "end": 704,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 705,
+          "end": 780,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 781,
+          "end": 856,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 857,
+          "end": 947,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 948,
+          "end": 1068,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1069,
+          "end": 1129,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1130,
+          "end": 1205,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1206,
+          "end": 1246,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1247,
+          "end": 1307,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1308,
+          "end": 1348,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1476
+        },
+        {
+          "name": "Run",
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.2042
+        },
+        {
+          "name": "Fly",
+          "start": 399,
+          "end": 431,
+          "loop": true,
+          "groundSpeed": 0.2221
+        },
+        {
+          "name": "Rest",
+          "start": 432,
+          "end": 552,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 553,
+          "end": 613,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 614,
+          "end": 704,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 705,
+          "end": 780,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 781,
+          "end": 856,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 857,
+          "end": 947,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 948,
+          "end": 1068,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1069,
+          "end": 1129,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1130,
+          "end": 1205,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1206,
+          "end": 1246,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1247,
+          "end": 1307,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1308,
+          "end": 1348,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Eat: deformation edge stretch over limit (1.724 vs 1.6)",
+          "Eat: deformation edge compression over limit at the worst single frame (0.405 vs 0.45)",
+          "Sleep: wings wing vertices inside the body (0.0448 vs 0.002)",
+          "Sleep: ground mesh below the ground plane (0.0263 vs 0.01)",
+          "Run: deformation edge stretch over limit (2.733 vs 1.6)",
+          "Run: deformation edge compression over limit at the worst single frame (0.387 vs 0.45)",
+          "Rest: wings wing vertices inside the body (0.0448 vs 0.002)",
+          "Rest: ground mesh below the ground plane (0.0267 vs 0.01)",
+          "Wake: wings wing vertices inside the body (0.0448 vs 0.002)",
+          "Wake: ground mesh below the ground plane (0.0243 vs 0.01)",
+          "Drink: deformation edge stretch over limit (1.889 vs 1.6)",
+          "Drink: deformation edge compression over limit (0.421 vs 0.45)",
+          "Stretch: deformation edge stretch over limit (2.021 vs 1.6)",
+          "Stretch: wings wing vertices inside the body (0.0149 vs 0.002)",
+          "Bask: ground mesh below the ground plane (0.0312 vs 0.01)",
+          "TakeOff: wings wing vertices inside the body (0.0149 vs 0.002)",
+          "TakeOff: ground mesh below the ground plane (0.0365 vs 0.01)",
+          "Land: ground mesh below the ground plane (0.0423 vs 0.01)",
+          "Land: groundContact planted foot lifts off the ground (0.0346 vs 0.03)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9883,
+        "bodyWidth": 0.8854,
+        "bodyHeight": 1.1489,
+        "takeOffRootOffset": 0.54,
+        "landRootOffset": 0.4251,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.2176,
+        "groundLength": 2.0247,
+        "groundWidth": 1.0054,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 0.9301,
+        "flightVerticalExtent": 1.2272,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.069,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_sparkwing_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/sparkwing/Unstaged",
+      "delivered": [
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_LODs.fbx",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_rig.json",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_BaseColor.png",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_MetallicSmoothness.png",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged.validation.json",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_animqa.json",
+        "Dragons/sparkwing/Unstaged/DRG_sparkwing_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_frostfin_Unstaged",
+      "species": "frostfin",
+      "stage": "Unstaged",
+      "archetype": "aquatic",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Swim": {
+          "start": 350,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 0.1732
+        },
+        "Rest": {
+          "start": 399,
+          "end": 519,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 520,
+          "end": 580,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 581,
+          "end": 671,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 672,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 748,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 809,
+          "end": 881,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 882,
+          "end": 1002,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1003,
+          "end": 1078,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Swim",
+          "start": 350,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 0.1732
+        },
+        {
+          "name": "Rest",
+          "start": 399,
+          "end": 519,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 520,
+          "end": 580,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 581,
+          "end": 671,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 672,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 748,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 809,
+          "end": 881,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 882,
+          "end": 1002,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1003,
+          "end": 1078,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.37924, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Happy: deformation edge stretch over limit (2.424 vs 1.6)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 0.7531,
+        "bodyWidth": 1.9885,
+        "bodyHeight": 1.7372,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.7632,
+        "groundLength": 0.8316,
+        "groundWidth": 2.0276,
+        "swimVerticalExtent": 1.7488,
+        "swimWidth": 2.019,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 2,
+        "transitionMaxDeg": 0.128,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_frostfin_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/frostfin/Unstaged",
+      "delivered": [
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_LODs.fbx",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_rig.json",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_BaseColor.png",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_MetallicSmoothness.png",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged.validation.json",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_animqa.json",
+        "Dragons/frostfin/Unstaged/DRG_frostfin_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_mossback_Unstaged",
+      "species": "mossback",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 377,
+          "loop": true,
+          "groundSpeed": 0.1872
+        },
+        "Run": {
+          "start": 378,
+          "end": 393,
+          "loop": true,
+          "groundSpeed": 0.5003
+        },
+        "Swim": {
+          "start": 394,
+          "end": 442,
+          "loop": true,
+          "groundSpeed": 0.7454
+        },
+        "Rest": {
+          "start": 443,
+          "end": 563,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 564,
+          "end": 624,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 625,
+          "end": 715,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 716,
+          "end": 791,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 792,
+          "end": 867,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 868,
+          "end": 958,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 959,
+          "end": 1079,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1080,
+          "end": 1140,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 1141,
+          "end": 1213,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 1214,
+          "end": 1334,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimSurface": {
+          "start": 1335,
+          "end": 1383,
+          "loop": true,
+          "groundSpeed": 0.7454
+        },
+        "WaterEnter": {
+          "start": 1384,
+          "end": 1444,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "WaterExit": {
+          "start": 1445,
+          "end": 1505,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1506,
+          "end": 1581,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 377,
+          "loop": true,
+          "groundSpeed": 0.1872
+        },
+        {
+          "name": "Run",
+          "start": 378,
+          "end": 393,
+          "loop": true,
+          "groundSpeed": 0.5003
+        },
+        {
+          "name": "Swim",
+          "start": 394,
+          "end": 442,
+          "loop": true,
+          "groundSpeed": 0.7454
+        },
+        {
+          "name": "Rest",
+          "start": 443,
+          "end": 563,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 564,
+          "end": 624,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 625,
+          "end": 715,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 716,
+          "end": 791,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 792,
+          "end": 867,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 868,
+          "end": 958,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 959,
+          "end": 1079,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1080,
+          "end": 1140,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 1141,
+          "end": 1213,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 1214,
+          "end": 1334,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimSurface",
+          "start": 1335,
+          "end": 1383,
+          "loop": true,
+          "groundSpeed": 0.7454
+        },
+        {
+          "name": "WaterEnter",
+          "start": 1384,
+          "end": 1444,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "WaterExit",
+          "start": 1445,
+          "end": 1505,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1506,
+          "end": 1581,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Eat: footSliding planted foot slides (0.035 vs 0.02)",
+          "Sleep: deformation edge stretch over limit (1.846 vs 1.6)",
+          "Sleep: deformation edge compression over limit (0.384 vs 0.45)",
+          "Swim: deformation edge stretch over limit (4.623 vs 1.6)",
+          "Rest: deformation edge stretch over limit (1.823 vs 1.6)",
+          "Rest: deformation edge compression over limit (0.402 vs 0.45)",
+          "Wake: deformation edge compression over limit (0.41 vs 0.45)",
+          "Wake: deformation edge stretch over limit at the worst single frame (1.828 vs 1.6)",
+          "Drink: footSliding planted foot slides (0.0399 vs 0.02)",
+          "Bask: ground mesh below the ground plane (0.0131 vs 0.01)",
+          "WaterEnter: deformation edge stretch over limit (3.285 vs 1.6)",
+          "WaterExit: deformation edge stretch over limit (3.285 vs 1.6)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9877,
+        "bodyWidth": 0.6611,
+        "bodyHeight": 1.121,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.1871,
+        "groundLength": 2.0277,
+        "groundWidth": 0.9924,
+        "swimVerticalExtent": 1.1285,
+        "swimWidth": 0.661,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.056,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.5,
+        "waterExitLeave": 0.5,
+        "surfaceWaterline": 0.932,
+        "headAboveWater": 0.003
+      },
+      "files": {
+        "fbx": "DRG_mossback_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/mossback/Unstaged",
+      "delivered": [
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_LODs.fbx",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_rig.json",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_BaseColor.png",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_MetallicSmoothness.png",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged.validation.json",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_animqa.json",
+        "Dragons/mossback/Unstaged/DRG_mossback_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_blossom_Unstaged",
+      "species": "blossom",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 377,
+          "loop": true,
+          "groundSpeed": 0.2206
+        },
+        "Run": {
+          "start": 378,
+          "end": 393,
+          "loop": true,
+          "groundSpeed": 0.5887
+        },
+        "Fly": {
+          "start": 394,
+          "end": 426,
+          "loop": true,
+          "groundSpeed": 0.2223
+        },
+        "Rest": {
+          "start": 427,
+          "end": 547,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 548,
+          "end": 608,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 609,
+          "end": 699,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 700,
+          "end": 775,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 776,
+          "end": 851,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 852,
+          "end": 942,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 943,
+          "end": 1063,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1064,
+          "end": 1124,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Perch": {
+          "start": 1125,
+          "end": 1245,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1246,
+          "end": 1321,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1322,
+          "end": 1362,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1363,
+          "end": 1423,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1424,
+          "end": 1464,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 377,
+          "loop": true,
+          "groundSpeed": 0.2206
+        },
+        {
+          "name": "Run",
+          "start": 378,
+          "end": 393,
+          "loop": true,
+          "groundSpeed": 0.5887
+        },
+        {
+          "name": "Fly",
+          "start": 394,
+          "end": 426,
+          "loop": true,
+          "groundSpeed": 0.2223
+        },
+        {
+          "name": "Rest",
+          "start": 427,
+          "end": 547,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 548,
+          "end": 608,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 609,
+          "end": 699,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 700,
+          "end": 775,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 776,
+          "end": 851,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 852,
+          "end": 942,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 943,
+          "end": 1063,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1064,
+          "end": 1124,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Perch",
+          "start": 1125,
+          "end": 1245,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1246,
+          "end": 1321,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1322,
+          "end": 1362,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1363,
+          "end": 1423,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1424,
+          "end": 1464,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.01371, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Eat: deformation edge compression over limit at the worst single frame (0.424 vs 0.45)",
+          "Drink: deformation edge compression over limit at the worst single frame (0.414 vs 0.45)",
+          "TakeOff: ground mesh below the ground plane (0.0271 vs 0.01)",
+          "Land: ground mesh below the ground plane (0.0372 vs 0.01)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.987,
+        "bodyWidth": 1.4724,
+        "bodyHeight": 1.1301,
+        "takeOffRootOffset": 0.5311,
+        "landRootOffset": 0.4181,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.2082,
+        "groundLength": 2.0099,
+        "groundWidth": 1.5325,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 1.5243,
+        "flightVerticalExtent": 1.2601,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.028,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_blossom_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/blossom/Unstaged",
+      "delivered": [
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_LODs.fbx",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_rig.json",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_BaseColor.png",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_MetallicSmoothness.png",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged.validation.json",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_animqa.json",
+        "Dragons/blossom/Unstaged/DRG_blossom_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_solaris_Unstaged",
+      "species": "solaris",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 385,
+          "loop": true,
+          "groundSpeed": 0.0949
+        },
+        "Run": {
+          "start": 386,
+          "end": 405,
+          "loop": true,
+          "groundSpeed": 0.3588
+        },
+        "Fly": {
+          "start": 406,
+          "end": 438,
+          "loop": true,
+          "groundSpeed": 0.8894
+        },
+        "Rest": {
+          "start": 439,
+          "end": 559,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 560,
+          "end": 620,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 621,
+          "end": 711,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 712,
+          "end": 787,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 788,
+          "end": 863,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 864,
+          "end": 954,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 955,
+          "end": 1075,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1076,
+          "end": 1136,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1137,
+          "end": 1212,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1213,
+          "end": 1253,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1254,
+          "end": 1314,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1315,
+          "end": 1355,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 385,
+          "loop": true,
+          "groundSpeed": 0.0949
+        },
+        {
+          "name": "Run",
+          "start": 386,
+          "end": 405,
+          "loop": true,
+          "groundSpeed": 0.3588
+        },
+        {
+          "name": "Fly",
+          "start": 406,
+          "end": 438,
+          "loop": true,
+          "groundSpeed": 0.8894
+        },
+        {
+          "name": "Rest",
+          "start": 439,
+          "end": 559,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 560,
+          "end": 620,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 621,
+          "end": 711,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 712,
+          "end": 787,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 788,
+          "end": 863,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 864,
+          "end": 954,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 955,
+          "end": 1075,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1076,
+          "end": 1136,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1137,
+          "end": 1212,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1213,
+          "end": 1253,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1254,
+          "end": 1314,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1315,
+          "end": 1355,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Curious: ground mesh below the ground plane (0.0161 vs 0.01)",
+          "Drink: deformation edge stretch over limit (2.288 vs 1.6)",
+          "TakeOff: deformation edge stretch over limit (1.889 vs 1.6)",
+          "TakeOff: deformation edge compression over limit at the worst single frame (0.367 vs 0.45)",
+          "Land: facing head behind the chest (face turned backwards) (15 vs 0)",
+          "Land: ground mesh below the ground plane (0.0369 vs 0.01)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9873,
+        "bodyWidth": 1.76,
+        "bodyHeight": 1.3135,
+        "takeOffRootOffset": 0.6173,
+        "landRootOffset": 0.486,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.3945,
+        "groundLength": 2.1237,
+        "groundWidth": 1.7902,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 1.7602,
+        "flightVerticalExtent": 1.551,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.289,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_solaris_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/solaris/Unstaged",
+      "delivered": [
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_LODs.fbx",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_rig.json",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_BaseColor.png",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_MetallicSmoothness.png",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged.validation.json",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_animqa.json",
+        "Dragons/solaris/Unstaged/DRG_solaris_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_leviathan_Unstaged",
+      "species": "leviathan",
+      "stage": "Unstaged",
+      "archetype": "serpentine",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Swim": {
+          "start": 350,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 0.3978
+        },
+        "Rest": {
+          "start": 399,
+          "end": 519,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 520,
+          "end": 580,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 581,
+          "end": 671,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 672,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 748,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 809,
+          "end": 881,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 882,
+          "end": 1002,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1003,
+          "end": 1078,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Swim",
+          "start": 350,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 0.3978
+        },
+        {
+          "name": "Rest",
+          "start": 399,
+          "end": 519,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 520,
+          "end": 580,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 581,
+          "end": 671,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 672,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 748,
+          "end": 808,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 809,
+          "end": 881,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 882,
+          "end": 1002,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1003,
+          "end": 1078,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Happy: deformation edge stretch over limit (2.861 vs 1.6)",
+          "Happy: deformation edge compression over limit at the worst single frame (0.362 vs 0.45)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.0609,
+        "bodyWidth": 1.7755,
+        "bodyHeight": 1.9885,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 2.0183,
+        "groundLength": 1.2374,
+        "groundWidth": 1.7936,
+        "swimVerticalExtent": 1.9932,
+        "swimWidth": 1.8012,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 2,
+        "transitionMaxDeg": 0.0,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_leviathan_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/leviathan/Unstaged",
+      "delivered": [
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_LODs.fbx",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_rig.json",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_BaseColor.png",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_MetallicSmoothness.png",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged.validation.json",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_animqa.json",
+        "Dragons/leviathan/Unstaged/DRG_leviathan_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_amberhorn_Unstaged",
+      "species": "amberhorn",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0947
+        },
+        "Run": {
+          "start": 391,
+          "end": 413,
+          "loop": true,
+          "groundSpeed": 0.2552
+        },
+        "Burrow": {
+          "start": 414,
+          "end": 474,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Rest": {
+          "start": 475,
+          "end": 595,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 596,
+          "end": 656,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 657,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 748,
+          "end": 823,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 824,
+          "end": 899,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 900,
+          "end": 990,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 991,
+          "end": 1111,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1112,
+          "end": 1172,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "DigPrep": {
+          "start": 1173,
+          "end": 1218,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEnter": {
+          "start": 1219,
+          "end": 1279,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "BurrowEmerge": {
+          "start": 1280,
+          "end": 1340,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1341,
+          "end": 1416,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 390,
+          "loop": true,
+          "groundSpeed": 0.0947
+        },
+        {
+          "name": "Run",
+          "start": 391,
+          "end": 413,
+          "loop": true,
+          "groundSpeed": 0.2552
+        },
+        {
+          "name": "Burrow",
+          "start": 414,
+          "end": 474,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Rest",
+          "start": 475,
+          "end": 595,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 596,
+          "end": 656,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 657,
+          "end": 747,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 748,
+          "end": 823,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 824,
+          "end": 899,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 900,
+          "end": 990,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 991,
+          "end": 1111,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1112,
+          "end": 1172,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "DigPrep",
+          "start": 1173,
+          "end": 1218,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEnter",
+          "start": 1219,
+          "end": 1279,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "BurrowEmerge",
+          "start": 1280,
+          "end": 1340,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1341,
+          "end": 1416,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "Drink: deformation edge stretch over limit at the worst single frame (1.622 vs 1.6)",
+          "Stretch: deformation edge stretch over limit at the worst single frame (1.622 vs 1.6)",
+          "BurrowEnter: ground mesh below the ground plane (0.0182 vs 0.01)",
+          "BurrowEmerge: ground mesh below the ground plane (0.0167 vs 0.01)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9863,
+        "bodyWidth": 0.5584,
+        "bodyHeight": 1.197,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.2898,
+        "groundLength": 2.0256,
+        "groundWidth": 0.9668,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.128,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_amberhorn_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/amberhorn/Unstaged",
+      "delivered": [
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_LODs.fbx",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_rig.json",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_BaseColor.png",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_MetallicSmoothness.png",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged.validation.json",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_animqa.json",
+        "Dragons/amberhorn/Unstaged/DRG_amberhorn_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_aurorawing_Unstaged",
+      "species": "aurorawing",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 384,
+          "loop": true,
+          "groundSpeed": 0.1485
+        },
+        "Run": {
+          "start": 385,
+          "end": 404,
+          "loop": true,
+          "groundSpeed": 0.4632
+        },
+        "Fly": {
+          "start": 405,
+          "end": 437,
+          "loop": true,
+          "groundSpeed": 0.8424
+        },
+        "Rest": {
+          "start": 438,
+          "end": 558,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 559,
+          "end": 619,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 620,
+          "end": 710,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 711,
+          "end": 786,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 787,
+          "end": 862,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 863,
+          "end": 953,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 954,
+          "end": 1074,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1075,
+          "end": 1135,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1136,
+          "end": 1211,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1212,
+          "end": 1252,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1253,
+          "end": 1313,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1314,
+          "end": 1354,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 384,
+          "loop": true,
+          "groundSpeed": 0.1485
+        },
+        {
+          "name": "Run",
+          "start": 385,
+          "end": 404,
+          "loop": true,
+          "groundSpeed": 0.4632
+        },
+        {
+          "name": "Fly",
+          "start": 405,
+          "end": 437,
+          "loop": true,
+          "groundSpeed": 0.8424
+        },
+        {
+          "name": "Rest",
+          "start": 438,
+          "end": 558,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 559,
+          "end": 619,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 620,
+          "end": 710,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 711,
+          "end": 786,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 787,
+          "end": 862,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 863,
+          "end": 953,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 954,
+          "end": 1074,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1075,
+          "end": 1135,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1136,
+          "end": 1211,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1212,
+          "end": 1252,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1253,
+          "end": 1313,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1314,
+          "end": 1354,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.04343, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Eat: deformation edge stretch over limit (3.421 vs 1.6)",
+          "LookAround: deformation edge stretch over limit (3.005 vs 1.6)",
+          "Drink: deformation edge stretch over limit (3.765 vs 1.6)",
+          "TakeOff: deformation edge stretch over limit (1.742 vs 1.6)",
+          "TakeOff: deformation edge compression over limit at the worst single frame (0.321 vs 0.45)",
+          "Land: deformation edge stretch over limit (1.87 vs 1.6)",
+          "Land: deformation edge compression over limit at the worst single frame (0.278 vs 0.45)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9846,
+        "bodyWidth": 1.8036,
+        "bodyHeight": 1.4653,
+        "takeOffRootOffset": 0.6887,
+        "landRootOffset": 0.5422,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.5385,
+        "groundLength": 2.1557,
+        "groundWidth": 1.8454,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 1.8183,
+        "flightVerticalExtent": 1.6959,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.04,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_aurorawing_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/aurorawing/Unstaged",
+      "delivered": [
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_LODs.fbx",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_rig.json",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_BaseColor.png",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_MetallicSmoothness.png",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged.validation.json",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_animqa.json",
+        "Dragons/aurorawing/Unstaged/DRG_aurorawing_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_celestia_Unstaged",
+      "species": "celestia",
+      "stage": "Unstaged",
+      "archetype": "winged",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1469
+        },
+        "Run": {
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.1986
+        },
+        "Fly": {
+          "start": 399,
+          "end": 431,
+          "loop": true,
+          "groundSpeed": 0.3168
+        },
+        "Rest": {
+          "start": 432,
+          "end": 552,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 553,
+          "end": 613,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 614,
+          "end": 704,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 705,
+          "end": 780,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 781,
+          "end": 856,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 857,
+          "end": 947,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 948,
+          "end": 1068,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1069,
+          "end": 1129,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1130,
+          "end": 1205,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "TakeOff": {
+          "start": 1206,
+          "end": 1246,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Glide": {
+          "start": 1247,
+          "end": 1307,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Land": {
+          "start": 1308,
+          "end": 1348,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 380,
+          "loop": true,
+          "groundSpeed": 0.1469
+        },
+        {
+          "name": "Run",
+          "start": 381,
+          "end": 398,
+          "loop": true,
+          "groundSpeed": 1.1986
+        },
+        {
+          "name": "Fly",
+          "start": 399,
+          "end": 431,
+          "loop": true,
+          "groundSpeed": 0.3168
+        },
+        {
+          "name": "Rest",
+          "start": 432,
+          "end": 552,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 553,
+          "end": 613,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 614,
+          "end": 704,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 705,
+          "end": 780,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 781,
+          "end": 856,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 857,
+          "end": 947,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 948,
+          "end": 1068,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1069,
+          "end": 1129,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1130,
+          "end": 1205,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "TakeOff",
+          "start": 1206,
+          "end": 1246,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Glide",
+          "start": 1247,
+          "end": 1307,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Land",
+          "start": 1308,
+          "end": 1348,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.01106, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Idle: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Eat: deformation edge stretch over limit (1.881 vs 1.6)",
+          "Eat: deformation edge compression over limit (0.436 vs 0.45)",
+          "Eat: wings wing vertices inside the body (0.25 vs 0.002)",
+          "Sleep: ground mesh below the ground plane (0.0106 vs 0.01)",
+          "Walk: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Run: deformation edge stretch over limit (2.453 vs 1.6)",
+          "Run: deformation edge compression over limit at the worst single frame (0.367 vs 0.45)",
+          "Run: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Fly: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Rest: ground mesh below the ground plane (0.0109 vs 0.01)",
+          "LookAround: wings wing vertices inside the body (0.4375 vs 0.002)",
+          "Curious: wings wing vertices inside the body (0.25 vs 0.002)",
+          "Drink: deformation edge stretch over limit (2.076 vs 1.6)",
+          "Drink: deformation edge compression over limit (0.404 vs 0.45)",
+          "Drink: wings wing vertices inside the body (0.25 vs 0.002)",
+          "Stretch: deformation edge stretch over limit (2.021 vs 1.6)",
+          "Stretch: wings wing vertices inside the body (0.25 vs 0.002)",
+          "Bask: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Bask: ground mesh below the ground plane (0.0205 vs 0.01)",
+          "Nuzzle: wings wing vertices inside the body (0.25 vs 0.002)",
+          "TakeOff: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "TakeOff: ground mesh below the ground plane (0.0317 vs 0.01)",
+          "Glide: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Land: wings wing vertices inside the body (0.1875 vs 0.002)",
+          "Land: ground mesh below the ground plane (0.0412 vs 0.01)",
+          "Land: groundContact planted foot lifts off the ground (0.0346 vs 0.03)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9876,
+        "bodyWidth": 0.9616,
+        "bodyHeight": 1.1989,
+        "takeOffRootOffset": 0.5635,
+        "landRootOffset": 0.4436,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 180.0,
+        "groundHeight": 1.2696,
+        "groundLength": 2.0083,
+        "groundWidth": 1.0834,
+        "swimVerticalExtent": 0.0,
+        "swimWidth": 0.0,
+        "flightSpan": 1.0178,
+        "flightVerticalExtent": 1.2792,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.079,
+        "takeOffLiftOff": 0.323,
+        "landTouchDown": 0.6,
+        "waterEnterContact": 0.0,
+        "waterExitLeave": 0.0,
+        "surfaceWaterline": 0.0,
+        "headAboveWater": 0.0
+      },
+      "files": {
+        "fbx": "DRG_celestia_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/celestia/Unstaged",
+      "delivered": [
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_LODs.fbx",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_rig.json",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_BaseColor.png",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_MetallicSmoothness.png",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged.validation.json",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_animqa.json",
+        "Dragons/celestia/Unstaged/DRG_celestia_Unstaged_animqa.png"
+      ]
+    },
+    {
+      "kind": "dragon",
+      "name": "DRG_gaia_Unstaged",
+      "species": "gaia",
+      "stage": "Unstaged",
+      "archetype": "quadruped",
+      "rigged": true,
+      "rigVersion": 7,
+      "clips": {
+        "Idle": {
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Eat": {
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Sleep": {
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Happy": {
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Walk": {
+          "start": 350,
+          "end": 372,
+          "loop": true,
+          "groundSpeed": 0.1191
+        },
+        "Run": {
+          "start": 373,
+          "end": 385,
+          "loop": true,
+          "groundSpeed": 0.2335
+        },
+        "Swim": {
+          "start": 386,
+          "end": 434,
+          "loop": true,
+          "groundSpeed": 0.7455
+        },
+        "Rest": {
+          "start": 435,
+          "end": 555,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Wake": {
+          "start": 556,
+          "end": 616,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "LookAround": {
+          "start": 617,
+          "end": 707,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Curious": {
+          "start": 708,
+          "end": 783,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Drink": {
+          "start": 784,
+          "end": 859,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Stretch": {
+          "start": 860,
+          "end": 950,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Bask": {
+          "start": 951,
+          "end": 1071,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "Greet": {
+          "start": 1072,
+          "end": 1132,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "SwimIdle": {
+          "start": 1133,
+          "end": 1205,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimRest": {
+          "start": 1206,
+          "end": 1326,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        "SwimSurface": {
+          "start": 1327,
+          "end": 1375,
+          "loop": true,
+          "groundSpeed": 0.7455
+        },
+        "WaterEnter": {
+          "start": 1376,
+          "end": 1436,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "WaterExit": {
+          "start": 1437,
+          "end": 1497,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        "Nuzzle": {
+          "start": 1498,
+          "end": 1573,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      },
+      "clipList": [
+        {
+          "name": "Idle",
+          "start": 1,
+          "end": 121,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Eat",
+          "start": 122,
+          "end": 182,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Sleep",
+          "start": 183,
+          "end": 303,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Happy",
+          "start": 304,
+          "end": 349,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Walk",
+          "start": 350,
+          "end": 372,
+          "loop": true,
+          "groundSpeed": 0.1191
+        },
+        {
+          "name": "Run",
+          "start": 373,
+          "end": 385,
+          "loop": true,
+          "groundSpeed": 0.2335
+        },
+        {
+          "name": "Swim",
+          "start": 386,
+          "end": 434,
+          "loop": true,
+          "groundSpeed": 0.7455
+        },
+        {
+          "name": "Rest",
+          "start": 435,
+          "end": 555,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Wake",
+          "start": 556,
+          "end": 616,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "LookAround",
+          "start": 617,
+          "end": 707,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Curious",
+          "start": 708,
+          "end": 783,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Drink",
+          "start": 784,
+          "end": 859,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Stretch",
+          "start": 860,
+          "end": 950,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Bask",
+          "start": 951,
+          "end": 1071,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Greet",
+          "start": 1072,
+          "end": 1132,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimIdle",
+          "start": 1133,
+          "end": 1205,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimRest",
+          "start": 1206,
+          "end": 1326,
+          "loop": true,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "SwimSurface",
+          "start": 1327,
+          "end": 1375,
+          "loop": true,
+          "groundSpeed": 0.7455
+        },
+        {
+          "name": "WaterEnter",
+          "start": 1376,
+          "end": 1436,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "WaterExit",
+          "start": 1437,
+          "end": 1497,
+          "loop": false,
+          "groundSpeed": 0.0
+        },
+        {
+          "name": "Nuzzle",
+          "start": 1498,
+          "end": 1573,
+          "loop": false,
+          "groundSpeed": 0.0
+        }
+      ],
+      "fps": 30,
+      "deformationOk": false,
+      "ikChains": [
+        {
+          "upper": "ForeUpper_L",
+          "lower": "ForeLower_L",
+          "foot": "ForeFoot_L"
+        },
+        {
+          "upper": "ForeUpper_R",
+          "lower": "ForeLower_R",
+          "foot": "ForeFoot_R"
+        },
+        {
+          "upper": "HindUpper_L",
+          "lower": "HindLower_L",
+          "foot": "HindFoot_L"
+        },
+        {
+          "upper": "HindUpper_R",
+          "lower": "HindLower_R",
+          "foot": "HindFoot_R"
+        }
+      ],
+      "anchors": [
+        "VFX_Mouth",
+        "VFX_TailTip",
+        "VFX_Back",
+        "VFX_Ground"
+      ],
+      "validation": "PASS_WITH_WARNINGS",
+      "animQa": {
+        "status": "PASS_WITH_WARNINGS",
+        "warnings": [
+          "model: bones bone orientation / mirror issue ({'zeroLength': [], 'mirrorErrorRel': 0.05218, 'chainDirection': []} vs {'mirrorErrorRel': 0.01})",
+          "Eat: deformation edge stretch over limit (2.969 vs 1.6)",
+          "Eat: deformation edge compression over limit (0.425 vs 0.45)",
+          "Swim: deformation edge stretch over limit (7.302 vs 1.6)",
+          "Swim: deformation edge compression over limit (0.361 vs 0.45)",
+          "Curious: ground mesh below the ground plane (0.0235 vs 0.01)",
+          "Drink: deformation edge stretch over limit (3.233 vs 1.6)",
+          "Drink: deformation edge compression over limit (0.389 vs 0.45)",
+          "SwimSurface: deformation edge stretch over limit (5.106 vs 1.6)",
+          "SwimSurface: deformation edge compression over limit (0.357 vs 0.45)",
+          "WaterEnter: deformation edge stretch over limit (4.496 vs 1.6)",
+          "WaterEnter: deformation edge compression over limit (0.423 vs 0.45)",
+          "WaterExit: deformation edge stretch over limit (4.496 vs 1.6)",
+          "WaterExit: deformation edge compression over limit (0.421 vs 0.45)"
+        ]
+      },
+      "motion": {
+        "bodyLength": 1.9879,
+        "bodyWidth": 0.7173,
+        "bodyHeight": 1.1186,
+        "takeOffRootOffset": 0.0,
+        "landRootOffset": 0.0,
+        "maxTurnGround": 180.0,
+        "maxTurnWater": 90.0,
+        "maxTurnAir": 60.0,
+        "groundHeight": 1.1805,
+        "groundLength": 2.0089,
+        "groundWidth": 0.9443,
+        "swimVerticalExtent": 1.1406,
+        "swimWidth": 0.7435,
+        "flightSpan": 0.0,
+        "flightVerticalExtent": 0.0,
+        "transitionsChecked": 6,
+        "transitionMaxDeg": 0.069,
+        "takeOffLiftOff": 0.0,
+        "landTouchDown": 0.0,
+        "waterEnterContact": 0.5,
+        "waterExitLeave": 0.5,
+        "surfaceWaterline": 0.7173,
+        "headAboveWater": 0.1016
+      },
+      "files": {
+        "fbx": "DRG_gaia_Unstaged_LODs.fbx"
+      },
+      "unityFolder": "Dragons/gaia/Unstaged",
+      "delivered": [
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_LODs.fbx",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_rig.json",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_BaseColor.png",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_MetallicSmoothness.png",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged.validation.json",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_animqa.json",
+        "Dragons/gaia/Unstaged/DRG_gaia_Unstaged_animqa.png"
+      ]
+    }
+  ]
+}

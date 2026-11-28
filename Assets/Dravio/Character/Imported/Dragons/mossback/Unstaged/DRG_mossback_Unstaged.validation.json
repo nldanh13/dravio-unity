@@ -1,0 +1,116 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "model": "/tmp/claude-0/charwork/assets/DRG_mossback_Unstaged/DRG_mossback_Unstaged_LODs.fbx",
+  "errors": 0,
+  "warnings": 8,
+  "items": [
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD0 24000 tris within 15000-25000",
+      "lod": 0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD1 10000 tris within 8000-12000",
+      "lod": 1
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD2 4000 tris within 3000-5000",
+      "lod": 2
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_mossback_Unstaged_LOD2: 1739 UV faces (43.48%) flipped_faces > 1.0%",
+      "mesh": "DRG_mossback_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_mossback_Unstaged_LOD2: 82 loose vertices",
+      "mesh": "DRG_mossback_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_mossback_Unstaged_LOD2: 3166 non-manifold/boundary edges after weld",
+      "mesh": "DRG_mossback_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_mossback_Unstaged_LOD1: 4395 UV faces (43.95%) flipped_faces > 1.0%",
+      "mesh": "DRG_mossback_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_mossback_Unstaged_LOD1: 1 loose vertices",
+      "mesh": "DRG_mossback_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_mossback_Unstaged_LOD1: 2610 non-manifold/boundary edges after weld",
+      "mesh": "DRG_mossback_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_mossback_Unstaged_LOD0: 10557 UV faces (43.99%) flipped_faces > 1.0%",
+      "mesh": "DRG_mossback_Unstaged_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "TEXTURE_SIZE",
+      "message": "Image_0: 2048x2048 > recommended 1024"
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD0 rest p95 deviation 0.000% (limit 0.40%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD0 worst deformed p95 deviation 0.000% (limit 0.60%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD1 rest p95 deviation 0.048% (limit 1.00%)",
+      "lod": 1,
+      "value": 0.00047854204060250247
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD1 worst deformed p95 deviation 0.064% (limit 1.40%)",
+      "lod": 1,
+      "value": 0.0006378734042092275
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD2 rest p95 deviation 0.178% (limit 2.50%)",
+      "lod": 2,
+      "value": 0.0017769128365400296
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD2 worst deformed p95 deviation 0.248% (limit 3.00%)",
+      "lod": 2,
+      "value": 0.002480495659357425
+    }
+  ],
+  "note": "Structural/numeric gate only; visual, Unity import and device checks are separate."
+}

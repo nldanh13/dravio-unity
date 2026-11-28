@@ -1,0 +1,134 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "model": "/tmp/claude-0/charwork/assets/DRG_leviathan_Unstaged/DRG_leviathan_Unstaged_LODs.fbx",
+  "errors": 0,
+  "warnings": 11,
+  "items": [
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD0 24000 tris within 15000-25000",
+      "lod": 0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD1 9999 tris within 8000-12000",
+      "lod": 1
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD2 4000 tris within 3000-5000",
+      "lod": 2
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_leviathan_Unstaged_LOD2: 1805 UV faces (45.12%) flipped_faces > 1.0%",
+      "mesh": "DRG_leviathan_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "UV_OUTSIDE_0_1",
+      "message": "DRG_leviathan_Unstaged_LOD2: 2 UV faces (0.05%) faces_outside_0_1 > 0.0%",
+      "mesh": "DRG_leviathan_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_leviathan_Unstaged_LOD2: 1483 loose vertices",
+      "mesh": "DRG_leviathan_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_leviathan_Unstaged_LOD2: 3686 non-manifold/boundary edges after weld",
+      "mesh": "DRG_leviathan_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_leviathan_Unstaged_LOD0: 10567 UV faces (44.03%) flipped_faces > 1.0%",
+      "mesh": "DRG_leviathan_Unstaged_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_leviathan_Unstaged_LOD1: 4520 UV faces (45.20%) flipped_faces > 1.0%",
+      "mesh": "DRG_leviathan_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "UV_OUTSIDE_0_1",
+      "message": "DRG_leviathan_Unstaged_LOD1: 2 UV faces (0.02%) faces_outside_0_1 > 0.0%",
+      "mesh": "DRG_leviathan_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_leviathan_Unstaged_LOD1: 1 loose vertices",
+      "mesh": "DRG_leviathan_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_leviathan_Unstaged_LOD1: 4841 non-manifold/boundary edges after weld",
+      "mesh": "DRG_leviathan_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "TEXTURE_SIZE",
+      "message": "Image_0: 2048x2048 > recommended 1024"
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD0 rest p95 deviation 0.000% (limit 0.40%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD0 worst deformed p95 deviation 0.000% (limit 0.60%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD1 rest p95 deviation 0.067% (limit 1.00%)",
+      "lod": 1,
+      "value": 0.0006700059649396257
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD1 worst deformed p95 deviation 0.075% (limit 1.40%)",
+      "lod": 1,
+      "value": 0.0007488418351520474
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD2 rest p95 deviation 0.273% (limit 2.50%)",
+      "lod": 2,
+      "value": 0.002730290863553899
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD2 worst deformed p95 deviation 0.293% (limit 3.00%)",
+      "lod": 2,
+      "value": 0.0029260403583788717
+    },
+    {
+      "level": "warning",
+      "code": "LOD_TEXTURE_DRIFT",
+      "message": "LOD2 Base Color drift p95 19.4/255",
+      "lod": 2
+    }
+  ],
+  "note": "Structural/numeric gate only; visual, Unity import and device checks are separate."
+}

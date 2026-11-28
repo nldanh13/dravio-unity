@@ -1,0 +1,1219 @@
+{
+ "rigVersion": 7,
+ "name": "DRG_steamdrake_Unstaged",
+ "species": "steamdrake",
+ "stage": "Unstaged",
+ "archetype": "serpentine",
+ "archetypeSource": "bodyStyle == Serpent",
+ "limbCount": 4,
+ "limbCountSource": "mesh measurement accepted (--limb-count auto)",
+ "limbMeasurement": {
+  "limbCountDetected": 4,
+  "confidence": "high",
+  "groundContactsOffMidline": 4,
+  "groundContactsMidline": 0
+ },
+ "height_m": 1.129,
+ "size": {
+  "sourceHeight": 1.129,
+  "scale": 1.0,
+  "height": 1.129,
+  "midlineShift_m": 0.0
+ },
+ "heightSource": "source size kept",
+ "fps": 30,
+ "orientation": {
+  "blender": "Z up, front -Y",
+  "unity": "Y up, forward +Z (FBX axis_forward -Z, axis_up Y)",
+  "pivot": "ground, centred under the body"
+ },
+ "rootMotion": "none: clips are in place; Root bone carries vertical offsets only. Move the transform at clips.<name>.groundSpeed (m/s).",
+ "rootVertical": {},
+ "bones": [
+  "Root",
+  "Spine1",
+  "Spine2",
+  "Spine3",
+  "Spine4",
+  "Spine5",
+  "Spine6",
+  "Spine7",
+  "Spine8",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "Tail4",
+  "VFX_TailTip",
+  "HindUpper_L",
+  "HindLower_L",
+  "HindFoot_L",
+  "HindUpper_R",
+  "HindLower_R",
+  "HindFoot_R",
+  "VFX_Back",
+  "Neck",
+  "Head",
+  "VFX_Mouth",
+  "ForeUpper_L",
+  "ForeLower_L",
+  "ForeFoot_L",
+  "ForeUpper_R",
+  "ForeLower_R",
+  "ForeFoot_R",
+  "VFX_Ground"
+ ],
+ "deformBones": [
+  "Root",
+  "Spine1",
+  "Spine2",
+  "Spine3",
+  "Spine4",
+  "Spine5",
+  "Spine6",
+  "Spine7",
+  "Spine8",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "Tail4",
+  "HindUpper_L",
+  "HindLower_L",
+  "HindFoot_L",
+  "HindUpper_R",
+  "HindLower_R",
+  "HindFoot_R",
+  "Neck",
+  "Head",
+  "ForeUpper_L",
+  "ForeLower_L",
+  "ForeFoot_L",
+  "ForeUpper_R",
+  "ForeLower_R",
+  "ForeFoot_R"
+ ],
+ "anchors": [
+  "VFX_Mouth",
+  "VFX_TailTip",
+  "VFX_Back",
+  "VFX_Ground"
+ ],
+ "ikChains": [
+  {
+   "upper": "ForeUpper_L",
+   "lower": "ForeLower_L",
+   "foot": "ForeFoot_L"
+  },
+  {
+   "upper": "ForeUpper_R",
+   "lower": "ForeLower_R",
+   "foot": "ForeFoot_R"
+  },
+  {
+   "upper": "HindUpper_L",
+   "lower": "HindLower_L",
+   "foot": "HindFoot_L"
+  },
+  {
+   "upper": "HindUpper_R",
+   "lower": "HindLower_R",
+   "foot": "HindFoot_R"
+  }
+ ],
+ "clips": {
+  "Idle": {
+   "start": 1,
+   "end": 121,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Eat": {
+   "start": 122,
+   "end": 182,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Sleep": {
+   "start": 183,
+   "end": 303,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Happy": {
+   "start": 304,
+   "end": 349,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Walk": {
+   "start": 350,
+   "end": 390,
+   "loop": true,
+   "groundSpeed": 0.0931
+  },
+  "Run": {
+   "start": 391,
+   "end": 417,
+   "loop": true,
+   "groundSpeed": 0.2401
+  },
+  "Swim": {
+   "start": 418,
+   "end": 466,
+   "loop": true,
+   "groundSpeed": 0.3892
+  },
+  "Rest": {
+   "start": 467,
+   "end": 587,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Wake": {
+   "start": 588,
+   "end": 648,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "LookAround": {
+   "start": 649,
+   "end": 739,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Curious": {
+   "start": 740,
+   "end": 815,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Drink": {
+   "start": 816,
+   "end": 891,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Stretch": {
+   "start": 892,
+   "end": 982,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Bask": {
+   "start": 983,
+   "end": 1103,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Greet": {
+   "start": 1104,
+   "end": 1164,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "SwimIdle": {
+   "start": 1165,
+   "end": 1237,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "SwimRest": {
+   "start": 1238,
+   "end": 1358,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "SwimSurface": {
+   "start": 1359,
+   "end": 1407,
+   "loop": true,
+   "groundSpeed": 0.5383
+  },
+  "WaterEnter": {
+   "start": 1408,
+   "end": 1468,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "WaterExit": {
+   "start": 1469,
+   "end": 1529,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Nuzzle": {
+   "start": 1530,
+   "end": 1605,
+   "loop": false,
+   "groundSpeed": 0.0
+  }
+ },
+ "contacts": {
+  "Idle": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Eat": {
+   "Fore_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "Sleep": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Happy": {
+   "Fore_L": [
+    [
+     0,
+     45
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     45
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     45
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     45
+    ]
+   ]
+  },
+  "Walk": {
+   "Fore_L": [
+    [
+     10,
+     38
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     18
+    ],
+    [
+     30,
+     40
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     28
+    ],
+    [
+     40,
+     40
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     8
+    ],
+    [
+     20,
+     40
+    ]
+   ]
+  },
+  "Run": {
+   "Fore_L": [
+    [
+     0,
+     13
+    ],
+    [
+     26,
+     26
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     0
+    ],
+    [
+     13,
+     26
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     0
+    ],
+    [
+     13,
+     26
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     13
+    ],
+    [
+     26,
+     26
+    ]
+   ]
+  },
+  "Swim": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "Rest": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Wake": {
+   "Fore_L": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     0
+    ],
+    [
+     60,
+     60
+    ]
+   ]
+  },
+  "LookAround": {
+   "Fore_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     90
+    ]
+   ]
+  },
+  "Curious": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  },
+  "Drink": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  },
+  "Stretch": {
+   "Fore_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     90
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     90
+    ]
+   ]
+  },
+  "Bask": {
+   "Fore_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     120
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "Greet": {
+   "Fore_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     60
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "SwimIdle": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "SwimRest": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "SwimSurface": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "WaterEnter": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "WaterExit": {
+   "Fore_L": [],
+   "Fore_R": [],
+   "Hind_L": [],
+   "Hind_R": []
+  },
+  "Nuzzle": {
+   "Fore_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Fore_R": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_L": [
+    [
+     0,
+     75
+    ]
+   ],
+   "Hind_R": [
+    [
+     0,
+     75
+    ]
+   ]
+  }
+ },
+ "groundClearanceLift_m": {
+  "Sleep": {
+   "lift_m": 0.03909,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0351,
+    "Fore_R": 0.0372,
+    "Hind_L": 0.0252,
+    "Hind_R": 0.0252,
+    "body": 0.0
+   }
+  },
+  "Walk": {
+   "lift_m": 0.01584,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0044,
+    "Fore_R": 0.0044,
+    "Hind_L": 0.0138,
+    "Hind_R": 0.0151,
+    "body": 0.0
+   }
+  },
+  "Run": {
+   "lift_m": 0.01844,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0079,
+    "Fore_R": 0.0086,
+    "Hind_L": 0.0163,
+    "Hind_R": 0.0176,
+    "body": 0.0
+   }
+  },
+  "Rest": {
+   "lift_m": 0.03265,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0296,
+    "Fore_R": 0.0311,
+    "Hind_L": 0.0199,
+    "Hind_R": 0.0176,
+    "body": 0.0
+   }
+  },
+  "Curious": {
+   "lift_m": 0.00549,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0051,
+    "Fore_R": 0.0052,
+    "Hind_L": 0.0,
+    "Hind_R": 0.0,
+    "body": 0.0
+   }
+  },
+  "Drink": {
+   "lift_m": 0.01025,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.009,
+    "Fore_R": 0.0098,
+    "Hind_L": 0.0,
+    "Hind_R": 0.0,
+    "body": 0.0
+   }
+  },
+  "Stretch": {
+   "lift_m": 0.01148,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0102,
+    "Fore_R": 0.0109,
+    "Hind_L": 0.0026,
+    "Hind_R": 0.0021,
+    "body": 0.0
+   }
+  },
+  "Bask": {
+   "lift_m": 0.03238,
+   "depthBeforeFix_m": {
+    "Fore_L": 0.0299,
+    "Fore_R": 0.0308,
+    "Hind_L": 0.0195,
+    "Hind_R": 0.0172,
+    "body": 0.0
+   }
+  }
+ },
+ "motion": {
+  "body": {
+   "length_m": 1.9881,
+   "width_m": 0.5739,
+   "height_m": 1.129
+  },
+  "rootOffsets_m": {},
+  "events": {
+   "WaterEnter.contact": 0.5,
+   "WaterExit.leave": 0.5
+  },
+  "water": {
+   "surfaceWaterline_m": 0.7992,
+   "headAboveWater_m": 0.1004,
+   "source": "rest landmarks: chest (spine line) at the waterline, head above"
+  },
+  "maxTurnRateDegPerSec": {
+   "ground": 180,
+   "water": 90,
+   "air": 60
+  },
+  "biomechanics": {
+   "Swim": {
+    "tipBone": "Tail4",
+    "tipAmplitudePP_m": 0.11,
+    "strouhalTarget": 0.3,
+    "lengthsPerCycleDefault": 0.6,
+    "tipAmplitudeL": 0.055,
+    "source": "motionDefaults lengthsPerCycle (tail amplitude outside the fish band; art director to review)",
+    "amplitudeOutsideBand": [
+     0.1,
+     0.3
+    ],
+    "lengthsPerCycle": 0.6,
+    "speed_mps": 0.7455,
+    "strouhal": 0.092
+   },
+   "SwimSurface": {
+    "tipBone": "Tail4",
+    "tipAmplitudePP_m": 0.0771,
+    "strouhalTarget": 0.3,
+    "lengthsPerCycleDefault": 0.6,
+    "tipAmplitudeL": 0.039,
+    "source": "motionDefaults lengthsPerCycle (tail amplitude outside the fish band; art director to review)",
+    "amplitudeOutsideBand": [
+     0.1,
+     0.3
+    ],
+    "lengthsPerCycle": 0.6,
+    "speed_mps": 0.7455,
+    "strouhal": 0.065
+   }
+  },
+  "speedSource": "Walk/Run: planted-foot speed (period from the Froude relation where the profile opts in); Swim/SwimSurface/Fly: Strouhal 0.3 on the measured stroke tip (fallback: body lengths per cycle from rig-profiles); other clips in place (0). See motion.biomechanics"
+ },
+ "animationData": {
+  "frames": 1605,
+  "bones": 31,
+  "floatsPerFrame": 127,
+  "bakedMB": 0.815
+ },
+ "bind": {
+  "removedWeightFraction": 0.2312,
+  "distalLegWeightsRemovedFromBody": 3093,
+  "nearestAllowedFallback": {
+   "body": 1447
+  },
+  "maxInfluences": 4,
+  "lowBodyVerticesRelabelledLeg": 0,
+  "floatingPiecesBoundRigidly": 575,
+  "proxy_voxel_size": 0.01684,
+  "vertices": 15339,
+  "nearest_bone_fallback_vertices": 1447
+ },
+ "skin": {
+  "armature": "DragonRig",
+  "bones": 31,
+  "deform_bones": 31,
+  "max_influences": 4,
+  "unweighted_vertices": 0,
+  "not_normalized_vertices": 0
+ },
+ "deformation": {
+  "Idle": {
+   "edge_stretch_p999": 1.09,
+   "edge_compress_p001": 0.915,
+   "edge_stretch_max": 1.424,
+   "ok": true
+  },
+  "Eat": {
+   "edge_stretch_p999": 2.225,
+   "edge_compress_p001": 0.506,
+   "edge_stretch_max": 10.64,
+   "ok": false
+  },
+  "Sleep": {
+   "edge_stretch_p999": 4.123,
+   "edge_compress_p001": 0.261,
+   "edge_stretch_max": 7.983,
+   "ok": false
+  },
+  "Happy": {
+   "edge_stretch_p999": 1.131,
+   "edge_compress_p001": 0.883,
+   "edge_stretch_max": 1.333,
+   "ok": true
+  },
+  "Walk": {
+   "edge_stretch_p999": 2.259,
+   "edge_compress_p001": 0.503,
+   "edge_stretch_max": 4.452,
+   "ok": false
+  },
+  "Run": {
+   "edge_stretch_p999": 2.848,
+   "edge_compress_p001": 0.539,
+   "edge_stretch_max": 7.672,
+   "ok": false
+  },
+  "Swim": {
+   "edge_stretch_p999": 4.358,
+   "edge_compress_p001": 0.602,
+   "edge_stretch_max": 10.041,
+   "ok": false
+  },
+  "Rest": {
+   "edge_stretch_p999": 3.356,
+   "edge_compress_p001": 0.285,
+   "edge_stretch_max": 5.403,
+   "ok": false
+  },
+  "Wake": {
+   "edge_stretch_p999": 3.179,
+   "edge_compress_p001": 0.322,
+   "edge_stretch_max": 7.006,
+   "ok": false
+  },
+  "LookAround": {
+   "edge_stretch_p999": 1.529,
+   "edge_compress_p001": 0.652,
+   "edge_stretch_max": 5.122,
+   "ok": true
+  },
+  "Curious": {
+   "edge_stretch_p999": 1.424,
+   "edge_compress_p001": 0.585,
+   "edge_stretch_max": 4.346,
+   "ok": true
+  },
+  "Drink": {
+   "edge_stretch_p999": 3.086,
+   "edge_compress_p001": 0.293,
+   "edge_stretch_max": 15.906,
+   "ok": false
+  },
+  "Stretch": {
+   "edge_stretch_p999": 1.831,
+   "edge_compress_p001": 0.46,
+   "edge_stretch_max": 7.566,
+   "ok": false
+  },
+  "Bask": {
+   "edge_stretch_p999": 3.207,
+   "edge_compress_p001": 0.29,
+   "edge_stretch_max": 5.175,
+   "ok": false
+  },
+  "Greet": {
+   "edge_stretch_p999": 1.189,
+   "edge_compress_p001": 0.875,
+   "edge_stretch_max": 3.965,
+   "ok": true
+  },
+  "SwimIdle": {
+   "edge_stretch_p999": 1.817,
+   "edge_compress_p001": 0.559,
+   "edge_stretch_max": 4.056,
+   "ok": false
+  },
+  "SwimRest": {
+   "edge_stretch_p999": 1.346,
+   "edge_compress_p001": 0.703,
+   "edge_stretch_max": 2.273,
+   "ok": true
+  },
+  "SwimSurface": {
+   "edge_stretch_p999": 3.269,
+   "edge_compress_p001": 0.585,
+   "edge_stretch_max": 7.293,
+   "ok": false
+  },
+  "WaterEnter": {
+   "edge_stretch_p999": 2.898,
+   "edge_compress_p001": 0.633,
+   "edge_stretch_max": 9.547,
+   "ok": false
+  },
+  "WaterExit": {
+   "edge_stretch_p999": 2.984,
+   "edge_compress_p001": 0.642,
+   "edge_stretch_max": 9.646,
+   "ok": false
+  },
+  "Nuzzle": {
+   "edge_stretch_p999": 1.295,
+   "edge_compress_p001": 0.837,
+   "edge_stretch_max": 5.165,
+   "ok": true
+  }
+ },
+ "deformationLimits": {
+  "max_stretch_p999": 1.6,
+  "min_compress_p001": 0.45
+ },
+ "deformationOk": false,
+ "landmarks": {
+  "headTip": [
+   0.0,
+   -0.994,
+   0.8996
+  ],
+  "headCenter": [
+   0.0,
+   -0.803,
+   0.8996
+  ],
+  "neckBase": [
+   0.0,
+   -0.6554,
+   0.8343
+  ],
+  "chest": [
+   0.0,
+   -0.5759,
+   0.7992
+  ],
+  "pelvis": [
+   0.0,
+   -0.1095,
+   0.4273
+  ],
+  "tailBase": [
+   0.0,
+   0.0608,
+   0.4619
+  ],
+  "tailTip": [
+   0.0,
+   0.9915,
+   0.3831
+  ],
+  "feet": {
+   "Fore_L": [
+    -0.1335,
+    -0.5751,
+    0.0
+   ],
+   "Fore_R": [
+    0.1314,
+    -0.5767,
+    0.0
+   ],
+   "Hind_L": [
+    -0.1541,
+    -0.1064,
+    0.0
+   ],
+   "Hind_R": [
+    0.1541,
+    -0.1126,
+    0.0
+   ]
+  },
+  "hips": {
+   "Fore_L": [
+    -0.1135,
+    -0.5751,
+    0.4104
+   ],
+   "Fore_R": [
+    0.1117,
+    -0.5767,
+    0.4104
+   ],
+   "Hind_L": [
+    -0.131,
+    -0.1064,
+    0.2797
+   ],
+   "Hind_R": [
+    0.131,
+    -0.1126,
+    0.2797
+   ]
+  },
+  "appendages": {},
+  "regionCounts": {
+   "body": 6423,
+   "head": 954,
+   "neck": 1001,
+   "tail": 2693,
+   "leg": 2379,
+   "wing": 0,
+   "fin": 0,
+   "eye": 0,
+   "fragment": 1889
+  },
+  "notes": [
+   "1889 vertices in floating fragments ignored for landmark detection",
+   "contact cluster at y=-0.576 split at x=0.000 (empty band 0.096 m): left/right paws standing close together",
+   "no neck narrowing in the profile; neck base set between chest and head"
+  ]
+ },
+ "profile": {
+  "tailBones": 4,
+  "spineBones": 8,
+  "walk": {
+   "gait": "walk",
+   "frames": 40,
+   "duty": 0.7,
+   "strideLegs": 0.6,
+   "liftLegs": 0.25,
+   "bob": 0.006,
+   "bodyWave": 0.04
+  },
+  "run": {
+   "gait": "trot",
+   "frames": 26,
+   "duty": 0.5,
+   "strideLegs": 0.9,
+   "liftLegs": 0.3,
+   "bob": 0.01,
+   "bodyWave": 0.06
+  },
+  "swim": {
+   "frames": 48,
+   "wave": 0.16,
+   "waveLength": 0.8,
+   "limbTuck": 0.45
+  },
+  "sleep": {
+   "coil": 0.22,
+   "dropLegs": 0.4,
+   "foreReachLegs": 0.0,
+   "footFollow": 0.8
+  },
+  "rest": {
+   "dropLegs": 0.3
+  },
+  "bask": {
+   "dropLegs": 0.3
+  },
+  "eat": {
+   "neckPitch": 0.4,
+   "headPitch": 0.3,
+   "chestDropH": 0.0
+  },
+  "happy": {
+   "hopH": 0.0,
+   "tailWag": 0.3
+  }
+ },
+ "ikResidualMax": 0.00558,
+ "notes": [
+  "Idle blink not authored: mesh has no eyelid shape key (blink/eye_close); generated meshes rarely separate eyelids",
+  "1889 vertices in floating fragments ignored for landmark detection",
+  "contact cluster at y=-0.576 split at x=0.000 (empty band 0.096 m): left/right paws standing close together",
+  "no neck narrowing in the profile; neck base set between chest and head",
+  "CHAR.9b repair: geodesic weight blend 0.24 m, amplitude {\"Drink\": {\"body\": 0.5, \"head\": 0.614, \"legs\": 0.722}, \"Run\": {\"body\": 0.522, \"legs\": 0.522}, \"Swim\": {\"body\": 0.522, \"legs\": 0.522}, \"SwimSurface\": {\"body\": 0.722, \"legs\": 0.722}, \"Walk\": {\"body\": 0.614, \"legs\": 0.614}, \"WaterEnter\": {\"body\": 0.522, \"legs\": 0.522}, \"WaterExit\": {\"body\": 0.522, \"legs\": 0.522}}"
+ ],
+ "triangles": 24000,
+ "fbx": "DRG_steamdrake_Unstaged_Rigged.fbx",
+ "blend": "DRG_steamdrake_Unstaged_Rigged.blend",
+ "source": "/tmp/claude-0/charwork/assets/DRG_steamdrake_Unstaged/DRG_steamdrake_Unstaged_Prepared.glb",
+ "source_sha256_before": "137fd42437cdbf2cbd03180b2c70345aa8e9d0f74187c5a4b1f7aa7be1577d30",
+ "source_sha256_after": "137fd42437cdbf2cbd03180b2c70345aa8e9d0f74187c5a4b1f7aa7be1577d30",
+ "source_unchanged": true,
+ "limits": "Procedural motion fitted to measured landmarks; needs animator review before shipping.",
+ "repair": {
+  "skinning": "linear",
+  "seamWeld": true,
+  "blendWidth_m": 0.24,
+  "pinTransitions": true,
+  "amplitude": {
+   "Drink": {
+    "body": 0.5,
+    "head": 0.614,
+    "legs": 0.722
+   },
+   "Run": {
+    "body": 0.522,
+    "legs": 0.522
+   },
+   "Swim": {
+    "body": 0.522,
+    "legs": 0.522
+   },
+   "SwimSurface": {
+    "body": 0.722,
+    "legs": 0.722
+   },
+   "Walk": {
+    "body": 0.614,
+    "legs": 0.614
+   },
+   "WaterEnter": {
+    "body": 0.522,
+    "legs": 0.522
+   },
+   "WaterExit": {
+    "body": 0.522,
+    "legs": 0.522
+   }
+  }
+ }
+}

@@ -1,0 +1,128 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "model": "/tmp/claude-0/charwork/assets/DRG_aurorawing_Unstaged/DRG_aurorawing_Unstaged_LODs.fbx",
+  "errors": 0,
+  "warnings": 10,
+  "items": [
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD0 23999 tris within 15000-25000",
+      "lod": 0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD1 10000 tris within 8000-12000",
+      "lod": 1
+    },
+    {
+      "level": "pass",
+      "code": "LOD_BUDGET",
+      "message": "LOD2 4000 tris within 3000-5000",
+      "lod": 2
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_aurorawing_Unstaged_LOD1: 4826 UV faces (48.26%) flipped_faces > 1.0%",
+      "mesh": "DRG_aurorawing_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_aurorawing_Unstaged_LOD1: 10 loose vertices",
+      "mesh": "DRG_aurorawing_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_aurorawing_Unstaged_LOD1: 6208 non-manifold/boundary edges after weld",
+      "mesh": "DRG_aurorawing_Unstaged_LOD1"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_aurorawing_Unstaged_LOD2: 1935 UV faces (48.38%) flipped_faces > 1.0%",
+      "mesh": "DRG_aurorawing_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "LOOSE_VERTICES",
+      "message": "DRG_aurorawing_Unstaged_LOD2: 2647 loose vertices",
+      "mesh": "DRG_aurorawing_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_aurorawing_Unstaged_LOD2: 3692 non-manifold/boundary edges after weld",
+      "mesh": "DRG_aurorawing_Unstaged_LOD2"
+    },
+    {
+      "level": "warning",
+      "code": "UV_FLIPPED",
+      "message": "DRG_aurorawing_Unstaged_LOD0: 11798 UV faces (49.16%) flipped_faces > 1.0%",
+      "mesh": "DRG_aurorawing_Unstaged_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "NON_MANIFOLD",
+      "message": "DRG_aurorawing_Unstaged_LOD0: 3 non-manifold/boundary edges after weld",
+      "mesh": "DRG_aurorawing_Unstaged_LOD0"
+    },
+    {
+      "level": "warning",
+      "code": "TEXTURE_SIZE",
+      "message": "Image_0: 2048x2048 > recommended 1024"
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD0 rest p95 deviation 0.000% (limit 0.40%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD0 worst deformed p95 deviation 0.000% (limit 0.60%)",
+      "lod": 0,
+      "value": 0.0
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD1 rest p95 deviation 0.088% (limit 1.00%)",
+      "lod": 1,
+      "value": 0.000884696387932264
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD1 worst deformed p95 deviation 0.097% (limit 1.40%)",
+      "lod": 1,
+      "value": 0.0009713836555154953
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SHAPE",
+      "message": "LOD2 rest p95 deviation 0.297% (limit 2.50%)",
+      "lod": 2,
+      "value": 0.0029748101589854603
+    },
+    {
+      "level": "pass",
+      "code": "LOD_SKINNING",
+      "message": "LOD2 worst deformed p95 deviation 0.318% (limit 3.00%)",
+      "lod": 2,
+      "value": 0.0031820100789475675
+    },
+    {
+      "level": "warning",
+      "code": "LOD_TEXTURE_DRIFT",
+      "message": "LOD2 Base Color drift p95 20.1/255",
+      "lod": 2
+    }
+  ],
+  "note": "Structural/numeric gate only; visual, Unity import and device checks are separate."
+}
