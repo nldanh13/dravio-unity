@@ -1,0 +1,545 @@
+{
+  "formatVersion": 1,
+  "scope": "Source conversion only; no production approval inferred.",
+  "groups": {
+    "dragons": {
+      "references": 16,
+      "glbUploaded": 16,
+      "requiresGlb": true
+    },
+    "habitat_concepts": {
+      "references": 7,
+      "glbUploaded": 0,
+      "requiresGlb": false
+    },
+    "sanctuary_props": {
+      "references": 4,
+      "glbUploaded": 0,
+      "requiresGlb": true
+    },
+    "nature_gameplay": {
+      "references": 12,
+      "glbUploaded": 2,
+      "requiresGlb": true
+    }
+  },
+  "assets": [
+    {
+      "id": "Dragons/images/01_emberling",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/01_emberling.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/01_emberling.glb",
+          "bytes": 3942888,
+          "sha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/02_droplet",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/02_droplet.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/02_droplet.glb",
+          "bytes": 3953936,
+          "sha256": "1834c2c0f7b2a07849409fb76a256abb93e6c39a8206133ca1b196be12bb8954",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/03_sprout",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/03_sprout.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/03_sprout.glb",
+          "bytes": 4184268,
+          "sha256": "8392e83e31874cd12a953d1fae4797b2b181376275a1221ed60f73bffbc07646",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/04_zephyr",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/04_zephyr.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/04_zephyr.glb",
+          "bytes": 4524668,
+          "sha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/05_steamdrake",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/05_steamdrake.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/05_steamdrake.glb",
+          "bytes": 4142736,
+          "sha256": "80e355739c41e14694431ae9f0ebe508ecfbbd6c7da49772d94701509bc3c2ce",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/06_magma",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/06_magma.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/06_magma.glb",
+          "bytes": 3648020,
+          "sha256": "0736cace7072f5a4e0a0c6730411fd71403c3ab1cef37617c116eaf83d59036f",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/07_sparkwing",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/07_sparkwing.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/07_sparkwing.glb",
+          "bytes": 3627404,
+          "sha256": "a0458fd23246199b0a85ea6b3b91324c4890d7edfc60cfe2a85531bd0f9158ee",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/08_frostfin",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/08_frostfin.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/08_frostfin.glb",
+          "bytes": 3501148,
+          "sha256": "05c056059d29f970aac9fb10abca7ad00aa4468f7185f8cc0667738bae41738f",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/09_mossback",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/09_mossback.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/09_mossback.glb",
+          "bytes": 3560776,
+          "sha256": "56a58cc389829ee6d5797bc3f1854d44966f07c5c84dc7031e470f16d4aa8621",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/10_blossom",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/10_blossom.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/10_blossom.glb",
+          "bytes": 3900628,
+          "sha256": "627fd6cce53d1db64674ea8c726717625e8bde615b9f68308f0b0bc1aa9c4279",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/11_solaris",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/11_solaris.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/11_solaris.glb",
+          "bytes": 3502444,
+          "sha256": "f1cfc468579bc62d247c1ce126461fdfbcbfa55504e1e7985a0efe94bfcbb273",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/12_leviathan",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/12_leviathan.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/12_leviathan.glb",
+          "bytes": 3833836,
+          "sha256": "d21dfe4c40fe8a82c2554e9fb94b2e9e4acf7831580e08a31af2bfbcc556bd4f",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/13_amberhorn",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/13_amberhorn.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/13_amberhorn.glb",
+          "bytes": 4277448,
+          "sha256": "f7052958535f6578f0352b44c268061601c35bc8351fbeeb49468234f4e147f9",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/14_aurorawing",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/14_aurorawing.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/14_aurorawing.glb",
+          "bytes": 3376524,
+          "sha256": "a2113560571a419ffdd711e04f6a2ab877ccfac8495219cd49781af3656f29cd",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/15_celestia",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/15_celestia.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/15_celestia.glb",
+          "bytes": 3508848,
+          "sha256": "c88f8f7e239b2bde5ae5b5f0aeb00ebc7d51242d88d83abbc9e0163b4385f040",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Dragons/images/16_gaia",
+      "group": "dragons",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Dragons/images/16_gaia.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/Dragons/images/16_gaia.glb",
+          "bytes": 4717212,
+          "sha256": "70c5d8622a2b7c5e0b1e8035605b4ad0422f3be8f9d4414a31958ad694e5a78e",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "Habitats/concepts/01_origin_meadow",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/01_origin_meadow.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/02_origin_warm_rocks",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/02_origin_warm_rocks.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/03_origin_pondbank",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/03_origin_pondbank.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/04_ocean_estuary",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/04_ocean_estuary.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/05_ocean_cool_pool",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/05_ocean_cool_pool.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/06_ocean_reef",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/06_ocean_reef.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/concepts/07_sky_low_island",
+      "group": "habitat_concepts",
+      "requiresGlb": false,
+      "references": [
+        "ArtSource/Habitats/concepts/07_sky_low_island.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "CONCEPT_ONLY"
+    },
+    {
+      "id": "Habitats/props_3d/prop_01_ancient_dragon_statue",
+      "group": "sanctuary_props",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Habitats/props_3d/prop_01_ancient_dragon_statue.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "Habitats/props_3d/prop_02_mossy_arch_ruin",
+      "group": "sanctuary_props",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Habitats/props_3d/prop_02_mossy_arch_ruin.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "Habitats/props_3d/prop_03_glowing_rune_stone",
+      "group": "sanctuary_props",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Habitats/props_3d/prop_03_glowing_rune_stone.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "Habitats/props_3d/prop_04_sanctuary_treasure_chest",
+      "group": "sanctuary_props",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/Habitats/props_3d/prop_04_sanctuary_treasure_chest.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/foliage/01_tree_sanctuary_oak",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/NatureAndGameplay/foliage/01_tree_sanctuary_oak.glb",
+          "bytes": 2443228,
+          "sha256": "2138819f99522a954628f6b5d775b11422e9240c7d9f2a6126defdbfd44d5fc7",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "NatureAndGameplay/foliage/02_tree_blossom_sky",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.jpg"
+      ],
+      "models": [
+        {
+          "path": "ArtSource/NatureAndGameplay/foliage/02_tree_blossom_sky.glb",
+          "bytes": 4069008,
+          "sha256": "fc00a2308edf9e8be332bd705a7f772597ccb51ec5af337dd15dafc595fcb6dc",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
+    },
+    {
+      "id": "NatureAndGameplay/foliage/03_bush_wildflower_cluster",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/gameplay/11_dragon_nest_pedestal",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/gameplay/11_dragon_nest_pedestal.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/gameplay/12_aether_fruit_basket",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/gameplay/12_aether_fruit_basket.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/rocks_cliffs/05_rock_volcanic_amber.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/rocks_cliffs/06_cliff_floating_island",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/rocks_cliffs/06_cliff_floating_island.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/water_biome/07_shrine_water_basin",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/water_biome/07_shrine_water_basin.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/water_biome/08_lilypad_lotus_cluster",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/water_biome/08_lilypad_lotus_cluster.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/water_biome/09_crystal_glacial_cluster",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/water_biome/09_crystal_glacial_cluster.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    },
+    {
+      "id": "NatureAndGameplay/water_biome/10_coral_reef_cluster",
+      "group": "nature_gameplay",
+      "requiresGlb": true,
+      "references": [
+        "ArtSource/NatureAndGameplay/water_biome/10_coral_reef_cluster.jpg"
+      ],
+      "models": [],
+      "sourceStatus": "IMAGE_ONLY"
+    }
+  ],
+  "warnings": []
+}
