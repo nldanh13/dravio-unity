@@ -52,6 +52,9 @@ namespace Dravio
         readonly List<Bubble> bubbles=new List<Bubble>();
         readonly List<Popup> popups=new List<Popup>();
         readonly List<DockButton> buttons=new List<DockButton>();
+        HabitatPlots plots;
+        readonly List<Chip> chips=new List<Chip>();
+        sealed class Chip{public RectTransform rect;public Image stripe;public Text text;}
 
         sealed class Bubble{public RectTransform rect;public Text name,stage,mark;public Image markBg;public string uid;}
         sealed class Popup{public RectTransform rect;public Text text;public string uid;public float born=-1;}
@@ -78,6 +81,8 @@ namespace Dravio
             circle=MakeSprite(128,64,0);
             rounded=MakeSprite(48,14,14);
             islandCamera=gameObject.AddComponent<IslandCamera>();
+            plots=gameObject.AddComponent<HabitatPlots>();
+            plots.living=living;plots.host=host;
             BuildLayer();
             BuildDock();
             dock.SetSiblingIndex(layer.GetSiblingIndex()+1); // card, toasts, modals and the book stay above it
@@ -94,7 +99,7 @@ namespace Dravio
             subscribed=s;
             if(s!=null)s.DomainEvents+=OnEvents;
         }
-        void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;}
+        void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;if(living!=null && living.LabelCovered==(System.Func<string,bool>)Covered)living.LabelCovered=null;}
 
         // Gold is credited against the producers of the state it was earned in (the state before this batch
         // is no longer available, so the current one is used: the same dragons unless the batch moved them).
@@ -148,6 +153,7 @@ namespace Dravio
                 ledger.Retain(s);
             }
             var cam=Camera.main;
+            PlaceChips(cam);
             PlaceBubbles(cam);
             Diagnose(cam,s);
             SpawnPopups();
@@ -179,6 +185,13 @@ namespace Dravio
                     b.name.color=a.Key==selected?Coin:Ivory;
                 }
             for(int i=used;i<bubbles.Count;i++)bubbles[i].rect.gameObject.SetActive(false);
+            if(living!=null && living.LabelCovered==null)living.LabelCovered=Covered;
+        }
+
+        bool Covered(string uid)
+        {
+            foreach(var b in bubbles)if(b.uid==uid && b.rect.gameObject.activeSelf)return true;
+            return false;
         }
 
         // Without an imported DragonVisualCatalog the scene runs the one-dragon legacy preview: anchor its model
@@ -230,6 +243,45 @@ namespace Dravio
             if(islandCamera!=null && islandCamera.Dragging)return;
             if(living!=null)living.SelectResident(b.uid); // false in the legacy preview: Care already shows its one dragon
             ui.SelectPage((int)HudPage.Care);
+        }
+
+        // ---------- habitat name chips (U6.4) ----------
+        void PlaceChips(Camera cam)
+        {
+            int used=0;bool vi=ui.Vietnamese;
+            if(cam!=null && plots!=null)
+                foreach(var p in plots.Plots)
+                {
+                    if(!ToLayer(cam,p.LabelPoint,out var local))continue;
+                    if(used>=chips.Count)chips.Add(MakeChip());
+                    var c=chips[used++];
+                    c.rect.gameObject.SetActive(true);
+                    c.rect.anchoredPosition=local;
+                    c.text.text=p.Unlocked?p.Name(vi)+"  ·  "+HabitatLook.ElementName(p.Element,vi):(vi?"Chưa mở · ":"Locked · ")+p.Name(vi);
+                    c.stripe.color=p.Unlocked?HabitatPlots.ElementColor(p.Element):new Color(.6f,.6f,.58f);
+                    c.text.color=p.Unlocked?Ivory:new Color(.80f,.78f,.72f);
+                }
+            for(int i=used;i<chips.Count;i++)chips[i].rect.gameObject.SetActive(false);
+        }
+
+        Chip MakeChip()
+        {
+            var c=new Chip();
+            c.rect=Node("Habitat chip",layer);
+            c.rect.anchorMin=c.rect.anchorMax=new Vector2(.5f,.5f);c.rect.pivot=new Vector2(.5f,.5f);
+            c.rect.SetAsFirstSibling(); // under the dragon bubbles
+            var bg=c.rect.gameObject.AddComponent<Image>();bg.sprite=rounded;bg.type=Image.Type.Sliced;
+            bg.color=new Color(.06f,.11f,.10f,.72f);bg.raycastTarget=false;
+            var row=c.rect.gameObject.AddComponent<HorizontalLayoutGroup>();
+            row.padding=new RectOffset(6,10,3,3);row.spacing=6;row.childAlignment=TextAnchor.MiddleLeft;
+            row.childControlWidth=row.childControlHeight=true;row.childForceExpandWidth=row.childForceExpandHeight=false;
+            var fit=c.rect.gameObject.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit=fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+            var stripe=Node("Element",c.rect);
+            var le=stripe.gameObject.AddComponent<LayoutElement>();le.minWidth=le.preferredWidth=10;le.minHeight=le.preferredHeight=10;
+            c.stripe=stripe.gameObject.AddComponent<Image>();c.stripe.sprite=circle;c.stripe.raycastTarget=false;
+            c.text=Label(c.rect,12,Ivory,FontStyle.Bold);c.text.horizontalOverflow=HorizontalWrapMode.Overflow;
+            return c;
         }
 
         // ---------- gold popups ----------
