@@ -21,7 +21,7 @@ namespace UnityEngine
         public T GetComponentInChildren<T>(bool includeInactive) { return default(T); }
         public T[] GetComponentsInChildren<T>(bool includeInactive) { return new T[0]; }
     }
-    public class Behaviour : Component { public bool enabled { get; set; } }
+    public class Behaviour : Component { public bool enabled { get; set; } public bool isActiveAndEnabled => enabled; }
     public class MonoBehaviour : Behaviour { }
     public sealed class GameObject : Object
     {

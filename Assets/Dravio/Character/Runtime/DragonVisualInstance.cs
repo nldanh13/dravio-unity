@@ -33,7 +33,7 @@ namespace Dravio.Character
         private bool _hasParams;
         private DragonLocomotion? _lastSubstitution;
         // U1-CHAR.6
-        private bool _hasTempo;
+        private bool _hasTempo, _tempoKnown;
         private float _tempo = 1f;
         private DragonHeadLook _headLook;
         private DragonBlink _blink;
@@ -65,10 +65,10 @@ namespace Dravio.Character
                 _animator.keepAnimatorStateOnDisable = true; // throttling disables it; do not reset the state machine
                 _animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
                 _hasParams = _animator.runtimeAnimatorController != null;
+                // Animator.parameters warns ("not playing an AnimatorController") while the pooled
+                // instance is still inactive; read them on first use instead (ResolveTempo).
                 _hasTempo = false;
-                if (_hasParams)
-                    foreach (var p in _animator.parameters)
-                        if (p.nameHash == DragonAnimatorParams.TempoHash) { _hasTempo = true; break; }
+                _tempoKnown = false;
             }
             _anchors.Clear();
             _headBone = null;
@@ -77,6 +77,16 @@ namespace Dravio.Character
             foreach (var t in GetComponentsInChildren<Transform>(true))
                 if (t.name.StartsWith("VFX_", System.StringComparison.Ordinal) && !_anchors.ContainsKey(t.name))
                     _anchors.Add(t.name, t);
+        }
+
+        private bool ResolveTempo()
+        {
+            if (_tempoKnown) return _hasTempo;
+            if (!_hasParams || !_animator.isActiveAndEnabled) return false;
+            _tempoKnown = true;
+            foreach (var p in _animator.parameters)
+                if (p.nameHash == DragonAnimatorParams.TempoHash) { _hasTempo = true; break; }
+            return _hasTempo;
         }
 
         internal void Setup(string uid, DragonVisualCatalog.Entry entry, DragonVisualCatalog.Match match,
@@ -229,7 +239,7 @@ namespace Dravio.Character
         internal void SetTempo(float tempo)
         {
             _tempo = tempo > 0.1f ? tempo : 0.1f;
-            if (_animator != null && _hasTempo) _animator.SetFloat(DragonAnimatorParams.TempoHash, _tempo);
+            if (_animator != null && ResolveTempo()) _animator.SetFloat(DragonAnimatorParams.TempoHash, _tempo);
         }
 
         /// <summary>Head look-at; ignored (false) when the prefab has no DragonHeadLook (no Neck/Head bones).</summary>
