@@ -21,6 +21,8 @@ namespace Dravio
         [SerializeField] GameObject page;
         [SerializeField] Text overview,detail,feedback;
         [SerializeField] Button codex,journal,quests,prev,next,record;
+        Button chronicle;
+        Text chronicleLabel;
         GameSession subscribed;
         string species,uid,quest;
         int mode;
@@ -34,6 +36,13 @@ namespace Dravio
         bool Vi=>localization==null||localization.Vietnamese;
         void Start()
         {
+            // A separate full-width control also works in previously generated playable scenes.
+            chronicle=Instantiate(record,record.transform.parent);
+            chronicle.name="Migration chronicle";
+            chronicle.transform.SetSiblingIndex(quests.transform.parent.GetSiblingIndex()+1);
+            chronicleLabel=chronicle.GetComponentInChildren<Text>();
+            chronicle.interactable=true;
+            chronicle.onClick.AddListener(()=>SetMode(3));
             codex.onClick.AddListener(()=>SetMode(0));journal.onClick.AddListener(()=>SetMode(1));quests.onClick.AddListener(()=>SetMode(2));
             prev.onClick.AddListener(()=>Cycle(-1));next.onClick.AddListener(()=>Cycle(1));record.onClick.AddListener(Record);
             record.interactable=false;
@@ -104,9 +113,21 @@ namespace Dravio
         {
             dirty=false;refreshAt=Time.unscaledTime+.75f;lastVi=Vi;
             var s=host?.Session?.State;lastState=s;record.interactable=false;prev.interactable=next.interactable=false;
+            chronicleLabel.text=Vi?"Cốt truyện và lịch sự kiện":"Story and event calendar";
+            record.gameObject.SetActive(mode!=3);
+            prev.transform.parent.gameObject.SetActive(mode!=3);
             if(s==null||host.Session.Status!=SessionStatus.Ready)
             {Write(overview,Vi?"Đang tải dữ liệu nghiên cứu":"Loading research");Write(detail,"—");Write(feedback,"—");return;}
-            bool vi=Vi;var progress=ProgressionQueries.Overview(s);
+            bool vi=Vi;
+            if(mode==3)
+            {
+                Write(overview,ChronicleView.Story(s,vi));
+                var today=Dravio.Domain.Progression.MigrationChronicle.LocalDay(s.Clock.HighWaterAtMs);
+                Write(detail,ChronicleView.Calendar(s,today,vi));
+                Write(feedback,vi?"Trong thời gian sự kiện, hoàn thành mục tiêu để lưu dấu vào hồ sơ.":"Complete an objective during its event to add a stamp to this save.");
+                return;
+            }
+            var progress=ProgressionQueries.Overview(s);
             Write(overview,(vi?"Bách khoa: ":"Codex: ")+progress.CodexCells+"/"+progress.CodexCellsTotal+
                 " · "+(vi?"Loài: ":"Species: ")+progress.SpeciesDiscovered+"/"+progress.SpeciesTotal+
                 "\n"+(vi?"Ghi nghiên cứu: ":"Research recording: ")+(progress.Rules.ResearchRecordingEnabled?"ON":"OFF")+

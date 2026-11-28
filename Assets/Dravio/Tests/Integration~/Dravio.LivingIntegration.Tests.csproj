@@ -18,6 +18,7 @@
     <Compile Include="SpatialResidentPolicyTests.cs" />
     <Compile Include="../../Scripts/SocialPresentationScheduler.cs" />
     <Compile Include="SocialPresentationSchedulerTests.cs" />
+    <Compile Include="../../Scripts/ChronicleView.cs" />
     <Compile Include="../../Scripts/ResearchDiscoveryView.cs" />
     <Compile Include="ResearchDiscoveryViewTests.cs" />
     <Compile Include="../../Scripts/ExpeditionPresentation.cs" />

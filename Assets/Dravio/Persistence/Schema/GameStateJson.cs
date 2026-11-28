@@ -28,7 +28,7 @@ namespace Dravio.Persistence.Schema
             // v9 (U2.10), chỉ có ở bản Unity
             "packDaily", "sanctuaryProjectsBuilt", "research",
             // v10 (U2.11), chỉ có ở bản Unity
-            "completedSideQuests", "expeditionsClaimed", "relations",
+            "completedSideQuests", "expeditionsClaimed", "relations", "festivalStamps",
         });
 
         /// <summary>Khóa rồng được phép đi qua import (DRAGON_KEYS). registryRef (Verified) không thuộc danh sách.</summary>
@@ -578,6 +578,7 @@ namespace Dravio.Persistence.Schema
 
         private static void U211ToJson(GameState s, JsonObject o)
         {
+            if (s.FestivalStamps.Count > 0) o.Set("festivalStamps", Arr(s.FestivalStamps));
             o.Set("completedSideQuests", Arr(s.CompletedSideQuests));
             var claimed = new JsonObject();
             if (s.ExpeditionsClaimed != null) foreach (var kv in s.ExpeditionsClaimed) claimed.Set(kv.Key, N(kv.Value));
@@ -592,6 +593,12 @@ namespace Dravio.Persistence.Schema
 
         private static void U211FromJson(JsonObject o, GameState s, List<string> errors)
         {
+            if (o.Get("festivalStamps") is JsonArray stamps)
+            {
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var item in stamps)
+                    if (item is JsonString stamp && seen.Add(stamp.Value) && Dravio.Domain.Progression.MigrationChronicle.ReadStamp(stamp.Value) != null) s.FestivalStamps.Add(stamp.Value);
+            }
             s.CompletedSideQuests = new Reader(errors).StrList(o, "completedSideQuests", "completedSideQuests: invalid") ?? new List<string>();
             s.ExpeditionsClaimed = new SortedDictionary<string, int>(StringComparer.Ordinal);
             if (o.Get("expeditionsClaimed") is JsonObject ec)

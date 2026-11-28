@@ -76,6 +76,7 @@ namespace Dravio.Domain.Core
             if (postEvaluators != null)
                 foreach (IPostCommandEvaluator e in postEvaluators) e.Evaluate(working, events);
 
+            MigrationChronicle.Record(working, nowMs, events);
             working.Revision = state.Revision + 1;
             working.ProcessedRequestIds.Add(command.RequestId);
             int excess = working.ProcessedRequestIds.Count - CareRules.ProcessedRequestLimit;

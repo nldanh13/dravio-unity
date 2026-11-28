@@ -215,6 +215,7 @@ namespace Dravio.Domain
     /// </summary>
     public sealed class GameState
     {
+        public List<string> FestivalStamps { get; set; } = new List<string>();
         public int SchemaVersion { get; set; }
         public string ContentVersion { get; set; }
         public string SaveId { get; set; }
@@ -298,6 +299,7 @@ namespace Dravio.Domain
             c.PackDaily = PackDaily?.Clone();
             c.Research = Research?.Clone();
             c.CompletedSideQuests = CompletedSideQuests == null ? null : new List<string>(CompletedSideQuests);
+            c.FestivalStamps = new List<string>(FestivalStamps);
             c.ExpeditionsClaimed = ExpeditionsClaimed == null ? null : new SortedDictionary<string, int>(ExpeditionsClaimed, System.StringComparer.Ordinal);
             c.Relations = Relations?.Clone();
             return c;
