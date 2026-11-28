@@ -1316,7 +1316,8 @@ namespace Dravio
         public void ResidentAnchors(List<KeyValuePair<string,Vector3>> into)
         {
             into.Clear();
-            if(!Ready)return;
+            // Not Ready: bubbles must also show while the window is unfocused or the session paused.
+            if(!active || viewSuspended || manager==null)return;
             foreach(var r in residents.Values)
             {
                 if(!manager.TryGet(r.uid,out var visual))continue;
