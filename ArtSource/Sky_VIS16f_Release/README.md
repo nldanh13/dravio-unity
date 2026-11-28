@@ -1,0 +1,5 @@
+# VIS.16f — Sky release handoff
+
+Pinned 14 source blobs/lengths at c67bbb2213bf378bef09e16d031ca196a707bd08. Prefer LOD1 flower, lantern and monument (1500 tris); original detail variants remain alternatives. Crystal and distant island are separate candidates. Four same-dimension replacement maps: meadow, cloud sea, wisp and petal. No duplicate runtime import. Optional translucent air ribbon High only, hold until compatible material and flight/overdraw review. Existing particle caps 37/67/102 unchanged. Estimated 16802 tris if static/LOD set once; 16930 with one ribbon, not measured. 60k / 10 materials / 6 MiB limits unchanged.
+
+Composition screen 18 camera cases, 40 protected anchor/target points; grounded accents held until actual support outside walk polygons is verified. Distant islet grid test is conservative, not a placement approval. No collider or gameplay edits. Read-only `node scripts/art/environment/plan_sky_vis16f_composition.mjs . <new-report>`. External validator, Blender/FBX, Unity Game View and Android NOT RUN. Preserve all original files; no merge.

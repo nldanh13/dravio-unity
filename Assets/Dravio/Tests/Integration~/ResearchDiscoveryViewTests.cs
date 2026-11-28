@@ -11,6 +11,29 @@ namespace Dravio.Tests
     {
         const long Now=1795000000000;
         static GameState New()=>InitialStateFactory.Create("research-ui",Now,Rng.Create(1));
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ChapterHintsFollowTheCurrentMilestone(bool vi)
+        {
+            var state=New();
+            for(int chapter=0; chapter<4; chapter++)
+            {
+                string clue=ChronicleView.Story(state,vi);
+                var guided=ChronicleView.Story(state,vi,true);
+                Assert.That(clue,Does.Contain("?"));
+                Assert.That(guided.Length,Is.GreaterThan(clue.Length));
+                Assert.That(clue,Does.Not.Contain(vi?"Kết ·":"Epilogue ·"));
+                switch(chapter)
+                {
+                    case 0: state.Player.Stats.TotalFeedClicks++; break;
+                    case 1: state.FindZone("origin").UnlockedHabitatIds.Add("origin_pondbank"); break;
+                    case 2: state.Player.Stats.TotalHatched++; break;
+                    case 3: state.ExpeditionsClaimed["origin_forest"]=1; break;
+                }
+            }
+            Assert.That(ChronicleView.Story(state,vi,true),Is.EqualTo(ChronicleView.Story(state,vi)));
+        }
+
         [Test] public void PlayerLabelsTranslateCanonicalStatusAndStageWithoutChangingIds()
         {
             Assert.That(ResearchDiscoveryView.StageLabel(GrowthStage.Adult,true),Is.EqualTo("Trưởng thành"));

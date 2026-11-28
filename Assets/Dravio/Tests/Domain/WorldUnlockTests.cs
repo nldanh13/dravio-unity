@@ -121,9 +121,11 @@ namespace Dravio.Domain.Tests
         [Test]
         public void Materials_are_the_approved_ids_stone_is_inactive_and_quantities_stay_in_2_to_4()
         {
-            // U2.13: stardust thêm ở cuối, chưa kích hoạt khi bảng sky_cloud chưa duyệt.
+            // U2.13: stardust thêm ở cuối. U2.15: bảng A đã duyệt → stardust kích hoạt; chỉ stone chưa có nguồn.
             Assert.That(ExpeditionCatalog.MaterialIds, Is.EqualTo(new[] { "wood", "seed", "stone", "crystal", "coral", "stardust" }));
-            Assert.That(ExpeditionCatalog.Materials.Where(m => !m.Active).Select(m => m.Id), Is.EqualTo(new[] { "stone", "stardust" }));
+            Assert.That(ExpeditionCatalog.Materials.Where(m => !m.Active).Select(m => m.Id), Is.EqualTo(new[] { "stone" }));
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+                Assert.That(ExpeditionCatalog.Materials.Where(m => !m.Active).Select(m => m.Id), Is.EqualTo(new[] { "stone", "stardust" }), "đối chứng U2.14");
             var sources = ExpeditionCatalog.Routes.SelectMany(r => r.Materials).Distinct().ToList();
             Assert.That(ExpeditionCatalog.Materials.Where(m => m.Active).Select(m => m.Id), Is.EquivalentTo(sources), "chỉ vật liệu có nguồn mới kích hoạt");
             Assert.That(ExpeditionCatalog.Routes.All(r => r.SuccessPermille == 1000), Is.True, "MVP thành công 100 %");

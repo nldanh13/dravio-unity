@@ -43,7 +43,8 @@ namespace Dravio.Domain.Progression
     /// - Mốc thám hiểm theo tuyến (CHẠY THẬT): chuyến nhận thứ 1 / 5 / 15 / 40 cho thêm 2 / 3 / 4 / 6 đơn vị MỖI vật liệu của tuyến, một lần, kèm ghi chú
     ///   Codex hoặc danh hiệu. Không vàng, không XP. Bộ đếm <c>expeditionsClaimed</c> (Schema v10) nên không nhận lại được.
     /// - Danh hiệu khám phá / nghiên cứu: dẫn xuất từ Codex, thế giới đã mở và sổ nghiên cứu. Không lưu, không đổi gameplay.
-    /// - Tuyến <c>sky_cloud</c> vẫn khóa (bảng thưởng "bụi sao" chưa duyệt), nên không có mốc cho tuyến đó.
+    /// - Tuyến <c>sky_cloud</c>: mốc lấy từ <see cref="SkyCloudBalance.Current"/>; U2.15 production = bảng A đã duyệt (1 / 5 / 15 / 40 → +2 / 3 / 4 / 6 bụi sao),
+    ///   trứng Aurorawing gộp vào mốc 15.
     /// </summary>
     public static class Exploration
     {

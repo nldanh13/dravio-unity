@@ -625,7 +625,7 @@ namespace Dravio
                 int level=def.LevelOf(state.Player.Upgrades);
                 long? cost=EconomyRates.UpgradeCostG(def,level);
                 upgradeStatus[i].text=UpgradeName(def.Id)+" · "+level+"/"+def.Max+"\n"+
-                    (cost.HasValue?cost.Value.ToString(CultureInfo.InvariantCulture)+" G":(vi?"Đã tối đa":"Max level"));
+                    SanctuaryFeedback.UpgradePrice(cost,state.Player.Gold.Micro,vi);
                 upgradeButtons[i].interactable=ready && SanctuaryRules.CheckUpgrade(state,def.Id)==null;
             }
             var job=state.Expedition;

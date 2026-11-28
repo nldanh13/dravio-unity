@@ -12,8 +12,8 @@
       "height": 192,
       "transparentBackground": true,
       "hollowCenterTransparent": false,
-      "bytes": 76815,
-      "sha256": "599e791fadaf5e03e8dd5adb82f9a38d48afcc6246030e483743e9eaa22354d5"
+      "bytes": 91237,
+      "sha256": "19d366b64a83f03934950c343abba7b6fa83858d587d201c259c614e78345d38"
     },
     {
       "id": "ui_btn_reward",
@@ -217,5 +217,22 @@
       "bytes": 509353,
       "sha256": "bd2b7ed221d2853524aca7763d2d46ae60527e6d6bdb0dca4f82fe81c9892a21"
     }
-  ]
+  ],
+  "sourceNamingWarning": "Original source filenames are retained; several images were assigned to the wrong semantic filename. Use runtimeMapping for the inspected images, not the old shape labels. Original preview is also misaligned.",
+  "runtimeMapping": {
+    "primary": "ArtSource/UI/Buttons/ui_btn_primary.png",
+    "reward": "ArtSource/UI/Buttons/ui_btn_secondary.png",
+    "secondary": "ArtSource/UI/Buttons/ui_btn_danger.png",
+    "danger": "ArtSource/UI/Buttons/ui_btn_close_back.png",
+    "round": "ArtSource/UI/Tabs/ui_tab_category.png",
+    "panel": "ArtSource/UI/Inventory/ui_slot_inventory_rare.png",
+    "card": "ArtSource/UI/Frames/ui_frame_item_card.png",
+    "notice": "ArtSource/UI/Frames/ui_frame_dragon_portrait.png",
+    "portrait": "ArtSource/UI/Bars/ui_bar_progress_frame.png",
+    "progress_frame": "ArtSource/UI/Bars/ui_bar_progress_fill.png",
+    "progress_fill": "ArtSource/UI/Inventory/ui_slot_inventory_common.png",
+    "slot_rare": "ArtSource/UI/Inventory/ui_slot_inventory_epic.png",
+    "slot_epic": "ArtSource/UI/Inventory/ui_slot_inventory_legendary.png",
+    "slot_legendary": "ArtSource/UI/Dividers/ui_divider_ornament.png"
+  }
 }

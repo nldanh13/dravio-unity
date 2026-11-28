@@ -21,6 +21,7 @@
     <Compile Include="../*.cs;../Support/*.cs" />
     <!-- U2.12: trạng thái cuối hành trình ba thế giới lấy từ bộ mô phỏng của Domain.Tests (Unity: tham chiếu assembly Dravio.Domain.Tests). -->
     <Compile Include="../../Domain/Simulation/EconomySimulator.cs" />
+    <Compile Include="../../Domain/Simulation/AlphaJourney.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />

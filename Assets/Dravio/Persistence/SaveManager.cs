@@ -54,6 +54,7 @@ namespace Dravio.Persistence
         private string _lastSavedId;
         private long _lastSavedRevision = -1;
         private WriteBlock _block = WriteBlock.None;
+        private bool _readOnly;
         private ArchiveWrite _pendingArchive;
         private bool _mainKnown;
         private string _knownMain;
@@ -66,16 +67,12 @@ namespace Dravio.Persistence
             _nowMs = nowMs ?? throw new ArgumentNullException(nameof(nowMs));
         }
 
-        public WriteBlock Block { get { lock (_gate) return _block; } }
+        public WriteBlock Block { get { lock (_gate) return _readOnly ? WriteBlock.ReadOnly : _block; } }
 
         /// <summary>Phiên không giữ khóa người ghi: chỉ đọc.</summary>
         public void SetReadOnly(bool readOnly)
         {
-            lock (_gate)
-            {
-                if (readOnly) { if (_block == WriteBlock.None) _block = WriteBlock.ReadOnly; }
-                else if (_block == WriteBlock.ReadOnly) _block = WriteBlock.None;
-            }
+            lock (_gate) _readOnly = readOnly;
         }
 
         public LoadOutcome Load()
@@ -127,7 +124,7 @@ namespace Dravio.Persistence
         {
             lock (_gate)
             {
-                if (_block != WriteBlock.None && !(force && _block == WriteBlock.Unrecoverable)) return false;
+                if (_readOnly || (_block != WriteBlock.None && !(force && _block == WriteBlock.Unrecoverable))) return false;
                 if (!force && _lastSavedId == state.SaveId && _lastSavedRevision == state.Revision) return false;
                 string text = SaveSchema.Serialize(state, _nowMs());
                 var options = new RotateOptions { Archive = _pendingArchive, HasExpectMain = _mainKnown, ExpectMain = _knownMain };
@@ -182,7 +179,7 @@ namespace Dravio.Persistence
         {
             lock (_gate)
             {
-                if (_pendingImport == null || (_block != WriteBlock.None && _block != WriteBlock.Unrecoverable)) return null;
+                if (_pendingImport == null || _readOnly || (_block != WriteBlock.None && _block != WriteBlock.Unrecoverable)) return null;
                 if (current != null) Save(current, force: true);
                 GameState state = _pendingImportState.DeepClone();
                 state.Revision += 1;

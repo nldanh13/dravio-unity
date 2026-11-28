@@ -1,0 +1,41 @@
+{
+  "name": "Ocean_Seagrass_Ribbon_Cluster_Wind",
+  "triangles": 364,
+  "vertices": 1092,
+  "materialSlots": 1,
+  "bounds": {
+    "min": [
+      -0.33183175325393677,
+      0,
+      -0.1907687932252884
+    ],
+    "max": [
+      0.32418230175971985,
+      0.6258295774459839,
+      0.21078097820281982
+    ]
+  },
+  "bytes": 53624,
+  "anchors": 126,
+  "maxAlpha": 1,
+  "uniquePositions": 196,
+  "samplePoses": 216,
+  "windStrength": 0.01,
+  "maxSampleDisplacementM": 0.0425295287333284,
+  "minFaceNormalDot": 0.9946744398620325,
+  "minAreaRatio": 0.9497512440279655,
+  "maxAreaRatio": 1.046134052779099,
+  "path": "ArtSource/Ocean_VIS15b_Current/Ocean_Seagrass_Ribbon_Cluster_Wind.glb",
+  "blob": "291fc4c6ed8e7ebf43a41ed09b66f424e48b7b33",
+  "status": "source-only alternate to static VIS15 seagrass",
+  "materialRecommendation": {
+    "shader": "Dravio/Environment/Painterly Lit",
+    "baseMap": "white",
+    "vertexAO": 1,
+    "pathBlend": 0,
+    "windStrength": 0.01,
+    "windSpeed": 1.6,
+    "alphaClip": 0
+  },
+  "limitations": "Shader equation sampled in local unit scale, not executed in Unity. Existing global wind represents cosmetic current; no fluid simulation, runtime material or placement. External validator, Blender, Unity and device NOT RUN."
+}

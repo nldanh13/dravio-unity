@@ -1,0 +1,3 @@
+# VIS.16f — Sky LOD1
+
+Reduced tessellation variants of wind blossom, astral crystal lantern and halo monument. Preserve all motifs, explicit RGBA and neutral UV; static architecture alpha zero. Total 1500 triangles vs 2424. Orthographic camera: consider projected size, Focus and quality, not distance alone. Do not import multiple variants for a single instance without LOD budget review. No added textures, gameplay changes or runtime integration. Per-component closed-edge checks and sampled wind deformation only; no visual equivalence or full union guarantee. External validation, Blender/FBX, Unity/device NOT RUN. Reproduce `node scripts/art/environment/build_sky_vis16f_lod.mjs <new-dir>`.

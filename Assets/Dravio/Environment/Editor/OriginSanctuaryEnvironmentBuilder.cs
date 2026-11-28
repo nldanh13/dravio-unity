@@ -164,6 +164,7 @@ namespace Dravio.EnvironmentArt.EditorTools
                 mats["ENV_Water"].SetFloat("_SparkleStrength", 0.46f);
                 mats["ENV_Water"].SetColor("_ShallowColor", new Color(0.36f, 0.85f, 0.80f, 1f));
                 mats["ENV_Water"].SetColor("_DeepColor", new Color(0.10f, 0.50f, 0.62f, 1f));
+                mats["ENV_Water"].SetFloat("_WaterDetail", 1f);
                 mats["ENV_Water"].renderQueue = (int)RenderQueue.Transparent;
             }
             else ConfigureLitFallback(mats["ENV_Water"], water, null, false, true);
