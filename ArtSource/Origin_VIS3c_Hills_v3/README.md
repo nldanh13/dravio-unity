@@ -1,0 +1,3 @@
+# Soft Hills v3 — depth layering (#91)
+
+Source-only derivative of v2. The low warm foreground hills now sit nearer the -Z camera; tall blue hills sit farther back. Retains 1920 triangles, palette, footprint and centered base pivot. Cottage/Lookout v2 remain unchanged. Regenerate into a new folder with `node scripts/art/environment/build_origin_vis3c_hills_v3.mjs <new-dir>`. No yaw workaround for v3. Geometry checks executed, but Blender/Unity camera render and placement NOT RUN. For the FBX staging path, use static architecture material (white base, vertex color, wind 0) after review; no scene changes here. Do not expand the playable area or shift camera to fit this scenery.

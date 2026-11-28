@@ -30,10 +30,15 @@ namespace Dravio.Persistence.Tests
         [Test]
         public void Domain_does_not_reference_persistence_or_platform()
         {
-            // U6.0.2d: InternalsVisibleTo cho assembly test (tên chuỗi, không phải tham chiếu code) được phép; chỉ assembly test, không phải Persistence / Platform.
-            var friendTests = new Regex(@"\[assembly:\s*InternalsVisibleTo\(""Dravio\.[A-Za-z]+\.Tests""\)\]");
             foreach (string f in Directory.GetFiles(Dir("Domain"), "*.cs", SearchOption.AllDirectories))
-                Assert.That(Regex.IsMatch(friendTests.Replace(Code(f), ""), @"Dravio\.(Persistence|Platform)"), Is.False, f);
+            {
+                string code = Code(f);
+                // An exact friend declaration for the editor test assembly is metadata,
+                // not a reference to the production Persistence assembly.
+                if (Path.GetFullPath(f) == Path.GetFullPath(Path.Combine(Dir("Domain"), "AssemblyInfo.cs")))
+                    code = Regex.Replace(code, @"(?m)^\s*\[assembly:\s*InternalsVisibleTo\(""Dravio\.Persistence\.Tests""\)\]\s*$", "");
+                Assert.That(Regex.IsMatch(code, @"Dravio\.(Persistence|Platform)"), Is.False, f);
+            }
         }
 
         [TestCase("Persistence/Dravio.Persistence.asmdef", true, "\"Dravio.Domain\"")]

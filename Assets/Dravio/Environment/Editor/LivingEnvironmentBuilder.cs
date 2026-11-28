@@ -103,7 +103,7 @@ namespace Dravio.EnvironmentArt.EditorTools
             if (old != null) Object.DestroyImmediate(old);
 
             Light sun = null;
-            foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+            foreach (var l in Object.FindObjectsByType<Light>())
                 if (l.type == LightType.Directional) { sun = l; break; }
             Camera cam = Camera.main;
             if (cam == null)

@@ -1,0 +1,67 @@
+
+const scenarios=[["design",0,0,0,0,null],["notch_left",.12,0,0,0,null],["notch_both_home_bar",.15,.15,0,.055,null],["wide_ui_panel",0,0,0,0,.62],["ui_reported_narrow",0,0,0,0,.42],["tablet_like_safe_top",0,0,.08,.08,null]];
+function frame(c,aspect,s){
+ const [name,sl,sr,st,sb,ui]=s,dl=c.leftMarginScreenHeights,dr=c.rightPanelScreenHeights,dt=c.topMarginScreenHeights,db=c.bottomMarginScreenHeights;
+ const l=Math.max(dl,sl),r=ui===null?dr+sr:Math.max(ui,sr),t=Math.max(dt,st),b=Math.max(db,sb);
+ const size=c.orthographicSize*Math.max(1,(16/9-dl-dr)/Math.max(.05,aspect-l-r),(1-dt-db)/Math.max(.05,1-t-b));
+ const theta=c.eulerAngles[0]*Math.PI/180;
+ if(c.eulerAngles[1]!==0||c.eulerAngles[2]!==0)throw Error("camera yaw/roll unsupported");
+ const up=[0,Math.cos(theta),Math.sin(theta)],a=c.anchorPosition,su=size*((b-db)-(t-dt));
+ const pos=[a[0]+size*(r-l),a[1]+up[1]*su,a[2]+up[2]*su];
+ return {name,aspect,size,pos,up,free:[l/aspect,b,1-r/aspect,1-t]};
+}
+function project(p,f){return [.5+(p[0]-f.pos[0])/(2*f.size*f.aspect),.5+((p[1]-f.pos[1])*f.up[1]+(p[2]-f.pos[2])*f.up[2])/(2*f.size)];}
+function rectangle(bounds,x,z,scale){
+ return [bounds.min[0]*scale+x,bounds.min[1]*scale,bounds.min[2]*scale+z,bounds.max[0]*scale+x,bounds.max[1]*scale,bounds.max[2]*scale+z];
+}
+function screenBox(b,f){
+ const p=[];for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])p.push(project([x,y,z],f));
+ return [Math.min(...p.map(v=>v[0])),Math.min(...p.map(v=>v[1])),Math.max(...p.map(v=>v[0])),Math.max(...p.map(v=>v[1]))];
+}
+function overlaps(a,b,pad=0){return a[0]<b[2]+pad&&a[2]>b[0]-pad&&a[1]<b[3]+pad&&a[3]>b[1]-pad;}
+function footprint(b){return [b[0],b[2],b[3],b[5]];}
+function polyBox(p){const x=p.filter((_,i)=>i%2===0),z=p.filter((_,i)=>i%2===1);return [Math.min(...x),Math.min(...z),Math.max(...x),Math.max(...z)];}
+
+function solve(layout,loc,living,manifest,lod,relic){
+ if(loc.zoneId!=="ocean"||living.zoneId!=="ocean")throw Error("Ocean only");
+ const fs=[16/9,19.5/9,20/9].flatMap(a=>scenarios.map(s=>frame(layout.camera,a,s)));
+ const flat=loc.flatRectXZ,clear=loc.walkClearance;
+ const areas=[...loc.volumes,...loc.walkAreas].map(o=>polyBox(o.polygonXZ));
+ const obstacles=loc.obstacles.map(o=>polyBox(o.polygonXZ));
+ const anchors=[...loc.spawnPoints,...loc.restPoints,...loc.transitions,...loc.zoneGates,...living.interactionPoints];
+ const points=[...anchors,...living.interactionPoints.map(p=>({x:p.targetX,y:p.targetY,z:p.targetZ,radius:.3}))];
+ const protects=points.map(p=>{const r=Math.max(.65,p.radius??0);return [p.x-r,p.y-.25,p.z-r,p.x+r,p.y+1.1,p.z+r]});
+ const pScreen=fs.map(f=>protects.map(b=>screenBox(b,f)));
+ const blockers=layout.placements.filter(p=>!p.asset.includes("Seabed")&&!p.asset.includes("Cover")&&manifest.assets[p.asset]).map(p=>{
+  const [w,d,h]=manifest.assets[p.asset].size_m.map(v=>v*p.scale),a=(p.yaw??0)*Math.PI/180;
+  const rx=(Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*d)/2,rz=(Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*d)/2;
+  return [p.x-rx,p.y,p.z-rz,p.x+rx,p.y+h,p.z+rz];
+ });
+ const bScreen=fs.map(f=>blockers.map(b=>screenBox(b,f)));
+ const zones=[[-8.6,-2.8],[-2.2,2.2],[3,8.6],[-8.6,-2.8]];
+ const chosen=[],results=[];
+ for(const [i,a] of [...lod.assets,relic].entries()){
+  const candidates=[],pad=a.windStrength?.05:0;
+  for(let x=flat[0];x<=flat[2]+1e-6;x+=.20)for(let z=flat[1];z<=flat[3]+1e-6;z+=.20){
+   if(x<zones[i][0]||x>zones[i][1])continue;
+   const b=rectangle(a.bounds,x,z,1);b[0]-=pad;b[2]-=pad;b[3]+=pad;b[5]+=pad;const fp=footprint(b);
+   if(fp[0]<flat[0]||fp[1]<flat[1]||fp[2]>flat[2]||fp[3]>flat[3]||areas.some(o=>overlaps(fp,o,clear))||obstacles.some(o=>overlaps(fp,o,.15))||chosen.some(o=>overlaps(fp,o.footprint,.65)))continue;
+   let margin=Infinity,px=Infinity,risks=0,valid=true;
+   for(let j=0;j<fs.length;j++){
+    const f=fs[j],s=screenBox(b,f),v=f.free,m=Math.min((s[0]-v[0])*f.aspect,s[1]-v[1],(v[2]-s[2])*f.aspect,v[3]-s[3]);
+    if(m<.008||pScreen[j].some(q=>overlaps(s,q,.004))){valid=false;break;}
+    margin=Math.min(margin,m);px=Math.min(px,(s[3]-s[1])*720);risks+=bScreen[j].filter(q=>overlaps(s,q)).length;
+   }
+   if(valid)candidates.push({asset:a.name,x:+x.toFixed(3),y:0,z:+z.toFixed(3),yaw:0,scale:1,footprint:fp,triangles:a.triangles,minMarginScreenHeights:margin,minProjectedHeightPxAt720:px,approximateScreenOverlaps:risks});
+  }
+  candidates.sort((a,b)=>a.approximateScreenOverlaps-b.approximateScreenOverlaps||b.minMarginScreenHeights-a.minMarginScreenHeights||a.x-b.x||a.z-b.z);
+  const best=candidates[0]??null;
+  if(best&&best.approximateScreenOverlaps===0)chosen.push(best);
+  results.push({asset:a.name,validGridPositions:candidates.length,best,status:best&&best.approximateScreenOverlaps===0?"terrain-render-review":"hold"});
+ }
+ return {cases:fs.length,anchorCount:anchors.length,protectedPointCount:points.length,areaBoxes:areas.length,obstacleBoxes:obstacles.length,results,shortlist:chosen,additionalTriangles:chosen.reduce((s,a)=>s+a.triangles,0),fishStatus:"hold; no path and no safe dynamic volume analysis",limitations:"Conservative XZ AABBs for all walk/swim polygons; full footprint within flatRect, outside buffered play areas; projected anchor and target boxes, existing props approximate screen AABB only, not true occlusion. Terrain height, actual cover, water effects and Focus not verified. No placements performed."};
+}
+
+import {readFileSync,writeFileSync} from "node:fs";
+import {join} from "node:path";
+const root=process.argv[2]??".",out=process.argv[3];if(!out)throw Error("Usage: node plan_ocean_vis15d_composition.mjs <repo> <new-report>");const paths=["Assets/Dravio/Environment/Zones/Ocean/Data/OceanLayout.json","Assets/Dravio/Environment/Zones/Ocean/Data/OceanLocations.json","Assets/Dravio/Environment/Zones/Ocean/Data/OceanLiving.json","Assets/Dravio/Environment/Zones/Ocean/Data/OceanManifest.json","ArtSource/Ocean_VIS15d_LOD/manifest.json","ArtSource/Ocean_VIS15c_Relics/manifest.json"];writeFileSync(out,JSON.stringify(solve(...paths.map(p=>JSON.parse(readFileSync(join(root,p),"utf8")))),null,2)+"\n",{flag:"wx"});

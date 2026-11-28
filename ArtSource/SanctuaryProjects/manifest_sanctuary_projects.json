@@ -1,0 +1,277 @@
+{
+  "formatVersion": 1,
+  "description": "DRAVIO Sanctuary Projects & Quest Blueprints isolated 3/4 reference images for Image-to-3D GLB conversion.",
+  "reusedOriginAssets": [
+    {
+      "projectId": "origin_lily_pond",
+      "reusedFrom": [
+        "07_shrine_water_basin",
+        "08_lilypad_lotus_cluster",
+        "04_rock_mossy_boulder"
+      ]
+    },
+    {
+      "projectId": "origin_rune_circle",
+      "reusedFrom": [
+        "prop_03_glowing_rune_stone"
+      ]
+    },
+    {
+      "projectId": "origin_ancient_gate",
+      "reusedFrom": [
+        "prop_02_mossy_arch_ruin"
+      ]
+    },
+    {
+      "projectId": "origin_elder_statue",
+      "reusedFrom": [
+        "prop_01_ancient_dragon_statue"
+      ]
+    }
+  ],
+  "totalImages": 21,
+  "files": [
+    {
+      "id": "origin_mossy_steps",
+      "path": "ArtSource/SanctuaryProjects/origin/origin_mossy_steps.png",
+      "zone": "origin",
+      "footprint": "path",
+      "nameVi": "Bậc đá rêu phong",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1184657,
+      "sha256": "18972dc46509385e2a3cfe5becb431a78a58235096355fe4552ce85722111d11"
+    },
+    {
+      "id": "origin_lantern_row",
+      "path": "ArtSource/SanctuaryProjects/origin/origin_lantern_row.png",
+      "zone": "origin",
+      "footprint": "light",
+      "nameVi": "Hàng đèn đá dẫn lối",
+      "relatedId": "blueprint.forest_lantern",
+      "status": "IMAGE_ONLY",
+      "bytes": 1429021,
+      "sha256": "7dd2c50de02f7bed02a2d97f8661a247bda7c9184073e9db87d2e418e1e376f3"
+    },
+    {
+      "id": "origin_meadow_arbor",
+      "path": "ArtSource/SanctuaryProjects/origin/origin_meadow_arbor.png",
+      "zone": "origin",
+      "footprint": "garden",
+      "nameVi": "Giàn hoa đồng cỏ",
+      "relatedId": "blueprint.meadow_arbor",
+      "status": "IMAGE_ONLY",
+      "bytes": 1552132,
+      "sha256": "0f4add5d2e30dec6fa4a7c698d0dc58a28ea9820a8bf102955723e6e2e6138b1"
+    },
+    {
+      "id": "origin_trail_shrine",
+      "path": "ArtSource/SanctuaryProjects/origin/origin_trail_shrine.png",
+      "zone": "origin",
+      "footprint": "landmark",
+      "nameVi": "Miếu nhỏ bên lối mòn",
+      "relatedId": "blueprint.trail_marker",
+      "status": "IMAGE_ONLY",
+      "bytes": 1577098,
+      "sha256": "b026c06057832a653fc718723c2eb55e80251ee51c50e34bab38106162a814f8"
+    },
+    {
+      "id": "ocean_tide_pools",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_tide_pools.png",
+      "zone": "ocean",
+      "footprint": "water",
+      "nameVi": "Vũng triều",
+      "relatedId": "blueprint.tide_pool",
+      "status": "IMAGE_ONLY",
+      "bytes": 1480744,
+      "sha256": "e2e87907c6b136fa7385875a5446e5433191f44306526135a11852c0a8616337"
+    },
+    {
+      "id": "ocean_coral_arch",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_coral_arch.png",
+      "zone": "ocean",
+      "footprint": "landmark",
+      "nameVi": "Vòm san hô",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1659088,
+      "sha256": "50d343e81d173de99074de37174a1877f419adddae82fdc137f77918159a33e3"
+    },
+    {
+      "id": "ocean_shell_path",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_shell_path.png",
+      "zone": "ocean",
+      "footprint": "path",
+      "nameVi": "Lối vỏ sò",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1587260,
+      "sha256": "d375a2905aee896583cec239266b5cd3b82b5fabf5a27a005c530253b142752c"
+    },
+    {
+      "id": "ocean_kelp_garden",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_kelp_garden.png",
+      "zone": "ocean",
+      "footprint": "garden",
+      "nameVi": "Vườn tảo bẹ",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1703214,
+      "sha256": "d1f5bda42b694fb96c24cf558e9a8996ede266a4a539c908e5034241cbffd7de"
+    },
+    {
+      "id": "ocean_glow_buoys",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_glow_buoys.png",
+      "zone": "ocean",
+      "footprint": "light",
+      "nameVi": "Phao phát sáng",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1503231,
+      "sha256": "b40e48175761b632b060ac86bce7e070be32abab5795502cdaa070c0f261196f"
+    },
+    {
+      "id": "ocean_sunken_shrine",
+      "path": "ArtSource/SanctuaryProjects/ocean/ocean_sunken_shrine.png",
+      "zone": "ocean",
+      "footprint": "landmark",
+      "nameVi": "Đền chìm",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1732162,
+      "sha256": "e6e8b7c848b6dfa0d7f32204b155b2c48f0dda4d767bb2319a6da287346d990c"
+    },
+    {
+      "id": "sky_cloud_bridge",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_cloud_bridge.png",
+      "zone": "sky",
+      "footprint": "path",
+      "nameVi": "Cầu mây",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1571826,
+      "sha256": "1b200d0ae3ff86320eb3214dd652ce227cdfc091562b6625e5c5e6a68a15c82f"
+    },
+    {
+      "id": "sky_cloud_garden",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_cloud_garden.png",
+      "zone": "sky",
+      "footprint": "garden",
+      "nameVi": "Vườn trên mây",
+      "relatedId": "blueprint.cloud_garden",
+      "status": "IMAGE_ONLY",
+      "bytes": 1690413,
+      "sha256": "6fa2dea9fa53b998c705966e4652858fb3458e84c2567c3a4879e956c1abd554"
+    },
+    {
+      "id": "sky_wind_chimes",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_wind_chimes.png",
+      "zone": "sky",
+      "footprint": "light",
+      "nameVi": "Chuông gió",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1646334,
+      "sha256": "5c1854fbf66c90d8599b799865454f1fa6a0cfcfa426b06d6bd16ee2faac7be8"
+    },
+    {
+      "id": "sky_falling_spring",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_falling_spring.png",
+      "zone": "sky",
+      "footprint": "water",
+      "nameVi": "Suối rơi",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1628600,
+      "sha256": "b8ec820523eef615683583a783928544533f57d4685f0fc352416bffe29287be"
+    },
+    {
+      "id": "sky_star_observatory",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_star_observatory.png",
+      "zone": "sky",
+      "footprint": "landmark",
+      "nameVi": "Đài ngắm sao",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1653968,
+      "sha256": "b4c8a571a4a27daae727722ebd14bbae21c21eaaf31fa0827a110384c9abf984"
+    },
+    {
+      "id": "sky_aurora_spire",
+      "path": "ArtSource/SanctuaryProjects/sky/sky_aurora_spire.png",
+      "zone": "sky",
+      "footprint": "landmark",
+      "nameVi": "Tháp cực quang",
+      "relatedId": null,
+      "status": "IMAGE_ONLY",
+      "bytes": 1568796,
+      "sha256": "3207358d21bd5af2a831650e82c89099b9a75a47bb549abbbbaef920be2cf66c"
+    },
+    {
+      "id": "blueprint.forest_lantern",
+      "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.forest_lantern.png",
+      "zone": "origin",
+      "footprint": "light",
+      "nameVi": "Biến thể: Đèn rừng cổ thụ",
+      "relatedId": "origin_lantern_row",
+      "status": "IMAGE_ONLY",
+      "bytes": 1588274,
+      "sha256": "c7d5dc6d6378cad6a0a476ca7a8cead9897abbb356c7d64ce7fb2909d7821ce6"
+    },
+    {
+      "id": "blueprint.meadow_arbor",
+      "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.meadow_arbor.png",
+      "zone": "origin",
+      "footprint": "garden",
+      "nameVi": "Biến thể: Giàn hoa lễ hội",
+      "relatedId": "origin_meadow_arbor",
+      "status": "IMAGE_ONLY",
+      "bytes": 1763916,
+      "sha256": "1b96c44ca57f4719c1167eb56a04ba6d3a2a2ecd0b3f4fa2148bc1bae1e802b7"
+    },
+    {
+      "id": "blueprint.trail_marker",
+      "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.trail_marker.png",
+      "zone": "origin",
+      "footprint": "landmark",
+      "nameVi": "Biến thể: Cột chỉ đường rồng",
+      "relatedId": "origin_trail_shrine",
+      "status": "IMAGE_ONLY",
+      "bytes": 1671619,
+      "sha256": "fbf9f95d8267a513217dabc73ab1bf60afd43f57f3777828287edf6d6a9449a0"
+    },
+    {
+      "id": "blueprint.tide_pool",
+      "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.tide_pool.png",
+      "zone": "ocean",
+      "footprint": "water",
+      "nameVi": "Biến thể: Vũng triều pha lê",
+      "relatedId": "ocean_tide_pools",
+      "status": "IMAGE_ONLY",
+      "bytes": 1681857,
+      "sha256": "f2188fb943ab4bd29d41eb590963a0b7731c7f42f1173f4aaf9598de994a2e04"
+    },
+    {
+      "id": "blueprint.cloud_garden",
+      "path": "ArtSource/SanctuaryProjects/blueprints/blueprint.cloud_garden.png",
+      "zone": "sky",
+      "footprint": "garden",
+      "nameVi": "Biến thể: Vườn mây ánh sao",
+      "relatedId": "sky_cloud_garden",
+      "status": "IMAGE_ONLY",
+      "bytes": 1859479,
+      "sha256": "ecd688f4705746e4b9c1e1751436f9f3dc50fb3ca6b49553cbbb9be0db15a2da"
+    },
+    {
+      "id": "preview_all_21_sanctuary_projects",
+      "path": "ArtSource/SanctuaryProjects/preview_all_21_sanctuary_projects.png",
+      "zone": "all",
+      "footprint": "preview",
+      "nameVi": "Bảng tổng hợp 21 ảnh tham chiếu công trình Sanctuary",
+      "relatedId": null,
+      "status": "PREVIEW_SHEET",
+      "bytes": 3806317,
+      "sha256": "a7768a5310cb25deddcba59d56efa895339557f785fe9b9665f30a62b895f8ee"
+    }
+  ]
+}

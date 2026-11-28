@@ -72,6 +72,7 @@ namespace Dravio.Platform
 
         public void Start()
         {
+            _hidden = !_env.StartVisible;
             bool writer = _env.WriterLock == null || _env.WriterLock.Acquired;
             _manager = new SaveManager(_env.Store, () => _env.Clock.NowMs());
             _manager.SetReadOnly(!writer);
@@ -103,7 +104,6 @@ namespace Dravio.Platform
             // để đóng app ngay sau đó không làm lại được phần thưởng offline với mốc cũ.
             State = Apply(state, AdvanceMode.Offline);
             _saveAfterApply = false; // lưu ngay bên dưới
-            _hidden = !_env.StartVisible;
             Status = SessionStatus.Ready;
             Notify();
             SaveNow();
@@ -128,7 +128,7 @@ namespace Dravio.Platform
 
         private void Run()
         {
-            if (_manager == null || _env.Scheduler == null) return;
+            if (Status != SessionStatus.Ready || _env.Scheduler == null) return;
             _tick = _env.Scheduler.Every(TimePolicy.TickMs, Tick);
             _autosave = new Autosave(
                 s => { bool ok = _manager.Save(s); CheckConflict(); return ok; },
@@ -244,11 +244,25 @@ namespace Dravio.Platform
         {
             if (_manager == null || Status != SessionStatus.Unrecoverable || !(_env.WriterLock == null || _env.WriterLock.Acquired)) return;
             GameState state = NewGame();
-            _manager.Save(state, force: true);
+            try
+            {
+                if (!_manager.Save(state, force: true))
+                {
+                    CheckConflict();
+                    return;
+                }
+            }
+            catch (SaveWriteException)
+            {
+                SaveError = true;
+                Notify();
+                return;
+            }
             State = state;
             Status = SessionStatus.Ready;
             LoadedFrom = "new";
             LastSavedAtMs = _env.Clock.NowMs();
+            SaveError = false;
             Notify();
             Run();
         }
@@ -278,7 +292,7 @@ namespace Dravio.Platform
             // U2.7: bán (mất rồng + nhận vàng), nâng cấp, mua trang trí và khóa chống bán rồng yêu thích.
             cmd is SellDragonCommand || cmd is BulkSellCommand || cmd is BuyUpgradeCommand || cmd is BuyDecorationCommand || cmd is LockDragonCommand ||
             // U2.8: khởi hành (chốt seed + phần thưởng) và nhận thưởng thám hiểm.
-            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand ||
+            cmd is StartExpeditionCommand || cmd is ClaimExpeditionCommand || cmd is UnlockZoneCommand || cmd is CompleteQuestCommand || cmd is BuildSanctuaryProjectCommand ||
             // U2.6: trú ẩn và mọi bước chăm sóc (mốc bắt đầu / kế hoạch / lượng giá / xuất viện là dữ liệu chốt).
             cmd is MoveToShelterCommand || cmd is AssessCaseCommand || cmd is SetCarePlanCommand || cmd is StartCareCommand || cmd is ReviewCaseCommand ||
             cmd is DischargeDragonCommand;
@@ -315,6 +329,7 @@ namespace Dravio.Platform
                 _swapping = false;
                 ImportPreview = null;
                 ImportError = SaveErrorCode.InvalidState;
+                CheckConflict();
                 Notify();
                 return;
             }
@@ -326,6 +341,7 @@ namespace Dravio.Platform
             ImportError = null;
             LoadedFrom = "main";
             LastSavedAtMs = _env.Clock.NowMs();
+            SaveError = false;
             Notify();
             if (!wasRunning) Run();
         }

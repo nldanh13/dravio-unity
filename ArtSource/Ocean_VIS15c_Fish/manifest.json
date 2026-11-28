@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "status": "source candidates only",
+  "assets": [
+    {
+      "name": "Ocean_Minnow",
+      "triangles": 384,
+      "vertices": 1152,
+      "materialSlots": 1,
+      "textures": 0,
+      "morphTargets": 2,
+      "clip": "Swim_Loop",
+      "durationSeconds": 0.8,
+      "keys": 17,
+      "sampledPoses": 42,
+      "minFaceNormalDot": 0.9345537872128602,
+      "minAreaRatio": 0.830334680708831,
+      "maxAreaRatio": 1.1933614671552486,
+      "bytes": 108540,
+      "path": "ArtSource/Ocean_VIS15c_Fish/Ocean_Minnow.glb",
+      "blob": "ba6a773ba4ba7915296459e568b5dc967bb8307c"
+    },
+    {
+      "name": "T_VIS15C_FX_Bubble",
+      "width": 64,
+      "height": 64,
+      "alphaMax": 196,
+      "nonzeroAlpha": 2418,
+      "minTransparentGutterPx": 4,
+      "bytes": 16529,
+      "replacementCandidate": "Assets/Dravio/Environment/Zones/Ocean/Textures/T_ENV_FX_Bubble.png",
+      "path": "ArtSource/Ocean_VIS15c_Fish/T_VIS15C_FX_Bubble.png",
+      "blob": "ac84edcdd97ad503edf06eaf3960c38449980a2d"
+    }
+  ],
+  "checks": "42 morph poses, face area ratio and normal orientation, exact endpoint loop, finite attributes, deterministic GLB/PNG bytes, bubble scanline roundtrip and margin",
+  "limitations": "No external validator, Blender, actual animation playback, FBX blendshape import or Unity/device test. Intersecting primitives; no school path or gameplay. Optional fish 0/2/4 per tier only after profiling. Bubble replaces existing same-size texture, not additional allocation."
+}

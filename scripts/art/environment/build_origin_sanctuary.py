@@ -815,6 +815,188 @@ def build_ground(k):
     bmesh.ops.recalc_face_normals(k.bm, faces=faces)
 
 
+# ======================================================= VIS.1 ORIGIN OVERHAUL
+# Origin-only variants (Issue #80). The U1-ENV builders above stay unchanged because
+# the Ocean/Sky kits (build_zone_kits.py) and Sanctuary projects reuse them.
+# Same asset names, pivots, footprints and colliders: only the look changes.
+
+def set_vis_ao(k, faces, fn):
+    """Per-vertex painted light (0..1) stored in a bmesh layer; to_object() turns it into
+    the vertex-colour AO instead of the plain height gradient."""
+    lay = k.bm.verts.layers.float.get("vis_ao") or k.bm.verts.layers.float.new("vis_ao")
+    for v in {v for f in faces for v in f.verts}:
+        v[lay] = max(0.05, min(1.0, fn(v.co)))
+
+
+def clumpy_crown(k, center, rad, clumps, core_subdiv=3, clump_subdiv=2, rough=0.14):
+    """Stylized 'cloud' canopy: one core mass plus rounded clumps on its upper/outer
+    shell. Each clump is lit from its own top (cotton-ball read), the whole crown is
+    darker underneath."""
+    r = k.rng
+    c = Vector(center)
+    lo_z = c.z - rad[2]
+    hi_z = c.z + rad[2] * 1.45
+    core = k.blob(c, tuple(v * 0.86 for v in rad), "leaf_canopy", subdiv=core_subdiv, rough=0.1, freq=1.2)
+    set_vis_ao(k, core, lambda co: 0.5 + 0.38 * (co.z - lo_z) / (hi_z - lo_z))
+    golden = math.pi * (3 - math.sqrt(5))
+    for i in range(clumps):
+        # Fibonacci directions over the upper 70 % of the sphere, jittered.
+        zf = 1 - (i + 0.5) / clumps * 1.25
+        rr = math.sqrt(max(0.0, 1 - zf * zf))
+        a = i * golden + r.uniform(-.35, .35)
+        d = Vector((math.cos(a) * rr, math.sin(a) * rr, zf))
+        cc = c + Vector((d.x * rad[0], d.y * rad[1], d.z * rad[2])) * 0.78
+        cr = min(rad) * r.uniform(0.46, 0.62)
+        f = k.blob(cc, (cr * 1.08, cr, cr * 0.9), "leaf_canopy", subdiv=clump_subdiv, rough=rough,
+                   freq=1.8, rot_z=r.uniform(0, 6.28))
+
+        def ao(co, cc=cc, cr=cr):
+            local = (co.z - cc.z) / (cr * 0.9)            # -1 bottom .. 1 top of the clump
+            glob = (co.z - lo_z) / (hi_z - lo_z)
+            return 0.5 + 0.26 * glob + 0.26 * max(-0.4, local)
+        set_vis_ao(k, f, ao)
+
+
+def build_tree_vis1(k):
+    """Ancient tree with a layered, clumpy crown (same trunk and footprint as U1-ENV)."""
+    r = k.rng
+    chains = [
+        [((0, 0, -0.2), 0.95), ((0.08, 0, 1.1), 0.72), ((-0.1, 0.05, 2.3), 0.58), ((0, 0, 3.3), 0.52)],
+        [((0, 0, 3.3), 0.5), ((0.9, 0.1, 4.1), 0.34), ((1.7, 0.2, 4.7), 0.22)],
+        [((0, 0, 3.3), 0.5), ((-0.9, -0.1, 4.2), 0.34), ((-1.6, -0.2, 4.9), 0.22)],
+        [((0, 0, 3.3), 0.48), ((0.1, -0.3, 4.5), 0.3), ((0.2, -0.4, 5.4), 0.2)],
+    ]
+    for a in (0.4, 1.9, 3.3, 4.6):
+        chains.append([((0, 0, 0.5), 0.6), ((math.cos(a) * 0.9, math.sin(a) * 0.9, 0.12), 0.34),
+                       ((math.cos(a) * 1.6, math.sin(a) * 1.6, -0.1), 0.14)])
+    me = skin_mesh(chains, subdiv=1, decimate=0.42)
+    trunk = k.append_mesh(me, "bark", smooth=True)
+    bpy.data.meshes.remove(me)
+    k.moss_tops(trunk, 0.55, from_zones={"bark"})
+    crowns = [((1.75, 0.25, 5.15), (1.75, 1.55, 1.2)), ((-1.65, -0.15, 5.35), (1.7, 1.55, 1.25)),
+              ((0.15, -0.35, 6.35), (2.15, 1.85, 1.4)), ((0.2, 0.75, 5.25), (1.45, 1.15, 1.05))]
+    for c, rad in crowns:
+        clumpy_crown(k, c, rad, clumps=4)
+    for c, rad in crowns:  # leaf cards fray the lower rim
+        for i in range(4):
+            a = r.uniform(0, 2 * math.pi)
+            p = Vector(c) + Vector((math.cos(a) * rad[0] * 0.9, math.sin(a) * rad[1] * 0.9,
+                                    -rad[2] * r.uniform(0.25, 0.6)))
+            k.card(p, 1.15, 1.05, "F_leaf_cluster", yaw=a + math.pi / 2, tilt=r.uniform(.3, .8),
+                   pivot_bottom=False)
+
+
+def build_tree_b_vis1(k):
+    r = k.rng
+    chains = [
+        [((0, 0, -0.2), 0.7), ((0.25, 0.05, 1.2), 0.5), ((0.55, 0.0, 2.4), 0.4), ((0.6, -0.1, 3.2), 0.36)],
+        [((0.6, -0.1, 3.2), 0.34), ((1.5, 0.0, 3.9), 0.22)],
+        [((0.6, -0.1, 3.2), 0.34), ((-0.4, -0.2, 4.1), 0.22)],
+    ]
+    for a in (0.9, 2.6, 4.3):
+        chains.append([((0, 0, 0.4), 0.45), ((math.cos(a) * 1.1, math.sin(a) * 1.1, -0.1), 0.12)])
+    me = skin_mesh(chains, subdiv=1, decimate=0.5)
+    trunk = k.append_mesh(me, "bark", smooth=True)
+    bpy.data.meshes.remove(me)
+    k.moss_tops(trunk, 0.6, from_zones={"bark"})
+    crowns = [((1.6, 0.0, 4.3), (1.45, 1.25, 1.0)), ((-0.5, -0.2, 4.6), (1.55, 1.35, 1.1)),
+              ((0.6, -0.1, 5.45), (1.65, 1.45, 1.1))]
+    for c, rad in crowns:
+        clumpy_crown(k, c, rad, clumps=4)
+        for _ in range(3):
+            a = r.uniform(0, 2 * math.pi)
+            p = Vector(c) + Vector((math.cos(a) * rad[0] * 0.9, math.sin(a) * rad[1] * 0.9,
+                                    -rad[2] * r.uniform(0.2, 0.5)))
+            k.card(p, 1.0, 0.9, "F_leaf_cluster", yaw=a + math.pi / 2, tilt=r.uniform(.3, .8),
+                   pivot_bottom=False)
+
+
+def build_shrub_vis1(k):
+    """Round shrub as a cluster of lit clumps with a few blossoms (warm accent)."""
+    r = k.rng
+    for c, rad in (((0, 0, 0.42), (0.62, 0.55, 0.45)), ((0.48, 0.18, 0.33), (0.42, 0.38, 0.34)),
+                   ((-0.44, -0.12, 0.3), (0.42, 0.38, 0.32)), ((0.05, 0.3, 0.62), (0.38, 0.34, 0.3)),
+                   ((-0.15, -0.3, 0.6), (0.36, 0.32, 0.28))):
+        f = k.blob(c, rad, "leaf_canopy", subdiv=2, rough=0.2, freq=2.0, flat_bottom=-0.45)
+        set_vis_ao(k, f, lambda co, c=c, rad=rad: 0.52 + 0.24 * co.z / 0.95 + 0.24 * (co.z - c[2]) / rad[2])
+    for i in range(5):
+        a = i * 2 * math.pi / 5 + r.uniform(-.2, .2)
+        k.card((math.cos(a) * 0.52, math.sin(a) * 0.45, 0), 0.8, 0.8, "F_shrub_leaf", yaw=a + math.pi / 2,
+               tilt=0.35)
+    for i in range(3):  # a few flower sprigs poking out of the top
+        a = r.uniform(0, 6.28)
+        k.cross_cards((math.cos(a) * 0.3, math.sin(a) * 0.25, 0.45), 0.32, 0.42,
+                      ("F_flower_pink", "F_flower_gold", "F_flower_lilac")[i % 3], count=2, yaw=a)
+
+
+def build_gate_vis1(k):
+    """Ancient gate as the hero landmark: flowering ivy curtains and blossoms on the capitals."""
+    build_gate(k)
+    r = k.rng
+    span, spring = 2.05, 3.88
+    for i, a in enumerate((0.32, 0.62, 0.95, 2.2, 2.55, 2.85)):  # hanging from the arch front
+        x, z = math.cos(a) * (span + 0.15), spring + math.sin(a) * (span + 0.2)
+        k.card((x, 0.47, z), 0.5, 1.2 + 0.4 * (i % 2), "F_ivy_strand", yaw=r.uniform(-.15, .15),
+               pivot_bottom=False)
+    for s in (-1, 1):  # blossoms and moss tufts on the capitals
+        x = s * span
+        for j in range(3):
+            k.cross_cards((x + r.uniform(-.4, .4), r.uniform(-.2, .3), 3.62), 0.5, 0.45,
+                          ("F_flower_pink", "F_flower_gold", "F_leaf_cluster")[j], count=2, yaw=r.uniform(0, 3))
+        k.card((x + s * 0.55, 0.42, 3.4), 0.55, 2.2, "F_ivy_strand", yaw=s * 0.1, pivot_bottom=False)
+
+
+def build_column_intact_vis1(k):
+    build_column_intact(k)
+    k.card((0.36, 0.42, 3.55), 0.5, 1.9, "F_ivy_strand", yaw=0.15, pivot_bottom=False)
+    k.cross_cards((0.1, 0.05, 3.62), 0.5, 0.42, "F_flower_pink", count=2, yaw=0.4)
+
+
+def build_ground_vis1(k):
+    """Ground sheet plus worn flagstones along the designed paths (U1-ENV path mask)."""
+    build_ground(k)
+    r = random.Random(4242)
+    stones = []
+    for path in layout_mod.PATHS:
+        for (x0, z0), (x1, z1) in zip(path, path[1:]):
+            L = math.hypot(x1 - x0, z1 - z0)
+            n = max(1, int(L / 0.62))
+            for i in range(n):
+                t = (i + r.uniform(0.1, 0.9)) / n
+                ux = x0 + (x1 - x0) * t + r.uniform(-.28, .28)
+                uz = z0 + (z1 - z0) * t + r.uniform(-.2, .2)
+                cl = math.hypot(ux - layout_mod.CLEARING[0], uz - layout_mod.CLEARING[1])
+                if cl < layout_mod.CLEARING[2] * 0.6 or r.random() < 0.18:
+                    continue  # keep the clearing open and the path broken up
+                if any(math.hypot(ux - sx, uz - sz) < 0.42 for sx, sz in stones):
+                    continue
+                stones.append((ux, uz))
+    for ux, uz in stones:
+        rad = r.uniform(0.16, 0.26)
+        f = k.cone((-ux, -uz, -0.005), rad, rad * 0.9, 0.035, "stone_cool", seg=6,
+                   rot=(0, 0, r.uniform(0, 1)), smooth=False)
+        set_vis_ao(k, f, lambda co: 0.86)
+    k.path_stones = len(stones)
+
+
+def build_cover_edges_vis1(k):
+    """Edge cover plus a soft forest wall behind the ruins (outside the play area and
+    the flat rect), so the top of the screen reads as a deep sanctuary grove instead
+    of empty lawn. Cheap mounds, no colliders, fog does the depth."""
+    build_cover(k, "edges")
+    r = random.Random(5150)
+    x = -16.0
+    while x < 20.0:
+        uz = r.uniform(12.6, 14.8)
+        rx, rz = r.uniform(1.5, 2.1), r.uniform(1.6, 2.3)
+        c = (-x, -uz, rz * r.uniform(0.55, 0.8))
+        f = k.blob(c, (rx, rx * 0.8, rz), "leaf_canopy", subdiv=2, rough=0.22, freq=1.6, flat_bottom=-0.5,
+                   rot_z=r.uniform(0, 6.28))
+        top = c[2] + rz
+        set_vis_ao(k, f, lambda co, top=top: 0.42 + 0.4 * max(0.0, co.z) / top)
+        x += r.uniform(1.9, 2.5)
+
+
 ASSETS = {
     "SM_ENV_Gate_Ancient": build_gate,
     "SM_ENV_Column_Intact": build_column_intact,
@@ -853,6 +1035,16 @@ ASSETS = {
     "SM_ENV_Cover_Origin_Warm_Rocks": lambda k: build_cover(k, "origin_warm_rocks"),
     "SM_ENV_Cover_Edges": lambda k: build_cover(k, "edges"),
 }
+# VIS.1 (Issue #80): Origin-only look upgrades, same names/pivots/colliders.
+ASSETS.update({
+    "SM_ENV_Gate_Ancient": build_gate_vis1,
+    "SM_ENV_Column_Intact": build_column_intact_vis1,
+    "SM_ENV_Tree_Ancient": build_tree_vis1,
+    "SM_ENV_Tree_Ancient_B": build_tree_b_vis1,
+    "SM_ENV_Shrub_Round": build_shrub_vis1,
+    "SM_ENV_Ground_Sanctuary": build_ground_vis1,
+    "SM_ENV_Cover_Edges": build_cover_edges_vis1,
+})
 
 # Vertex-colour tint multiplied into the painted AO (warm, sun-baked stone).
 TINT = {"SM_ENV_Rock_Warm_Flat": (1.0, 0.84, 0.68), "SM_ENV_Rock_Warm_Stack": (1.0, 0.86, 0.7)}
@@ -973,6 +1165,10 @@ def to_object(k):
     is_ground = k.name == "SM_ENV_Ground_Sanctuary"
     is_vine = k.name == "SM_ENV_Vine_Hanging"
     zones = [ZONES[p.material_index] for p in me.polygons]
+    vis_ao = None  # VIS.1 painted light per vertex (Origin crowns, shrubs, flagstones)
+    if "vis_ao" in me.attributes:
+        vis_ao = [d.value for d in me.attributes["vis_ao"].data]
+        me.attributes.remove(me.attributes["vis_ao"])
 
     # Vertex colours: painted AO gradient (RGB) + wind / path mask (A).
     col = me.color_attributes.new("Color", 'BYTE_COLOR', 'CORNER')
@@ -981,7 +1177,7 @@ def to_object(k):
         for li in p.loop_indices:
             co = me.vertices[me.loops[li].vertex_index].co
             t = (co.z - zmin) / height
-            if is_ground:
+            if is_ground and zone == "GROUND":
                 ux, uz = -co.x, -co.y
                 d = layout_mod.path_distance(ux, uz)
                 edge = noise.noise(Vector((ux * 0.9, uz * 0.9, 1.7))) * 0.25
@@ -1004,6 +1200,11 @@ def to_object(k):
                 rad = math.hypot(co.x / wr[0], co.y / wr[1])
                 rgb = (1, 1, 1)
                 a = min(1.0, max(0.0, (1.0 - rad) / 0.38))
+            elif vis_ao is not None and vis_ao[me.loops[li].vertex_index] > 0:
+                ao = vis_ao[me.loops[li].vertex_index]
+                tint = TINT.get(k.name, (1.0, 1.0, 1.0))
+                rgb = (ao * tint[0], ao * tint[1], ao * 0.98 * tint[2])
+                a = 0.18 if zone == "leaf_canopy" else 0.0
             else:
                 ao = 0.58 + 0.42 * min(1.0, (co.z - zmin + 0.05) / min(0.9, height * 0.6))
                 if zone in ("leaf_canopy",):
@@ -1212,7 +1413,9 @@ def render_preview(objects, layout, path):
     bm.free()
     fly_mesh.materials.append(fly_mat)
     rng = random.Random(911)
-    for label, hour, exposure in (("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
+    # ENV Alpha (#79): also the default hour from the living data (the light Unity actually plays by day); the
+    # first day renders above keep the fixed U1-ENV.2 preview light.
+    for label, hour, exposure in (("day_living", living.DEFAULT_HOUR, 0.0), ("dusk", 18.3, 0.0), ("night", 22.0, -0.9)):
         st = living.evaluate(hour)
         f = living.light_forward(st["lightElevation"], st["lightAzimuth"])
         sun.rotation_euler = Vector((-f[0], -f[2], f[1])).to_track_quat('-Z', 'Y').to_euler()

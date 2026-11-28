@@ -1,0 +1,274 @@
+{
+  "version": 1,
+  "status": "VIS.5 alternatives; not approved",
+  "baseline": "VIS.4 fd6b2fa; role contract 4b3d598",
+  "assets": [
+    {
+      "id": "btn_primary",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_primary.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 6.350439581332476,
+      "label": "#49372C",
+      "sliceEndpointDelta": 0,
+      "bytes": 59961,
+      "blob": "13bb508240a5e4b8d04d4dbe9d3d5e91945b22d0"
+    },
+    {
+      "id": "btn_primary",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_primary_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 5.328098607819808,
+      "label": "#49372C",
+      "sliceEndpointDelta": 0,
+      "bytes": 52933,
+      "blob": "d5dd9571d5b5ca4244e270817e169869e518543a"
+    },
+    {
+      "id": "btn_primary",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_primary_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 5.96489434103245,
+      "label": "#49372C",
+      "sliceEndpointDelta": 0,
+      "bytes": 50862,
+      "blob": "f4d70d959afe14c144401fafff24ed5550ed127a"
+    },
+    {
+      "id": "btn_danger",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_danger.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 6.657398189296728,
+      "label": "#FFFFFF",
+      "sliceEndpointDelta": 0,
+      "bytes": 53195,
+      "blob": "a789d01b923fa1686b903f802fdf544507ab3baa"
+    },
+    {
+      "id": "btn_danger",
+      "state": "pressed",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_danger_pressed.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_pressed.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 6.92422183443931,
+      "label": "#FFFFFF",
+      "sliceEndpointDelta": 0,
+      "bytes": 53251,
+      "blob": "e44bb7bb4648bc3d8c6d8d1ca139a202f2f72325"
+    },
+    {
+      "id": "btn_danger",
+      "state": "disabled",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Buttons/ui_btn_danger_disabled.png",
+      "runtimeCandidate": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger_disabled.png",
+      "width": 1024,
+      "height": 384,
+      "borderLTRB": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "alpha": {
+        "transparent": 17454,
+        "partial": 11750,
+        "opaque": 364012
+      },
+      "minSourceCenterContrast": 5.923708201086142,
+      "label": "#FFFFFF",
+      "sliceEndpointDelta": 0,
+      "bytes": 46920,
+      "blob": "1f4c8cf04b1f97232e131d6f20014760d50a838d"
+    },
+    {
+      "id": "corner_tl",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Decor/ui_ornament_corner_tl.png",
+      "width": 384,
+      "height": 384,
+      "alpha": {
+        "transparent": 127216,
+        "partial": 1420,
+        "opaque": 18820
+      },
+      "bounds": [
+        38,
+        37,
+        301,
+        298
+      ],
+      "bytes": 55526,
+      "blob": "7d1748a8fcec30238036ddffb56ab6e5e82e95bb",
+      "optionalOverlay": true,
+      "notInSlotContract": true
+    },
+    {
+      "id": "corner_tr",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Decor/ui_ornament_corner_tr.png",
+      "width": 384,
+      "height": 384,
+      "alpha": {
+        "transparent": 127216,
+        "partial": 1420,
+        "opaque": 18820
+      },
+      "bounds": [
+        82,
+        37,
+        345,
+        298
+      ],
+      "bytes": 56231,
+      "blob": "a74faba98e936ca81497dee57ad87db286df3300",
+      "optionalOverlay": true,
+      "notInSlotContract": true
+    },
+    {
+      "id": "corner_bl",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Decor/ui_ornament_corner_bl.png",
+      "width": 384,
+      "height": 384,
+      "alpha": {
+        "transparent": 127216,
+        "partial": 1420,
+        "opaque": 18820
+      },
+      "bounds": [
+        38,
+        85,
+        301,
+        346
+      ],
+      "bytes": 56125,
+      "blob": "3ed3dd852362eddb7e02f19c4db6a2a7a61beed7",
+      "optionalOverlay": true,
+      "notInSlotContract": true
+    },
+    {
+      "id": "corner_br",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Decor/ui_ornament_corner_br.png",
+      "width": 384,
+      "height": 384,
+      "alpha": {
+        "transparent": 127216,
+        "partial": 1420,
+        "opaque": 18820
+      },
+      "bounds": [
+        82,
+        85,
+        345,
+        346
+      ],
+      "bytes": 55636,
+      "blob": "76d48ba6808a78de270943c7fbf47067ea696371",
+      "optionalOverlay": true,
+      "notInSlotContract": true
+    },
+    {
+      "id": "leaf_crest",
+      "state": "normal",
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/Decor/ui_ornament_leaf_crest.png",
+      "width": 512,
+      "height": 192,
+      "alpha": {
+        "transparent": 74954,
+        "partial": 990,
+        "opaque": 22360
+      },
+      "bounds": [
+        69,
+        38,
+        442,
+        153
+      ],
+      "bytes": 54238,
+      "blob": "8a4d9aae7ccd835f446c0ad81b974826c409cada",
+      "optionalOverlay": true,
+      "notInSlotContract": true
+    }
+  ],
+  "previews": [
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/preview_buttons.png",
+      "bytes": 26290,
+      "blob": "1052dd3e001842ed556083ae9750574aaa08046a"
+    },
+    {
+      "path": "ArtSource/UI/BrightFantasy_VIS5_Polish/preview_ornaments.png",
+      "bytes": 98319,
+      "blob": "8ee582d76f1ff6e7695aa80f916d59ba61ad5e91"
+    }
+  ],
+  "checks": "PNG roundtrip, alpha and slice endpoints, source center luminance contrast for proposed label colors; no runtime tint/compression or Unity checks"
+}

@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "baseline": "f4230941b7117f59acb7a45e2152b3b4b06731cf",
+  "status": "source selection only; no runtime import",
+  "assets": [
+    {
+      "pack": "Ocean_VIS15_Accents",
+      "path": "ArtSource/Ocean_VIS15_Accents/Ocean_Seagrass_Ribbon_Cluster.glb",
+      "blob": "4bc2c456f71757f11129bf47ac64e4b2dc1b5093",
+      "bytes": 40356,
+      "triangles": 364,
+      "status": "original-alternative"
+    },
+    {
+      "pack": "Ocean_VIS15_Accents",
+      "path": "ArtSource/Ocean_VIS15_Accents/Ocean_Coral_Tube_Sponge.glb",
+      "blob": "98267917ed24297307a4bde6f1f2ab4b828078fc",
+      "bytes": 63240,
+      "triangles": 576,
+      "status": "original-alternative"
+    },
+    {
+      "pack": "Ocean_VIS15_Accents",
+      "path": "ArtSource/Ocean_VIS15_Accents/Ocean_Cool_Pearl_Anemone.glb",
+      "blob": "b4ac59a1e3ffa8f5fd12485892b60da1dd67e132",
+      "bytes": 60648,
+      "triangles": 552,
+      "status": "original-alternative"
+    },
+    {
+      "pack": "Ocean_VIS15b_Current",
+      "path": "ArtSource/Ocean_VIS15b_Current/Ocean_Seagrass_Ribbon_Cluster_Wind.glb",
+      "blob": "291fc4c6ed8e7ebf43a41ed09b66f424e48b7b33",
+      "bytes": 53624,
+      "triangles": 364,
+      "status": "detailed-current-alternative"
+    },
+    {
+      "pack": "Ocean_VIS15b_Textures",
+      "path": "ArtSource/Ocean_VIS15b_Textures/T_VIS15B_Ocean_Ground.png",
+      "blob": "be9552f12b129da0a8522585a8bc31abe1f30455",
+      "bytes": 1049249,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Ocean_VIS15b_Textures",
+      "path": "ArtSource/Ocean_VIS15b_Textures/T_VIS15B_FX_Caustics.png",
+      "blob": "13decff513c69cff3d637a4165e7eca61cc26d3c",
+      "bytes": 262501,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Ocean_VIS15b_Textures",
+      "path": "ArtSource/Ocean_VIS15b_Textures/T_VIS15B_FX_LightShaft.png",
+      "blob": "24f7c125b2d23881ab6f308916d25fcaeed838f2",
+      "bytes": 65878,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Ocean_VIS15c_Fish",
+      "path": "ArtSource/Ocean_VIS15c_Fish/Ocean_Minnow.glb",
+      "blob": "ba6a773ba4ba7915296459e568b5dc967bb8307c",
+      "bytes": 108540,
+      "triangles": 384,
+      "status": "hold-animation-path"
+    },
+    {
+      "pack": "Ocean_VIS15c_Fish",
+      "path": "ArtSource/Ocean_VIS15c_Fish/T_VIS15C_FX_Bubble.png",
+      "blob": "ac84edcdd97ad503edf06eaf3960c38449980a2d",
+      "bytes": 16529,
+      "triangles": null,
+      "status": "replacement-review"
+    },
+    {
+      "pack": "Ocean_VIS15c_Relics",
+      "path": "ArtSource/Ocean_VIS15c_Relics/Ocean_Tide_Relief_Fragment.glb",
+      "blob": "5b8231f67920f4e1842763bea895faea16a2b387",
+      "bytes": 39040,
+      "triangles": 352,
+      "status": "hold-placement"
+    },
+    {
+      "pack": "Ocean_VIS15d_LOD",
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Seagrass_Ribbon_Cluster_LOD1.glb",
+      "blob": "ab42f3e783cb48073c5f8fbb31a47bfd1f76dc02",
+      "bytes": 27064,
+      "triangles": 252,
+      "status": "preferred-LOD-trial"
+    },
+    {
+      "pack": "Ocean_VIS15d_LOD",
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Coral_Tube_Sponge_LOD1.glb",
+      "blob": "b98820e3ee5389a6e0c66a6fa29fc554b0bc8286",
+      "bytes": 15460,
+      "triangles": 384,
+      "status": "preferred-LOD-trial"
+    },
+    {
+      "pack": "Ocean_VIS15d_LOD",
+      "path": "ArtSource/Ocean_VIS15d_LOD/Ocean_Cool_Pearl_Anemone_LOD1.glb",
+      "blob": "dab9b1c9a13a1610b4320f1f917c893470d7dfdd",
+      "bytes": 11428,
+      "triangles": 272,
+      "status": "preferred-LOD-trial"
+    }
+  ],
+  "composition": {
+    "cases": 18,
+    "anchorCount": 39,
+    "protectedPointCount": 52,
+    "areaBoxes": 6,
+    "obstacleBoxes": 30,
+    "results": [
+      {
+        "asset": "Ocean_Seagrass_Ribbon_Cluster_LOD1",
+        "validGridPositions": 0,
+        "best": null,
+        "status": "hold"
+      },
+      {
+        "asset": "Ocean_Coral_Tube_Sponge_LOD1",
+        "validGridPositions": 0,
+        "best": null,
+        "status": "hold"
+      },
+      {
+        "asset": "Ocean_Cool_Pearl_Anemone_LOD1",
+        "validGridPositions": 0,
+        "best": null,
+        "status": "hold"
+      },
+      {
+        "asset": "Ocean_Tide_Relief_Fragment",
+        "validGridPositions": 0,
+        "best": null,
+        "status": "hold"
+      }
+    ],
+    "shortlist": [],
+    "additionalTriangles": 0,
+    "fishStatus": "hold; no path and no safe dynamic volume analysis",
+    "limitations": "Conservative XZ AABBs for all walk/swim polygons; full footprint within flatRect, outside buffered play areas; projected anchor and target boxes, existing props approximate screen AABB only, not true occlusion. Terrain height, actual cover, water effects and Focus not verified. No placements performed."
+  },
+  "estimates": {
+    "baselineManifestTriangles": 19660,
+    "allLodOnce": 20568,
+    "allLodPlusRelicAndFourFish": 22456,
+    "textureDeltaIfSameSizeReplacements": 0,
+    "limits": {
+      "triangles": 60000,
+      "materials": 10,
+      "estimatedTextureBytes": 6291456
+    }
+  },
+  "requirements": [
+    "use one LOD per instance",
+    "preserve .meta GUID and import sizes for replacements",
+    "no automatic placement",
+    "verify actual terrain/cover/occlusion and full swim clearance",
+    "fish motion path separate review",
+    "verify material count, texture estimate, Game View and device profiler"
+  ]
+}

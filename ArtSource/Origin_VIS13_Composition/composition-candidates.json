@@ -1,0 +1,84 @@
+{
+  "cases": 18,
+  "protectedAnchors": 38,
+  "existingObstacleBoxes": 34,
+  "approximateExistingBlockers": 40,
+  "chosen": [
+    {
+      "asset": "Origin_Bloom_Cluster_LOD1",
+      "x": -4.75,
+      "y": 0,
+      "z": 12.75,
+      "yaw": 0,
+      "scale": 1,
+      "triangles": 552,
+      "footprint": [
+        -5.069689244031906,
+        12.591211691498756,
+        -4.407311201095581,
+        13.029186695814133
+      ],
+      "minFreeMarginHeights": 0.010910513992611559,
+      "minProjectedHeightPxAt720": 33.623989486749466,
+      "approximateScreenBoxOverlaps": 0,
+      "validGridPositions": 478
+    },
+    {
+      "asset": "Origin_Fern_Rosette_LOD1",
+      "x": 4.5,
+      "y": 0,
+      "z": 13,
+      "yaw": 0,
+      "scale": 1,
+      "triangles": 616,
+      "footprint": [
+        4.166370302438736,
+        12.699521839618683,
+        4.837594956159592,
+        13.351553320884705
+      ],
+      "minFreeMarginHeights": 0.02017805220221125,
+      "minProjectedHeightPxAt720": 25.567517389458665,
+      "approximateScreenBoxOverlaps": 0,
+      "validGridPositions": 424
+    },
+    {
+      "asset": "Origin_Coral_Mushroom_Cluster_LOD1",
+      "x": 0.25,
+      "y": 0,
+      "z": 8.25,
+      "yaw": 0,
+      "scale": 1,
+      "triangles": 480,
+      "footprint": [
+        -0.09999999403953552,
+        8.025000005960464,
+        0.625,
+        8.530000001192093
+      ],
+      "minFreeMarginHeights": 0.20903866697030826,
+      "minProjectedHeightPxAt720": 34.40972019163833,
+      "approximateScreenBoxOverlaps": 18,
+      "validGridPositions": 348
+    }
+  ],
+  "unplaced": [
+    "Cottage",
+    "Lookout",
+    "Soft Hills",
+    "Waterfall/Stream assembly"
+  ],
+  "baseSceneTriangles": 34472,
+  "addedTriangles": 1648,
+  "assumptions": "outside flatRect + walkClearance; full AABB inside free viewport; no overlap with protected anchor rectangles; obstacle polygon AABB clearance. Existing asset projected boxes are approximate, not occlusion tests. Terrain outside flatRect not guaranteed flat or visible. No actual placement.",
+  "baseline": "04e32111568cbcd6b399c75ed4e44cec59e38969",
+  "sourcePaths": [
+    "Assets/Dravio/Environment/Data/OriginSanctuaryLayout.json",
+    "Assets/Dravio/Environment/Data/OriginSanctuaryLocations.json",
+    "Assets/Dravio/Environment/Data/OriginSanctuaryLiving.json",
+    "ArtSource/Origin_VIS12_Flora_LOD/manifest.json",
+    "ArtSource/Origin_VIS11_Water_Orientation/manifest.json",
+    "Assets/Dravio/Environment/Data/OriginSanctuaryManifest.json"
+  ],
+  "status": "candidate coordinates only; no scene or layout change; terrain and real occlusion unverified"
+}

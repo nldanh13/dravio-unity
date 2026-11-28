@@ -1,0 +1,33 @@
+{
+  "species": "emberling",
+  "sourceSha256": "42bffef7b055d6841e595fcc89840efa83bf3d8553a7edd0b90293f22b7a546f",
+  "reviewedBy": "",
+  "approval": "PENDING",
+  "images": [
+    {
+      "image": 0,
+      "width": 2048,
+      "height": 2048,
+      "embeddedSha256": "REPLACE_WITH_ACTUAL_HASH",
+      "protectedMask": {
+        "path": "protected.png",
+        "sha256": "REPLACE_WITH_ACTUAL_HASH"
+      },
+      "regions": [
+        {
+          "id": "body_scale",
+          "study": "Scale",
+          "strength": 0.08,
+          "mask": {
+            "path": "body_mask.png",
+            "sha256": "REPLACE_WITH_ACTUAL_HASH"
+          },
+          "tone": {
+            "path": "body_projected_tone.png",
+            "sha256": "REPLACE_WITH_ACTUAL_HASH"
+          }
+        }
+      ]
+    }
+  ]
+}

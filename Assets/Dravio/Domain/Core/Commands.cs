@@ -46,20 +46,31 @@ namespace Dravio.Domain.Core
     {
         public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId) : this(requestId, dietId, zoneId, habitatId, null) { }
 
-        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId, string targetDragonUid) : base(requestId)
+        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId, string targetDragonUid)
+            : this(requestId, dietId, zoneId, habitatId, targetDragonUid, null) { }
+
+        public FeedCommand(string requestId, DietId dietId, string zoneId, string habitatId, string targetDragonUid, IReadOnlyList<string> otherDiners) : base(requestId)
         {
             DietId = dietId; ZoneId = zoneId; HabitatId = habitatId; TargetDragonUid = targetDragonUid;
+            OtherDiners = otherDiners == null ? System.Array.Empty<string>() : new List<string>(otherDiners).AsReadOnly();
         }
         public DietId DietId { get; }
         public string ZoneId { get; }
         public string HabitatId { get; }
         /// <summary>U2.15: rồng được chọn (ưu tiên ăn). null = không ưu tiên (luật A). Nếu có phải là ID hợp lệ (1–64 ký tự), không thì lệnh sai dạng.</summary>
         public string TargetDragonUid { get; }
+        public IReadOnlyList<string> OtherDiners { get; }
         public override string Type => "feed";
         internal override bool IsWellFormed()
         {
             bool diet = false;
             foreach (DietId d in CareRules.DietIds) if (d == DietId) diet = true;
+            if (OtherDiners.Count > 0)
+            {
+                if (OtherDiners.Count >= CareRules.FoodMaxBase || TargetDragonUid == null) return false;
+                var seen = new HashSet<string> { TargetDragonUid };
+                foreach (string uid in OtherDiners) if (!IsId(uid) || !seen.Add(uid)) return false;
+            }
             return diet && IsId(ZoneId) && IsId(HabitatId) && (TargetDragonUid == null || IsId(TargetDragonUid));
         }
     }
@@ -74,7 +85,16 @@ namespace Dravio.Domain.Core
         public string FoodId { get; }
         public string DragonUid { get; }
         public override string Type => "consumeFood";
-        internal override bool IsWellFormed() => IsId(FoodId) && IsId(DragonUid);
+        internal override bool IsWellFormed()
+        {
+            if (!IsId(DragonUid) || FoodId == null) return false;
+            if (IsId(FoodId)) return true;
+            // Generated portion IDs prepend five characters to a valid request ID.
+            if (FoodId.Length > 69) return false;
+            return FoodId.StartsWith("food-", System.StringComparison.Ordinal)
+                || (FoodId.StartsWith("side", System.StringComparison.Ordinal)
+                    && FoodId[4] >= '1' && FoodId[4] <= '4');
+        }
     }
 
     public sealed class PetCommand : GameCommand

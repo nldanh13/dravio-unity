@@ -1,0 +1,3 @@
+# VIS.15d — Ocean LOD1
+
+Three reduced-tessellation indexed GLB variants. Retain seven seagrass blades, three hollow tubes and nine pearl tentacles. Explicit RGBA and UV0; seagrass wind alpha, static variants zero alpha. Only one LOD per instance; orthographic camera should select by screen size/Focus/tier, not distance alone. Total 908 triangles vs 1492. No additional textures, no new runtime material allocated. Exact attribute indexing preserves corner normals, color and weights; no position-only weld. No automatic import. Reproduce `node scripts/art/environment/build_ocean_vis15d_lod.mjs <new-dir>`. Internal sampled deformation and bounds checks only; visual shape, Blender, FBX, Unity and Android NOT RUN. Existing gameplay assets unchanged.

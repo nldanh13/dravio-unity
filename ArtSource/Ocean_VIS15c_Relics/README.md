@@ -1,0 +1,3 @@
+# VIS.15c — Tide relief fragment
+
+A small beveled sea-worn stone with raised scallop motif and coral accents, front -Z, Y up. Optional decoration outside walk/swim volumes, not a replacement for canonical estuary gate, statue, rest surface, collider or interaction. One source vertex-color slot, no texture. Proposed existing approved white-base static material if available; alpha zero and neutral UV on conversion. No collectible, unlock, gameplay or scene edits. Internal geometry and deterministic generation checks only; external validator, Blender/Unity and device NOT RUN. Reproduce `node scripts/art/environment/build_ocean_vis15c_relic.mjs <new-dir>`.

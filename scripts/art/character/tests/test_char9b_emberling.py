@@ -28,8 +28,9 @@ def module_constant(path, name):
 
 class EmberlingVerticalSlice(unittest.TestCase):
     def test_committed_fbx_is_the_measured_one(self):
-        h = load('HASHES.json')['sha256']
-        self.assertEqual(hashlib.sha256(FBX.read_bytes()).hexdigest(), h['Assets/Dravio/Art/Models/EmberlingRefinedGLB.fbx'])
+        # CHAR.9c (issue #95, approved by the owner 2026-11-27) replaced this FBX; the CHAR.9b reports stay as history
+        h9c = json.loads((REPORTS.parent / 'reports_char9c/HASHES.json').read_text(encoding='utf-8'))['sha256']
+        self.assertEqual(hashlib.sha256(FBX.read_bytes()).hexdigest(), h9c['ArtStaging/Character/Emberling/EmberlingRefinedGLB.fbx'])
 
     def test_limits_not_loosened(self):
         lim = json.loads(BUDGETS.read_text(encoding='utf-8'))['animationQa']
@@ -71,10 +72,12 @@ class EmberlingVerticalSlice(unittest.TestCase):
         for bone in module_constant(REPO / 'scripts/art/character/export_emberling_legacy_contract.py', 'CONTRACT_BONES'):
             self.assertIn(bone, qa['bones'])
 
-    def test_repair_config_is_emberling_only_and_linear(self):
+    def test_repair_config_only_after_qa_and_linear(self):
         ov = json.loads(OVERRIDES.read_text(encoding='utf-8'))
         with_repair = [s for s, v in ov['species'].items() if 'repair' in v] + [f for f, v in ov.get('files', {}).items() if 'repair' in v]
-        self.assertEqual(with_repair, ['emberling'], 'other species get the repair only after their own QA run')
+        # other species get the repair only after their own QA run (CHAR.9c: reports_char9c/species_tune/summary.json)
+        measured = json.loads((REPO / 'scripts/art/character/reports_char9c/species_tune/summary.json').read_text(encoding='utf-8'))['species']
+        self.assertEqual(sorted(with_repair), sorted(['emberling', *measured]))
         rp = ov['species']['emberling']['repair']
         self.assertEqual(rp['skinning'], 'linear')
         for clip, groups in rp['amplitude'].items():

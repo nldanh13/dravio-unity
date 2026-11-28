@@ -1,0 +1,35 @@
+{
+  "species": "zephyr",
+  "sourceSha256": "804c04f8d3a5bffd2ac48ef16658a73b803c6f6db193356959c4fe1b2e116095",
+  "reviewedBy": "",
+  "approval": "PENDING",
+  "images": [
+    {
+      "image": 0,
+      "width": 2048,
+      "height": 2048,
+      "embeddedSha256": "REPLACE_WITH_ACTUAL_HASH",
+      "wingReview": "PENDING",
+      "seamReview": "PENDING",
+      "protectedMask": {
+        "path": "protected.png",
+        "sha256": "REPLACE_WITH_ACTUAL_HASH"
+      },
+      "regions": [
+        {
+          "id": "wing_feather",
+          "study": "Fur",
+          "strength": 0.06,
+          "mask": {
+            "path": "wing_mask.png",
+            "sha256": "REPLACE_WITH_ACTUAL_HASH"
+          },
+          "tone": {
+            "path": "wing_projected_tone.png",
+            "sha256": "REPLACE_WITH_ACTUAL_HASH"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,53 +1,635 @@
 {
-  "_comment": "CHAR.8 production run on ArtSource/Dragons/images (16 real GLBs, commit 0561a42). limbCount \"auto\" = rig only when the mesh measurement is unambiguous (2 or 4 feet, high confidence), otherwise refused with the measurement in the report. These are NOT GDD values: replace with the art director's number once confirmed. emberling, sprout, amberhorn state \"bốn chân\" in canonical data; frostfin and leviathan have no walking limbs. files.03_sprout.yawOffset 90: the source GLB faces -X (measured in the CHAR.8 front render); +90° about +Z turns it to the pipeline's -Y front. Not a biology change. species.emberling.repair (CHAR.9b): chibi skin/motion repair measured on the real Emberling GLB (anim_qa PASS, 0 warnings); other species get it only after their own QA run.",
+  "_comment": "CHAR.8 production run on ArtSource/Dragons/images (16 real GLBs, commit 0561a42). limbCount \"auto\" = rig only when the mesh measurement is unambiguous (2 or 4 feet, high confidence), otherwise refused with the measurement in the report. These are NOT GDD values: replace with the art director's number once confirmed. emberling, sprout, amberhorn state \"bốn chân\" in canonical data; frostfin and leviathan have no walking limbs. files.03_sprout.yawOffset 90: the source GLB faces -X (measured in the CHAR.8 front render); +90° about +Z turns it to the pipeline's -Y front. Not a biology change. species.emberling.repair (CHAR.9b): chibi skin/motion repair measured on the real Emberling GLB (anim_qa PASS, 0 warnings); other species get it only after their own QA run. CHAR.9c (#95): every species now has repair {skinning linear, seamWeld, blendWidth 0.24, pinTransitions} plus per-clip amplitude proposed by tune_repair.py and measured on every frame (scripts/art/character/reports_char9c/species_tune/summary.json); a clip that still fails keeps its authored amplitude. Amplitude below 0.7 needs animator review.",
   "species": {
     "droplet": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.522,
+            "body": 0.85
+          },
+          "Drink": {
+            "body": 0.722,
+            "legs": 0.722
+          },
+          "Eat": {
+            "body": 0.722,
+            "legs": 0.85,
+            "head": 0.85
+          },
+          "Rest": {
+            "legs": 0.522,
+            "body": 0.85
+          },
+          "Sleep": {
+            "legs": 0.614,
+            "head": 0.614
+          },
+          "Swim": {
+            "legs": 0.5,
+            "body": 0.722
+          },
+          "SwimSurface": {
+            "legs": 0.722
+          },
+          "Wake": {
+            "legs": 0.522,
+            "head": 0.522
+          },
+          "Walk": {
+            "legs": 0.722
+          },
+          "WaterEnter": {
+            "legs": 0.614
+          },
+          "WaterExit": {
+            "legs": 0.614
+          }
+        }
+      }
     },
     "zephyr": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Drink": {
+            "head": 0.522,
+            "wings": 0.522
+          },
+          "Eat": {
+            "head": 0.522,
+            "wings": 0.522
+          },
+          "LookAround": {
+            "head": 0.722,
+            "wings": 0.722
+          },
+          "Perch": {
+            "legs": 0.722,
+            "tail": 0.722
+          },
+          "TakeOff": {
+            "body": 0.5,
+            "legs": 0.5
+          },
+          "Sleep": {
+            "wings": 0.32,
+            "legs": 0.377,
+            "head": 0.85
+          },
+          "Wake": {
+            "wings": 0.32,
+            "legs": 0.614,
+            "head": 0.522
+          }
+        }
+      }
     },
     "steamdrake": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Drink": {
+            "body": 0.5,
+            "head": 0.614,
+            "legs": 0.722
+          },
+          "Run": {
+            "body": 0.522,
+            "legs": 0.522
+          },
+          "Swim": {
+            "body": 0.522,
+            "legs": 0.522
+          },
+          "SwimSurface": {
+            "body": 0.722,
+            "legs": 0.722
+          },
+          "Walk": {
+            "body": 0.614,
+            "legs": 0.614
+          },
+          "WaterEnter": {
+            "body": 0.522,
+            "legs": 0.522
+          },
+          "WaterExit": {
+            "body": 0.522,
+            "legs": 0.522
+          }
+        }
+      }
     },
     "magma": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.722
+          },
+          "Burrow": {
+            "legs": 0.722,
+            "body": 0.722
+          },
+          "Drink": {
+            "head": 0.85,
+            "legs": 0.85
+          },
+          "Eat": {
+            "head": 0.85,
+            "legs": 0.85
+          },
+          "Rest": {
+            "legs": 0.722
+          },
+          "Run": {
+            "legs": 0.5
+          },
+          "Sleep": {
+            "legs": 0.722
+          },
+          "Wake": {
+            "legs": 0.722
+          },
+          "Walk": {
+            "legs": 0.85,
+            "body": 0.85
+          }
+        }
+      }
     },
     "sparkwing": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.522,
+            "wings": 0.722
+          },
+          "Fly": {
+            "legs": 0.522,
+            "wings": 0.522
+          },
+          "Glide": {
+            "legs": 0.722
+          },
+          "Land": {
+            "wings": 0.522,
+            "legs": 0.522
+          },
+          "Rest": {
+            "legs": 0.614
+          },
+          "Sleep": {
+            "legs": 0.614,
+            "head": 0.85
+          },
+          "TakeOff": {
+            "legs": 0.522,
+            "wings": 0.522
+          },
+          "Wake": {
+            "legs": 0.614
+          },
+          "Walk": {
+            "legs": 0.522
+          }
+        }
+      }
     },
     "mossback": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.5
+          },
+          "Drink": {
+            "body": 0.522,
+            "head": 0.614,
+            "legs": 0.85
+          },
+          "Eat": {
+            "body": 0.522,
+            "head": 0.614,
+            "legs": 0.85
+          },
+          "Stretch": {
+            "legs": 0.85,
+            "body": 0.85
+          },
+          "SwimIdle": {
+            "legs": 0.722
+          },
+          "Walk": {
+            "legs": 0.722
+          },
+          "Run": {
+            "legs": 0.444
+          }
+        },
+        "local": {
+          "SwimSurface": [
+            [
+              "legs",
+              1353,
+              0.41,
+              5.8
+            ],
+            [
+              "legs",
+              1375,
+              0.41,
+              5.8
+            ],
+            [
+              "legs",
+              1340,
+              0.512,
+              5.8
+            ],
+            [
+              "legs",
+              1364,
+              0.41,
+              5.8
+            ],
+            [
+              "legs",
+              1382,
+              0.64,
+              5.8
+            ],
+            [
+              "legs",
+              1347,
+              0.64,
+              5.8
+            ],
+            [
+              "body",
+              1370,
+              0.8,
+              5.8
+            ],
+            [
+              "body",
+              1358,
+              0.8,
+              5.8
+            ]
+          ]
+        }
+      }
     },
     "blossom": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Land": {
+            "tail": 0.5,
+            "wings": 0.722,
+            "legs": 0.614
+          },
+          "Perch": {
+            "tail": 0.85,
+            "legs": 0.85
+          },
+          "Run": {
+            "legs": 0.522,
+            "tail": 0.522
+          },
+          "Sleep": {
+            "tail": 0.722,
+            "head": 0.722
+          },
+          "TakeOff": {
+            "legs": 0.722,
+            "tail": 0.722
+          },
+          "Wake": {
+            "tail": 0.722,
+            "legs": 0.722
+          },
+          "Walk": {
+            "legs": 0.85,
+            "tail": 0.85
+          }
+        }
+      }
     },
     "solaris": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "trunkAxis": true,
+        "neckSpill": false,
+        "amplitude": {
+          "Eat": {
+            "head": 0.5,
+            "body": 0.522,
+            "legs": 0.522
+          },
+          "Glide": {
+            "body": 0.85,
+            "legs": 0.85
+          },
+          "Rest": {
+            "body": 0.614,
+            "legs": 0.614
+          },
+          "Run": {
+            "body": 0.722,
+            "legs": 0.722
+          },
+          "Walk": {
+            "body": 0.85,
+            "legs": 0.85
+          },
+          "LookAround": {
+            "head": 0.85,
+            "body": 0.85
+          },
+          "Bask": {
+            "body": 0.3,
+            "wings": 0.32,
+            "legs": 0.614
+          },
+          "Fly": {
+            "body": 0.3,
+            "wings": 0.3,
+            "legs": 0.722
+          },
+          "Sleep": {
+            "head": 0.32,
+            "body": 0.3,
+            "legs": 0.614
+          },
+          "Wake": {
+            "body": 0.3,
+            "head": 0.377,
+            "legs": 0.522
+          },
+          "Land": {
+            "body": 0.3,
+            "wings": 0.3,
+            "legs": 0.614
+          }
+        }
+      }
     },
     "aurorawing": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Curious": {
+            "body": 0.85,
+            "tail": 0.85
+          },
+          "Happy": {
+            "tail": 0.722,
+            "legs": 0.85,
+            "body": 0.85
+          },
+          "Nuzzle": {
+            "body": 0.722,
+            "head": 0.722
+          },
+          "Rest": {
+            "body": 0.522,
+            "legs": 0.614,
+            "head": 0.85
+          },
+          "Run": {
+            "body": 0.722,
+            "legs": 0.722
+          },
+          "Bask": {
+            "wings": 0.377,
+            "body": 0.3,
+            "legs": 0.722
+          },
+          "Fly": {
+            "wings": 0.377,
+            "body": 0.377
+          },
+          "Sleep": {
+            "body": 0.3,
+            "head": 0.3,
+            "tail": 0.614,
+            "legs": 0.614,
+            "wings": 0.522
+          },
+          "Wake": {
+            "body": 0.3,
+            "head": 0.3,
+            "tail": 0.522,
+            "legs": 0.3
+          }
+        }
+      }
     },
     "celestia": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.722
+          },
+          "Fly": {
+            "legs": 0.614,
+            "wings": 0.722
+          },
+          "Glide": {
+            "legs": 0.722
+          },
+          "Land": {
+            "wings": 0.522,
+            "legs": 0.522
+          },
+          "Rest": {
+            "legs": 0.85
+          },
+          "Sleep": {
+            "head": 0.85,
+            "legs": 0.85
+          },
+          "TakeOff": {
+            "legs": 0.614,
+            "wings": 0.722
+          },
+          "Wake": {
+            "legs": 0.85
+          },
+          "Walk": {
+            "legs": 0.522
+          }
+        }
+      }
     },
     "gaia": {
       "limbCount": "auto",
-      "yawOffset": null
+      "yawOffset": null,
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Happy": {
+            "tail": 0.522,
+            "body": 0.5,
+            "legs": 0.85
+          },
+          "LookAround": {
+            "body": 0.522,
+            "head": 0.522
+          },
+          "SwimIdle": {
+            "legs": 0.522
+          },
+          "Walk": {
+            "legs": 0.722
+          },
+          "Run": {
+            "legs": 0.32
+          },
+          "Sleep": {
+            "legs": 0.3,
+            "head": 0.377,
+            "body": 0.3,
+            "fins": 0.377
+          },
+          "Wake": {
+            "body": 0.3,
+            "legs": 0.444,
+            "fins": 0.3,
+            "head": 0.522
+          }
+        },
+        "local": {
+          "Rest": [
+            [
+              "legs",
+              450,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              510,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              480,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              540,
+              0.512,
+              14.4
+            ],
+            [
+              "legs",
+              435,
+              0.8,
+              14.4
+            ]
+          ],
+          "Bask": [
+            [
+              "legs",
+              966,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              1026,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              996,
+              0.41,
+              14.4
+            ],
+            [
+              "legs",
+              1056,
+              0.512,
+              14.4
+            ],
+            [
+              "legs",
+              951,
+              0.8,
+              14.4
+            ]
+          ]
+        }
+      }
     },
     "emberling": {
       "repair": {
-        "blendWidth_m": 0.12,
+        "blendWidth_m": 0.24,
+        "seamWeld": true,
         "amplitude": {
           "Eat": {
             "head": 0.6
@@ -74,10 +656,205 @@
             "legs": 0.9
           },
           "Run": {
-            "legs": 0.8
+            "legs": 0.6
           }
         },
         "skinning": "linear"
+      }
+    },
+    "amberhorn": {
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "legs": 0.722,
+            "tail": 0.722
+          },
+          "Burrow": {
+            "legs": 0.614,
+            "tail": 0.614
+          },
+          "Rest": {
+            "legs": 0.722,
+            "tail": 0.722
+          },
+          "Run": {
+            "body": 0.614,
+            "legs": 0.614
+          },
+          "Sleep": {
+            "tail": 0.614,
+            "legs": 0.614
+          },
+          "Wake": {
+            "legs": 0.722,
+            "tail": 0.722
+          }
+        }
+      }
+    },
+    "frostfin": {
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Curious": {
+            "body": 0.5,
+            "tail": 0.5
+          },
+          "Greet": {
+            "body": 0.522,
+            "tail": 0.522
+          },
+          "Idle": {
+            "body": 0.722,
+            "tail": 0.722
+          },
+          "LookAround": {
+            "body": 0.85,
+            "head": 0.85
+          },
+          "Nuzzle": {
+            "body": 0.722,
+            "tail": 0.722
+          },
+          "Rest": {
+            "body": 0.85,
+            "tail": 0.85
+          },
+          "Swim": {
+            "fins": 0.722,
+            "body": 0.614,
+            "tail": 0.85
+          },
+          "Eat": {
+            "body": 0.3,
+            "tail": 0.444,
+            "head": 0.614
+          },
+          "Sleep": {
+            "tail": 0.3,
+            "body": 0.3,
+            "head": 0.614
+          },
+          "Wake": {
+            "body": 0.3,
+            "tail": 0.3,
+            "head": 0.614
+          }
+        }
+      }
+    },
+    "leviathan": {
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Curious": {
+            "body": 0.85,
+            "tail": 0.85
+          },
+          "Eat": {
+            "body": 0.522,
+            "head": 0.522
+          },
+          "Greet": {
+            "body": 0.522,
+            "tail": 0.522
+          },
+          "Idle": {
+            "body": 0.522,
+            "tail": 0.522
+          },
+          "Nuzzle": {
+            "body": 0.722,
+            "tail": 0.722
+          },
+          "Swim": {
+            "body": 0.722,
+            "tail": 0.722
+          },
+          "Sleep": {
+            "body": 0.3,
+            "tail": 0.32,
+            "head": 0.522
+          },
+          "Wake": {
+            "body": 0.3,
+            "tail": 0.444,
+            "head": 0.377
+          }
+        },
+        "local": {
+          "LookAround": [
+            [
+              "head",
+              608,
+              0.328,
+              10.8
+            ],
+            [
+              "body",
+              608,
+              0.328,
+              10.8
+            ],
+            [
+              "head",
+              644,
+              0.64,
+              10.8
+            ],
+            [
+              "body",
+              644,
+              0.64,
+              10.8
+            ]
+          ]
+        }
+      }
+    },
+    "sprout": {
+      "repair": {
+        "skinning": "linear",
+        "seamWeld": true,
+        "blendWidth_m": 0.24,
+        "pinTransitions": true,
+        "amplitude": {
+          "Bask": {
+            "tail": 0.85,
+            "legs": 0.85
+          },
+          "Happy": {
+            "tail": 0.85,
+            "legs": 0.85
+          },
+          "LookAround": {
+            "head": 0.85,
+            "body": 0.85
+          },
+          "Rest": {
+            "tail": 0.85,
+            "legs": 0.85
+          },
+          "Walk": {
+            "tail": 0.614,
+            "legs": 0.614
+          },
+          "Burrow": {
+            "tail": 0.32,
+            "legs": 0.377,
+            "body": 0.85
+          }
+        }
       }
     }
   },

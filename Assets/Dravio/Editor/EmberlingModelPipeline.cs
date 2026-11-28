@@ -119,7 +119,7 @@ namespace Dravio.Editor
                 if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
                     EditorSceneManager.OpenScene(target);
-                    if (integrated && Object.FindFirstObjectByType<SanctuaryDomainPreview>() == null)
+                    if (integrated && Object.FindAnyObjectByType<SanctuaryDomainPreview>() == null)
                         Debug.LogError("Dravio: incomplete integrated scene. Back up/rename it before rebuilding.");
                 }
                 return;
@@ -271,7 +271,7 @@ namespace Dravio.Editor
             if (!EditorSceneManager.SaveScene(sourceScene, target, true))
             { Debug.LogError("Dravio: could not copy scene."); return; }
             Scene preview = EditorSceneManager.OpenScene(target);
-            var turntable = Object.FindFirstObjectByType<DragonTurntable>();
+            var turntable = Object.FindAnyObjectByType<DragonTurntable>();
             if (integrated)
             {
                 var marker = GameObject.Find("Clearing - Dragon Spot (marker)");
@@ -323,7 +323,7 @@ namespace Dravio.Editor
             {
                 var animator = visual.GetComponentInChildren<Animator>(true);
                 root.gameObject.AddComponent<DragonWanderPreview>().Configure(animator, turntable);
-                foreach (var label in Object.FindObjectsByType<UnityEngine.UI.Text>(FindObjectsSortMode.None))
+                foreach (var label in Object.FindObjectsByType<UnityEngine.UI.Text>())
                     if (label.text.Contains("Drag to rotate"))
                         label.text = "Emberling  |  Auto walk & rest  |  Space: inspect / resume  |  Drag or arrows to rotate";
             }

@@ -37,7 +37,7 @@ namespace Dravio.Editor
             AssetDatabase.Refresh();
             // Create a separate scene file before modifying any object in the original.
             var scene = EditorSceneManager.OpenScene(Source);
-            var dragon = Object.FindFirstObjectByType<DragonTurntable>();
+            var dragon = Object.FindAnyObjectByType<DragonTurntable>();
             var cam = Camera.main;
             var envObject = GameObject.Find("Origin Meadow - Blockout");
             if (dragon == null || cam == null || envObject == null)

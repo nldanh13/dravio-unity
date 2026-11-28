@@ -91,6 +91,90 @@ namespace Dravio.Tests
             Assert.That(s.SanctuaryProjectsBuilt,Is.EqualTo(2));
             Assert.That(result.State.ProductionDragonIds,Is.EqualTo(s.ProductionDragonIds));
         }
+        [Test] public void ProjectSummaryUsesCanonicalWorldFallbackAndMaterialNeeds()
+        {
+            // Fixture selects a late project to test presentation without replaying all earlier purchases.
+            var s=New();s.SanctuaryProjectsBuilt=8;var rev=s.Revision;
+            var q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(q.NextProject.Id,Is.EqualTo("ocean_tide_pools"));
+            Assert.That(q.NextProjectMaterialFallback,Is.True);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),
+                Does.Contain("Tide pools").And.Contain("Fallback material source: Origin").And.Contain("wood").And.Contain("origin_forest"));
+            s.FindZone("ocean").Unlocked=true;
+            q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(q.NextProjectMaterialFallback,Is.False);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("crystal").And.Contain("coral").And.Not.Contain("Fallback material source"));
+            Assert.That(ExpeditionPresentation.ProjectShortfalls(s,q).Select(x=>x.Key),Is.EqualTo(new[]{"crystal","coral"}));
+            Assert.That(s.Revision,Is.EqualTo(rev));
+        }
+        [Test] public void ProjectSummaryHandlesSkyFallbackAndMax()
+        {
+            var s=New();s.FindZone("ocean").Unlocked=true;s.FindZone("sky").Unlocked=true;
+            s.SanctuaryProjectsBuilt=14;
+            SanctuaryEconomyDto q;
+            using(SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                q=ProgressionQueries.SanctuaryEconomy(s,Now);
+                Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("Cloud bridge").And.Contain("Fallback material source: Ocean"));
+                Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Not.Contain("stardust"));
+            }
+            using(SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
+            {
+                q=ProgressionQueries.SanctuaryEconomy(s,Now);
+                Assert.That(q.NextProjectMaterialFallback,Is.False);
+                Assert.That(q.NextProjectMaterials.Select(x=>x.MaterialId),Does.Contain("stardust"));
+            }
+            s.SanctuaryProjectsBuilt=60;
+            q=ProgressionQueries.SanctuaryEconomy(s,Now);
+            Assert.That(ExpeditionPresentation.ProjectSummary(s,q,false),Does.Contain("60/60").And.Contain("All projects completed"));
+            Assert.That(ExpeditionPresentation.ProjectShortfalls(s,q),Is.Empty);
+        }
+        [Test] public void SkyProgressShowsLockedEggMilestoneWithoutClaimPermission()
+        {
+            var s=New();
+            using(SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                var sky=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
+                Assert.That(sky.RewardsDefined,Is.False);
+                Assert.That(sky.NextMilestoneAt,Is.EqualTo(15));
+                Assert.That(ExpeditionPresentation.RouteProgress(sky,true),Does.Contain("15").And.Contain("aurorawing").And.Contain("chưa thể đạt"));
+                Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+            }
+        }
+        [Test] public void EnabledSkyTableStillRequiresWorldAndShowsFirstMilestone()
+        {
+            var s=New();
+            using(SkyCloudBalance.Use(SkyCloudBalance.ProposedA))
+            {
+                var route=ProgressionQueries.ExplorationRoutes(s).Single(x=>x.RouteId=="sky_cloud");
+                Assert.That(route.RewardsDefined,Is.True);
+                Assert.That(route.NextMilestoneAt,Is.EqualTo(1));
+                Assert.That(route.NextMilestoneBonusEach,Is.EqualTo(2));
+                Assert.That(ExpeditionPresentation.RouteProgress(route,false),Does.Contain("Unlock the route world").And.Contain("Milestone bonus per material: +2"));
+                Assert.That(ExpeditionPresentation.CanStart(s,"sky_cloud",s.Dragons[0].Uid,out _),Is.False);
+            }
+        }
+        [Test] public void ClaimFeedbackUsesActualEventsAndDoesNotInventRewards()
+        {
+            var s=Adult();var clock=new FixedClock(Now);
+            var start=CommandDispatcher.Dispatch(s,new StartExpeditionCommand("start-feedback","origin_forest",s.Dragons[0].Uid),clock);
+            Assert.That(start.Ok,Is.True);
+            s=start.State;clock.Set(s.Expedition.FinishAtMs);
+            s=CommandDispatcher.Dispatch(s,new AdvanceTimeCommand("settle-feedback",AdvanceMode.Offline),clock).State;
+            var claim=CommandDispatcher.Dispatch(s,new ClaimExpeditionCommand("claim-feedback"),clock);
+            Assert.That(claim.Ok,Is.True);
+            var ev=claim.Events.OfType<ExpeditionClaimed>().Single();
+            var feedback=ExpeditionPresentation.ClaimFeedback(claim.Events,false,true);
+            foreach(var kv in ev.Rewards)Assert.That(feedback,Does.Contain(kv.Key+" +"+kv.Value));
+            Assert.That(feedback,Does.Contain("Reached claim milestone 1").And.Contain("Milestone bonus:").And.Contain("Save failed"));
+            Assert.That(ExpeditionPresentation.ClaimFeedback(System.Array.Empty<DomainEvent>(),false,false),Does.Contain("not confirmed"));
+            Assert.That(ExpeditionPresentation.ClaimFeedback(claim.Events,false,false),Does.Not.Contain("aurorawing"));
+        }
+        [Test] public void RewardEggMessageDistinguishesDeliveryFromQueue()
+        {
+            Assert.That(ExpeditionPresentation.EggGrant(new RewardEggGranted("EXPEDITION_EGG_AURORAWING","aurorawing",false),false),Does.Contain("Queued").And.Contain("aurorawing"));
+            Assert.That(ExpeditionPresentation.EggGrant(new RewardEggGranted("EXPEDITION_EGG_AURORAWING","aurorawing",true),false),Does.Contain("Delivered"));
+        }
         [TestCase(0L,"00:00:00")]
         [TestCase(1L,"00:00:01")]
         [TestCase(900000L,"00:15:00")]

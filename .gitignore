@@ -29,3 +29,6 @@
 # Python caches from scripts/
 __pycache__/
 *.pyc
+
+# VIS.2a HUD QA captures (Dravio > UI > QA > Capture Game View); copy approved ones into Docs
+/Screenshots/

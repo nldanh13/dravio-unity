@@ -1,0 +1,580 @@
+{
+  "version": "vis2a-1",
+  "note": "VIS.2a sprite slot contract (Issue #86). Paths and IDs are proposals for AI3; borders are provisional and MUST be measured on the approved sprite, then set in the Sprite Editor (the importer copies borderPx only when the sprite has none). Text is never baked into art. Source PNGs stay in ArtSource; only approved runtime copies go under Assets/Dravio/UI/Sprites.",
+  "referenceResolution": [
+    1280,
+    720
+  ],
+  "compactReferenceResolution": [
+    960,
+    540
+  ],
+  "importProfile": {
+    "format": "PNG RGBA 8-bit, straight alpha, sRGB",
+    "mipmaps": false,
+    "wrap": "Clamp",
+    "filter": "Bilinear",
+    "alphaIsTransparency": true,
+    "npotScale": "None",
+    "spriteMode": "Single",
+    "meshType": "FullRect",
+    "pixelsPerUnit": 100,
+    "standalone": "RGBA32 (uncompressed) for review",
+    "android": "ASTC 4x4 (clean UI edges), fallback RGBA32",
+    "ios": "ASTC 4x4",
+    "atlasPadding": "4 px without mips / 8 px with mips or block compression",
+    "maxSize": "per slot: smallest size that does not upscale at canvas scale 2.67 (compact 540 reference on a 1440 px tall phone); see Docs/vis2a"
+  },
+  "slots": [
+    {
+      "id": "btn_primary",
+      "role": "PrimaryButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_primary.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 384,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 0,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Green rounded, slightly convex face. Optional states use _pressed / _disabled suffix. No text in art."
+    },
+    {
+      "id": "btn_secondary",
+      "role": "SecondaryButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_secondary.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 384,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 0,
+      "displayHeightUnits": 44,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Cream/light wood or soft blue. Header language/hide buttons."
+    },
+    {
+      "id": "btn_reward",
+      "role": "RewardButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_reward.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 384,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 0,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Honey gold, soft highlight. Egg pack claims."
+    },
+    {
+      "id": "btn_danger",
+      "role": "DangerButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_danger.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 384,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 0,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Friendly coral red."
+    },
+    {
+      "id": "btn_close",
+      "role": "CloseButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_close.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": false,
+      "borderPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "borderUnits": 0,
+      "displayWidthUnits": 48,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Round, own symbol (not text). Simple + preserveAspect."
+    },
+    {
+      "id": "btn_back",
+      "role": "BackButton",
+      "path": "Assets/Dravio/UI/Sprites/Buttons/ui_btn_back.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": false,
+      "borderPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "borderUnits": 0,
+      "displayWidthUnits": 48,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal",
+        "pressed",
+        "disabled"
+      ],
+      "notes": "Round, arrow symbol. Simple + preserveAspect."
+    },
+    {
+      "id": "tab",
+      "role": "Tab",
+      "path": "Assets/Dravio/UI/Sprites/Tabs/ui_tab.png",
+      "sourceWidth": 512,
+      "sourceHeight": 256,
+      "sliced": true,
+      "borderPx": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "borderUnits": 14,
+      "displayWidthUnits": 60,
+      "displayHeightUnits": 44,
+      "states": [
+        "normal"
+      ],
+      "notes": "Idle pill/card."
+    },
+    {
+      "id": "tab_active",
+      "role": "TabActive",
+      "path": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_active.png",
+      "sourceWidth": 512,
+      "sourceHeight": 256,
+      "sliced": true,
+      "borderPx": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "borderUnits": 14,
+      "displayWidthUnits": 60,
+      "displayHeightUnits": 44,
+      "states": [
+        "normal"
+      ],
+      "notes": "Brighter; differs from Tab by shape/indicator too, not colour only."
+    },
+    {
+      "id": "tab_indicator",
+      "role": "TabIndicator",
+      "path": "Assets/Dravio/UI/Sprites/Tabs/ui_tab_indicator.png",
+      "sourceWidth": 256,
+      "sourceHeight": 64,
+      "sliced": false,
+      "borderPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "borderUnits": 0,
+      "displayWidthUnits": 32,
+      "displayHeightUnits": 4,
+      "states": [
+        "normal"
+      ],
+      "notes": "Small bar/leaf under the active tab. Not raycast."
+    },
+    {
+      "id": "panel",
+      "role": "Panel",
+      "path": "Assets/Dravio/UI/Sprites/Panels/ui_panel.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sliced": true,
+      "borderPx": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "borderUnits": 24,
+      "displayWidthUnits": 326,
+      "displayHeightUnits": 648,
+      "states": [
+        "normal"
+      ],
+      "notes": "Drawer surface. Centre: gentle texture only, no unique motif. Large corner ornaments go in a separate non-raycast overlay sprite."
+    },
+    {
+      "id": "header",
+      "role": "HeaderBar",
+      "path": "Assets/Dravio/UI/Sprites/Panels/ui_header.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 256,
+      "sliced": true,
+      "borderPx": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "borderUnits": 18,
+      "displayWidthUnits": 1256,
+      "displayHeightUnits": 48,
+      "states": [
+        "normal"
+      ],
+      "notes": "Top bar."
+    },
+    {
+      "id": "page_bg",
+      "role": "PageBackground",
+      "path": "Assets/Dravio/UI/Sprites/Panels/ui_page_bg.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        64,
+        64,
+        64,
+        64
+      ],
+      "borderUnits": 12,
+      "displayWidthUnits": 306,
+      "displayHeightUnits": 400,
+      "states": [
+        "normal"
+      ],
+      "notes": "Scroll page backing inside the drawer; low contrast so text reads."
+    },
+    {
+      "id": "card",
+      "role": "Card",
+      "path": "Assets/Dravio/UI/Sprites/Cards/ui_card.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 286,
+      "displayHeightUnits": 96,
+      "states": [
+        "normal"
+      ],
+      "notes": "Info card / list row."
+    },
+    {
+      "id": "slot_common",
+      "role": "SlotCommon",
+      "path": "Assets/Dravio/UI/Sprites/Cards/ui_slot_common.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 72,
+      "displayHeightUnits": 72,
+      "states": [
+        "normal"
+      ],
+      "notes": "Wood/cream. Rarity also needs a label/mark, not colour only."
+    },
+    {
+      "id": "slot_rare",
+      "role": "SlotRare",
+      "path": "Assets/Dravio/UI/Sprites/Cards/ui_slot_rare.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 72,
+      "displayHeightUnits": 72,
+      "states": [
+        "normal"
+      ],
+      "notes": "Blue."
+    },
+    {
+      "id": "slot_epic",
+      "role": "SlotEpic",
+      "path": "Assets/Dravio/UI/Sprites/Cards/ui_slot_epic.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 72,
+      "displayHeightUnits": 72,
+      "states": [
+        "normal"
+      ],
+      "notes": "Purple."
+    },
+    {
+      "id": "slot_legendary",
+      "role": "SlotLegendary",
+      "path": "Assets/Dravio/UI/Sprites/Cards/ui_slot_legendary.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": true,
+      "borderPx": [
+        88,
+        88,
+        88,
+        88
+      ],
+      "borderUnits": 16,
+      "displayWidthUnits": 72,
+      "displayHeightUnits": 72,
+      "states": [
+        "normal"
+      ],
+      "notes": "Gold."
+    },
+    {
+      "id": "progress_frame",
+      "role": "ProgressFrame",
+      "path": "Assets/Dravio/UI/Sprites/Progress/ui_progress_frame.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 128,
+      "sliced": true,
+      "borderPx": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "borderUnits": 10,
+      "displayWidthUnits": 240,
+      "displayHeightUnits": 20,
+      "states": [
+        "normal"
+      ],
+      "notes": "Frame only; never stretched by value."
+    },
+    {
+      "id": "progress_fill",
+      "role": "ProgressFill",
+      "path": "Assets/Dravio/UI/Sprites/Progress/ui_progress_fill.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 128,
+      "sliced": true,
+      "borderPx": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "borderUnits": 7,
+      "displayWidthUnits": 232,
+      "displayHeightUnits": 14,
+      "states": [
+        "normal"
+      ],
+      "notes": "Fill only; Filled or Masked mode in DravioProgressBar."
+    },
+    {
+      "id": "progress_highlight",
+      "role": "ProgressHighlight",
+      "path": "Assets/Dravio/UI/Sprites/Progress/ui_progress_highlight.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 128,
+      "sliced": false,
+      "borderPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "borderUnits": 0,
+      "displayWidthUnits": 232,
+      "displayHeightUnits": 14,
+      "states": [
+        "normal"
+      ],
+      "notes": "Optional gloss overlay."
+    },
+    {
+      "id": "divider",
+      "role": "Divider",
+      "path": "Assets/Dravio/UI/Sprites/Decor/ui_divider.png",
+      "sourceWidth": 512,
+      "sourceHeight": 128,
+      "sliced": true,
+      "borderPx": [
+        160,
+        0,
+        160,
+        0
+      ],
+      "borderUnits": 8,
+      "displayWidthUnits": 286,
+      "displayHeightUnits": 10,
+      "states": [
+        "normal"
+      ],
+      "notes": "Leaf / soft gold line; horizontal stretch only."
+    },
+    {
+      "id": "portrait",
+      "role": "Portrait",
+      "path": "Assets/Dravio/UI/Sprites/Portraits/ui_portrait_frame.png",
+      "sourceWidth": 512,
+      "sourceHeight": 512,
+      "sliced": false,
+      "borderPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "borderUnits": 0,
+      "displayWidthUnits": 72,
+      "displayHeightUnits": 72,
+      "states": [
+        "normal"
+      ],
+      "notes": "Round/soft octagon frame with real alpha core."
+    }
+  ],
+  "icons": {
+    "pathPattern": "Assets/Dravio/UI/Sprites/Icons/ui_icon_{id}.png",
+    "sourceSize": 512,
+    "coverage": "75-85% of canvas",
+    "displayUnits": [
+      24,
+      32,
+      48,
+      64
+    ],
+    "sliced": false,
+    "ids": [
+      "care",
+      "biology",
+      "dragons",
+      "eggs",
+      "world",
+      "quests",
+      "expedition",
+      "inventory",
+      "feed",
+      "pet",
+      "rest",
+      "inspect",
+      "build",
+      "research",
+      "health",
+      "settings",
+      "day",
+      "night",
+      "lock",
+      "done",
+      "warning",
+      "upgrade",
+      "reward",
+      "hunger",
+      "water",
+      "energy",
+      "temperature",
+      "bond",
+      "leaf",
+      "close",
+      "back",
+      "next"
+    ]
+  },
+  "items": {
+    "pathPattern": "Assets/Dravio/UI/Sprites/Items/ui_item_{id}.png",
+    "sourceSize": 512,
+    "coverage": "75-85% of canvas",
+    "displayUnits": [
+      32,
+      48,
+      64
+    ],
+    "sliced": false,
+    "ids": [
+      "gold",
+      "wood",
+      "seed",
+      "stone",
+      "crystal",
+      "coral",
+      "stardust",
+      "fruit",
+      "leaf",
+      "aquatic",
+      "aether",
+      "pack_starter",
+      "pack_elemental",
+      "pack_mystic",
+      "pack_astral",
+      "blueprint",
+      "egg"
+    ]
+  }
+}

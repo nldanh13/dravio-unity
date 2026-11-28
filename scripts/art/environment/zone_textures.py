@@ -6,8 +6,8 @@ valid; every tile and foliage cell is simply repainted for the zone:
 
     python scripts/art/environment/zone_textures.py <out_dir> ocean|sky
 
-  T_ENV_<Zone>_PropsAtlas.png    1024^2  4x4 atlas (ENV_<Zone>_Props)
-  T_ENV_<Zone>_PropsEmission.png  512^2  glow (crystals, anemones, glyphs)
+  T_ENV_<Zone>_PropsAtlas.png     512^2  4x4 atlas (ENV_<Zone>_Props), painted at 1024^2, box-filtered
+  T_ENV_<Zone>_PropsEmission.png  128^2  glow (crystals, anemones, glyphs), painted at 1024^2, box-filtered
   T_ENV_<Zone>_Foliage.png       1024x512 alpha-clipped cards
   T_ENV_<Zone>_Ground.png         512^2  seamless sand / cloud-meadow
   T_ENV_Sky_Water.png             256^2  seamless cloud sea (Sky only, water shader)
@@ -15,6 +15,12 @@ valid; every tile and foliage cell is simply repainted for the zone:
             T_ENV_FX_Bubble (64^2)
   Sky FX:   T_ENV_FX_CloudWisp (128^2), T_ENV_FX_Petal (64^2)
 Atlas tile -> meaning per zone is listed in OCEAN_TILES / SKY_TILES.
+
+ENV Alpha (issue #79): the zone scenes must fit the Unity validator's 6 MiB RGBA32 + mips estimate
+(ZoneEnvironmentBuilder.BudgetProblems: width * height * 4 * 1.333 per texture). At 1024^2 the atlas alone was
+5.33 MiB (scene 11.1 MiB). Every map is still PAINTED at its original size (same seeds, same brushes) and then
+box-filtered to OUTPUT_SIZE, so the layout (UVs are fractions of the atlas) and the look are unchanged, only the
+texel density drops. Ground (largest screen area) and foliage (alpha-clipped edges) keep their size.
 """
 import math
 import os
@@ -29,6 +35,21 @@ from png_io import write_png  # noqa: E402
 
 T = pt.T
 H = pt.hex_rgb
+
+# Output size per map (square); maps not listed keep their painted size.
+OUTPUT_SIZE = {"PropsAtlas": 512, "PropsEmission": 128}
+
+
+def box_downscale(img, size):
+    """Area-mean downscale of a uint8 (H, W, C) image by an integer factor (deterministic, no resampling ringing)."""
+    h, w, c = img.shape
+    f = h // size
+    if f <= 1:
+        return img
+    assert h == w and h % size == 0, (h, w, size)
+    m = img.astype(np.float32).reshape(size, f, size, f, c).mean(axis=(1, 3))
+    return (m + 0.5).astype(np.uint8)
+
 
 # Atlas slot -> what it is painted as, per zone (documentation + tests).
 OCEAN_TILES = {
@@ -529,15 +550,36 @@ def fx_rgba(alpha, rgb=(255, 255, 255)):
     return out
 
 
-def fx_caustics(seed=31, size=256):
-    """Seamless caustic web: ridges of two warped periodic noises."""
+def fx_caustics(seed=31, size=256, supersample=4, depth=0.08, waves=40, kmin=4, kmax=8, amp=0.012):
+    """Seamless caustic web, photon traced (VIS.4b follow-up).
+
+    A periodic wave height field (integer wave vectors, so it tiles) refracts a uniform grid of
+    light rays onto a flat floor `depth` below; rays are binned with wrap-around. Bright lines
+    are where the surface focuses light, like real pool / shallow-sea caustics.
+    Wave numbers 4..8 with 40 waves: an irregular web. The caustics shader samples it at
+    _TexScale 0.5, so on screen the cell size matches the sparser look the owner chose while the
+    pattern repeats only every 2 material tiles.
+    """
     rng = np.random.default_rng(seed)
-    a = pt.fbm(size, rng, base=6, octaves=3)
-    b = pt.fbm(size, rng, base=6, octaves=3)
-    ridge = 1 - np.abs(a - b) * 9
-    web = np.clip(ridge, 0, 1) ** 3
-    web = np.maximum(web, np.clip(1 - np.abs(a - 0.5) * 10, 0, 1) ** 3 * 0.6)
-    return fx_rgba(np.clip(web * 1.1, 0, 1))
+    n = size * supersample
+    y, x = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
+    gx = np.zeros_like(x)
+    gy = np.zeros_like(x)
+    for _ in range(waves):
+        kx, ky = 0, 0
+        while np.hypot(kx, ky) < kmin:
+            kx, ky = rng.integers(-kmax, kmax + 1, 2)
+        k = np.hypot(kx, ky)
+        a = amp / k * rng.uniform(0.5, 1.0)
+        arg = 2 * np.pi * (kx * x + ky * y) + rng.uniform(0, 2 * np.pi)
+        gx += a * 2 * np.pi * kx * np.cos(arg)
+        gy += a * 2 * np.pi * ky * np.cos(arg)
+    px = ((x - depth * gx) % 1.0 * size).astype(int) % size
+    py = ((y - depth * gy) % 1.0 * size).astype(int) % size
+    light = np.bincount((py * size + px).ravel(), minlength=size * size).reshape(size, size)
+    light = light / float(supersample * supersample)
+    light = (light + np.roll(light, 1, 0) + np.roll(light, -1, 0) + np.roll(light, 1, 1) + np.roll(light, -1, 1)) / 5
+    return fx_rgba(np.clip((light - 0.7) / 1.6, 0, 1) ** 0.9)
 
 
 def fx_light_shaft(h=256, w=64):
@@ -581,6 +623,8 @@ def generate_zone(zone, out_dir):
     s_atlas, s_fol, s_ground, s_water = SEEDS[zone]
     Z = zone.capitalize()
     props, emission = build_atlas(zone, s_atlas)
+    props = box_downscale(props, OUTPUT_SIZE["PropsAtlas"])
+    emission = box_downscale(emission, OUTPUT_SIZE["PropsEmission"])
     files = {
         f"T_ENV_{Z}_PropsAtlas.png": props,
         f"T_ENV_{Z}_PropsEmission.png": emission,

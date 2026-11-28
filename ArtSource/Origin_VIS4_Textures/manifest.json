@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "status": "procedural color texture candidates; art review pending",
+  "colorSpace": "sRGB",
+  "format": "8-bit indexed PNG, 256-entry RGB palette, no alpha",
+  "tileSize": 512,
+  "assets": [
+    {
+      "id": "earth",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Earth.png",
+      "target": "earth (tile 12); not automatic ground path override",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "282b5c861b30a0044c9159edf5d9086168d143f4",
+      "toneLevels": [
+        22,
+        54
+      ],
+      "uniqueColors": 118,
+      "periodicMaxError": 3.3306690738754696e-15,
+      "edgeMeanAbsRGB": [
+        1.3118489583333317,
+        1.3216145833333341
+      ],
+      "middleMeanAbsRGB": [
+        1.5930989583333375,
+        1.4309895833333315
+      ]
+    },
+    {
+      "id": "bark",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Bark.png",
+      "target": "bark (tile 4), root (tile 5 as optional tinted derivative)",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "f4d47b4c6187a685f02af266bdb825ed8534003d",
+      "toneLevels": [
+        7,
+        52
+      ],
+      "uniqueColors": 173,
+      "periodicMaxError": 1.199040866595169e-14,
+      "edgeMeanAbsRGB": [
+        3.494140625000001,
+        1.531250000000001
+      ],
+      "middleMeanAbsRGB": [
+        3.4798177083333357,
+        1.3906250000000009
+      ]
+    },
+    {
+      "id": "stone_warm",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Stone_Warm.png",
+      "target": "stone_warm (tile 0)",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "1831481cde8030aa33685c4d4b9d8622012c9dcb",
+      "toneLevels": [
+        26,
+        51
+      ],
+      "uniqueColors": 93,
+      "periodicMaxError": 8.881784197001252e-16,
+      "edgeMeanAbsRGB": [
+        0.6985677083333329,
+        0.7552083333333336
+      ],
+      "middleMeanAbsRGB": [
+        0.7089843749999992,
+        0.7317708333333347
+      ]
+    },
+    {
+      "id": "stone_cool",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Stone_Cool.png",
+      "target": "stone_cool (tile 1)",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "32c34193210a031a969a6e0c0252b08bd0c73dc9",
+      "toneLevels": [
+        19,
+        53
+      ],
+      "uniqueColors": 116,
+      "periodicMaxError": 1.5543122344752192e-15,
+      "edgeMeanAbsRGB": [
+        0.9531249999999989,
+        0.9381510416666657
+      ],
+      "middleMeanAbsRGB": [
+        0.8346354166666684,
+        0.9088541666666666
+      ]
+    },
+    {
+      "id": "leaf_canopy",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Leaf_Canopy.png",
+      "target": "leaf_canopy (tile 6)",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "f2d607d604af00143c19d09c2d1795ca2a63b9bb",
+      "toneLevels": [
+        16,
+        53
+      ],
+      "uniqueColors": 144,
+      "periodicMaxError": 3.9968028886505635e-15,
+      "edgeMeanAbsRGB": [
+        1.6868489583333357,
+        1.4908854166666685
+      ],
+      "middleMeanAbsRGB": [
+        1.560546874999999,
+        1.913411458333335
+      ]
+    },
+    {
+      "id": "fruit_red",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Fruit_Red.png",
+      "target": "new fruit source only; requires dedicated atlas allocation/UV; never replace mushroom_cap (tile 8)",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "4ab90daaafa84c0a25abadaccb912ebd0ff01635",
+      "toneLevels": [
+        29,
+        48
+      ],
+      "uniqueColors": 70,
+      "periodicMaxError": 5.551115123125783e-16,
+      "edgeMeanAbsRGB": [
+        0.7350260416666671,
+        0.6562500000000007
+      ],
+      "middleMeanAbsRGB": [
+        0.714843750000001,
+        0.7467447916666681
+      ]
+    },
+    {
+      "id": "meadow",
+      "path": "ArtSource/Origin_VIS4_Textures/Textures/T_VIS4_Origin_Meadow.png",
+      "target": "standalone T_ENV_Ground candidate; preserve path mask and UV repeat",
+      "width": 512,
+      "height": 512,
+      "format": "PNG indexed RGB, sRGB, opaque",
+      "bytes": 263537,
+      "blob": "fd71a0b78b491f990c59d07736cc2d384dc24978",
+      "toneLevels": [
+        22,
+        52
+      ],
+      "uniqueColors": 111,
+      "periodicMaxError": 1.4432899320127035e-15,
+      "edgeMeanAbsRGB": [
+        0.9049479166666685,
+        1.0768229166666685
+      ],
+      "middleMeanAbsRGB": [
+        1.1067708333333313,
+        1.0039062500000027
+      ]
+    }
+  ],
+  "preview": {
+    "path": "ArtSource/Origin_VIS4_Textures/preview.png",
+    "blob": "f90bcc3100c345d2b5597c156810edef82fbfc3c",
+    "bytes": 464076,
+    "order": "left to right, first row earth/bark/warm stone/cool stone; second row canopy/fruit/meadow"
+  },
+  "validation": "periodic analytical pattern repeat checks; palette and raw PNG scanline round-trip verification; edge mean pixel difference reported; no external decoder, renderer or Unity tests"
+}

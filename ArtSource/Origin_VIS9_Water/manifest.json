@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "status": "original procedural source art, no runtime import or visual acceptance",
+  "assets": [
+    {
+      "name": "T_VIS9_Waterfall_Silk",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB, straight alpha",
+      "alphaMin": 173,
+      "alphaMax": 232,
+      "nonzeroAlpha": 65536,
+      "rgba32Level0Bytes": 262144,
+      "meanAdjacentRGBA": [
+        2.8717193603515625,
+        0.39788055419921875
+      ],
+      "bytes": 262501,
+      "path": "ArtSource/Origin_VIS9_Water/T_VIS9_Waterfall_Silk.png",
+      "blob": "e3eeed4682b9ed8a606427fed3c6d5919e8498b3"
+    },
+    {
+      "name": "T_VIS9_Stream_Curved_Ripples",
+      "width": 256,
+      "height": 256,
+      "format": "RGBA8 sRGB, straight alpha",
+      "alphaMin": 168,
+      "alphaMax": 214,
+      "nonzeroAlpha": 65536,
+      "rgba32Level0Bytes": 262144,
+      "meanAdjacentRGBA": [
+        0.71942138671875,
+        2.08868408203125
+      ],
+      "bytes": 262501,
+      "path": "ArtSource/Origin_VIS9_Water/T_VIS9_Stream_Curved_Ripples.png",
+      "blob": "e5b0293037d950f91d1d269229bcfab5cab9499f"
+    },
+    {
+      "name": "T_VIS9_Foam_Loop_16",
+      "width": 512,
+      "height": 512,
+      "format": "RGBA8 sRGB, straight alpha",
+      "alphaMin": 0,
+      "alphaMax": 252,
+      "nonzeroAlpha": 37977,
+      "rgba32Level0Bytes": 1048576,
+      "frames": 16,
+      "grid": [
+        4,
+        4
+      ],
+      "cellSize": 128,
+      "minTransparentGutterPx": 18,
+      "maxAdjacentAlphaMeanDelta": 4.02264404296875,
+      "wrapAlphaMeanDelta": 3.75958251953125,
+      "bytes": 1049249,
+      "path": "ArtSource/Origin_VIS9_Water/T_VIS9_Foam_Loop_16.png",
+      "blob": "a77a46f6018f9c3b500e5c9d8a89649ccd308e4d"
+    }
+  ],
+  "periodicMaxError": {
+    "waterfall": 7.247535904753022e-13,
+    "stream": 7.958078640513122e-13,
+    "foamTime": 8.526512829121202e-13
+  },
+  "rgba32Level0BytesAll": 1572864,
+  "validation": "64 analytical periodic samples per pattern; directional adjacent-pixel means; foam atlas alpha gutter and wrap delta; finite channels; PNG stored scanline roundtrip; repeat byte identical",
+  "runtime": "Use one candidate per water surface, replace rather than duplicate previous embedded/standalone texture. Waterfall/stream repeat; foam clamp 4x4 whole-sheet loop 16 frames. Existing Painterly Water shader reads RGB only and uses vertex alpha for depth: don't assign color-alpha maps as drop-in pond maps. No new water gameplay or particles."
+}

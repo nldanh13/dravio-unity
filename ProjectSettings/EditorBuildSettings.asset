@@ -6,6 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Dravio/Scenes/OriginLongTermGameplay.unity
+    guid: 39039da13b109f54e92fbe21ab627c9a
+  - enabled: 1
+    path: Assets/Dravio/Environment/Scenes/Ocean_Environment.unity
+    guid: 00d131ef32cb4d441bf8bbead568f790
+  - enabled: 1
+    path: Assets/Dravio/Environment/Scenes/Sky_Environment.unity
+    guid: 68d2727e24523274aa86abf0c61cad51
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
