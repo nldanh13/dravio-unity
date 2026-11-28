@@ -1,0 +1,541 @@
+{
+ "rigVersion": 7,
+ "name": "DRG_frostfin_Unstaged",
+ "species": "frostfin",
+ "stage": "Unstaged",
+ "archetype": "aquatic",
+ "archetypeSource": "locomotion lacks \"walk\"",
+ "limbCount": 0,
+ "limbCountSource": "canonical: no walking limbs",
+ "limbMeasurement": {
+  "limbCountDetected": 1,
+  "confidence": "low",
+  "groundContactsOffMidline": 1,
+  "groundContactsMidline": 0
+ },
+ "height_m": 1.7372,
+ "size": {
+  "sourceHeight": 1.7372,
+  "scale": 1.0,
+  "height": 1.7372,
+  "midlineShift_m": 0.0
+ },
+ "heightSource": "source size kept",
+ "fps": 30,
+ "orientation": {
+  "blender": "Z up, front -Y",
+  "unity": "Y up, forward +Z (FBX axis_forward -Z, axis_up Y)",
+  "pivot": "ground, centred under the body"
+ },
+ "rootMotion": "none: clips are in place; Root bone carries vertical offsets only. Move the transform at clips.<name>.groundSpeed (m/s).",
+ "rootVertical": {},
+ "bones": [
+  "Root",
+  "Spine1",
+  "Spine2",
+  "Spine3",
+  "Spine4",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "TailFin",
+  "VFX_TailTip",
+  "Fin_L",
+  "Fin_R",
+  "VFX_Back",
+  "Neck",
+  "Head",
+  "VFX_Mouth",
+  "VFX_Ground"
+ ],
+ "deformBones": [
+  "Root",
+  "Spine1",
+  "Spine2",
+  "Spine3",
+  "Spine4",
+  "Tail1",
+  "Tail2",
+  "Tail3",
+  "TailFin",
+  "Fin_L",
+  "Fin_R",
+  "Neck",
+  "Head"
+ ],
+ "anchors": [
+  "VFX_Mouth",
+  "VFX_TailTip",
+  "VFX_Back",
+  "VFX_Ground"
+ ],
+ "ikChains": [],
+ "clips": {
+  "Idle": {
+   "start": 1,
+   "end": 121,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Eat": {
+   "start": 122,
+   "end": 182,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Sleep": {
+   "start": 183,
+   "end": 303,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Happy": {
+   "start": 304,
+   "end": 349,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Swim": {
+   "start": 350,
+   "end": 398,
+   "loop": true,
+   "groundSpeed": 0.1732
+  },
+  "Rest": {
+   "start": 399,
+   "end": 519,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Wake": {
+   "start": 520,
+   "end": 580,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "LookAround": {
+   "start": 581,
+   "end": 671,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Curious": {
+   "start": 672,
+   "end": 747,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "Greet": {
+   "start": 748,
+   "end": 808,
+   "loop": false,
+   "groundSpeed": 0.0
+  },
+  "SwimIdle": {
+   "start": 809,
+   "end": 881,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "SwimRest": {
+   "start": 882,
+   "end": 1002,
+   "loop": true,
+   "groundSpeed": 0.0
+  },
+  "Nuzzle": {
+   "start": 1003,
+   "end": 1078,
+   "loop": false,
+   "groundSpeed": 0.0
+  }
+ },
+ "contacts": {
+  "Idle": {},
+  "Eat": {},
+  "Sleep": {},
+  "Happy": {},
+  "Swim": {},
+  "Rest": {},
+  "Wake": {},
+  "LookAround": {},
+  "Curious": {},
+  "Greet": {},
+  "SwimIdle": {},
+  "SwimRest": {},
+  "Nuzzle": {}
+ },
+ "groundClearanceLift_m": {
+  "Idle": {
+   "amplitudeScale": 1.0,
+   "lift_m": 0.01161,
+   "depthBeforeFix_m": {
+    "body": 0.0111
+   }
+  },
+  "Eat": {
+   "amplitudeScale": 1.0,
+   "depthBeforeFix_m": {
+    "body": 0.0
+   }
+  },
+  "Sleep": {
+   "amplitudeScale": 1.0,
+   "lift_m": 0.00563,
+   "depthBeforeFix_m": {
+    "body": 0.0054
+   }
+  },
+  "Happy": {
+   "amplitudeScale": 1.0,
+   "depthBeforeFix_m": {
+    "body": 0.0
+   }
+  },
+  "Rest": {
+   "amplitudeScale": 1.0,
+   "lift_m": 0.00842,
+   "depthBeforeFix_m": {
+    "body": 0.008
+   }
+  },
+  "LookAround": {
+   "amplitudeScale": 1.0,
+   "depthBeforeFix_m": {
+    "body": 0.0
+   }
+  },
+  "Curious": {
+   "amplitudeScale": 1.0,
+   "lift_m": 0.02735,
+   "depthBeforeFix_m": {
+    "body": 0.026
+   }
+  },
+  "Greet": {
+   "amplitudeScale": 1.0,
+   "depthBeforeFix_m": {
+    "body": 0.0
+   }
+  },
+  "Nuzzle": {
+   "amplitudeScale": 1.0,
+   "depthBeforeFix_m": {
+    "body": 0.0
+   }
+  }
+ },
+ "motion": {
+  "body": {
+   "length_m": 0.7531,
+   "width_m": 1.9885,
+   "height_m": 1.7372
+  },
+  "rootOffsets_m": {},
+  "events": {},
+  "water": {},
+  "maxTurnRateDegPerSec": {
+   "ground": 180,
+   "water": 90,
+   "air": 60
+  },
+  "biomechanics": {
+   "Swim": {
+    "tipBone": "TailFin",
+    "tipAmplitudePP_m": 0.0831,
+    "strouhalTarget": 0.3,
+    "lengthsPerCycleDefault": 0.6,
+    "tipAmplitudeL": 0.11,
+    "source": "Taylor, Nudds & Thomas 2003: cruising St = fA/U in 0.2-0.4",
+    "lengthsPerCycle": 0.368,
+    "speed_mps": 0.1732,
+    "strouhal": 0.3
+   }
+  },
+  "speedSource": "Walk/Run: planted-foot speed (period from the Froude relation where the profile opts in); Swim/SwimSurface/Fly: Strouhal 0.3 on the measured stroke tip (fallback: body lengths per cycle from rig-profiles); other clips in place (0). See motion.biomechanics"
+ },
+ "animationData": {
+  "frames": 1078,
+  "bones": 17,
+  "floatsPerFrame": 71,
+  "bakedMB": 0.306
+ },
+ "bind": {
+  "removedWeightFraction": 0.333,
+  "distalLegWeightsRemovedFromBody": 0,
+  "nearestAllowedFallback": {
+   "body": 1065
+  },
+  "maxInfluences": 4,
+  "lowBodyVerticesRelabelledLeg": 0,
+  "floatingPiecesBoundRigidly": 954,
+  "proxy_voxel_size": 0.01961,
+  "vertices": 16674,
+  "nearest_bone_fallback_vertices": 1065
+ },
+ "skin": {
+  "armature": "DragonRig",
+  "bones": 17,
+  "deform_bones": 17,
+  "max_influences": 4,
+  "unweighted_vertices": 0,
+  "not_normalized_vertices": 0
+ },
+ "deformation": {
+  "Idle": {
+   "edge_stretch_p999": 1.672,
+   "edge_compress_p001": 0.801,
+   "edge_stretch_max": 5.887,
+   "ok": false
+  },
+  "Eat": {
+   "edge_stretch_p999": 1.617,
+   "edge_compress_p001": 0.808,
+   "edge_stretch_max": 5.601,
+   "ok": false
+  },
+  "Sleep": {
+   "edge_stretch_p999": 2.666,
+   "edge_compress_p001": 0.675,
+   "edge_stretch_max": 8.286,
+   "ok": false
+  },
+  "Happy": {
+   "edge_stretch_p999": 2.78,
+   "edge_compress_p001": 0.678,
+   "edge_stretch_max": 11.421,
+   "ok": false
+  },
+  "Swim": {
+   "edge_stretch_p999": 1.994,
+   "edge_compress_p001": 0.597,
+   "edge_stretch_max": 5.984,
+   "ok": false
+  },
+  "Rest": {
+   "edge_stretch_p999": 1.855,
+   "edge_compress_p001": 0.601,
+   "edge_stretch_max": 7.912,
+   "ok": false
+  },
+  "Wake": {
+   "edge_stretch_p999": 1.739,
+   "edge_compress_p001": 0.769,
+   "edge_stretch_max": 7.775,
+   "ok": false
+  },
+  "LookAround": {
+   "edge_stretch_p999": 1.584,
+   "edge_compress_p001": 0.725,
+   "edge_stretch_max": 4.724,
+   "ok": true
+  },
+  "Curious": {
+   "edge_stretch_p999": 1.745,
+   "edge_compress_p001": 0.884,
+   "edge_stretch_max": 8.69,
+   "ok": false
+  },
+  "Greet": {
+   "edge_stretch_p999": 1.493,
+   "edge_compress_p001": 0.885,
+   "edge_stretch_max": 7.901,
+   "ok": true
+  },
+  "SwimIdle": {
+   "edge_stretch_p999": 1.28,
+   "edge_compress_p001": 0.805,
+   "edge_stretch_max": 2.519,
+   "ok": true
+  },
+  "SwimRest": {
+   "edge_stretch_p999": 1.175,
+   "edge_compress_p001": 0.897,
+   "edge_stretch_max": 2.332,
+   "ok": true
+  },
+  "Nuzzle": {
+   "edge_stretch_p999": 1.318,
+   "edge_compress_p001": 0.904,
+   "edge_stretch_max": 5.166,
+   "ok": true
+  }
+ },
+ "deformationLimits": {
+  "max_stretch_p999": 1.6,
+  "min_compress_p001": 0.45
+ },
+ "deformationOk": false,
+ "landmarks": {
+  "headTip": [
+   0.0,
+   -0.3766,
+   1.5923
+  ],
+  "headCenter": [
+   0.0,
+   -0.3296,
+   1.5923
+  ],
+  "neckBase": [
+   0.0,
+   -0.2133,
+   1.4276
+  ],
+  "chest": [
+   0.0,
+   -0.1506,
+   1.3389
+  ],
+  "pelvis": [
+   0.0,
+   0.0753,
+   1.2368
+  ],
+  "tailBase": [
+   0.0,
+   0.3373,
+   1.4966
+  ],
+  "tailTip": [
+   0.0,
+   0.3766,
+   1.4811
+  ],
+  "feet": {},
+  "hips": {},
+  "appendages": {
+   "L": {
+    "kind": "fin",
+    "root": [
+     -0.7087,
+     0.3027,
+     1.0303
+    ],
+    "tip": [
+     -0.9933,
+     0.329,
+     0.9896
+    ]
+   },
+   "R": {
+    "kind": "fin",
+    "root": [
+     0.7087,
+     0.0879,
+     0.4075
+    ],
+    "tip": [
+     0.9941,
+     0.0694,
+     0.3563
+    ]
+   }
+  },
+  "regionCounts": {
+   "body": 11388,
+   "head": 147,
+   "neck": 879,
+   "tail": 817,
+   "leg": 0,
+   "wing": 0,
+   "fin": 303,
+   "eye": 0,
+   "fragment": 3140
+  },
+  "notes": [
+   "3140 vertices in floating fragments ignored for landmark detection",
+   "1 off-midline ground contacts are not left/right pairs; limbs need manual landmarks",
+   "no neck narrowing in the profile; neck base set between chest and head"
+  ]
+ },
+ "profile": {
+  "tailBones": 3,
+  "swim": {
+   "frames": 48,
+   "wave": 0.16,
+   "waveLength": 1.0,
+   "finFlap": 0.5
+  },
+  "sleep": {
+   "coil": 0.05
+  },
+  "eat": {
+   "neckPitch": 0.35,
+   "headPitch": 0.25,
+   "chestDropH": 0.0
+  },
+  "happy": {
+   "hopH": 0.0,
+   "tailWag": 0.3
+  }
+ },
+ "ikResidualMax": 0.0,
+ "notes": [
+  "Idle blink not authored: mesh has no eyelid shape key (blink/eye_close); generated meshes rarely separate eyelids",
+  "3140 vertices in floating fragments ignored for landmark detection",
+  "1 off-midline ground contacts are not left/right pairs; limbs need manual landmarks",
+  "no neck narrowing in the profile; neck base set between chest and head",
+  "CHAR.9b repair: geodesic weight blend 0.24 m, amplitude {\"Curious\": {\"body\": 0.5, \"tail\": 0.5}, \"Greet\": {\"body\": 0.522, \"tail\": 0.522}, \"Idle\": {\"body\": 0.722, \"tail\": 0.722}, \"LookAround\": {\"body\": 0.85, \"head\": 0.85}, \"Nuzzle\": {\"body\": 0.722, \"tail\": 0.722}, \"Rest\": {\"body\": 0.85, \"tail\": 0.85}, \"Swim\": {\"fins\": 0.722, \"body\": 0.614, \"tail\": 0.85}, \"Eat\": {\"body\": 0.3, \"tail\": 0.444, \"head\": 0.614}, \"Sleep\": {\"tail\": 0.3, \"body\": 0.3, \"head\": 0.614}, \"Wake\": {\"body\": 0.3, \"tail\": 0.3, \"head\": 0.614}}"
+ ],
+ "triangles": 24000,
+ "fbx": "DRG_frostfin_Unstaged_Rigged.fbx",
+ "blend": "DRG_frostfin_Unstaged_Rigged.blend",
+ "source": "/tmp/claude-0/charwork/assets/DRG_frostfin_Unstaged/DRG_frostfin_Unstaged_Prepared.glb",
+ "source_sha256_before": "e65854c0be2685e7c5915d0d09e908b47184bd7c451185c72761aa1b85709047",
+ "source_sha256_after": "e65854c0be2685e7c5915d0d09e908b47184bd7c451185c72761aa1b85709047",
+ "source_unchanged": true,
+ "limits": "Procedural motion fitted to measured landmarks; needs animator review before shipping.",
+ "repair": {
+  "skinning": "linear",
+  "seamWeld": true,
+  "blendWidth_m": 0.24,
+  "pinTransitions": true,
+  "amplitude": {
+   "Curious": {
+    "body": 0.5,
+    "tail": 0.5
+   },
+   "Greet": {
+    "body": 0.522,
+    "tail": 0.522
+   },
+   "Idle": {
+    "body": 0.722,
+    "tail": 0.722
+   },
+   "LookAround": {
+    "body": 0.85,
+    "head": 0.85
+   },
+   "Nuzzle": {
+    "body": 0.722,
+    "tail": 0.722
+   },
+   "Rest": {
+    "body": 0.85,
+    "tail": 0.85
+   },
+   "Swim": {
+    "fins": 0.722,
+    "body": 0.614,
+    "tail": 0.85
+   },
+   "Eat": {
+    "body": 0.3,
+    "tail": 0.444,
+    "head": 0.614
+   },
+   "Sleep": {
+    "tail": 0.3,
+    "body": 0.3,
+    "head": 0.614
+   },
+   "Wake": {
+    "body": 0.3,
+    "tail": 0.3,
+    "head": 0.614
+   }
+  }
+ }
+}
