@@ -29,6 +29,21 @@ namespace Dravio
             return null;
         }
 
+        // Try the regular ring slot first, then adjacent angles if the scene blocks it.
+        public static bool TryMealRingOffset(int slot,int count,Func<float,float,bool> accepts)
+        {
+            const int samples=24;
+            const float radius=.65f;
+            if(count<2 || slot<0 || slot>=count)return false;
+            for(int i=0;i<samples;i++)
+            {
+                int step=i%2==0?-i/2:(i+1)/2;
+                double angle=2*Math.PI*(slot/(double)count+step/(double)samples);
+                if(accepts(radius*(float)Math.Cos(angle),radius*(float)Math.Sin(angle)))return true;
+            }
+            return false;
+        }
+
         public static bool RequiresUnimplementedMedium(DragonBehavior behavior)=>
             behavior==DragonBehavior.Swim || behavior==DragonBehavior.Fly || behavior==DragonBehavior.Burrow;
         public static bool UsesPoint(DragonBehavior behavior)=>

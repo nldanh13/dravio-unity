@@ -22,6 +22,42 @@ namespace Dravio.Tests
         public void UpgradePriceShowsActualShortfall(long? price,long balance,bool vietnamese,string expected)
             =>Assert.That(SanctuaryFeedback.UpgradePrice(price,balance,vietnamese),Is.EqualTo(expected));
 
+        [Test]
+        public void FiveMealSlotsAreDistinctAndEvenlySpacedOnOpenGround()
+        {
+            var spots=new System.Collections.Generic.List<(float x,float z)>();
+            for(int slot=0;slot<5;slot++)
+                Assert.That(AutonomousPresentationPolicy.TryMealRingOffset(slot,5,(x,z)=>
+                {spots.Add((x,z));return true;}),Is.True);
+            for(int i=0;i<spots.Count;i++)
+            {
+                var a=spots[i];
+                var b=spots[(i+1)%spots.Count];
+                Assert.That(a.x*a.x+a.z*a.z,Is.EqualTo(.65f*.65f).Within(.0001f));
+                float dx=a.x-b.x,dz=a.z-b.z;
+                Assert.That(dx*dx+dz*dz,Is.EqualTo(.58386f).Within(.001f));
+            }
+        }
+
+        [Test]
+        public void BlockedMealSlotTriesAdjacentAngleBeforeOppositeSide()
+        {
+            int attempts=0;
+            Assert.That(AutonomousPresentationPolicy.TryMealRingOffset(0,5,(x,z)=>
+            {attempts++;return x>.5f && z<-.1f;}),Is.True);
+            Assert.That(attempts,Is.EqualTo(3));
+        }
+
+        [TestCase(1,0)]
+        [TestCase(5,24)]
+        public void MealRingStopsWhenNoCandidateIsUsable(int count,int expectedAttempts)
+        {
+            int attempts=0;
+            Assert.That(AutonomousPresentationPolicy.TryMealRingOffset(0,count,(x,z)=>
+            {attempts++;return false;}),Is.False);
+            Assert.That(attempts,Is.EqualTo(expectedAttempts));
+        }
+
         [TestCase(320,180)]
         [TestCase(844,390)]
         [TestCase(1920,1080)]

@@ -133,7 +133,6 @@ namespace Dravio
         readonly Dictionary<string,Vector3> mealSpots=new Dictionary<string,Vector3>();
         string foodId=>portions.Count==0?null:portions[0];
         bool placingMeal;
-        int expectedDiners;
         [SerializeField] bool connectedWorlds;
         bool viewSuspended;
 #if UNITY_EDITOR
@@ -1102,7 +1101,6 @@ namespace Dravio
                 BehaviorEngine.CanEat(dragon,probe,NowMs)).OrderBy(x=>x.uid==targetUid?0:1)
                 .ThenBy(x=>(x.position-point).sqrMagnitude).ThenBy(x=>x.uid,StringComparer.Ordinal)
                 .Take(CareRules.FoodMaxBase).Select(x=>x.uid).ToList();
-            expectedDiners=Math.Max(1,diners.Count);
             feedPending=true;
             try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId,
                 diners.FirstOrDefault()??targetUid,diners.Skip(1).ToArray()));}
@@ -1153,21 +1151,40 @@ namespace Dravio
             decisionsDirty=true;
             if(portions.Count==0)ClearFood();
         }
+        Vector3 FindMealSpot(int slot,int count,string habitat)
+        {
+            if(count<=1)return foodPoint;
+            var spot=foodPoint;
+            AutonomousPresentationPolicy.TryMealRingOffset(slot,count,(x,z)=>
+            {
+                var candidate=foodPoint+new Vector3(x,0,z);
+                if(locations==null || !locations.TryGroundHeight(candidate,out float groundY))return false;
+                candidate.y=groundY;
+                if(!Segment(foodPoint,candidate,habitat))return false;
+                foreach(var used in mealSpots.Values)
+                {
+                    float dx=candidate.x-used.x,dz=candidate.z-used.z;
+                    if(dx*dx+dz*dz<.55f*.55f)return false;
+                }
+                spot=candidate;
+                return true;
+            });
+            // Keep the placeable center as a last resort in very narrow spaces.
+            return spot;
+        }
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
             decisionsDirty=true;
             if(viewSuspended)return;
+            int spawned=feedPending?events.Count(e=>e is FoodSpawned):0;
             foreach(var e in events)
             {
                 if(e is FoodSpawned f && feedPending)
                 {
-                    float angle=2*Mathf.PI*portions.Count/expectedDiners;
-                    var spot=expectedDiners==1?foodPoint:foodPoint+.65f*new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
-                    if(locations!=null && locations.TryGroundHeight(spot,out float spotY))spot.y=spotY;
-                    mealSpots[f.FoodId]=navigation!=null && navigation.Clear(spot,f.HabitatId,NavigationMedium.Ground)?spot:foodPoint;
+                    mealSpots[f.FoodId]=FindMealSpot(portions.Count,spawned,f.HabitatId);
                     portions.Add(f.FoodId);consumeAfter=Time.unscaledTime+.6f;
 #if UNITY_EDITOR
-                    foodGateForMarker=expectedDiners==1 && experimentalFoodPerception && !sharedFoodAllocation;
+                    foodGateForMarker=spawned==1 && experimentalFoodPerception && !sharedFoodAllocation;
                     if(foodGateForMarker)lastFoodGateOutcome="pending";
 #endif
                     RefreshButtons();
