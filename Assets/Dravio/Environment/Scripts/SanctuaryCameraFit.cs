@@ -50,6 +50,13 @@ namespace Dravio.EnvironmentArt
 
         public event Action<Rect> FreeViewportChanged;
 
+        /// <summary>U6.3 island view: 1 = the fitted overview; smaller = zoomed in. Runtime only (edit mode stays 1).</summary>
+        public float ViewZoom { get; private set; } = 1f;
+        /// <summary>U6.3 island view offset in the camera plane (x = camera right, y = camera up), world units.</summary>
+        public Vector2 ViewOffset { get; private set; }
+        /// <summary>Orthographic size of the fitted overview before <see cref="ViewZoom"/>.</summary>
+        public float FittedSize { get; private set; }
+
         Camera _camera;
         bool _dirty = true;
         bool _warnedPortrait;
@@ -112,6 +119,19 @@ namespace Dravio.EnvironmentArt
             _uiCamera = uiCamera;
             if (panel == null) SetFantasyUiOccluderPixels(-1f);
             else MeasurePanel();
+        }
+
+        /// <summary>
+        /// U6.3: zoom/pan on top of the fitted pose (callers keep it inside the overview, see IslandViewMath).
+        /// The framing itself (ComputeFraming, FreeViewport) is unchanged.
+        /// </summary>
+        public void SetView(float zoom, Vector2 offset)
+        {
+            zoom = Mathf.Clamp(zoom, 0.1f, 1f);
+            if (Mathf.Approximately(zoom, ViewZoom) && offset == ViewOffset) return;
+            ViewZoom = zoom;
+            ViewOffset = offset;
+            _dirty = true;
         }
 
         public void ClearFantasyUi()
@@ -230,8 +250,11 @@ namespace Dravio.EnvironmentArt
                 left = ins.x, right = ins.y, top = ins.z, bottom = ins.w,
             });
             _camera.orthographic = true;
-            _camera.orthographicSize = r.orthographicSize;
-            transform.SetPositionAndRotation(r.position, r.rotation);
+            FittedSize = r.orthographicSize;
+            _camera.orthographicSize = r.orthographicSize * ViewZoom;
+            transform.SetPositionAndRotation(
+                r.position + r.rotation * Vector3.right * ViewOffset.x + r.rotation * Vector3.up * ViewOffset.y,
+                r.rotation);
             ActiveInsets = ins;
             if (r.freeViewport != FreeViewport)
             {

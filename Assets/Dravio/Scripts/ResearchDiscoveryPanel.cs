@@ -95,6 +95,8 @@ namespace Dravio
             Refresh();ScrollTop();
         }
         void ScrollTop(){var scroll=page!=null?page.GetComponent<ScrollRect>():null;if(scroll!=null)scroll.verticalNormalizedPosition=1f;}
+        /// <summary>U6.1 journey banner: 0 Codex, 1 Observe, 2 Quests (2 refocuses the canonical journey quest).</summary>
+        public void ShowMode(int m){if(m>=0&&m<=2)SetMode(m);}
         void SetMode(int m)
         {
             mode=m;

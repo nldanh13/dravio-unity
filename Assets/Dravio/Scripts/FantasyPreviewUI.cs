@@ -29,6 +29,16 @@ namespace Dravio
         static readonly Color Accent=new Color(.83f,.68f,.40f);
         static readonly Color ButtonInk=new Color(.10f,.18f,.16f);
         public bool Vietnamese=>vi;
+        /// <summary>U6.1 journey banner: safe-area root it parents to, and the number of drawer pages.</summary>
+        public RectTransform SafeRoot=>safeRoot;
+        public int PageCount=>pages==null?0:pages.Length;
+        /// <summary>Open (and expand) one drawer page, exactly like tapping its tab.</summary>
+        public void SelectPage(int index){if(pages!=null && pages.Length>0)Select(index);}
+        /// <summary>U6.3 island dock: open page, drawer state, and the drawer itself.</summary>
+        public int CurrentPage=>page;
+        public bool Collapsed=>collapsed;
+        public RectTransform Panel=>panel;
+        public void SetCollapsed(bool value){if(panel==null)return;collapsed=value;ApplyVisibility();}
         public DravioUiTheme Theme=>theme;
         private int page;
         private int lastW=-1,lastH=-1;
