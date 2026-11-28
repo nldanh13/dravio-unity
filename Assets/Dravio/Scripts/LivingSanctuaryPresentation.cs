@@ -1355,6 +1355,9 @@ namespace Dravio
             Select(uid);return true;
         }
         public string SelectedUid=>selected;
+        /// <summary>U6.4 habitat plots: location data of the world in view (null before Configure).</summary>
+        public SanctuaryLocationData Locations=>locations;
+        public bool ViewActive=>active && !viewSuspended;
         /// <summary>U6.2 journey banner: select a resident in view and frame it (same as Inspect). False when it is not in view.</summary>
         public bool FocusDragon(string uid)
         {

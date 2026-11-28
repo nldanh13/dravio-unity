@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dravio.Domain;
 using Dravio.Domain.Core;
+using Dravio.Domain.Catalog;
 using NUnit.Framework;
 
 namespace Dravio.Tests
@@ -85,6 +86,46 @@ namespace Dravio.Tests
             Assert.That(IslandDock.Items.Select(i=>i.Page).OrderBy(p=>p),Is.EqualTo(System.Enum.GetValues(typeof(HudPage)).Cast<HudPage>().OrderBy(p=>p)));
             Assert.That(IslandDock.TapCloses(true,(int)HudPage.Eggs,HudPage.Eggs),Is.True);
             Assert.That(IslandDock.TapCloses(false,(int)HudPage.Eggs,HudPage.Eggs),Is.False);
+        }
+
+        [Test] public void HabitatElementsComeFromTheDomainProfile()
+        {
+            ElementType E(string id){HabitatCatalog.TryGet(id,out var h);return HabitatLook.ElementOf(h);}
+            Assert.That(E("origin_meadow"),Is.EqualTo(ElementType.Nature));
+            Assert.That(E("origin_pondbank"),Is.EqualTo(ElementType.Water));
+            Assert.That(E("origin_warm_rocks"),Is.EqualTo(ElementType.Fire));
+            Assert.That(E("ocean_reef"),Is.EqualTo(ElementType.Water),"ocean realm before temperature");
+            Assert.That(E("sky_low_island"),Is.EqualTo(ElementType.Sky));
+        }
+
+        static double Area(float[] v,List<int> t)
+        {
+            double a=0;
+            for(int i=0;i<t.Count;i+=3)
+            {
+                int p=t[i],q=t[i+1],r=t[i+2];
+                a+=System.Math.Abs((v[2*q]-v[2*p])*(v[2*r+1]-v[2*p+1])-(v[2*q+1]-v[2*p+1])*(v[2*r]-v[2*p]))/2;
+            }
+            return a;
+        }
+
+        [Test] public void PlotFillCoversConcavePolygonsInEitherWinding()
+        {
+            var l=new float[]{0,0, 4,0, 4,1, 1,1, 1,3, 0,3}; // L shape, area 6
+            var t=HabitatLook.Triangulate(l);
+            Assert.That(t.Count,Is.EqualTo(12));
+            Assert.That(Area(l,t),Is.EqualTo(6).Within(1e-4));
+            var cw=new float[l.Length];for(int i=0;i<6;i++){cw[2*i]=l[2*(5-i)];cw[2*i+1]=l[2*(5-i)+1];}
+            Assert.That(Area(cw,HabitatLook.Triangulate(cw)),Is.EqualTo(6).Within(1e-4));
+        }
+
+        [Test] public void PlotBorderInsetMovesInward()
+        {
+            var sq=new float[]{0,0, 2,0, 2,2, 0,2};
+            var a=HabitatLook.Inset(sq,.2f);
+            Assert.That(a,Is.EqualTo(new[]{.2f,.2f, 1.8f,.2f, 1.8f,1.8f, .2f,1.8f}).Within(1e-4f));
+            var rev=new float[]{0,2, 2,2, 2,0, 0,0};
+            Assert.That(HabitatLook.Inset(rev,.2f)[0],Is.EqualTo(.2f).Within(1e-4f),"clockwise input also shrinks");
         }
     }
 }

@@ -195,4 +195,101 @@ namespace Dravio
         /// <summary>Tapping the page that is already open closes the drawer (back to the island).</summary>
         public static bool TapCloses(bool drawerOpen,int openPage,HudPage tapped)=>drawerOpen && openPage==(int)tapped;
     }
+
+    /// <summary>
+    /// U6.4 (phase B) habitat plots: each microhabitat reads as its element's plot, like the element habitats of
+    /// dragon-park games. The element comes from the Domain habitat profile (no new data): sky realm or altitude
+    /// = Sky, ocean or submerged = Water, warm/hot = Fire, humid or any salinity = Water, else Nature. Geometry helpers are pure.
+    /// </summary>
+    public static class HabitatLook
+    {
+        public static ElementType ElementOf(HabitatProfile h)
+        {
+            if(h==null)return ElementType.Nature;
+            if(h.Realm==Realm.Sky || h.AltitudeBand!=AltitudeBand.Ground)return ElementType.Sky;
+            if(h.Realm==Realm.Ocean || h.HumidityBand==HumidityBand.Submerged)return ElementType.Water;
+            if(h.TemperatureBand==TemperatureBand.Warm || h.TemperatureBand==TemperatureBand.Hot)return ElementType.Fire;
+            if(h.HumidityBand==HumidityBand.Humid || h.SalinityBand!=SalinityBand.None)return ElementType.Water;
+            return ElementType.Nature;
+        }
+
+        public static string ElementName(ElementType e,bool vi)=>e switch
+        {
+            ElementType.Fire=>vi?"Lửa":"Fire",
+            ElementType.Water=>vi?"Nước":"Water",
+            ElementType.Sky=>vi?"Trời":"Sky",
+            _=>vi?"Thiên nhiên":"Nature",
+        };
+
+        /// <summary>Twice the signed area (positive = counter-clockwise in x/z).</summary>
+        public static double SignedArea2(float[] xz)
+        {
+            double a=0;int n=xz.Length/2;
+            for(int i=0;i<n;i++){int j=(i+1)%n;a+=(double)xz[2*i]*xz[2*j+1]-(double)xz[2*j]*xz[2*i+1];}
+            return a;
+        }
+
+        /// <summary>Ear-clipping triangulation of a simple polygon; indices into the vertex list, any winding.</summary>
+        public static List<int> Triangulate(float[] xz)
+        {
+            var tris=new List<int>();
+            int n=xz==null?0:xz.Length/2;
+            if(n<3)return tris;
+            var idx=new List<int>();for(int i=0;i<n;i++)idx.Add(i);
+            if(SignedArea2(xz)<0)idx.Reverse();
+            int guard=0;
+            while(idx.Count>3 && guard++<n*n)
+            {
+                bool clipped=false;
+                for(int k=0;k<idx.Count;k++)
+                {
+                    int a=idx[(k+idx.Count-1)%idx.Count],b=idx[k],c=idx[(k+1)%idx.Count];
+                    if(Cross(xz,a,b,c)<=1e-9)continue; // reflex or flat
+                    bool inside=false;
+                    foreach(int p in idx)
+                        if(p!=a && p!=b && p!=c && InTri(xz,p,a,b,c)){inside=true;break;}
+                    if(inside)continue;
+                    tris.Add(a);tris.Add(b);tris.Add(c);idx.RemoveAt(k);clipped=true;break;
+                }
+                if(!clipped)break;
+            }
+            if(idx.Count==3){tris.Add(idx[0]);tris.Add(idx[1]);tris.Add(idx[2]);}
+            return tris;
+        }
+        static double Cross(float[] v,int a,int b,int c)=>
+            ((double)v[2*b]-v[2*a])*((double)v[2*c+1]-v[2*a+1])-((double)v[2*b+1]-v[2*a+1])*((double)v[2*c]-v[2*a]);
+        static bool InTri(float[] v,int p,int a,int b,int c)=>Cross(v,a,b,p)>=0 && Cross(v,b,c,p)>=0 && Cross(v,c,a,p)>=0;
+
+        /// <summary>Polygon moved inward by d (mitre joins, mitre capped at 3·d), same vertex order.</summary>
+        public static float[] Inset(float[] xz,float d)
+        {
+            int n=xz.Length/2;var o=new float[xz.Length];
+            float s=SignedArea2(xz)>=0?1f:-1f; // inward = left of each edge for CCW
+            for(int i=0;i<n;i++)
+            {
+                int pi=(i+n-1)%n,ni=(i+1)%n;
+                Normal(xz,pi,i,s,out float ax,out float az);
+                Normal(xz,i,ni,s,out float bx,out float bz);
+                float mx=ax+bx,mz=az+bz,len=(float)Math.Sqrt(mx*mx+mz*mz);
+                if(len<1e-5f){mx=ax;mz=az;len=1f;}
+                mx/=len;mz/=len;
+                float cos=mx*ax+mz*az,scale=d/Math.Max(cos,1f/3f);
+                o[2*i]=xz[2*i]+mx*scale;o[2*i+1]=xz[2*i+1]+mz*scale;
+            }
+            return o;
+        }
+        static void Normal(float[] v,int a,int b,float s,out float nx,out float nz)
+        {
+            float dx=v[2*b]-v[2*a],dz=v[2*b+1]-v[2*a+1],l=(float)Math.Sqrt(dx*dx+dz*dz);
+            if(l<1e-6f){nx=nz=0;return;}
+            nx=-dz/l*s;nz=dx/l*s;
+        }
+
+        public static void Centroid(float[] xz,out float cx,out float cz)
+        {
+            cx=cz=0;int n=xz.Length/2;
+            for(int i=0;i<n;i++){cx+=xz[2*i];cz+=xz[2*i+1];}
+            if(n>0){cx/=n;cz/=n;}
+        }
+    }
 }
