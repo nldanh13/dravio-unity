@@ -9,9 +9,9 @@ Habitat concepts are not required to become a single GLB.
 | dragons | 16 | 16 | Yes |
 | habitat_concepts | 7 | 0 | No |
 | sanctuary_props | 4 | 0 | Yes |
-| nature_gameplay | 12 | 2 | Yes |
+| nature_gameplay | 12 | 3 | Yes |
 
-**Conversion: 18/32.**
+**Conversion: 19/32.**
 
 | Asset | Source status |
 |---|---|
@@ -44,7 +44,7 @@ Habitat concepts are not required to become a single GLB.
 | Habitats/props_3d/prop_04_sanctuary_treasure_chest | IMAGE_ONLY |
 | NatureAndGameplay/foliage/01_tree_sanctuary_oak | GLB_UPLOADED |
 | NatureAndGameplay/foliage/02_tree_blossom_sky | GLB_UPLOADED |
-| NatureAndGameplay/foliage/03_bush_wildflower_cluster | IMAGE_ONLY |
+| NatureAndGameplay/foliage/03_bush_wildflower_cluster | GLB_UPLOADED |
 | NatureAndGameplay/gameplay/11_dragon_nest_pedestal | IMAGE_ONLY |
 | NatureAndGameplay/gameplay/12_aether_fruit_basket | IMAGE_ONLY |
 | NatureAndGameplay/rocks_cliffs/04_rock_mossy_boulder | IMAGE_ONLY |

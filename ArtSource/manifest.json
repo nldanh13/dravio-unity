@@ -308,6 +308,11 @@
       "sha256": "78c1f02b78a6626c234fa0ae093d77e2eb99dfbcce3a0701ab958fd08211c9ce"
     },
     {
+      "path": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.glb",
+      "bytes": 2787212,
+      "sha256": "76058ce1b596627d69fba2aa5aa71646ea6ff1ea593260d0718a4059423c42f5"
+    },
+    {
       "path": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg",
       "bytes": 431819,
       "sha256": "2a34024ce67e39b8c38d127f958b62d928da4eb731482e50738c1aabe54937ba"

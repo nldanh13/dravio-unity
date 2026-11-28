@@ -19,7 +19,7 @@
     },
     "nature_gameplay": {
       "references": 12,
-      "glbUploaded": 2,
+      "glbUploaded": 3,
       "requiresGlb": true
     }
   },
@@ -447,8 +447,15 @@
       "references": [
         "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.jpg"
       ],
-      "models": [],
-      "sourceStatus": "IMAGE_ONLY"
+      "models": [
+        {
+          "path": "ArtSource/NatureAndGameplay/foliage/03_bush_wildflower_cluster.glb",
+          "bytes": 2787212,
+          "sha256": "76058ce1b596627d69fba2aa5aa71646ea6ff1ea593260d0718a4059423c42f5",
+          "basicCheck": "PASS"
+        }
+      ],
+      "sourceStatus": "GLB_UPLOADED"
     },
     {
       "id": "NatureAndGameplay/gameplay/11_dragon_nest_pedestal",
