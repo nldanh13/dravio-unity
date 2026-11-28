@@ -149,7 +149,12 @@ namespace Dravio
         readonly List<string> portions=new List<string>();
         readonly Dictionary<string,Vector3> mealSpots=new Dictionary<string,Vector3>();
         string foodId=>portions.Count==0?null:portions[0];
-        bool placingMeal;
+        bool placingMeal, tapPending, touchTap;
+        Vector2 tapStart;
+        FantasyPreviewUI worldHud;
+        float feedbackUntil;
+        public bool WorldInteractionAvailable=>active;
+        public string WorldFeedback(bool vietnamese)=>Time.unscaledTime<feedbackUntil?(vietnamese?messageVi:messageEn):null;
         [SerializeField] bool connectedWorlds;
         bool viewSuspended;
 #if UNITY_EDITOR
@@ -210,6 +215,7 @@ namespace Dravio
         void Start()
         {
             if(!active)return;
+            worldHud=FindAnyObjectByType<FantasyPreviewUI>();
             session=host.Session;
             if(session!=null)session.DomainEvents+=OnEvents;
             interactions=LivingEnvironment.Active!=null?LivingEnvironment.Active.interactions:null;
@@ -230,8 +236,8 @@ namespace Dravio
             if(profile!=null)profile.text=vi?"Chưa nhập DragonVisualCatalog có Emberling. Đang dùng bản thử một rồng.":"Import a DragonVisualCatalog with Emberling. Legacy single-dragon preview is active.";
         }
         public void SetVietnamese(bool value){vi=value;if(active)RefreshProfile();else FallbackText();}
-        void OnApplicationFocus(bool value){focus=value;}
-        void OnApplicationPause(bool value){paused=value;}
+        void OnApplicationFocus(bool value){focus=value;if(!value)tapPending=false;}
+        void OnApplicationPause(bool value){paused=value;if(value)tapPending=false;}
         void OnDestroy()
         {
             StopSocial("destroy");
@@ -245,7 +251,7 @@ namespace Dravio
         public void SuspendWorldView()
         {
             if(!active)return;
-            viewSuspended=true;StopSocial("world-switch");StopFollow();
+            tapPending=false;viewSuspended=true;StopSocial("world-switch");StopFollow();
             foreach(var r in residents.Values)ReleasePoint(r);
             residents.Clear();unavailable.Clear();spatialFaults.Clear();sync.Clear();frames.Clear();
             ClearFood();interactions=null;cameraView=null;cameraFit=null;manager.viewCamera=null;
@@ -1045,18 +1051,40 @@ namespace Dravio
             Vector2 point;
             var touch=Touchscreen.current;
             var mouse=Mouse.current;
-            // Two-finger camera gestures must not select or call a dragon.
-            if(touch!=null && touch.touches.Count(t=>t.press.isPressed)>1)return;
-            if(touch!=null && touch.primaryTouch.press.wasPressedThisFrame)point=touch.primaryTouch.position.ReadValue();
-            else if(mouse!=null && mouse.leftButton.wasPressedThisFrame)point=mouse.position.ReadValue();
-            else return;
-            if(EventSystem.current!=null)
+            bool useTouch=touch!=null && (touch.primaryTouch.press.isPressed || touch.primaryTouch.press.wasReleasedThisFrame);
+            if(touch!=null && touch.touches.Count(t=>t.press.isPressed)>1){tapPending=false;return;}
+            var button=useTouch?touch.primaryTouch.press:mouse?.leftButton;
+            if(button==null){tapPending=false;return;}
+            point=useTouch?touch.primaryTouch.position.ReadValue():mouse.position.ReadValue();
+            if(button.wasPressedThisFrame)
             {
-                uiHits.Clear();EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position=point},uiHits);
-                if(uiHits.Any(h=>h.module is GraphicRaycaster))return;
+                tapStart=point;touchTap=useTouch;
+                tapPending=WorldPoint(point,new Rect(0,0,1,1));
             }
+            if(!tapPending)return;
+            float slop=Mathf.Max(8f,Mathf.Min(Screen.width,Screen.height)*.012f);
+            if(touchTap!=useTouch || (point-tapStart).sqrMagnitude>slop*slop){tapPending=false;return;}
+            if(!button.wasReleasedThisFrame)return;
+            tapPending=false;
+            if(!WorldPoint(point,new Rect(0,0,1,1)))return;
             var ray=cameraView.ScreenPointToRay(point);
-            if(placingMeal)
+            bool direct=worldHud!=null && worldHud.DrawerClosed;
+            if(!placingMeal)
+            {
+                string hit=null;float nearest=float.PositiveInfinity;
+                foreach(var r in residents.Values)
+                    if(manager.TryGet(r.uid,out var instance) && instance.WorldBounds().IntersectRay(ray,out float distance) && distance<nearest)
+                    {nearest=distance;hit=r.uid;}
+                if(hit!=null && Physics.Raycast(ray,out var obstruction,nearest) && obstruction.collider!=null &&
+                    obstruction.collider.GetComponentInParent<DragonVisualInstance>()==null)return;
+                if(hit!=null)
+                {
+                    Select(hit);
+                    if(direct)Pet();
+                    return;
+                }
+            }
+            if(placingMeal || (direct && foodId==null))
             {
                 var selectedDragon=Selected;
                 if(selectedDragon==null || !residents.TryGetValue(selectedDragon.Uid,out var anchor)){placingMeal=false;return;}
@@ -1077,13 +1105,6 @@ namespace Dravio
                 Message("Choose walkable ground in this habitat.","Chọn chỗ đất trống trong sinh cảnh này.");
                 return;
             }
-            string hit=null;float nearest=float.PositiveInfinity;
-            foreach(var r in residents.Values)
-                if(manager.TryGet(r.uid,out var instance) && instance.WorldBounds().IntersectRay(ray,out float distance) && distance<nearest)
-                {nearest=distance;hit=r.uid;}
-            if(hit!=null && Physics.Raycast(ray,out var obstruction,nearest) && obstruction.collider!=null &&
-                obstruction.collider.GetComponentInParent<DragonVisualInstance>()==null)return;
-            if(hit!=null)Select(hit);
         }
 
         void Select(string id){if(selected!=id){selected=id;travelHabitat=null;StopFollow();if(residents.TryGetValue(id,out var r)&&!r.Spatial&&manager.IsLive(id)&&(Social==null||!Social.Contains(id)))sync.React(id,DragonReaction.Called);}RefreshProfile();}
@@ -1094,7 +1115,7 @@ namespace Dravio
             string next=LivingResidentPolicy.NextUid(ids,selected);
             if(next!=null)Select(next);
         }
-        void Message(string en,string vn){messageEn=en;messageVi=vn;if(status!=null)status.text=vi?vn:en;}
+        void Message(string en,string vn){feedbackUntil=Time.unscaledTime+2.5f;messageEn=en;messageVi=vn;if(status!=null)status.text=vi?vn:en;}
         bool Send(Func<string,GameCommand> build)
         {
             if(!Ready)return false;

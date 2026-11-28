@@ -28,8 +28,11 @@ namespace Dravio
         static readonly Color Ivory=new Color(.96f,.91f,.79f);
         static readonly Color Accent=new Color(.83f,.68f,.40f);
         static readonly Color ButtonInk=new Color(.10f,.18f,.16f);
+        public bool DrawerClosed=>collapsed;
         public bool Vietnamese=>vi;
         public DravioUiTheme Theme=>theme;
+        private LivingSanctuaryPresentation sanctuary;
+        private Text worldHint;
         private int page;
         private int lastW=-1,lastH=-1;
         private Rect lastSafe;
@@ -69,7 +72,12 @@ namespace Dravio
             ApplyArtDirection();
             if(theme==null)DravioHudArt.Apply(safeRoot, panel, tabs, language, collapse);
             PrioritizeEggClaims();
-            Select(0);
+            sanctuary=FindAnyObjectByType<LivingSanctuaryPresentation>();
+            collapsed=sanctuary!=null && sanctuary.WorldInteractionAvailable;
+            if(collapsed)
+                foreach(var copy in translations)
+                    if(copy.en=="DRAVIO"){worldHint=copy.label;break;}
+            page=0;
             Localize();
             Layout();
         }
@@ -220,6 +228,12 @@ namespace Dravio
         }
         private void Update()
         {
+            if(worldHint!=null && collapsed)
+            {
+                string feedback=sanctuary.WorldFeedback(vi);
+                string label=string.IsNullOrEmpty(feedback)?WorldPrompt():feedback;
+                if(worldHint.text!=label)worldHint.text=label;
+            }
             if(Screen.width!=lastW || Screen.height!=lastH || HudSafeAreaOverride.Current!=lastSafe)Layout();
         }
 
@@ -254,6 +268,8 @@ namespace Dravio
             ApplyVisibility();
         }
 
+        string WorldPrompt()=>vi?"Chạm đất để cho ăn · Chạm rồng để vuốt ve":"Tap ground to feed · Tap a dragon to pet";
+
         private void ApplyVisibility()
         {
             panel.gameObject.SetActive(!collapsed);
@@ -263,7 +279,8 @@ namespace Dravio
                 if(theme!=null)DravioUiSkin.ApplyTab(tabs[i],theme,i==page);
                 else DravioHudArt.ApplyTab(tabs[i],i==page);
             }
-            if(collapseLabel!=null)collapseLabel.text=collapsed?(vi?"Mở":"Show"):(vi?"Ẩn":"Hide");
+            if(worldHint!=null)worldHint.text=collapsed?WorldPrompt():"DRAVIO";
+            if(collapseLabel!=null)collapseLabel.text=collapsed?"Menu":(vi?"Ẩn":"Hide");
         }
 
         private void Localize()
