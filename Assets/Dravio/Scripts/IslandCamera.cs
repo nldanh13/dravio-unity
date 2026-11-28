@@ -85,7 +85,7 @@ namespace Dravio
                 down=mouse.leftButton.isPressed;
                 float scroll=mouse.scroll.ReadValue().y;
                 if(!Mathf.Approximately(scroll,0f) && OnWorld(point,free))
-                    ZoomAt(zoom*Mathf.Exp(-Mathf.Clamp(scroll/120f,-3f,3f)*.18f),point,free,halfW,halfH);
+                    ZoomAt(zoom*Mathf.Exp(-Mathf.Clamp(IslandViewMath.WheelNotches(scroll),-3f,3f)*.2f),point,free,halfW,halfH);
             }
             if(!down){pressed=dragging=false;return;}
             if(!pressed){pressed=true;onWorld=OnWorld(point,free);pressAt=lastPoint=point;dragging=false;return;}
@@ -100,6 +100,22 @@ namespace Dravio
             }
             lastPoint=point;
         }
+
+        /// <summary>U6.5: on-screen zoom buttons; factor &gt; 1 zooms out. Zooms about the centre of the free area.</summary>
+        public void ZoomStep(float factor)
+        {
+            if(fit==null || !fit.enabled || view==null || fit.FittedSize<=0f)return;
+            var free=fit.FreeViewport;
+            float halfH=fit.FittedSize,halfW=fit.FittedSize*Mathf.Max(.1f,view.aspect);
+            var centre=view.ViewportToScreenPoint(new Vector3(free.center.x,free.center.y,0f));
+            ZoomAt(zoom*factor,centre,free,halfW,halfH);
+            float ox=offset.x,oy=offset.y;
+            IslandViewMath.Clamp(ref ox,ref oy,zoom,free.xMin,free.xMax,free.yMin,free.yMax,halfW,halfH);
+            offset=new Vector2(ox,oy);
+            fit.SetView(zoom,offset);
+        }
+
+        public bool Active=>fit!=null && fit.enabled && view!=null && view.orthographic;
 
         void ZoomAt(float z2,Vector2 screen,Rect free,float halfW,float halfH)
         {
