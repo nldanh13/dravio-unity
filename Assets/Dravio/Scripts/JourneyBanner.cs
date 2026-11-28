@@ -50,6 +50,9 @@ namespace Dravio
         List<CollectionEntry> entries;
         int selectedCell=-1;
 
+        /// <summary>The prompt on the card now (U6.3 dock badge and bubble highlight). Null before the first state.</summary>
+        public JourneyPrompt Current=>prompt;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Install()
         {

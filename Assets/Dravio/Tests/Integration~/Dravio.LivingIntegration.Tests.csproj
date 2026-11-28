@@ -25,6 +25,8 @@
     <Compile Include="PlayerJourneyPlannerTests.cs" />
     <Compile Include="../../Scripts/SanctuaryCollection.cs" />
     <Compile Include="SanctuaryCollectionTests.cs" />
+    <Compile Include="../../Scripts/IslandFeel.cs" />
+    <Compile Include="IslandFeelTests.cs" />
     <Compile Include="ExpeditionPresentationTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />

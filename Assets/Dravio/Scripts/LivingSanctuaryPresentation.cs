@@ -1188,6 +1188,27 @@ namespace Dravio
             if(Selected==null)return;string who=selected;
             if(Send(id=>new MoveDragonCommand(id,who,MoveTarget.Storage)))Message("Moved to storage.","Đã chuyển vào kho.");
         }
+        /// <summary>U6.3 island HUD: each drawn resident with a point just above its visual.</summary>
+        public void ResidentAnchors(List<KeyValuePair<string,Vector3>> into)
+        {
+            into.Clear();
+            if(!Ready)return;
+            foreach(var r in residents.Values)
+            {
+                if(!manager.TryGet(r.uid,out var visual))continue;
+                var b=visual.WorldBounds();
+                var top=new Vector3(b.center.x,b.max.y+.12f,b.center.z);
+                if(float.IsNaN(top.x+top.y+top.z) || float.IsInfinity(top.x+top.y+top.z))continue;
+                into.Add(new KeyValuePair<string,Vector3>(r.uid,top));
+            }
+        }
+        /// <summary>U6.3: select a resident in view (same as tapping it). False when it is not in view.</summary>
+        public bool SelectResident(string uid)
+        {
+            if(!Ready || string.IsNullOrEmpty(uid) || !residents.ContainsKey(uid))return false;
+            Select(uid);return true;
+        }
+        public string SelectedUid=>selected;
         /// <summary>U6.2 journey banner: select a resident in view and frame it (same as Inspect). False when it is not in view.</summary>
         public bool FocusDragon(string uid)
         {
