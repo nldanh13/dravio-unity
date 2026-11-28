@@ -273,14 +273,14 @@ namespace Dravio
             var bg=c.rect.gameObject.AddComponent<Image>();bg.sprite=rounded;bg.type=Image.Type.Sliced;
             bg.color=new Color(.06f,.11f,.10f,.72f);bg.raycastTarget=false;
             var row=c.rect.gameObject.AddComponent<HorizontalLayoutGroup>();
-            row.padding=new RectOffset(6,10,3,3);row.spacing=6;row.childAlignment=TextAnchor.MiddleLeft;
+            row.padding=new RectOffset(8,12,4,4);row.spacing=7;row.childAlignment=TextAnchor.MiddleLeft;
             row.childControlWidth=row.childControlHeight=true;row.childForceExpandWidth=row.childForceExpandHeight=false;
             var fit=c.rect.gameObject.AddComponent<ContentSizeFitter>();
             fit.horizontalFit=fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
             var stripe=Node("Element",c.rect);
-            var le=stripe.gameObject.AddComponent<LayoutElement>();le.minWidth=le.preferredWidth=10;le.minHeight=le.preferredHeight=10;
+            var le=stripe.gameObject.AddComponent<LayoutElement>();le.minWidth=le.preferredWidth=13;le.minHeight=le.preferredHeight=13;
             c.stripe=stripe.gameObject.AddComponent<Image>();c.stripe.sprite=circle;c.stripe.raycastTarget=false;
-            c.text=Label(c.rect,12,Ivory,FontStyle.Bold);c.text.horizontalOverflow=HorizontalWrapMode.Overflow;
+            c.text=Label(c.rect,15,Ivory,FontStyle.Bold);c.text.horizontalOverflow=HorizontalWrapMode.Overflow;
             return c;
         }
 

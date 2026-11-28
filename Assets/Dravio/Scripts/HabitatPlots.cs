@@ -16,7 +16,7 @@ namespace Dravio
     /// </summary>
     public sealed class HabitatPlots : MonoBehaviour
     {
-        const float Border=.22f,Lift=.045f;
+        const float Border=.40f,Lift=.08f;
         public sealed class Plot
         {
             public string Id,NameVi,NameEn;
@@ -85,7 +85,7 @@ namespace Dravio
                 var element=HabitatLook.ElementOf(profile);
                 float y=GroundY(data,h)+Lift;
                 var color=open?ElementColor(element):new Color(.62f,.62f,.60f);
-                var mesh=BuildMesh(h.polygonXZ,y,color,open?.85f:.55f,open?.16f:0f);
+                var mesh=BuildMesh(h.polygonXZ,y,color,open?1f:.6f,open?.24f:0f);
                 var go=new GameObject(h.id,typeof(MeshFilter),typeof(MeshRenderer));
                 go.transform.SetParent(root.transform,false);
                 go.GetComponent<MeshFilter>().sharedMesh=mesh;
@@ -114,7 +114,7 @@ namespace Dravio
             int n=xz.Length/2;
             var inner=HabitatLook.Inset(xz,Border);
             var verts=new List<Vector3>();var cols=new List<Color>();var tris=new List<int>();
-            var edge=c;edge.a=borderAlpha;var soft=c;soft.a=borderAlpha*.35f;
+            var edge=c;edge.a=borderAlpha;var soft=c;soft.a=borderAlpha*.5f;
             for(int i=0;i<n;i++){verts.Add(new Vector3(xz[2*i],y,xz[2*i+1]));cols.Add(edge);}
             for(int i=0;i<n;i++){verts.Add(new Vector3(inner[2*i],y,inner[2*i+1]));cols.Add(soft);}
             bool ccw=HabitatLook.SignedArea2(xz)>=0;
