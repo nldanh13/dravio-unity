@@ -21,6 +21,8 @@
     <Compile Include="../../Scripts/ResearchDiscoveryView.cs" />
     <Compile Include="ResearchDiscoveryViewTests.cs" />
     <Compile Include="../../Scripts/ExpeditionPresentation.cs" />
+    <Compile Include="../../Scripts/PlayerJourneyPlanner.cs" />
+    <Compile Include="PlayerJourneyPlannerTests.cs" />
     <Compile Include="ExpeditionPresentationTests.cs" />
     <Compile Include="../../Scripts/AutonomousPresentationPolicy.cs" />
     <Compile Include="AutonomousPresentationPolicyTests.cs" />
