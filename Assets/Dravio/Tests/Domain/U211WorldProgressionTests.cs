@@ -233,10 +233,16 @@ namespace Dravio.Domain.Tests
             Assert.That(skyOpen.FindZone("sky").Unlocked, Is.True);
             Assert.That(ProgressionQueries.QuestLog(skyOpen).ZoneUnlockMissing, Is.Empty);
             Assert.That(GameStateValidator.Validate(skyOpen).IsValid, Is.True, GameStateValidator.Validate(skyOpen).ToString());
-            // Tuyến sky_cloud vẫn khóa (bảng thưởng chưa duyệt) nên Q_EXPEDITION_CLOUD không bao giờ Ready.
+            // U2.15: bảng A đã duyệt → yêu cầu "tuyến có thưởng" đạt ngay khi Thiên Giới mở (nhiệm vụ còn chờ số chuyến).
             QuestStatusView cloud = QuestProposals.Evaluate(skyOpen).Single(q => q.QuestId == "Q_EXPEDITION_CLOUD");
-            Assert.That(cloud.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.EqualTo(RequirementState.Blocked));
-            Assert.That(cloud.CanComplete, Is.False);
+            Assert.That(cloud.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.EqualTo(RequirementState.Met));
+            // Đối chứng U2.14: với bảng tắt, Q_EXPEDITION_CLOUD không bao giờ Ready.
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+            {
+                QuestStatusView off = QuestProposals.Evaluate(skyOpen).Single(q => q.QuestId == "Q_EXPEDITION_CLOUD");
+                Assert.That(off.Requirements.Single(r => r.Def.Kind == QuestRequirementKind.RouteAvailable).State, Is.EqualTo(RequirementState.Blocked));
+                Assert.That(off.CanComplete, Is.False);
+            }
         }
 
         // ================================================================== quan hệ
@@ -334,13 +340,18 @@ namespace Dravio.Domain.Tests
             Assert.That(s.ExpeditionsClaimed["origin_forest"], Is.EqualTo(16));
             RouteExplorationDto dto = ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "origin_forest");
             Assert.That((dto.Claimed, dto.NextMilestoneAt, dto.NextMilestoneBonusEach), Is.EqualTo((16, (int?)40, 6)));
-            Assert.That(ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud").RewardsDefined, Is.False, "sky_cloud vẫn khóa");
+            Assert.That(ProgressionQueries.ExplorationRoutes(s).Single(r => r.RouteId == "sky_cloud").RewardsDefined, Is.True, "U2.15: sky_cloud mở (bảng A)");
             Assert.That(ProgressionQueries.Rewards(s).Titles, Does.Contain("title.forest_ranger"));
             Assert.That(ProgressionQueries.Rewards(s).CodexNotes, Does.Contain("note.forest_first_trail"));
             Assert.That(QuestProposals.Evaluate(s).Single(q => q.QuestId == "Q_EXPEDITION_PATHFINDER").Requirements[0].Current, Is.EqualTo(16));
-            // U2.13: sky_cloud chỉ có mốc trứng Aurorawing đã duyệt (không vật liệu, không danh hiệu) khi bảng chưa duyệt; tuyến khóa nên không đạt được.
+            // U2.15: sky_cloud theo bảng A đã duyệt: mốc 1 / 5 / 15 / 40 → +2 / 3 / 4 / 6 bụi sao; trứng Aurorawing gộp vào mốc 15.
             Assert.That(Exploration.Milestones.Where(m => m.RouteId == "sky_cloud").Select(m => (m.Claims, m.BonusEach, m.RewardId, m.EggRewardId)),
-                Is.EqualTo(new[] { (15, 0, (string)null, "EXPEDITION_EGG_AURORAWING") }));
+                Is.EqualTo(new[] { (1, 2, "note.cloud_first_flight", (string)null), (5, 3, (string)null, (string)null),
+                    (15, 4, "title.cloud_rider", "EXPEDITION_EGG_AURORAWING"), (40, 6, "title.star_warden", (string)null) }));
+            // Đối chứng U2.14 (bảng tắt): chỉ còn mốc trứng, không vật liệu / danh hiệu.
+            using (SkyCloudBalance.Use(SkyCloudBalance.Disabled))
+                Assert.That(Exploration.Milestones.Where(m => m.RouteId == "sky_cloud").Select(m => (m.Claims, m.BonusEach, m.RewardId, m.EggRewardId)),
+                    Is.EqualTo(new[] { (15, 0, (string)null, "EXPEDITION_EGG_AURORAWING") }));
         }
 
         // ================================================================== nghiên cứu + danh hiệu

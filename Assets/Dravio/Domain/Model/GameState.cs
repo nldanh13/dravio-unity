@@ -45,6 +45,11 @@ namespace Dravio.Domain
         public string HabitatId { get; set; }
         public long SpawnedAtMs { get; set; }
         public long ExpiresAtMs { get; set; }
+        /// <summary>
+        /// U2.15 (luật cho ăn B): rồng được chọn khi thả (<see cref="Core.FeedCommand.TargetDragonUid"/>), null = luật A.
+        /// Chỉ trong bộ nhớ: save không lưu phần ăn đang rơi (ADR 0004 #10) nên Schema v10 không đổi.
+        /// </summary>
+        public string TargetDragonUid { get; set; }
 
         public FoodDrop Clone() => (FoodDrop)MemberwiseClone();
     }
@@ -210,6 +215,7 @@ namespace Dravio.Domain
     /// </summary>
     public sealed class GameState
     {
+        public List<string> FestivalStamps { get; set; } = new List<string>();
         public int SchemaVersion { get; set; }
         public string ContentVersion { get; set; }
         public string SaveId { get; set; }
@@ -293,6 +299,7 @@ namespace Dravio.Domain
             c.PackDaily = PackDaily?.Clone();
             c.Research = Research?.Clone();
             c.CompletedSideQuests = CompletedSideQuests == null ? null : new List<string>(CompletedSideQuests);
+            c.FestivalStamps = new List<string>(FestivalStamps);
             c.ExpeditionsClaimed = ExpeditionsClaimed == null ? null : new SortedDictionary<string, int>(ExpeditionsClaimed, System.StringComparer.Ordinal);
             c.Relations = Relations?.Clone();
             return c;

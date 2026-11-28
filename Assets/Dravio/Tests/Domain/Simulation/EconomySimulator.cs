@@ -73,7 +73,7 @@ namespace Dravio.Domain.Tests.Simulation
         public bool RunExpeditions;
         /// <summary>Nhịp nghiên cứu của Researcher (null = <see cref="EconomySimulator.ResearchPacing"/>).</summary>
         public ResearchPacing Pacing;
-        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, tức tuyến tắt).</summary>
+        /// <summary>U2.13: bảng cân bằng sky_cloud áp dụng trong lần chạy (null = <see cref="SkyCloudBalance.Production"/>, từ U2.15 là bảng A).</summary>
         public SkyCloudBalance Sky;
         /// <summary>U2.13: luật vật liệu dự án Sanctuary (null = <see cref="SanctuaryMaterialRules.Production"/>, vật liệu theo thế giới).</summary>
         public SanctuaryMaterialRules ProjectMaterials;
@@ -81,6 +81,14 @@ namespace Dravio.Domain.Tests.Simulation
         public static EconomyVariant LiveWithSky(SkyCloudBalance sky) =>
             new EconomyVariant { Name = "live+" + sky.Id, BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky };
         /// <summary>U2.13: biến thể Live với bảng sky_cloud và luật vật liệu dự án (chỉ mô phỏng).</summary>
+        /// <summary>
+        /// U2.14: quan sát bằng lệnh <c>observeDragon</c> thật (mỗi rồng ở sinh cảnh, pha ngày hiện tại) thay vì gọi thẳng sổ nghiên cứu.
+        /// Bật thì mô phỏng không bao giờ đổi GameState ngoài <see cref="CommandDispatcher"/> (hành trình Alpha phát lại được từ log lệnh).
+        /// </summary>
+        public bool ObserveViaCommand;
+        /// <summary>U2.14: game thật (Live) với mọi hành động qua lệnh chính thức. Bảng sky_cloud tùy chọn (null = Production, tắt).</summary>
+        public static EconomyVariant Alpha(SkyCloudBalance sky = null) =>
+            new EconomyVariant { Name = "alpha" + (sky == null ? "" : "+" + sky.Id), BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky, ObserveViaCommand = true };
         public static EconomyVariant LiveWith(SkyCloudBalance sky, SanctuaryMaterialRules materials) =>
             new EconomyVariant { Name = "live+" + sky.Id + "+" + materials.Mode, BuyUpgrades = true, BuildProjects = true, RunExpeditions = true, Sky = sky, ProjectMaterials = materials };
         public static readonly EconomyVariant Baseline = new EconomyVariant();
@@ -201,11 +209,17 @@ namespace Dravio.Domain.Tests.Simulation
         {
             _policy = policy; _schedule = schedule; _variant = variant ?? EconomyVariant.Baseline;
             _now = Start; _lastOnlineMs = Start;
-            _s = InitialStateFactory.Create("sim-" + seed, _now, Rng.Create((uint)(seed * 2654435761u)));
+            _s = NewSave(seed);
             foreach (PackDef p in PackCatalog.All) _result.FirstAffordHours[p.Id] = null;
         }
 
         public GameState State => _s;
+
+        /// <summary>U2.14: save mới của seed (giống hệt state đầu của mọi lần chạy) — để phát lại log lệnh.</summary>
+        public static GameState NewSave(int seed) => InitialStateFactory.Create("sim-" + seed, Start, Rng.Create((uint)(seed * 2654435761u)));
+
+        /// <summary>U2.14: gọi với MỌI lệnh gửi đi (lệnh, state trước, kết quả, thời điểm), kể cả lệnh bị từ chối — để ghi log và kiểm sổ vàng.</summary>
+        public Action<GameCommand, GameState, DispatchResult, long> OnDispatch { get; set; }
 
         /// <summary>U2.9: gọi sau mỗi lệnh (state hiện tại, thời điểm). Dùng để chèn truy vấn chỉ đọc và kiểm chúng không đổi kết quả kinh tế.</summary>
         public Action<GameState, long> AfterCommand { get; set; }
@@ -213,6 +227,7 @@ namespace Dravio.Domain.Tests.Simulation
         private DispatchResult Do(GameCommand c)
         {
             DispatchResult r = CommandDispatcher.Dispatch(_s, c, new FixedClock(_now));
+            OnDispatch?.Invoke(c, _s, r, _now);
             if (r.Ok && !r.Duplicate)
             {
                 foreach (DomainEvent e in r.Events)
@@ -601,6 +616,13 @@ namespace Dravio.Domain.Tests.Simulation
 
         private void ObserveAll()
         {
+            if (_variant.ObserveViaCommand)
+            {
+                DayPhase phase = PhaseAt(_now);
+                foreach (string uid in _s.Dragons.Where(d => d.Location.Kind == LocationKind.Zone).Select(d => d.Uid).ToList())
+                    if (Do(new ObserveDragonCommand(Rid(), uid, phase)).Ok) _observations++;
+                return;
+            }
             foreach (BehaviorDecision d in BehaviorEngine.DecideAll(_s, _now, PhaseAt(_now)))
                 // Cùng hàm với lệnh observeDragon (ResearchRules210.Observe), gọi thẳng để mô phỏng 90 ngày không phải sao chép state mỗi lần chạm.
                 if (Research.Observe(_s, d, _now, Pacing).Recorded) _observations++;
@@ -642,7 +664,8 @@ namespace Dravio.Domain.Tests.Simulation
                 }
             }
             ObserveAll();
-            Research.PruneIndividuals(_s);
+            // Lệnh thật tự dọn sổ sau mỗi lệnh thành công (ResearchRules210.Prune); chỉ đường gọi thẳng cần dọn tay.
+            if (!_variant.ObserveViaCommand) Research.PruneIndividuals(_s);
 
             RunExpedition();
             if (_tickInSession % 20 == 0) ResearchQuests();

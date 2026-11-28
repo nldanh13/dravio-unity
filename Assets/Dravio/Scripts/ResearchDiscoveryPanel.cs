@@ -22,6 +22,11 @@ namespace Dravio
         [SerializeField] GameObject page;
         [SerializeField] Text overview,detail,feedback;
         [SerializeField] Button codex,journal,quests,prev,next,record;
+        Button chronicle;
+        Text chronicleLabel, hintLabel;
+        Button hint;
+        string hintSave;
+        int hintChapter = -1;
         GameSession subscribed;
         string species,uid,quest;
         string displayedQuest,displayedAction;
@@ -61,10 +66,33 @@ namespace Dravio
         bool Vi=>localization==null||localization.Vietnamese;
         void Start()
         {
+            // A separate full-width control also works in previously generated playable scenes.
+            chronicle=Instantiate(record,record.transform.parent);
+            chronicle.name="Migration chronicle";
+            chronicle.transform.SetSiblingIndex(quests.transform.parent.GetSiblingIndex()+1);
+            chronicleLabel=chronicle.GetComponentInChildren<Text>();
+            chronicle.interactable=true;
+            chronicle.onClick.AddListener(()=>SetMode(3));
+            hint=Instantiate(record,record.transform.parent);
+            hint.name="Chapter hint";
+            hint.transform.SetSiblingIndex(chronicle.transform.GetSiblingIndex()+1);
+            hintLabel=hint.GetComponentInChildren<Text>();
+            hint.interactable=true;
+            hint.gameObject.SetActive(false);
+            hint.onClick.AddListener(ToggleHint);
             codex.onClick.AddListener(()=>SetMode(0));journal.onClick.AddListener(()=>SetMode(1));quests.onClick.AddListener(()=>SetMode(2));
             prev.onClick.AddListener(()=>Cycle(-1));next.onClick.AddListener(()=>Cycle(1));record.onClick.AddListener(Record);
             actionLabel=record.GetComponentInChildren<Text>(true);
             record.interactable=false;
+        }
+        void ToggleHint()
+        {
+            var state=host?.Session?.State;
+            if(mode!=3 || state==null)return;
+            int chapter=Dravio.Domain.Progression.MigrationChronicle.ChaptersCleared(state);
+            hintChapter=hintSave==state.SaveId && hintChapter==chapter ? -1 : chapter;
+            hintSave=state.SaveId;
+            Refresh();ScrollTop();
         }
         void ScrollTop(){var scroll=page!=null?page.GetComponent<ScrollRect>():null;if(scroll!=null)scroll.verticalNormalizedPosition=1f;}
         void SetMode(int m)
@@ -195,6 +223,10 @@ namespace Dravio
             var s=current?.State;lastState=s;record.interactable=false;prev.interactable=next.interactable=false;
             displayedQuest=displayedAction=null;displayedSession=null;
             if(actionLabel!=null)actionLabel.text=mode==2?(Vi?"Nhận nhiệm vụ":"Claim quest"):(Vi?"Ghi quan sát":"Record observation");
+            chronicleLabel.text=Vi?"Cốt truyện và lịch sự kiện":"Story and event calendar";
+            record.gameObject.SetActive(mode!=3);
+            prev.transform.parent.gameObject.SetActive(mode!=3);
+            if(mode!=3 || s==null || host.Session.Status!=SessionStatus.Ready)hint.gameObject.SetActive(false);
             if(s==null||current.Status!=SessionStatus.Ready)
             {
                 Write(overview,current==null||current.Status==SessionStatus.Loading?
@@ -203,6 +235,18 @@ namespace Dravio
                 Write(detail,"—");Write(feedback,"—");return;
             }
             bool vi=Vi;
+            if(mode==3)
+            {
+                int chapter=Dravio.Domain.Progression.MigrationChronicle.ChaptersCleared(s);
+                bool showHint=hintSave==s.SaveId && hintChapter==chapter;
+                hint.gameObject.SetActive(chapter<4);
+                hintLabel.text=showHint?(vi?"Ẩn gợi ý":"Hide hint"):(vi?"Xem gợi ý chương này":"Show chapter hint");
+                Write(overview,ChronicleView.Story(s,vi,showHint));
+                var today=Dravio.Domain.Progression.MigrationChronicle.LocalDay(s.Clock.HighWaterAtMs);
+                Write(detail,ChronicleView.Calendar(s,today,vi));
+                Write(feedback,vi?"Trong thời gian sự kiện, hoàn thành mục tiêu để lưu dấu vào hồ sơ.":"Complete an objective during its event to add a stamp to this save.");
+                return;
+            }
             if(mode!=2)
             {
             var progress=OverviewFor(s);

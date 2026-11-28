@@ -32,7 +32,7 @@ namespace Dravio
         [SerializeField] DragonCarePreview legacy;
         [SerializeField] SanctuaryDomainPreview adapter;
         [SerializeField] GameObject fruit;
-        [Tooltip("Experimental ADR 0203 B7/A4: assign food by preference instead of selected UID. Off until approved.")]
+        [Tooltip("Experimental ADR 0203 B7/A4: use the selected dragon's favorite diet without prioritizing that dragon.")]
         [SerializeField] bool sharedFoodAllocation;
 #if UNITY_EDITOR
         [Tooltip("TL.11 experimental selected-UID food perception/action sequence. Off by default; ignored with shared allocation.")]
@@ -42,11 +42,6 @@ namespace Dravio
         bool UseFoodGate=>foodGateForMarker;
         string lastFoodGateOutcome="—";
 #endif
-        bool SharedAllocationForMarker=>sharedFoodAllocation
-#if UNITY_EDITOR
-            && !UseFoodGate
-#endif
-            ;
         // Diagnostics remain available to developers in the Editor, never enabled in a player build.
 #if UNITY_EDITOR
         [SerializeField] bool showProfileDiagnostics;
@@ -147,11 +142,14 @@ namespace Dravio
         float socialRetryAt;
         string socialLast="—";
         SocialPresentationLease Social=>socialScheduler.Active;
-        string foodRequestedUid;
         bool feedPending;
         GameSession session;
         GameState lastState;
-        string selected,travelHabitat,travelZone,foodId,foodUid;
+        string selected,travelHabitat,travelZone,foodUid;
+        readonly List<string> portions=new List<string>();
+        readonly Dictionary<string,Vector3> mealSpots=new Dictionary<string,Vector3>();
+        string foodId=>portions.Count==0?null:portions[0];
+        bool placingMeal;
         [SerializeField] bool connectedWorlds;
         bool viewSuspended;
 #if UNITY_EDITOR
@@ -369,7 +367,8 @@ namespace Dravio
                 travelHabitat=null;
             }
             if(following && (selected==null || !residents.ContainsKey(selected)))StopFollow();
-            if(foodId!=null && !lastState.Food.Drops.Any(f=>f.Id==foodId))ClearFood();
+            for(int i=portions.Count-1;i>=0;i--)
+                if(!lastState.Food.Drops.Any(f=>f.Id==portions[i]))RemovePortion(portions[i]);
             RefreshProfile();
         }
 
@@ -520,16 +519,73 @@ namespace Dravio
                 r.decision=d;
                 if(d.UntilMs>now)decisionDeadline=Math.Min(decisionDeadline,d.UntilMs);
             }
-            // Shared allocation is an experimental gameplay change, not silently enabled.
-            // Default mode keeps the existing selected-UID food contract.
-            if(foodId!=null && SharedAllocationForMarker)
+            if(foodId!=null)
             {
                 var assigned=all.FirstOrDefault(d=>d.Behavior==DragonBehavior.SeekFood && d.TargetFoodId==foodId);
+#if UNITY_EDITOR
+                if(UseFoodGate && foodUid!=assigned?.Uid)foodGate.Clear();
+#endif
                 foodUid=assigned?.Uid;
             }
             RefreshProfile();
         }
-        bool IsFoodTarget(Resident r)=>foodId!=null && r.uid==foodUid;
+        float MealSpeed(Resident r,Vector3 spot)
+        {
+            float distance=Vector3.Distance(r.position,spot);
+            bool clear=distance<AutonomousPresentationPolicy.MealSlowdownDistance && Segment(r.position,spot,r.habitat);
+            return AutonomousPresentationPolicy.MealApproachSpeed(distance,clear);
+        }
+
+        bool IsFoodTarget(Resident r)=>r.decision?.TargetFoodId!=null && mealSpots.ContainsKey(r.decision.TargetFoodId);
+
+        void OnGUI()
+        {
+            if(Event.current.type!=EventType.Repaint || !Ready || cameraView==null)return;
+            bool selectedGetsFood=selected!=null && residents.TryGetValue(selected,out var selectedResident) && IsFoodTarget(selectedResident);
+            var cameraRect=cameraView.pixelRect;
+            var safe=Screen.safeArea;
+            var view=Rect.MinMaxRect(Mathf.Max(cameraRect.xMin,safe.xMin),Mathf.Max(cameraRect.yMin,safe.yMin),
+                Mathf.Min(cameraRect.xMax,safe.xMax),Mathf.Min(cameraRect.yMax,safe.yMax));
+            var first=DrawDragonLabel(selected,selectedGetsFood?(vi?"Đang chọn · Thức ăn":"Selected · Food"):
+                (vi?"Đang chọn":"Selected"),view,null);
+            if(portions.Count==1 && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food",view,first);
+        }
+
+        (float x,float y,float width,float height)? DrawDragonLabel(string uid,string label,Rect view,
+            (float x,float y,float width,float height)? occupied)
+        {
+            if(string.IsNullOrEmpty(uid) || !manager.TryGet(uid,out var instance))return null;
+            var bounds=instance.WorldBounds();
+            var point=cameraView.WorldToScreenPoint(bounds.center+Vector3.up*bounds.extents.y);
+            if(point.z<=0 || !cameraView.pixelRect.Contains(new Vector2(point.x,point.y)))return null;
+            var size=GUI.skin.box.CalcSize(new GUIContent(label));
+            var placement=AutonomousPresentationPolicy.PlaceLabel(point.x-view.xMin,view.yMax-point.y,
+                size.x,size.y,view.width,view.height,occupied);
+            if(!placement.HasValue)return null;
+            var pos=placement.Value;
+            GUI.Label(new Rect(view.xMin+pos.x,Screen.height-view.yMax+pos.y,size.x,size.y),label,GUI.skin.box);
+            return (pos.x,pos.y,size.x,size.y);
+        }
+
+        string FeedingNotice()
+        {
+            if(placingMeal)return vi?"Chạm đất để thả thức ăn.":"Tap the ground to scatter food.";
+            if(portions.Count>1)return vi?$"Còn {portions.Count} phần ăn.":$"{portions.Count} portions left.";
+            if(foodId==null)return vi?messageVi:messageEn;
+            var assignment=BehaviorEngine.AssignmentOf(State,foodId,NowMs);
+            if(assignment==null)return vi?messageVi:messageEn;
+            var recipient=State.FindDragon(assignment.AssignedDragonUid);
+            string reason="";
+            if(assignment.TargetBlockedReason=="cooldown")
+            {
+                var target=State.FindDragon(assignment.TargetDragonUid);
+                if(target!=null)reason=DragonName(target)+(vi?" vừa ăn. ":" just ate. ");
+            }
+            return reason+(recipient==null?(vi?"Chưa có rồng nhận thức ăn.":"No dragon has claimed the food."):
+                (vi?"Rồng nhận thức ăn: ":"Food assigned to: ")+DragonName(recipient));
+        }
+
+        static string DragonName(DragonState dragon)=>string.IsNullOrEmpty(dragon.Nickname)?dragon.SpeciesId:dragon.Nickname;
         bool SocialEligible(Resident r,SocialInteractionKind kind,bool initiator)
         {
             if(r==null||r.Spatial||!r.walking||r.decision==null||!r.decision.Visible||
@@ -658,7 +714,8 @@ namespace Dravio
                 manager.TryGet(r.uid,out var live) && live.ShownLocomotion!=DragonLocomotion.Sleep && live.CurrentInteraction==DragonInteraction.None;
         }
         static float SignedTurn(Quaternion old,Quaternion next,float dt)=>dt>0f?Mathf.DeltaAngle(old.eulerAngles.y,next.eulerAngles.y)/dt:0f;
-        bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate)
+        bool MoveToward(Resident r,Vector3 target,float dt,out float speed,out float turnRate,
+            float walkSpeed=AutonomousPresentationPolicy.GroundWalkSpeed)
         {
 #if UNITY_EDITOR
             if(controllerTrace!=null && controllerTrace.Recording)traceAttempts++;
@@ -689,7 +746,7 @@ namespace Dravio
             var waypoint=SanctuaryNavigationSurface.Vector(points[r.routeIndex]);
             var delta=waypoint-r.position;delta.y=0f;
             if(delta.sqrMagnitude<.000001f){r.routeIndex++;return false;}
-            var next=Vector3.MoveTowards(r.position,waypoint,.55f*dt);
+            var next=Vector3.MoveTowards(r.position,waypoint,walkSpeed*dt);
             if(!ClearPoint(next,r.habitat,r.uid) || !Segment(r.position,next,r.habitat) ||
                 ((spatialForView || (Social!=null && Social.Contains(r.uid))) && !SanctuaryRoutePlanner.SegmentClear(SanctuaryNavigationSurface.Point(r.position),
                     SanctuaryNavigationSurface.Point(next),p=>Separated(SanctuaryNavigationSurface.Vector(p),r.uid),.025f)))
@@ -738,7 +795,7 @@ namespace Dravio
         {
             // Actual gameplay authority stays in the existing policy. Health recovery wins over the experiment.
             return !(r.decision?.Role==BehaviorRole.Gameplay && r.decision.Behavior==DragonBehavior.Rest) &&
-                AutonomousPresentationPolicy.CanConsumeMarker(State,r.uid,foodUid,foodId,NowMs,phase,false);
+                AutonomousPresentationPolicy.CanConsumeMarker(State,r.uid,foodUid,foodId,NowMs,phase);
         }
         DragonBehaviorIntent ExperimentalFoodIntent(Resident r,float dt,out float speed,out float turnRate,out bool look,out Vector3 lookTarget)
         {
@@ -759,7 +816,7 @@ namespace Dravio
             look=true;lookTarget=foodPoint;
             if(distance>FoodActionPresentationGate.Reach)
             {
-                MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                MoveToward(r,foodPoint,dt,out speed,out turnRate,AutonomousPresentationPolicy.MealApproachSpeed((float)distance,clear));
                 foodGate.Presentation(false,false,false);
                 return speed>0?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
             }
@@ -783,14 +840,16 @@ namespace Dravio
 #endif
             if(IsFoodTarget(r))
             {
-                var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
+                var foodPoint=mealSpots[r.decision.TargetFoodId];
+                var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==r.decision.TargetFoodId);
                 if(d!=null && drop!=null && BehaviorEngine.CanEat(d,drop,NowMs))
                 {
                     if(r.point!=null)ReleasePoint(r);
                     look=true;lookTarget=foodPoint;
-                    if((r.position-foodPoint).sqrMagnitude>.55f*.55f)
+                    float approachSpeed=MealSpeed(r,foodPoint);
+                    if(approachSpeed>0)
                     {
-                        MoveToward(r,foodPoint,dt,out speed,out turnRate);
+                        MoveToward(r,foodPoint,dt,out speed,out turnRate,approachSpeed);
                         if(speed==0f)r.fallback="food-path: "+r.routeState;
                         return speed>0f?DragonBehaviorIntent.Walk:DragonBehaviorIntent.Idle;
                     }
@@ -943,8 +1002,12 @@ namespace Dravio
             }
 #endif
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
-            if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)
-            {consumeAfter=Time.unscaledTime+.2f;Consume();}
+            if(foodId!=null && Time.unscaledTime>=consumeAfter)
+            {
+                consumeAfter=Time.unscaledTime+.2f;
+                foreach(var diner in residents.Values.ToArray())
+                    if(IsFoodTarget(diner))Consume(diner.uid,diner.decision.TargetFoodId);
+            }
             ReadSelection();
         }
 
@@ -993,6 +1056,27 @@ namespace Dravio
                 if(uiHits.Any(h=>h.module is GraphicRaycaster))return;
             }
             var ray=cameraView.ScreenPointToRay(point);
+            if(placingMeal)
+            {
+                var selectedDragon=Selected;
+                if(selectedDragon==null || !residents.TryGetValue(selectedDragon.Uid,out var anchor)){placingMeal=false;return;}
+                var ground=new Plane(Vector3.up,anchor.position);
+                if(ground.Raycast(ray,out float distanceToGround))
+                {
+                    var groundPoint=ray.GetPoint(distanceToGround);
+                    if(locations!=null && locations.TryGroundHeight(groundPoint,out float groundY))
+                    {
+                        groundPoint.y=groundY;
+                        if(navigation!=null && navigation.Clear(groundPoint,anchor.habitat,NavigationMedium.Ground))
+                        {
+                            DropMeal(groundPoint);
+                            return;
+                        }
+                    }
+                }
+                Message("Choose walkable ground in this habitat.","Chọn chỗ đất trống trong sinh cảnh này.");
+                return;
+            }
             string hit=null;float nearest=float.PositiveInfinity;
             foreach(var r in residents.Values)
                 if(manager.TryGet(r.uid,out var instance) && instance.WorldBounds().IntersectRay(ray,out float distance) && distance<nearest)
@@ -1026,33 +1110,44 @@ namespace Dravio
         }
         void Feed()
         {
+            placingMeal=!placingMeal && Ready && foodId==null;
+            RefreshProfile();
+        }
+
+        void DropMeal(Vector3 point)
+        {
+            placingMeal=false;
             var d=Selected;
             if(d==null || !residents.TryGetValue(d.Uid,out var r) || r.Spatial || foodId!=null || !Ready)return;
             var personality=BehaviorQueries.Personality(State,d.Uid);
             if(personality==null)return;
             var diets=SpeciesCatalog.Get(d.SpeciesId).Biology.DietIds;
             if(diets.Count==0)return;
-            // Preserve existing selected UID / first diet unless experimental allocation is enabled.
             var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
+            string targetUid=sharedFoodAllocation?null:d.Uid;
             StopSocial("player-feed");r.manualRestUntil=0;ReleasePoint(r);
-            var point=r.position+r.rotation*Vector3.forward*.4f;
-            foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
-            foodRequestedUid=d.Uid;feedPending=true;
-            try
-            {
-                if(Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId))&&foodId!=null)
-                    Message("Food placed: "+diet+" · waiting for consumption.","Đã thả thức ăn: "+diet+" · đang chờ rồng ăn.");
-            }
-            finally{feedPending=false;foodRequestedUid=null;}
+            foodPoint=point;
+            var probe=new FoodDrop{ZoneId=d.Location.ZoneId,HabitatId=r.habitat,DietId=diet,ExpiresAtMs=NowMs+CareRules.FoodTtlMs};
+            var diners=residents.Values.Where(x=>!x.Spatial && manager.IsLive(x.uid) &&
+                (x.position-point).sqrMagnitude<=16f && State.FindDragon(x.uid) is DragonState dragon &&
+                BehaviorEngine.CanEat(dragon,probe,NowMs)).OrderBy(x=>x.uid==targetUid?0:1)
+                .ThenBy(x=>(x.position-point).sqrMagnitude).ThenBy(x=>x.uid,StringComparer.Ordinal)
+                .Take(CareRules.FoodMaxBase).Select(x=>x.uid).ToList();
+            feedPending=true;
+            try{if(Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId,
+                diners.FirstOrDefault()??targetUid,diners.Skip(1).ToArray())) && foodId!=null)
+                Message("Food placed: "+diet,"Đã thả thức ăn: "+diet);}
+            finally{feedPending=false;}
         }
-        void Consume()
+        void Consume(string foodUid,string foodId)
         {
             var drop=State?.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
             var d=State?.FindDragon(foodUid);
-            if(drop==null){ClearFood();return;}
+            if(drop==null){RemovePortion(foodId);return;}
+            var foodPoint=mealSpots[foodId];
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
-                (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
-            if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase,SharedAllocationForMarker))return;
+                MealSpeed(r,foodPoint)>0 || !BehaviorEngine.CanEat(d,drop,NowMs))return;
+            if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase))return;
             var idToEat=foodId;var who=foodUid;
 #if UNITY_EDITOR
             if(UseFoodGate && !foodGate.TryRequest(who,idToEat,r.habitat,NowMs,drop.ExpiresAtMs,
@@ -1080,19 +1175,49 @@ namespace Dravio
 #if UNITY_EDITOR
             foodGate.Clear();foodGateForMarker=false;
 #endif
-            foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
+            placingMeal=false;portions.Clear();mealSpots.Clear();foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
+        }
+        void RemovePortion(string id)
+        {
+            if(!portions.Remove(id))return;
+            mealSpots.Remove(id);
+            decisionsDirty=true;
+            if(portions.Count==0)ClearFood();
+        }
+        Vector3 FindMealSpot(int slot,int count,string habitat)
+        {
+            if(count<=1)return foodPoint;
+            var spot=foodPoint;
+            AutonomousPresentationPolicy.TryMealRingOffset(slot,count,(x,z)=>
+            {
+                var candidate=foodPoint+new Vector3(x,0,z);
+                if(locations==null || !locations.TryGroundHeight(candidate,out float groundY))return false;
+                candidate.y=groundY;
+                if(!Segment(foodPoint,candidate,habitat))return false;
+                foreach(var used in mealSpots.Values)
+                {
+                    float dx=candidate.x-used.x,dz=candidate.z-used.z;
+                    if(dx*dx+dz*dz<.55f*.55f)return false;
+                }
+                spot=candidate;
+                return true;
+            });
+            // Keep the placeable center as a last resort in very narrow spaces.
+            return spot;
         }
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
             decisionsDirty=true;
             if(viewSuspended)return;
+            int spawned=feedPending?events.Count(e=>e is FoodSpawned):0;
             foreach(var e in events)
             {
-                if(e is FoodSpawned f && feedPending && foodRequestedUid!=null && foodId==null)
+                if(e is FoodSpawned f && feedPending)
                 {
-                    foodId=f.FoodId;foodUid=sharedFoodAllocation?null:foodRequestedUid;consumeAfter=Time.unscaledTime+.6f;
+                    mealSpots[f.FoodId]=FindMealSpot(portions.Count,spawned,f.HabitatId);
+                    portions.Add(f.FoodId);consumeAfter=Time.unscaledTime+.6f;
 #if UNITY_EDITOR
-                    foodGateForMarker=experimentalFoodPerception && !sharedFoodAllocation;
+                    foodGateForMarker=spawned==1 && experimentalFoodPerception && !sharedFoodAllocation;
                     if(foodGateForMarker)lastFoodGateOutcome="pending";
 #endif
                     RefreshButtons();
@@ -1100,10 +1225,10 @@ namespace Dravio
                 }
                 else if(e is FoodConsumed consumed)
                 {
-                    if(consumed.FoodId==foodId)
+                    if(portions.Contains(consumed.FoodId))
                     {
                         var eater=State?.FindDragon(consumed.DragonUid);
-                        ClearFood();
+                        RemovePortion(consumed.FoodId);
                         Message(ResearchDiscoveryView.FoodFeedback(eater?.SpeciesId,consumed.DragonUid,consumed.XpGainedSec,false),
                             ResearchDiscoveryView.FoodFeedback(eater?.SpeciesId,consumed.DragonUid,consumed.XpGainedSec,true));
                     }
@@ -1116,11 +1241,10 @@ namespace Dravio
                 else if(e is ExpeditionStarted trip)
                 {
                     if(Social!=null&&Social.Contains(trip.DragonUid))StopSocial("expedition-start");
-                    if(foodUid==trip.DragonUid)ClearFood(); // visual marker only; canonical food expires normally
                     if(selected==trip.DragonUid)StopFollow();
                 }
-                else if(e is FoodExpired expired && expired.FoodId==foodId)
-                {ClearFood();Message("Food expired before consumption.","Thức ăn đã hết hạn trước khi rồng ăn.");}
+                else if(e is FoodExpired expired && portions.Contains(expired.FoodId))
+                {RemovePortion(expired.FoodId);if(foodId==null)Message("Food expired before consumption.","Thức ăn đã hết hạn trước khi rồng ăn.");}
             }
         }
         void ToggleSleep()
@@ -1316,6 +1440,11 @@ namespace Dravio
             title.text=(string.IsNullOrEmpty(d.Nickname)?d.SpeciesId:d.Nickname)+" · "+ResearchDiscoveryView.StageLabel(snapshot.Stage,vi);
             progress.text="XP "+d.XpSec.ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"/"+SpeciesCatalog.Get(d.SpeciesId).GrowthTimeSec+
                 " · "+(vi?"Gắn kết ":"Bond ")+d.Bond+"/100";
+            if(foodId==null && !sharedFoodAllocation && Ready && residents.TryGetValue(d.Uid,out var hungryResident) && !hungryResident.Spatial)
+            {
+                int wait=SanctuaryFeedback.FeedWaitSeconds(d.LastFeedXpAtMs,NowMs);
+                if(wait>0)progress.text+=vi?$" · Vừa ăn, còn {wait} giây":$" · Just ate, {wait}s left";
+            }
             string visual=vi?"Không ở sinh cảnh hiện tại":"Not in current habitat view";
             if(residents.TryGetValue(d.Uid,out var r))
             {
@@ -1383,7 +1512,7 @@ namespace Dravio
 #if UNITY_EDITOR
             if(experimentalFoodPerception || UseFoodGate)profile.text+="\nTL.11: "+(UseFoodGate?foodGate.Phase.ToString():"next marker")+" · "+(foodGate.Visible?"visible":foodGate.Remembered?"memory":"not sensed")+" · requests "+foodGate.Requests+" · last "+lastFoodGateOutcome;
 #endif
-            if(notice!=null)notice.text=(vi?messageVi:messageEn)+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
+            if(notice!=null)notice.text=FeedingNotice()+(sharedFoodAllocation?(vi?" · Phân thức ăn thử nghiệm":" · Experimental food allocation"):"");
             RefreshButtons();
         }
         void AppendProgression(DragonState d)

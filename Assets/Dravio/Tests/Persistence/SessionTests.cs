@@ -352,6 +352,68 @@ namespace Dravio.Persistence.Tests
         }
 
         [Test]
+        public void Session_without_writer_lock_cannot_import_over_a_broken_save()
+        {
+            var store = new MemorySaveStore();
+            store.Slots[SaveSlot.Main] = "garbage";
+            var held = new HashSet<string>();
+            using var writer = new InMemoryWriterLock(held);
+            using GameSession reader = new SessionRig(store, PFix.T0, new InMemoryWriterLock(held)).NewSession();
+            Assert.That(reader.Status, Is.EqualTo(SessionStatus.Unrecoverable));
+
+            reader.PrepareImport(new SaveManager(store, () => PFix.T0).ExportText(PFix.Fresh(2)));
+            Assert.That(reader.ImportPreview, Is.Not.Null);
+            reader.ConfirmImport();
+
+            Assert.That(reader.Status, Is.EqualTo(SessionStatus.Unrecoverable));
+            Assert.That(reader.State, Is.Null);
+            Assert.That(store.Get(SaveSlot.Main), Is.EqualTo("garbage"));
+        }
+
+        [Test]
+        public void StartFresh_keeps_recovery_available_after_a_write_error_and_can_retry()
+        {
+            var store = new MemorySaveStore();
+            store.Slots[SaveSlot.Main] = "garbage";
+            var rig = new SessionRig(store, PFix.T0);
+            using GameSession session = rig.NewSession(visible: false);
+            store.FailNextWrite = true;
+
+            session.StartFresh();
+
+            Assert.That(session.Status, Is.EqualTo(SessionStatus.Unrecoverable));
+            Assert.That(session.SaveError, Is.True);
+            Assert.That(store.Get(SaveSlot.Main), Is.EqualTo("garbage"));
+            session.StartFresh();
+            Assert.That(session.Status, Is.EqualTo(SessionStatus.Ready));
+            Assert.That(session.SaveError, Is.False);
+            Assert.That(session.Hidden, Is.True);
+            Assert.That(store.Get(SaveSlot.Backup1), Is.EqualTo("garbage"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Recovery_enters_conflict_when_the_disk_save_changes(bool import)
+        {
+            var store = new MemorySaveStore();
+            store.Slots[SaveSlot.Main] = "garbage";
+            using GameSession session = new SessionRig(store, PFix.T0).NewSession();
+            string other = new SaveManager(store, () => PFix.T0).ExportText(PFix.Fresh(2));
+            store.Slots[SaveSlot.Main] = other;
+
+            if (import)
+            {
+                session.PrepareImport(new SaveManager(store, () => PFix.T0).ExportText(PFix.Fresh(3)));
+                session.ConfirmImport();
+            }
+            else session.StartFresh();
+
+            Assert.That(session.Status, Is.EqualTo(SessionStatus.Conflict));
+            Assert.That(session.State, Is.Null);
+            Assert.That(store.Get(SaveSlot.Main), Is.EqualTo(other));
+        }
+
+        [Test]
         public void Commands_go_through_the_domain_and_reach_disk_on_the_next_autosave()
         {
             var store = new MemorySaveStore();

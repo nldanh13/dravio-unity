@@ -53,7 +53,7 @@ namespace Dravio.Domain.Tests
             Assert.That(r.Events.OfType<DragonSold>().Single().PriceGoldMicro, Is.EqualTo(836 * G));
             Assert.That(r.State.Player.TotalGoldEarned, Is.EqualTo(s.Player.TotalGoldEarned), "vàng bán không tính vào totalGoldEarned");
             Assert.That((r.State.FindDragon("a"), r.State.ProductionDragonIds.Contains("a"), r.State.Player.Stats.TotalSold), Is.EqualTo(((DragonState)null, false, 1L)));
-            Assert.That(Codex.Find(r.State, "magma").DiscoveredMutations, Does.Contain(MutationType.Crystal), "Bách khoa giữ khám phá sau khi bán");
+            Assert.That(Codex.Find(r.State, "magma").DiscoveredMutations, Has.Member(MutationType.Crystal), "Bách khoa giữ khám phá sau khi bán");
             long juv = EconomyRates.SellPriceG(SpeciesCatalog.Get("sprout"), GrowthStage.Juvenile, MutationType.Normal);
             Assert.That(Ok(r.State, new SellDragonCommand(Rid(), "j"), clock).Events.OfType<DragonSold>().Single().PriceGoldMicro, Is.EqualTo(juv * G));
             Fail(r.State, new SellDragonCommand(Rid(), "a"), clock, DomainErrorCode.UnknownDragon);
