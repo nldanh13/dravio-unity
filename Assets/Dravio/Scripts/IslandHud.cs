@@ -56,6 +56,7 @@ namespace Dravio
         readonly List<Chip> chips=new List<Chip>();
         sealed class Chip{public RectTransform rect;public Image stripe;public Text text;}
         IslandScenery scenery;
+        RectTransform zoomPad;
         readonly List<BuildingChip> buildingChips=new List<BuildingChip>();
         sealed class BuildingChip{public RectTransform rect;public Text text;public IslandBuilding item;}
 
@@ -90,6 +91,7 @@ namespace Dravio
             scenery.living=living;
             BuildLayer();
             BuildDock();
+            BuildZoomPad();
             dock.SetSiblingIndex(layer.GetSiblingIndex()+1); // card, toasts, modals and the book stay above it
             startFrame=Time.frameCount;
             lastVi=ui.Vietnamese;
@@ -135,6 +137,7 @@ namespace Dravio
             }
             if(ui.Vietnamese!=lastVi){lastVi=ui.Vietnamese;bubbleState=null;foreach(var b in buttons)b.label.text=b.item.Label(lastVi);}
             RefreshDock();
+            if(zoomPad!=null)zoomPad.gameObject.SetActive(ui.Collapsed && islandCamera!=null && islandCamera.Active);
         }
 
         void LateUpdate()
@@ -431,6 +434,31 @@ namespace Dravio
                 dot.anchoredPosition=new Vector2(-2,-2);dot.sizeDelta=new Vector2(16,16);
                 var dotImg=dot.gameObject.AddComponent<Image>();dotImg.sprite=circle;dotImg.color=Alert;dotImg.raycastTarget=false;
                 buttons.Add(new DockButton{item=item,bg=bg,label=label,dot=dot.gameObject});
+            }
+        }
+
+        /// <summary>U6.5: + / − buttons on the right edge (the wheel and pinch still work).</summary>
+        void BuildZoomPad()
+        {
+            zoomPad=Node("Island zoom",ui.SafeRoot);
+            zoomPad.anchorMin=zoomPad.anchorMax=zoomPad.pivot=new Vector2(1f,.5f);
+            zoomPad.anchoredPosition=new Vector2(-14,0);
+            var col=zoomPad.gameObject.AddComponent<VerticalLayoutGroup>();
+            col.spacing=10;col.childControlWidth=col.childControlHeight=true;col.childForceExpandWidth=col.childForceExpandHeight=false;
+            var fit=zoomPad.gameObject.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit=fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+            foreach(var (text,factor) in new[]{("+",1f/1.25f),("-",1.25f)})
+            {
+                var node=Node(factor<1f?"Zoom in":"Zoom out",zoomPad);
+                var le=node.gameObject.AddComponent<LayoutElement>();le.minWidth=le.preferredWidth=le.minHeight=le.preferredHeight=52;
+                var bg=node.gameObject.AddComponent<Image>();bg.sprite=circle;bg.color=DockIdle;
+                var button=node.gameObject.AddComponent<Button>();button.targetGraphic=bg;
+                node.gameObject.AddComponent<Dravio.UI.DravioPressFeedback>();
+                float f=factor;button.onClick.AddListener(()=>{if(islandCamera!=null)islandCamera.ZoomStep(f);});
+                var label=Label(node,28,Ivory,FontStyle.Bold);label.alignment=TextAnchor.MiddleCenter;
+                label.rectTransform.anchorMin=Vector2.zero;label.rectTransform.anchorMax=Vector2.one;
+                label.rectTransform.offsetMin=label.rectTransform.offsetMax=Vector2.zero;
+                label.text=text;
             }
         }
 

@@ -217,6 +217,9 @@ namespace Dravio.EnvironmentArt
         void MeasurePanel()
         {
             float px = MeasureOccluderPixels(_uiPanel, _uiCamera, Screen.width);
+            // U6.5: a registered panel that is hidden (drawer closed) occludes nothing, so the island is framed in
+            // the full width instead of leaving the design panel's space empty on the right.
+            if (px < 0f && _uiPanel != null) px = 0f;
             SetFantasyUiOccluderPixels(px);
         }
 

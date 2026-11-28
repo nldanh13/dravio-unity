@@ -160,6 +160,8 @@ namespace Dravio.Tests
         [Test] public void ZoomingOutPastTheOverviewStaysCentred()
         {
             Assert.That(IslandViewMath.ClampZoom(5f),Is.EqualTo(IslandViewMath.MaxZoom));
+            Assert.That(IslandViewMath.WheelNotches(120f),Is.EqualTo(1f),"Windows-style delta");
+            Assert.That(IslandViewMath.WheelNotches(-1f),Is.EqualTo(-1f),"uniform delta (Unity 6 default)");
             IslandViewMath.Centre(1f,X0,X1,Y0,Y1,HalfW,HalfH,out var cx,out var cy);
             float ox=100,oy=-100;
             IslandViewMath.Clamp(ref ox,ref oy,IslandViewMath.MaxZoom,X0,X1,Y0,Y1,HalfW,HalfH);

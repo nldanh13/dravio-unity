@@ -20,6 +20,10 @@ namespace Dravio
         public const float MinZoom=.45f,DefaultZoom=.8f,MaxZoom=1.6f;
         public static float ClampZoom(float z)=>z<MinZoom?MinZoom:(z>MaxZoom?MaxZoom:z);
 
+        /// <summary>Mouse wheel delta in notches: the Input System reports ±120 per notch on some setups and ±1
+        /// (uniform scroll delta, Unity 6 default) on others.</summary>
+        public static float WheelNotches(float scrollY)=>Math.Abs(scrollY)>=10f?scrollY/120f:scrollY;
+
         /// <summary>Allowed offset range for one axis. lo/hi = free viewport edges (0..1), half = fitted half extent.</summary>
         public static void Range(float zoom,float lo,float hi,float half,out float min,out float max)
         {
