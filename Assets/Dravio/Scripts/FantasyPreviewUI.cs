@@ -33,6 +33,10 @@ namespace Dravio
         public DravioUiTheme Theme=>theme;
         private LivingSanctuaryPresentation sanctuary;
         private Text worldHint;
+        private Text journalLabel, nestLabel;
+        private Button journalShortcut, nestShortcut;
+        private RectTransform worldHeader, promptPlate;
+        private float promptUntil;
         private int page;
         private int lastW=-1,lastH=-1;
         private Rect lastSafe;
@@ -77,9 +81,72 @@ namespace Dravio
             if(collapsed)
                 foreach(var copy in translations)
                     if(copy.en=="DRAVIO"){worldHint=copy.label;break;}
+            if(worldHint!=null && tabs.Length>=7)BuildWorldCorners();
             page=0;
             Localize();
             Layout();
+        }
+
+        // Build from the existing playable HUD so checked-in and generated scenes share the layout.
+        private void BuildWorldCorners()
+        {
+            worldHeader=(RectTransform)worldHint.transform.parent;
+            var brand=worldHint;
+            var camp=Plate("Sanctuary name",new Color(.08f,.20f,.17f,.93f));
+            Pin(camp,new Vector2(0,1),new Vector2(14,-14),new Vector2(132,46));
+            brand.rectTransform.SetParent(camp,false);
+            Fill(brand.rectTransform);
+            brand.alignment=TextAnchor.MiddleCenter;
+            brand.raycastTarget=false;
+
+            promptPlate=Plate("World action feedback",new Color(.07f,.14f,.13f,.90f));
+            worldHint=Instantiate(brand,promptPlate);
+            Fill(worldHint.rectTransform);
+            worldHint.fontSize=16;
+            worldHint.resizeTextForBestFit=true;
+            worldHint.resizeTextMinSize=12;
+            worldHint.resizeTextMaxSize=16;
+            promptUntil=Time.unscaledTime+8f;
+
+            journalShortcut=CornerAction(6,"Field journal","biology",false,out journalLabel);
+            nestShortcut=CornerAction(4,"Hatchery","eggs",true,out nestLabel);
+        }
+
+        private RectTransform Plate(string name,Color tint)
+        {
+            var go=new GameObject(name,typeof(RectTransform),typeof(Image));
+            go.transform.SetParent(safeRoot,false);
+            var background=go.GetComponent<Image>();
+            background.color=tint;
+            background.raycastTarget=false;
+            return (RectTransform)go.transform;
+        }
+
+        private Button CornerAction(int index,string name,string icon,bool right,out Text label)
+        {
+            var button=Instantiate(tabs[index],safeRoot);
+            button.name=name;
+            button.onClick=new Button.ButtonClickedEvent();
+            button.onClick.AddListener(()=>Select(index));
+            DravioHudArt.ApplyTab(button,false);
+            DravioHudArt.AddIcon(button,icon,false);
+            Pin((RectTransform)button.transform,new Vector2(right?1:0,0),
+                new Vector2(right?-14:14,14),new Vector2(142,56));
+            label=button.GetComponentInChildren<Text>(true);
+            return button;
+        }
+
+        private static void Pin(RectTransform rt,Vector2 corner,Vector2 offset,Vector2 size)
+        {
+            rt.anchorMin=rt.anchorMax=rt.pivot=corner;
+            rt.sizeDelta=size;
+            rt.anchoredPosition=offset;
+        }
+
+        private static void Fill(RectTransform rt)
+        {
+            rt.anchorMin=Vector2.zero;rt.anchorMax=Vector2.one;
+            rt.offsetMin=new Vector2(6,1);rt.offsetMax=new Vector2(-6,-1);
         }
 
         // Also repair already-generated scenes, without recreating their assets.
@@ -232,6 +299,7 @@ namespace Dravio
             {
                 string feedback=sanctuary.WorldFeedback(vi);
                 string label=string.IsNullOrEmpty(feedback)?WorldPrompt():feedback;
+                if(promptPlate!=null)promptPlate.gameObject.SetActive(Time.unscaledTime<promptUntil || !string.IsNullOrEmpty(feedback));
                 if(worldHint.text!=label)worldHint.text=label;
             }
             if(Screen.width!=lastW || Screen.height!=lastH || HudSafeAreaOverride.Current!=lastSafe)Layout();
@@ -254,6 +322,12 @@ namespace Dravio
                 scaler.referenceResolution=new Vector2(result.ReferenceWidth,result.ReferenceHeight);
                 scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
                 scaler.matchWidthOrHeight=1;
+            }
+            if(worldHeader!=null)
+            {
+                Pin(worldHeader,Vector2.one,new Vector2(-14,-14),new Vector2(344,48));
+                Pin(promptPlate,new Vector2(.5f,0),new Vector2(0,82),
+                    new Vector2(Mathf.Min(430,result.SafeWidthUnits-28),46));
             }
             panel.anchorMin=new Vector2(1,0);
             panel.anchorMax=new Vector2(1,1);
@@ -278,6 +352,14 @@ namespace Dravio
                 pages[i].SetActive(i==page);
                 if(theme!=null)DravioUiSkin.ApplyTab(tabs[i],theme,i==page);
                 else DravioHudArt.ApplyTab(tabs[i],i==page);
+            }
+            if(journalShortcut!=null)
+            {
+                journalShortcut.gameObject.SetActive(collapsed);
+                nestShortcut.gameObject.SetActive(collapsed);
+                journalLabel.text=vi?"Sổ tay":"Journal";
+                nestLabel.text=vi?"Tổ trứng":"Hatchery";
+                if(!collapsed)promptPlate.gameObject.SetActive(false);
             }
             if(worldHint!=null)worldHint.text=collapsed?WorldPrompt():"DRAVIO";
             if(collapseLabel!=null)collapseLabel.text=collapsed?"Menu":(vi?"Ẩn":"Hide");
