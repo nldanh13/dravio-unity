@@ -92,6 +92,9 @@ def main():
                          'each failing clip instead; entries of clips that still fail are removed from the result')
     ap.add_argument('--local-step', type=float, default=0.8)
     ap.add_argument('--local-floor', type=float, default=0.3)
+    ap.add_argument('--guard', action='store_true',
+                    help='a group reduction that gives its clip a NEW ground/foot/transition/wing warning is undone '
+                         'and that group is never reduced again on that clip (amplitude mode)')
     ap.add_argument('--local-width', type=float, default=0.12, help='Gaussian half width, fraction of the clip')
     a = ap.parse_args()
     base, out = Path(a.base).resolve(), Path(a.out).resolve()
@@ -103,6 +106,14 @@ def main():
     cfg = json.loads(a.start)
     cfg.setdefault('amplitude', {})
     history, best, needs_art = [], None, {}
+    base_warn, last_change, blocked = None, {}, {}
+
+    def clip_warn(qa):
+        out = {}
+        for w in qa['warnings']:
+            if w['check'] != 'deformation' and w['clip']:
+                out.setdefault(w['clip'], set()).add(w['check'])
+        return out
     for rnd in range(a.rounds + 1):
         rd = out / f'{name}_r{rnd}'
         qa = measure(base, name, cfg, rd, a.bpy_python, shim, log)
@@ -111,9 +122,17 @@ def main():
         other = sorted({(w['clip'] or '-') + ':' + w['check'] for w in qa['warnings'] if w['check'] != 'deformation'})
         history.append({'round': rnd, 'config': json.loads(json.dumps(cfg)), 'failingClips': fails, 'otherWarnings': other,
                         'clips': {n: {'stretch': v['stretch'], 'compress': v['compress']} for n, v in s.items()}})
-        print(f'{name} r{rnd}: {len(fails)}/{len(s)} clips over limit {fails}', flush=True)
-        if best is None or len(fails) < len(best['failingClips']):
+        cw = clip_warn(qa)
+        if base_warn is None:
+            base_warn = cw
+        new_warn = sorted(n for n in cw if cw[n] - base_warn.get(n, set()))
+        history[-1]['newWarningClips'] = new_warn
+        print(f'{name} r{rnd}: {len(fails)}/{len(s)} clips over limit {fails} new warnings {new_warn}', flush=True)
+        score = len(set(fails) | set(new_warn))
+        if best is None or score < best['score']:
+            history[-1]['score'] = score
             best = history[-1]
+            best['score'] = score
             if (out / f'{name}_best').exists():
                 shutil.rmtree(out / f'{name}_best')
             shutil.copytree(rd / 'qa', out / f'{name}_best')
@@ -144,14 +163,26 @@ def main():
             if not fails or not changed:
                 break
             continue
+        if a.guard:
+            for n in new_warn:
+                for g, old in last_change.get(n, []):
+                    cur = cfg['amplitude'].setdefault(n, {})
+                    if old == 1.0: cur.pop(g, None)
+                    else: cur[g] = old
+                    blocked.setdefault(n, set()).add(g); changed = True
+            last_change = {}
         for n in fails:
+            if n in new_warn and a.guard:
+                continue  # reverted this round; measure again first
             cur = cfg['amplitude'].setdefault(n, {})
-            gs = [g for g in target_groups(s[n]['worstBones']) if cur.get(g, 1.0) > a.floor + 1e-9]
+            gs = [g for g in target_groups(s[n]['worstBones'], n=4) if cur.get(g, 1.0) > a.floor + 1e-9
+                  and g not in blocked.get(n, ())][:2]
             if not gs:
                 needs_art[n] = {'groups': target_groups(s[n]['worstBones']), 'stretch': s[n]['stretch'],
                                 'compress': s[n]['compress'], 'worstBones': s[n]['worstBones']}
                 continue
             for g in gs:
+                last_change.setdefault(n, []).append((g, cur.get(g, 1.0)))
                 cur[g] = round(max(a.floor, cur.get(g, 1.0) * a.step), 3)
             needs_art.pop(n, None)
             changed = True
@@ -166,7 +197,7 @@ def main():
            'needsArt': {n: v for n, v in needs_art.items() if n in history[-1]['failingClips']},
            'status': 'PASS' if not best['failingClips'] and not best['otherWarnings'] else
                      ('DEFORMATION_PASS' if not best['failingClips'] else 'NEEDS_ART'),
-           'history': history}
+           'blocked': {k: sorted(v) for k, v in blocked.items()}, 'history': history}
     if res['best']['config'].get('amplitude') == {}:
         res['best']['config'].pop('amplitude')
     if a.local:  # no pull-back is kept on a clip it did not fix
