@@ -55,6 +55,9 @@ namespace Dravio
         HabitatPlots plots;
         readonly List<Chip> chips=new List<Chip>();
         sealed class Chip{public RectTransform rect;public Image stripe;public Text text;}
+        IslandScenery scenery;
+        readonly List<BuildingChip> buildingChips=new List<BuildingChip>();
+        sealed class BuildingChip{public RectTransform rect;public Text text;public IslandBuilding item;}
 
         sealed class Bubble{public RectTransform rect;public Text name,stage,mark;public Image markBg;public string uid;}
         sealed class Popup{public RectTransform rect;public Text text;public string uid;public float born=-1;}
@@ -83,6 +86,8 @@ namespace Dravio
             islandCamera=gameObject.AddComponent<IslandCamera>();
             plots=gameObject.AddComponent<HabitatPlots>();
             plots.living=living;plots.host=host;
+            scenery=gameObject.AddComponent<IslandScenery>();
+            scenery.living=living;
             BuildLayer();
             BuildDock();
             dock.SetSiblingIndex(layer.GetSiblingIndex()+1); // card, toasts, modals and the book stay above it
@@ -156,6 +161,7 @@ namespace Dravio
             }
             var cam=Camera.main;
             PlaceChips(cam);
+            PlaceBuildingChips(cam);
             PlaceBubbles(cam);
             Diagnose(cam,s);
             SpawnPopups();
@@ -264,6 +270,50 @@ namespace Dravio
                     c.text.color=p.Unlocked?Ivory:new Color(.80f,.78f,.72f);
                 }
             for(int i=used;i<chips.Count;i++)chips[i].rect.gameObject.SetActive(false);
+        }
+
+        // ---------- building name plates (U6.5): tap opens the building's page ----------
+        void PlaceBuildingChips(Camera cam)
+        {
+            int used=0;bool vi=ui.Vietnamese;
+            if(cam!=null && scenery!=null)
+                foreach(var (item,top) in scenery.Placed)
+                {
+                    if(!ToLayer(cam,top,out var local))continue;
+                    if(used>=buildingChips.Count)buildingChips.Add(MakeBuildingChip());
+                    var c=buildingChips[used++];
+                    c.item=item;
+                    c.rect.gameObject.SetActive(true);
+                    c.rect.anchoredPosition=local;
+                    c.text.text=item.Label(vi);
+                }
+            for(int i=used;i<buildingChips.Count;i++)buildingChips[i].rect.gameObject.SetActive(false);
+        }
+
+        BuildingChip MakeBuildingChip()
+        {
+            var c=new BuildingChip();
+            c.rect=Node("Building plate",layer);
+            c.rect.anchorMin=c.rect.anchorMax=new Vector2(.5f,.5f);c.rect.pivot=new Vector2(.5f,0f);
+            c.rect.SetAsFirstSibling(); // under the dragon bubbles
+            var bg=c.rect.gameObject.AddComponent<Image>();bg.sprite=rounded;bg.type=Image.Type.Sliced;
+            bg.color=new Color(.30f,.20f,.10f,.92f);
+            var row=c.rect.gameObject.AddComponent<HorizontalLayoutGroup>();
+            row.padding=new RectOffset(12,12,5,5);row.childAlignment=TextAnchor.MiddleCenter;
+            row.childControlWidth=row.childControlHeight=true;row.childForceExpandWidth=row.childForceExpandHeight=false;
+            var fit=c.rect.gameObject.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit=fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+            c.text=Label(c.rect,16,Ivory,FontStyle.Bold);c.text.horizontalOverflow=HorizontalWrapMode.Overflow;
+            var button=c.rect.gameObject.AddComponent<Button>();button.targetGraphic=bg;
+            button.onClick.AddListener(()=>TapBuilding(c));
+            return c;
+        }
+
+        void TapBuilding(BuildingChip c)
+        {
+            if(c.item==null || (islandCamera!=null && islandCamera.Dragging))return;
+            if(IslandDock.TapCloses(!ui.Collapsed,ui.CurrentPage,c.item.Page)){ui.SetCollapsed(true);return;}
+            ui.SelectPage((int)c.item.Page);
         }
 
         Chip MakeChip()
