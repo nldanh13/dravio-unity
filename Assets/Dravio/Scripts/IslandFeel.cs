@@ -16,8 +16,9 @@ namespace Dravio
     /// </summary>
     public static class IslandViewMath
     {
-        public const float MinZoom=.45f,DefaultZoom=.72f;
-        public static float ClampZoom(float z)=>z<MinZoom?MinZoom:(z>1f?1f:z);
+        // U6.5: above 1 the view zooms out past the fitted overview (whole island in the sea); it stays centred.
+        public const float MinZoom=.45f,DefaultZoom=.8f,MaxZoom=1.6f;
+        public static float ClampZoom(float z)=>z<MinZoom?MinZoom:(z>MaxZoom?MaxZoom:z);
 
         /// <summary>Allowed offset range for one axis. lo/hi = free viewport edges (0..1), half = fitted half extent.</summary>
         public static void Range(float zoom,float lo,float hi,float half,out float min,out float max)
@@ -291,5 +292,46 @@ namespace Dravio
             for(int i=0;i<n;i++){cx+=xz[2*i];cz+=xz[2*i+1];}
             if(n>0){cx/=n;cz/=n;}
         }
+    }
+
+    /// <summary>
+    /// U6.5 island in the sea: the Origin island outline (superellipse in Unity x/z), mirrored from
+    /// scripts/art/environment/build_island_base.py (OUTLINE, SEA_Y). Contains the whole gameplay flat rect.
+    /// </summary>
+    public static class IslandShape
+    {
+        public const float Cx=0f,Cz=.6f,Hx=10.3f,Hz=9.3f,P=5f,SeaY=-.95f;
+        /// <summary>Below 1 inside, 1 on the outline. margin shrinks the outline by that many metres.</summary>
+        public static float Level(float x,float z,float margin=0f)=>
+            (float)(Math.Pow(Math.Abs(x-Cx)/Math.Max(.1f,Hx-margin),P)+Math.Pow(Math.Abs(z-Cz)/Math.Max(.1f,Hz-margin),P));
+        public static bool Inside(float x,float z,float margin=0f)=>Level(x,z,margin)<1f;
+        public static void Edge(double t,out float x,out float z)
+        {
+            double c=Math.Cos(t),s=Math.Sin(t),r=Math.Pow(Math.Pow(Math.Abs(c),P)+Math.Pow(Math.Abs(s),P),-1.0/P);
+            x=(float)(Cx+Hx*r*c);z=(float)(Cz+Hz*r*s);
+        }
+    }
+
+    /// <summary>
+    /// U6.5 (phase C) system buildings on the island: each opens its HUD page, like the buildings of
+    /// dragon-park games. Placed in the strip behind the habitats (outside every habitat polygon, inside the
+    /// flat rect). Model = Resources/IslandBuildings/&lt;Model&gt;.fbx; an empty Model is the built-in placeholder.
+    /// </summary>
+    public sealed class IslandBuilding
+    {
+        public string Id,Vi,En,Model;public HudPage Page;public float X,Z,Yaw;
+        public string Label(bool vi)=>vi?Vi:En;
+    }
+    public static class IslandBuildings
+    {
+        /// <summary>Environment props closer than this to a building are hidden (the building replaces them).</summary>
+        public const float ClearRadius=1.15f;
+        public static readonly IslandBuilding[] Items=
+        {
+            new IslandBuilding{Id="hatchery",Vi="Tổ ấp",En="Hatchery",Model="BLD_Hatchery",Page=HudPage.Eggs,X=-6.3f,Z=6.25f},
+            new IslandBuilding{Id="research",Vi="Nghiên cứu",En="Research",Model="BLD_Research",Page=HudPage.Research,X=-3.5f,Z=6.3f},
+            new IslandBuilding{Id="codex",Vi="Bách khoa",En="Codex",Model="BLD_Codex",Page=HudPage.Biology,X=3.7f,Z=6.3f},
+            new IslandBuilding{Id="store",Vi="Kho",En="Storehouse",Model="",Page=HudPage.Manage,X=7.45f,Z=6.2f},
+        };
     }
 }

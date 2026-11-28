@@ -127,7 +127,7 @@ namespace Dravio.EnvironmentArt
         /// </summary>
         public void SetView(float zoom, Vector2 offset)
         {
-            zoom = Mathf.Clamp(zoom, 0.1f, 1f);
+            zoom = Mathf.Clamp(zoom, 0.1f, 2f); // U6.5: > 1 zooms out past the overview (island in the sea)
             if (Mathf.Approximately(zoom, ViewZoom) && offset == ViewOffset) return;
             ViewZoom = zoom;
             ViewOffset = offset;

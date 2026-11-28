@@ -127,5 +127,46 @@ namespace Dravio.Tests
             var rev=new float[]{0,2, 2,2, 2,0, 0,0};
             Assert.That(HabitatLook.Inset(rev,.2f)[0],Is.EqualTo(.2f).Within(1e-4f),"clockwise input also shrinks");
         }
+    
+        // Origin flat rect (layout.FLAT_RECT): every gameplay position is inside it.
+        const float FX0=-8.6f,FZ0=-7f,FX1=8.6f,FZ1=7.4f;
+
+        [Test] public void IslandOutlineHoldsTheWholeGameplayArea()
+        {
+            foreach(var (x,z) in new[]{(FX0,FZ0),(FX1,FZ0),(FX0,FZ1),(FX1,FZ1)})
+                Assert.That(IslandShape.Inside(x,z,.3f),Is.True,$"flat rect corner {x},{z} is on the island");
+            for(int i=0;i<64;i++)
+            {
+                IslandShape.Edge(i*System.Math.PI/32,out float ex,out float ez);
+                Assert.That(IslandShape.Level(ex,ez),Is.EqualTo(1f).Within(1e-3f));
+            }
+            Assert.That(IslandShape.Inside(0f,-12f),Is.False,"the sea starts in front of the island");
+        }
+
+        [Test] public void BuildingsStandApartInsideTheFlatRectAndOpenTheirPages()
+        {
+            var items=IslandBuildings.Items;
+            Assert.That(items.Select(b=>b.Page).Distinct().Count(),Is.EqualTo(items.Length));
+            foreach(var b in items)
+            {
+                Assert.That(b.X,Is.InRange(FX0+.8f,FX1-.8f),b.Id);
+                Assert.That(b.Z,Is.InRange(FZ0+.8f,FZ1-.8f),b.Id);
+                Assert.That(b.Label(true),Is.Not.Empty);Assert.That(b.Label(false),Is.Not.Empty);
+                foreach(var o in items)
+                    if(o!=b)Assert.That(System.Math.Sqrt((b.X-o.X)*(b.X-o.X)+(b.Z-o.Z)*(b.Z-o.Z)),Is.GreaterThan(2.4),b.Id+"/"+o.Id);
+            }
+        }
+
+        [Test] public void ZoomingOutPastTheOverviewStaysCentred()
+        {
+            Assert.That(IslandViewMath.ClampZoom(5f),Is.EqualTo(IslandViewMath.MaxZoom));
+            IslandViewMath.Centre(1f,X0,X1,Y0,Y1,HalfW,HalfH,out var cx,out var cy);
+            float ox=100,oy=-100;
+            IslandViewMath.Clamp(ref ox,ref oy,IslandViewMath.MaxZoom,X0,X1,Y0,Y1,HalfW,HalfH);
+            float ox2=-100,oy2=100;
+            IslandViewMath.Clamp(ref ox2,ref oy2,IslandViewMath.MaxZoom,X0,X1,Y0,Y1,HalfW,HalfH);
+            Assert.That((ox,oy),Is.EqualTo((ox2,oy2)),"no panning once the whole island is in view");
+            Assert.That((cx,cy),Is.EqualTo((0f,0f)));
+        }
     }
 }
