@@ -1032,13 +1032,13 @@ namespace Dravio
                 var ground=new Plane(Vector3.up,anchor.position);
                 if(ground.Raycast(ray,out float distanceToGround))
                 {
-                    var point=ray.GetPoint(distanceToGround);
-                    if(locations!=null && locations.TryGroundHeight(point,out float groundY))
+                    var groundPoint=ray.GetPoint(distanceToGround);
+                    if(locations!=null && locations.TryGroundHeight(groundPoint,out float groundY))
                     {
-                        point.y=groundY;
-                        if(navigation!=null && navigation.Clear(point,anchor.habitat,NavigationMedium.Ground))
+                        groundPoint.y=groundY;
+                        if(navigation!=null && navigation.Clear(groundPoint,anchor.habitat,NavigationMedium.Ground))
                         {
-                            DropMeal(point);
+                            DropMeal(groundPoint);
                             return;
                         }
                     }
