@@ -41,6 +41,8 @@ namespace Dravio
         [SerializeField] private SanctuaryDomainPreview domain;
         public void ConfigureDomain(SanctuaryDomainPreview session) { domain=session; }
         public bool IsInspecting => current == Activity.Inspect;
+        /// <summary>U6.3 island HUD: the single preview model (bubble anchor when the living sanctuary catalog is not imported).</summary>
+        public Transform Model => animator != null ? animator.transform : null;
         public void SetVietnamese(bool value) { vietnamese=value; if(domain!=null)domain.SetVietnamese(value); if(isActiveAndEnabled)RefreshStatus(); }
 
         public void Configure(Animator a, DragonTurntable t, Text label,
