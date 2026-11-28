@@ -30,6 +30,12 @@ namespace Dravio
         /// <summary>A reward/claim or safety action waiting; drawn with the reward accent.</summary>
         public bool Urgent;
         public JourneyQuickAction Quick;
+        /// <summary>Steps left in this chapter (tutorial steps, or JourneyGuide steps to the next world); -1 in the main loop.</summary>
+        public int ChapterRemaining=-1;
+        /// <summary>Dragon the camera should frame when Go is tapped (null = none).</summary>
+        public string FocusUid;
+        public string Progress(bool vi)=>Chapter==1?(vi?"Bước ":"Step ")+(9-Math.Max(1,ChapterRemaining))+"/8":
+            ChapterRemaining>0?(vi?"Còn "+ChapterRemaining+" bước":ChapterRemaining+" step"+(ChapterRemaining==1?"":"s")+" left"):"";
         public string TitleVi,TitleEn,HintVi,HintEn;
         public string Title(bool vi)=>vi?TitleVi:TitleEn;
         public string Hint(bool vi)=>vi?HintVi:HintEn;
@@ -70,6 +76,24 @@ namespace Dravio
         {
             if(s==null)return null;
             journey??=ProgressionQueries.Journey(s);
+            var p=Core(s,journey);
+            if(p==null)return null;
+            p.ChapterRemaining=p.Chapter==1?ProgressCatalog.TutorialStepIds.Count-s.Tutorial.Completed.Count:
+                p.Chapter<4?journey.Steps.Count:-1;
+            p.FocusUid??=FocusFor(s,p);
+            return p;
+        }
+
+        static string FocusFor(GameState s,JourneyPrompt p)
+        {
+            if(p.Page!=HudPage.Care)return null;
+            // The dragon the step is about: the most grown resident (TUT_07, growth) or the first resident.
+            return s.Dragons.Where(d=>d.Location.Kind==LocationKind.Zone && Ecosystem.StatusOf(s,d)==DragonStatus.InHabitat)
+                .OrderByDescending(d=>d.XpSec/(double)Math.Max(1,SpeciesCatalog.Get(d.SpeciesId).GrowthTimeSec)).FirstOrDefault()?.Uid;
+        }
+
+        static JourneyPrompt Core(GameState s,JourneyDto journey)
+        {
             int chapter=ChapterOf(s,journey);
             JourneyPrompt P(string code,HudPage page,string tVi,string tEn,string hVi,string hEn,bool urgent=false,bool quest=false)
                 =>new JourneyPrompt{Chapter=chapter,Code=code,Page=page,TitleVi=tVi,TitleEn=tEn,HintVi=hVi,HintEn=hEn,Urgent=urgent,QuestMode=quest};
@@ -207,8 +231,9 @@ namespace Dravio
             string who=step.Candidates!=null&&step.Candidates.Count>0?step.Candidates[0]:null;
             string Name(string id,bool vi)=>id==null?null:SpeciesName(s.FindDragon(id)?.SpeciesId??id);
             string suffixVi=who==null?"":" Gợi ý: "+Name(who,true)+".",suffixEn=who==null?"":" Try: "+Name(who,false)+".";
+            string focus=who!=null && s.FindDragon(who)!=null?who:null;
             JourneyPrompt P(HudPage page,string tVi,string tEn,string hVi,string hEn,bool quest=false)
-                =>new JourneyPrompt{Code="journey.requirement."+step.Requirement.Value.ToWire(),Page=page,QuestMode=quest,
+                =>new JourneyPrompt{Code="journey.requirement."+step.Requirement.Value.ToWire(),Page=page,QuestMode=quest,FocusUid=focus,
                     TitleVi=tVi+progress,TitleEn=tEn+progress,HintVi="Nhiệm vụ "+qVi+" (mở "+zVi+"). "+hVi+suffixVi,HintEn="Quest "+qEn+" (unlocks "+zEn+"). "+hEn+suffixEn};
             if(step.Detail=="need-species")
                 return P(HudPage.Eggs,"Cần thêm loài rồng phù hợp","Need a suitable species","Trứng › Mua gói hoặc lai tạo rồng mới.","Eggs › Buy a pack or breed a new dragon.");
@@ -282,6 +307,37 @@ namespace Dravio
             "dischargeDragon"=>"Discharge",
             _=>next
         };
+
+        /// <summary>
+        /// End-of-chapter screen content when this batch of events closes a chapter (tutorial done, a world
+        /// unlocked), with any reward egg granted in the same batch; null otherwise.
+        /// </summary>
+        public static AwayReport ChapterFinale(GameState s,IReadOnlyList<DomainEvent> events)
+        {
+            int done=0;string zone=null;
+            foreach(var e in events)
+            {
+                if(e is TutorialStatusChanged c && c.Status==TutorialStatus.Completed)done=Math.Max(done,1);
+                if(e is ZoneUnlocked z){zone=z.ZoneId;done=Math.Max(done,z.ZoneId=="sky"?3:2);}
+            }
+            if(done==0)return null;
+            var o=new AwayReport{Id="chapter-"+done,TitleVi="Hoàn thành "+ChapterLabel(done,true),TitleEn="Completed "+ChapterLabel(done,false)};
+            if(zone!=null)
+            {
+                o.LinesVi.Add("Thế giới mới đã mở: "+ResearchDiscoveryView.ZoneName(zone,true)+". Vào Quản lý › Xem để ghé thăm.");
+                o.LinesEn.Add("New world unlocked: "+ResearchDiscoveryView.ZoneName(zone,false)+". Manage › Visit to go there.");
+            }
+            else{o.LinesVi.Add("Khu bảo tồn Khởi Nguyên đã đủ ba sinh cảnh.");o.LinesEn.Add("Origin now has all three habitats.");}
+            foreach(var e in events)
+                if(e is RewardEggGranted g)
+                {
+                    o.LinesVi.Add("Phần thưởng: trứng "+SpeciesName(g.SpeciesId)+(g.Delivered?" (nhận ở tab Trứng)":" (đang xếp hàng, kho đầy)"));
+                    o.LinesEn.Add("Reward: "+SpeciesName(g.SpeciesId)+" egg"+(g.Delivered?" (claim it in Eggs)":" (queued, storage full)"));
+                }
+            int next=done+1;
+            o.LinesVi.Add("Tiếp theo: "+ChapterLabel(next>3?4:next,true));o.LinesEn.Add("Next: "+ChapterLabel(next>3?4:next,false));
+            return o;
+        }
 
         /// <summary>Short celebration for a domain event, or null. Shown as a toast above the banner.</summary>
         public static string Celebrate(GameState s,DomainEvent e,bool vi)

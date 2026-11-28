@@ -1188,6 +1188,14 @@ namespace Dravio
             if(Selected==null)return;string who=selected;
             if(Send(id=>new MoveDragonCommand(id,who,MoveTarget.Storage)))Message("Moved to storage.","Đã chuyển vào kho.");
         }
+        /// <summary>U6.2 journey banner: select a resident in view and frame it (same as Inspect). False when it is not in view.</summary>
+        public bool FocusDragon(string uid)
+        {
+            if(!Ready || string.IsNullOrEmpty(uid) || !residents.ContainsKey(uid))return false;
+            Select(uid);
+            if(!following)Follow();
+            return following;
+        }
         void Follow()
         {
             if(!Ready || selected==null || !residents.ContainsKey(selected) || cameraView==null || !cameraView.orthographic)return;
