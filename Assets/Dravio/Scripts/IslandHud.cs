@@ -99,7 +99,7 @@ namespace Dravio
             subscribed=s;
             if(s!=null)s.DomainEvents+=OnEvents;
         }
-        void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;}
+        void OnDestroy(){if(subscribed!=null)subscribed.DomainEvents-=OnEvents;if(living!=null && living.LabelCovered==(System.Func<string,bool>)Covered)living.LabelCovered=null;}
 
         // Gold is credited against the producers of the state it was earned in (the state before this batch
         // is no longer available, so the current one is used: the same dragons unless the batch moved them).
@@ -185,6 +185,13 @@ namespace Dravio
                     b.name.color=a.Key==selected?Coin:Ivory;
                 }
             for(int i=used;i<bubbles.Count;i++)bubbles[i].rect.gameObject.SetActive(false);
+            if(living!=null && living.LabelCovered==null)living.LabelCovered=Covered;
+        }
+
+        bool Covered(string uid)
+        {
+            foreach(var b in bubbles)if(b.uid==uid && b.rect.gameObject.activeSelf)return true;
+            return false;
         }
 
         // Without an imported DragonVisualCatalog the scene runs the one-dragon legacy preview: anchor its model

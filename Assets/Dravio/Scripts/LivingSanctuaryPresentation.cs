@@ -544,6 +544,10 @@ namespace Dravio
 
         bool IsFoodTarget(Resident r)=>r.decision?.TargetFoodId!=null && mealSpots.ContainsKey(r.decision.TargetFoodId);
 
+        /// <summary>U6.4: set by IslandHud; a dragon that already has an island bubble skips the IMGUI
+        /// "Selected"/"Food" label so the two do not overlap (the bubble shows selection by its gold name).</summary>
+        public System.Func<string,bool> LabelCovered;
+
         void OnGUI()
         {
             if(Event.current.type!=EventType.Repaint || !Ready || cameraView==null)return;
@@ -560,7 +564,7 @@ namespace Dravio
         (float x,float y,float width,float height)? DrawDragonLabel(string uid,string label,Rect view,
             (float x,float y,float width,float height)? occupied)
         {
-            if(string.IsNullOrEmpty(uid) || !manager.TryGet(uid,out var instance))return null;
+            if(string.IsNullOrEmpty(uid) || (LabelCovered!=null && LabelCovered(uid)) || !manager.TryGet(uid,out var instance))return null;
             var bounds=instance.WorldBounds();
             var point=cameraView.WorldToScreenPoint(bounds.center+Vector3.up*bounds.extents.y);
             if(point.z<=0 || !cameraView.pixelRect.Contains(new Vector2(point.x,point.y)))return null;
