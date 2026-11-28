@@ -135,6 +135,7 @@ namespace Dravio
             layer.gameObject.SetActive(ready);
             if(!ready)return;
             if(living!=null)living.ResidentAnchors(anchors);else anchors.Clear();
+            if(anchors.Count==0)LegacyAnchor(s);
             anchorByUid.Clear();
             foreach(var a in anchors)anchorByUid[a.Key]=a.Value;
             string focus=banner!=null && banner.Current!=null?banner.Current.FocusUid:null;
@@ -180,6 +181,32 @@ namespace Dravio
             for(int i=used;i<bubbles.Count;i++)bubbles[i].rect.gameObject.SetActive(false);
         }
 
+        // Without an imported DragonVisualCatalog the scene runs the one-dragon legacy preview: anchor its model
+        // to the Emberling (else the first dragon) living in a habitat, so the bubble and gold still show.
+        DragonCarePreview legacy;
+        readonly List<Renderer> legacyRenderers=new List<Renderer>();
+        void LegacyAnchor(GameState s)
+        {
+            if(legacy==null)legacy=Object.FindAnyObjectByType<DragonCarePreview>(FindObjectsInactive.Exclude);
+            if(legacy==null || !legacy.isActiveAndEnabled || legacy.Model==null)return;
+            string uid=null;
+            foreach(var d in s.Dragons)
+            {
+                if(d.Location.Kind!=LocationKind.Zone)continue;
+                if(d.SpeciesId=="emberling"){uid=d.Uid;break;}
+                if(uid==null)uid=d.Uid;
+            }
+            if(uid==null)return;
+            legacy.Model.GetComponentsInChildren(false,legacyRenderers);
+            bool any=false;var b=new Bounds(legacy.Model.position,Vector3.zero);
+            foreach(var r in legacyRenderers)
+            {
+                if(r==null || !r.enabled)continue;
+                if(!any){b=r.bounds;any=true;}else b.Encapsulate(r.bounds);
+            }
+            anchors.Add(new KeyValuePair<string,Vector3>(uid,new Vector3(b.center.x,b.max.y+.12f,b.center.z)));
+        }
+
         // Editor-only, once: say why no bubble is drawn, so a Console screenshot is enough to fix it.
         bool diagnosed;
         void Diagnose(Camera cam,GameState s)
@@ -190,7 +217,7 @@ namespace Dravio
             int inZone=0;foreach(var d in s.Dragons)if(d.Location.Kind==LocationKind.Zone)inZone++;
             int shown=0;foreach(var b in bubbles)if(b.rect.gameObject.activeSelf)shown++;
             if(shown>0)return;
-            string why=living==null?"no LivingSanctuaryPresentation":anchors.Count==0?"presentation reports no drawn dragons":
+            string why=living==null?"no LivingSanctuaryPresentation":anchors.Count==0?"no living-sanctuary dragon drawn and no legacy preview model (DragonVisualCatalog not imported?)":
                 info.Count==0?"no bubble data for "+anchors.Count+" dragons":cam==null?"no Camera.main":
                 "anchor off screen: world "+anchors[0].Value+" -> screen "+cam.WorldToScreenPoint(anchors[0].Value)+" of "+Screen.width+"x"+Screen.height;
             Debug.LogWarning("Dravio U6.3: no dragon bubble shown ("+inZone+" dragons in habitats). Reason: "+why);
@@ -199,9 +226,10 @@ namespace Dravio
 
         void TapBubble(Bubble b)
         {
-            if(b.uid==null || living==null)return;
+            if(b.uid==null)return;
             if(islandCamera!=null && islandCamera.Dragging)return;
-            if(living.SelectResident(b.uid))ui.SelectPage((int)HudPage.Care);
+            if(living!=null)living.SelectResident(b.uid); // false in the legacy preview: Care already shows its one dragon
+            ui.SelectPage((int)HudPage.Care);
         }
 
         // ---------- gold popups ----------
