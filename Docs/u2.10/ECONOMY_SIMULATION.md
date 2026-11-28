@@ -30,7 +30,7 @@ Kết luận:
 - **Không làm chậm sưu tầm.** Số loài và ô Codex của `live` bằng `no-projects` (chênh ≤ 1,5 ô).
 - **Nhịp đầu game không đổi.** Số dư 7 ngày giảm nhẹ ở người chơi thường (Starter đắt hơn 50 G), vẫn 36–69 k G.
 
-Mô phỏng 1 000 seed cho `live` (lịch 3 × 10 phút/ngày, 6 kiểu người chơi) đang chạy; kết quả sẽ thêm vào [`sim/live-1000-seeds.md`](sim/live-1000-seeds.md).
+**1 000 seed** cho `live` (lịch 3 × 10 phút/ngày, 6 kiểu người chơi, khoảng 3 giờ trên 4 luồng): [`sim/live-1000-seeds.md`](sim/live-1000-seeds.md). Kết quả khớp bản 50 seed: người chơi thường tiêu 0,87–0,89 lượng vàng kiếm được, giữ 10–12 ngày thu nhập, xây 23–25 dự án; StarterTrader bán 72 k G, BreedTrader 68 k G trong 90 ngày. Researcher mở Thủy Vực trung vị ngày 5,5 (99 % seed), Thiên Giới ngày 13,5 (87 % seed).
 
 ## 1. Phương pháp
 

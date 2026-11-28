@@ -97,7 +97,7 @@ namespace Dravio
             }
         }
 
-        static void AddIcon(Button button,string id,bool item)
+        internal static void AddIcon(Button button,string id,bool item)
         {
             var label=button.GetComponentInChildren<Text>(true);
             if(label==null || button.transform.Find("Dravio Art Icon")!=null)return;

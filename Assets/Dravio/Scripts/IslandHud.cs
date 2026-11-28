@@ -279,6 +279,9 @@ namespace Dravio
         void RefreshDock()
         {
             if(dock==null)return;
+            // The closed sanctuary already has corner shortcuts in this HUD.
+            dock.gameObject.SetActive(!ui.Collapsed || !ui.HasCornerShortcuts);
+            if(!dock.gameObject.activeSelf)return;
             HudPage? hinted=banner!=null && banner.Current!=null?banner.Current.Page:(HudPage?)null;
             foreach(var b in buttons)
             {
