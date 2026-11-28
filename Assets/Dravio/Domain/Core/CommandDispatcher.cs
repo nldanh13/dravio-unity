@@ -338,6 +338,21 @@ namespace Dravio.Domain.Core
             s.Food.Drops.Add(drop);
             s.Player.Stats.TotalFeedClicks += 1;
             events.Add(new FoodSpawned(drop.Id, drop.DietId, drop.ZoneId, drop.HabitatId, drop.ExpiresAtMs, drop.TargetDragonUid));
+            int capacity = CareRules.FoodMaxBase + s.Player.Upgrades.FoodCooldownLevel;
+            int portionNumber = 1;
+            foreach (string uid in c.OtherDiners)
+            {
+                if (s.Food.Drops.Count >= capacity) break;
+                var diner = s.FindDragon(uid);
+                if (diner == null || !Dravio.Domain.Behavior.BehaviorEngine.CanEat(diner, drop, nowMs)) continue;
+                var portion = drop.Clone();
+                portion.Id = "side" + portionNumber.ToString(System.Globalization.CultureInfo.InvariantCulture) + c.RequestId;
+                portionNumber++;
+                portion.TargetDragonUid = uid;
+                s.Food.Drops.Add(portion);
+                events.Add(new FoodSpawned(portion.Id, portion.DietId, portion.ZoneId, portion.HabitatId,
+                    portion.ExpiresAtMs, uid));
+            }
             return null;
         }
 

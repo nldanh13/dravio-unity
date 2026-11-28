@@ -128,7 +128,12 @@ namespace Dravio
         bool feedPending;
         GameSession session;
         GameState lastState;
-        string selected,travelHabitat,travelZone,foodId,foodUid;
+        string selected,travelHabitat,travelZone,foodUid;
+        readonly List<string> portions=new List<string>();
+        readonly Dictionary<string,Vector3> mealSpots=new Dictionary<string,Vector3>();
+        string foodId=>portions.Count==0?null:portions[0];
+        bool placingMeal;
+        int expectedDiners;
         [SerializeField] bool connectedWorlds;
         bool viewSuspended;
 #if UNITY_EDITOR
@@ -342,7 +347,8 @@ namespace Dravio
                 travelHabitat=null;
             }
             if(following && (selected==null || !residents.ContainsKey(selected)))StopFollow();
-            if(foodId!=null && !lastState.Food.Drops.Any(f=>f.Id==foodId))ClearFood();
+            for(int i=portions.Count-1;i>=0;i--)
+                if(!lastState.Food.Drops.Any(f=>f.Id==portions[i]))RemovePortion(portions[i]);
             RefreshProfile();
         }
 
@@ -503,19 +509,19 @@ namespace Dravio
             }
             RefreshProfile();
         }
-        bool IsFoodTarget(Resident r)=>foodId!=null && r.uid==foodUid;
+        bool IsFoodTarget(Resident r)=>r.decision?.TargetFoodId!=null && mealSpots.ContainsKey(r.decision.TargetFoodId);
 
         void OnGUI()
         {
             if(Event.current.type!=EventType.Repaint || !Ready || cameraView==null)return;
-            bool selectedGetsFood=foodId!=null && selected==foodUid;
+            bool selectedGetsFood=selected!=null && residents.TryGetValue(selected,out var selectedResident) && IsFoodTarget(selectedResident);
             var cameraRect=cameraView.pixelRect;
             var safe=Screen.safeArea;
             var view=Rect.MinMaxRect(Mathf.Max(cameraRect.xMin,safe.xMin),Mathf.Max(cameraRect.yMin,safe.yMin),
                 Mathf.Min(cameraRect.xMax,safe.xMax),Mathf.Min(cameraRect.yMax,safe.yMax));
             var first=DrawDragonLabel(selected,selectedGetsFood?(vi?"Đang chọn · Thức ăn":"Selected · Food"):
                 (vi?"Đang chọn":"Selected"),view,null);
-            if(foodId!=null && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food",view,first);
+            if(portions.Count==1 && !selectedGetsFood)DrawDragonLabel(foodUid,vi?"Thức ăn":"Food",view,first);
         }
 
         (float x,float y,float width,float height)? DrawDragonLabel(string uid,string label,Rect view,
@@ -536,6 +542,8 @@ namespace Dravio
 
         string FeedingNotice()
         {
+            if(placingMeal)return vi?"Chạm đất để thả thức ăn.":"Tap the ground to scatter food.";
+            if(portions.Count>1)return vi?$"Còn {portions.Count} phần ăn.":$"{portions.Count} portions left.";
             if(foodId==null)return vi?messageVi:messageEn;
             var assignment=BehaviorEngine.AssignmentOf(State,foodId,NowMs);
             if(assignment==null)return vi?messageVi:messageEn;
@@ -804,7 +812,8 @@ namespace Dravio
 #endif
             if(IsFoodTarget(r))
             {
-                var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
+                var foodPoint=mealSpots[r.decision.TargetFoodId];
+                var d=State.FindDragon(r.uid);var drop=State.Food.Drops.FirstOrDefault(f=>f.Id==r.decision.TargetFoodId);
                 if(d!=null && drop!=null && BehaviorEngine.CanEat(d,drop,NowMs))
                 {
                     if(r.point!=null)ReleasePoint(r);
@@ -964,8 +973,12 @@ namespace Dravio
             }
 #endif
             if(report.spawned>0 || report.despawned>0 || report.stageChanged>0)RefreshProfile();
-            if(foodId!=null && foodUid!=null && Time.unscaledTime>=consumeAfter)
-            {consumeAfter=Time.unscaledTime+.2f;Consume();}
+            if(foodId!=null && Time.unscaledTime>=consumeAfter)
+            {
+                consumeAfter=Time.unscaledTime+.2f;
+                foreach(var diner in residents.Values.ToArray())
+                    if(IsFoodTarget(diner))Consume(diner.uid,diner.decision.TargetFoodId);
+            }
             ReadSelection();
         }
 
@@ -1012,6 +1025,27 @@ namespace Dravio
                 if(uiHits.Any(h=>h.module is GraphicRaycaster))return;
             }
             var ray=cameraView.ScreenPointToRay(point);
+            if(placingMeal)
+            {
+                var selectedDragon=Selected;
+                if(selectedDragon==null || !residents.TryGetValue(selectedDragon.Uid,out var anchor)){placingMeal=false;return;}
+                var ground=new Plane(Vector3.up,anchor.position);
+                if(ground.Raycast(ray,out float distanceToGround))
+                {
+                    var point=ray.GetPoint(distanceToGround);
+                    if(locations!=null && locations.TryGroundHeight(point,out float groundY))
+                    {
+                        point.y=groundY;
+                        if(navigation!=null && navigation.Clear(point,anchor.habitat,NavigationMedium.Ground))
+                        {
+                            DropMeal(point);
+                            return;
+                        }
+                    }
+                }
+                Message("Choose walkable ground in this habitat.","Chọn chỗ đất trống trong sinh cảnh này.");
+                return;
+            }
             string hit=null;float nearest=float.PositiveInfinity;
             foreach(var r in residents.Values)
                 if(manager.TryGet(r.uid,out var instance) && instance.WorldBounds().IntersectRay(ray,out float distance) && distance<nearest)
@@ -1045,6 +1079,13 @@ namespace Dravio
         }
         void Feed()
         {
+            placingMeal=!placingMeal && Ready && foodId==null;
+            RefreshProfile();
+        }
+
+        void DropMeal(Vector3 point)
+        {
+            placingMeal=false;
             var d=Selected;
             if(d==null || !residents.TryGetValue(d.Uid,out var r) || r.Spatial || foodId!=null || !Ready)return;
             var personality=BehaviorQueries.Personality(State,d.Uid);
@@ -1054,17 +1095,25 @@ namespace Dravio
             var diet=sharedFoodAllocation?personality.FavoriteDiet:diets[0];
             string targetUid=sharedFoodAllocation?null:d.Uid;
             StopSocial("player-feed");r.manualRestUntil=0;ReleasePoint(r);
-            var point=r.position+r.rotation*Vector3.forward*.4f;
-            foodPoint=ClearPoint(point,r.habitat,r.uid) && Segment(r.position,point,r.habitat)?point:r.position;
+            foodPoint=point;
+            var probe=new FoodDrop{ZoneId=d.Location.ZoneId,HabitatId=r.habitat,DietId=diet,ExpiresAtMs=NowMs+CareRules.FoodTtlMs};
+            var diners=residents.Values.Where(x=>!x.Spatial && manager.IsLive(x.uid) &&
+                (x.position-point).sqrMagnitude<=16f && State.FindDragon(x.uid) is DragonState dragon &&
+                BehaviorEngine.CanEat(dragon,probe,NowMs)).OrderBy(x=>x.uid==targetUid?0:1)
+                .ThenBy(x=>(x.position-point).sqrMagnitude).ThenBy(x=>x.uid,StringComparer.Ordinal)
+                .Take(CareRules.FoodMaxBase).Select(x=>x.uid).ToList();
+            expectedDiners=Math.Max(1,diners.Count);
             feedPending=true;
-            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId,targetUid));}
+            try{Send(id=>new FeedCommand(id,diet,d.Location.ZoneId,d.Location.HabitatId,
+                diners.FirstOrDefault()??targetUid,diners.Skip(1).ToArray()));}
             finally{feedPending=false;}
         }
-        void Consume()
+        void Consume(string foodUid,string foodId)
         {
             var drop=State?.Food.Drops.FirstOrDefault(f=>f.Id==foodId);
             var d=State?.FindDragon(foodUid);
-            if(drop==null){ClearFood();return;}
+            if(drop==null){RemovePortion(foodId);return;}
+            var foodPoint=mealSpots[foodId];
             if(d==null || !residents.TryGetValue(foodUid,out var r) || !manager.IsLive(foodUid) ||
                 (r.position-foodPoint).sqrMagnitude>.55f*.55f || !BehaviorEngine.CanEat(d,drop,NowMs))return;
             if(!GroundMotionReady(r) || !AutonomousPresentationPolicy.CanConsumeMarker(State,d.Uid,foodUid,foodId,NowMs,phase))return;
@@ -1095,7 +1144,14 @@ namespace Dravio
 #if UNITY_EDITOR
             foodGate.Clear();foodGateForMarker=false;
 #endif
-            foodId=foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
+            placingMeal=false;portions.Clear();mealSpots.Clear();foodUid=null;if(fruit!=null)fruit.SetActive(false);decisionsDirty=true;RefreshButtons();
+        }
+        void RemovePortion(string id)
+        {
+            if(!portions.Remove(id))return;
+            mealSpots.Remove(id);
+            decisionsDirty=true;
+            if(portions.Count==0)ClearFood();
         }
         void OnEvents(IReadOnlyList<DomainEvent> events)
         {
@@ -1103,18 +1159,22 @@ namespace Dravio
             if(viewSuspended)return;
             foreach(var e in events)
             {
-                if(e is FoodSpawned f && feedPending && foodId==null)
+                if(e is FoodSpawned f && feedPending)
                 {
-                    foodId=f.FoodId;consumeAfter=Time.unscaledTime+.6f;
+                    float angle=2*Mathf.PI*portions.Count/expectedDiners;
+                    var spot=expectedDiners==1?foodPoint:foodPoint+.65f*new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
+                    if(locations!=null && locations.TryGroundHeight(spot,out float spotY))spot.y=spotY;
+                    mealSpots[f.FoodId]=navigation!=null && navigation.Clear(spot,f.HabitatId,NavigationMedium.Ground)?spot:foodPoint;
+                    portions.Add(f.FoodId);consumeAfter=Time.unscaledTime+.6f;
 #if UNITY_EDITOR
-                    foodGateForMarker=experimentalFoodPerception && !sharedFoodAllocation;
+                    foodGateForMarker=expectedDiners==1 && experimentalFoodPerception && !sharedFoodAllocation;
                     if(foodGateForMarker)lastFoodGateOutcome="pending";
 #endif
                     RefreshButtons();
                     if(fruit!=null){fruit.transform.position=foodPoint+Vector3.up*.12f;fruit.SetActive(true);}
                 }
                 else if(e is FoodConsumed consumed)
-                {if(consumed.FoodId==foodId)ClearFood();} // Eat intent is derived from the accepted Domain event's timestamp.
+                {RemovePortion(consumed.FoodId);} // Eat intent is derived from the accepted Domain event's timestamp.
                 else if(e is DragonPetted p && residents.TryGetValue(p.DragonUid,out var r)&&!r.Spatial)
                 {
                     if(Social!=null&&Social.Contains(p.DragonUid))StopSocial("pet-event");
@@ -1125,7 +1185,7 @@ namespace Dravio
                     if(Social!=null&&Social.Contains(trip.DragonUid))StopSocial("expedition-start");
                     if(selected==trip.DragonUid)StopFollow();
                 }
-                else if(e is FoodExpired expired && expired.FoodId==foodId)ClearFood();
+                else if(e is FoodExpired expired)RemovePortion(expired.FoodId);
             }
         }
         void ToggleSleep()

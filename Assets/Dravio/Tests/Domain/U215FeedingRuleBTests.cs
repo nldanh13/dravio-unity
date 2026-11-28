@@ -278,6 +278,36 @@ namespace Dravio.Domain.Tests
             Assert.That(again.State.Player.Stats.TotalFeedClicks, Is.EqualTo(s.Player.Stats.TotalFeedClicks + 1));
         }
 
+        [Test]
+        public void Scattered_meal_is_one_click_and_feeds_multiple_distinct_dragons()
+        {
+            var state=FiveSprouts();
+            var drop=new FeedCommand(Rid(),DietOf(state,"d0"),Zone,Hab,"d0",new[]{"d1","d2","d3","d4"});
+            var result=Ok(state,drop,new FixedClock(Day0));
+            Assert.That(result.State.Player.Stats.TotalFeedClicks,Is.EqualTo(state.Player.Stats.TotalFeedClicks+1));
+            Assert.That(result.Events.OfType<FoodSpawned>().Count(),Is.EqualTo(5));
+            var assignments=BehaviorEngine.AssignFood(result.State,Zone,Hab,Day0);
+            Assert.That(assignments.Count,Is.EqualTo(5));
+            var current=result.State;
+            foreach(var pair in assignments)
+                current=Ok(current,new ConsumeFoodCommand(Rid(),pair.Value,pair.Key),new FixedClock(Day0+3000)).State;
+            Assert.That(current.Food.Drops,Is.Empty);
+            Assert.That(current.Dragons.Count(d=>d.LastFeedXpAtMs==Day0+3000),Is.EqualTo(5));
+        }
+
+        [Test]
+        public void Scatter_respects_remaining_capacity_and_skips_unavailable_diners()
+        {
+            var s=FiveSprouts();
+            s.FindDragon("d2").LastFeedXpAtMs=Day0;
+            for(int i=0;i<3;i++)
+                s=Ok(s,FeedFor(s,"d0"),new FixedClock(Day0+i*1000)).State;
+            var drop=new FeedCommand(Rid(),DietOf(s,"d0"),Zone,Hab,"d0",new[]{"missing","d2","d3","d4"});
+            var result=Ok(s,drop,new FixedClock(Day0+3000));
+            Assert.That(result.Events.OfType<FoodSpawned>().Select(e=>e.TargetDragonUid),Is.EqualTo(new[]{"d0","d3"}));
+            Assert.That(result.State.Food.Drops.Count,Is.EqualTo(5));
+        }
+
         // ================================================================== sự kiện + không thêm gì
 
         [Test]
