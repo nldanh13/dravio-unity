@@ -115,8 +115,12 @@ namespace Dravio
             if(!introDone && Time.frameCount>startFrame+1)
             {
                 introDone=true;
-                var nav=ui.Panel!=null?ui.Panel.Find("Navigation"):null;
-                if(nav!=null)nav.gameObject.SetActive(false);
+                // Both tab rows of the playable HUD (the second one holds Guide/Eggs/Manage/Log).
+                foreach(var row in new[]{"Navigation","Management navigation"})
+                {
+                    var nav=ui.Panel!=null?ui.Panel.Find(row):null;
+                    if(nav!=null)nav.gameObject.SetActive(false);
+                }
                 ui.SetCollapsed(true);
             }
             if(ui.Vietnamese!=lastVi){lastVi=ui.Vietnamese;bubbleState=null;foreach(var b in buttons)b.label.text=b.item.Label(lastVi);}
@@ -134,7 +138,9 @@ namespace Dravio
             anchorByUid.Clear();
             foreach(var a in anchors)anchorByUid[a.Key]=a.Value;
             string focus=banner!=null && banner.Current!=null?banner.Current.FocusUid:null;
-            if(!ReferenceEquals(s,bubbleState) || focus!=bubbleFocus)
+            bool missing=false;
+            foreach(var a in anchors)if(!info.ContainsKey(a.Key)){missing=true;break;}
+            if(!ReferenceEquals(s,bubbleState) || focus!=bubbleFocus || missing)
             {
                 bubbleState=s;bubbleFocus=focus;info.Clear();
                 foreach(var a in anchors){var b=IslandBubble.For(s,a.Key,focus);if(b!=null)info[a.Key]=b;}
@@ -142,6 +148,7 @@ namespace Dravio
             }
             var cam=Camera.main;
             PlaceBubbles(cam);
+            Diagnose(cam,s);
             SpawnPopups();
             PlacePopups(cam);
         }
@@ -171,6 +178,23 @@ namespace Dravio
                     b.name.color=a.Key==selected?Coin:Ivory;
                 }
             for(int i=used;i<bubbles.Count;i++)bubbles[i].rect.gameObject.SetActive(false);
+        }
+
+        // Editor-only, once: say why no bubble is drawn, so a Console screenshot is enough to fix it.
+        bool diagnosed;
+        void Diagnose(Camera cam,GameState s)
+        {
+#if UNITY_EDITOR
+            if(diagnosed || Time.frameCount<startFrame+180)return;
+            diagnosed=true;
+            int inZone=0;foreach(var d in s.Dragons)if(d.Location.Kind==LocationKind.Zone)inZone++;
+            int shown=0;foreach(var b in bubbles)if(b.rect.gameObject.activeSelf)shown++;
+            if(shown>0)return;
+            string why=living==null?"no LivingSanctuaryPresentation":anchors.Count==0?"presentation reports no drawn dragons":
+                info.Count==0?"no bubble data for "+anchors.Count+" dragons":cam==null?"no Camera.main":
+                "anchor off screen: world "+anchors[0].Value+" -> screen "+cam.WorldToScreenPoint(anchors[0].Value)+" of "+Screen.width+"x"+Screen.height;
+            Debug.LogWarning("Dravio U6.3: no dragon bubble shown ("+inZone+" dragons in habitats). Reason: "+why);
+#endif
         }
 
         void TapBubble(Bubble b)
